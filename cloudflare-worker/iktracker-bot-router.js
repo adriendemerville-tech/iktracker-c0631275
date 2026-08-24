@@ -109,6 +109,31 @@ function isPrivateRoute(path) {
   return PRIVATE_PREFIXES.some((prefix) => path.startsWith(prefix));
 }
 
+// Paramètres de tracking qui ne changent pas le HTML servi : retirés de la clé
+// de cache edge pour maximiser le hit ratio.
+const TRACKING_PARAMS = [
+  "utm_source",
+  "utm_medium",
+  "utm_campaign",
+  "utm_term",
+  "utm_content",
+  "fbclid",
+  "gclid",
+  "mc_cid",
+  "mc_eid",
+];
+
+// Clé de cache normalisée sur l'origine Lovable (évite toute collision inter-zones).
+function htmlCacheKey(request) {
+  const url = new URL(request.url);
+  url.hostname = ORIGIN_HOST;
+  url.protocol = "https:";
+  url.port = "";
+  for (const p of TRACKING_PARAMS) url.searchParams.delete(p);
+  url.searchParams.sort();
+  return new Request(url.toString(), { method: "GET" });
+}
+
 // Requête vers l'origine Lovable (évite la boucle en Worker Custom Domain)
 async function fetchOrigin(request) {
   const incoming = new URL(request.url);
@@ -278,6 +303,7 @@ export default {
 
       // Cluster « barème 2026 » → page pilier marketing (ne pas cannibaliser)
       "/blog/bareme-indemnites-kilometriques-2026-iktracker": "/bareme-ik-2026",
+      "/blog/bareme-ik-2026-changements": "/bareme-ik-2026",
 
       // Doublons marque et erreurs
       "/blog/iktracker-nouveautes-2026": "/blog/iktracker-2026-nouveautes-tendances",
@@ -430,7 +456,47 @@ export default {
       }
     }
 
-    // ── 5. Utilisateur normal → passthrough vers l'origine ──
+    // ── 5. Utilisateur normal → cache edge du HTML public, puis origine ──
+    // Chaque hit SSR sur l'origine coûte ~1 s de TTFB. Le HTML des pages
+    // publiques est identique pour tout visiteur anonyme : on le met en cache
+    // à l'edge (5 min, stale-while-revalidate 1 h) → TTFB quasi nul sur les
+    // hits cache, ce qui attaque directement le LCP mobile.
+    // Jamais de cache si Cookie/Authorization (session utilisateur) ou si
+    // l'origine pose un cookie.
+    const isAnon = !request.headers.get("cookie") && !request.headers.get("authorization");
+    if (request.method === "GET" && isAnon) {
+      const cache = caches.default;
+      const cacheKey = htmlCacheKey(request);
+      const cached = await cache.match(cacheKey);
+      if (cached) {
+        const hit = new Response(cached.body, cached);
+        hit.headers.set("X-Cache", "HIT");
+        ctx.waitUntil(sendLog(request, hit, botDetected));
+        return hit;
+      }
+      const originResponse = await fetchOrigin(request);
+      const contentType = originResponse.headers.get("content-type") || "";
+      if (
+        originResponse.status === 200 &&
+        contentType.includes("text/html") &&
+        !originResponse.headers.get("set-cookie")
+      ) {
+        const headers = new Headers(originResponse.headers);
+        headers.set(
+          "Cache-Control",
+          "public, max-age=0, s-maxage=300, stale-while-revalidate=3600",
+        );
+        headers.set("X-Cache", "MISS");
+        headers.set("X-Rendered-By", "cloudflare-worker");
+        const cachedResponse = new Response(originResponse.body, { status: 200, headers });
+        ctx.waitUntil(cache.put(cacheKey, cachedResponse.clone()));
+        ctx.waitUntil(sendLog(request, cachedResponse, botDetected));
+        return cachedResponse;
+      }
+      ctx.waitUntil(sendLog(request, originResponse, botDetected));
+      return originResponse;
+    }
+
     const response = await fetchOrigin(request);
     ctx.waitUntil(sendLog(request, response, botDetected));
     return response;

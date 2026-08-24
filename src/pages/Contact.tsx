@@ -134,8 +134,15 @@ const Contact = () => {
       >
         <Breadcrumb items={[{ label: "Contact" }]} />
 
+        {/* Intro */}
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          Une question sur le calcul de vos indemnités kilométriques, un bug à signaler, une
+          suggestion de fonctionnalité ou une demande de partenariat&nbsp;? Chaque message est lu
+          personnellement par le fondateur. Nous répondons en général sous 48&nbsp;heures ouvrées.
+        </p>
+
         {/* Direct email */}
-        <div className="bg-muted/50 rounded-xl p-5 mb-8 flex items-start gap-3">
+        <div className="bg-muted/50 rounded-xl p-5 mb-6 flex items-start gap-3">
           <Mail className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" aria-hidden="true" />
           <div>
             <p className="text-sm text-foreground font-medium">Écrivez-nous directement</p>
@@ -143,6 +150,47 @@ const Contact = () => {
               contact@iktracker.fr
             </a>
           </div>
+        </div>
+
+        {/* Self-service */}
+        <div className="rounded-xl border border-border bg-card p-5 mb-8">
+          <h2 className="text-sm font-semibold text-foreground mb-3">
+            Avant de nous écrire — la réponse est peut-être déjà là&nbsp;:
+          </h2>
+          <ul className="space-y-2 text-sm">
+            <li>
+              <Link to="/bareme-ik-2026" className="text-primary hover:underline">
+                Barème kilométrique 2026
+              </Link>{" "}
+              <span className="text-muted-foreground">
+                — taux officiels par puissance fiscale, majoration électrique
+              </span>
+            </li>
+            <li>
+              <Link to="/tarifs" className="text-primary hover:underline">
+                Tarifs et gratuité
+              </Link>{" "}
+              <span className="text-muted-foreground">
+                — pourquoi IKtracker est gratuit à vie, sans carte bancaire
+              </span>
+            </li>
+            <li>
+              <Link to="/lexique" className="text-primary hover:underline">
+                Lexique des frais kilométriques
+              </Link>{" "}
+              <span className="text-muted-foreground">
+                — définitions des termes fiscaux et URSSAF
+              </span>
+            </li>
+            <li>
+              <Link to="/blog" className="text-primary hover:underline">
+                Blog et guides pratiques
+              </Link>{" "}
+              <span className="text-muted-foreground">
+                — frais réels, contrôle URSSAF, déclaration 2042
+              </span>
+            </li>
+          </ul>
         </div>
 
         {sent ? (
