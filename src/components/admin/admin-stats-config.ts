@@ -125,7 +125,6 @@ export const periodConfig: Record<
 export const DEFAULT_SECTION_ORDER = [
   "main-stats",
   "dau-chart",
-  "unique-visitors-chart",
   "signup-funnel",
   "ab-test",
   "search-console",

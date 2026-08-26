@@ -385,35 +385,22 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000, // 1 hour
   });
 
-  // Fetch 7-day rolling active users with period + granularity
+  // Fetch 7-day rolling active users on the activity widget window (7/30 days, daily)
   const { data: dailyActiveUsers = [], isLoading: dauLoading } = useQuery({
-    queryKey: ["admin-dau", period, granularity],
+    queryKey: ["admin-dau", uniqueVisitorsWindow],
     queryFn: async () => {
-      const daysBack = periodConfig[period].daysBack;
       const { data, error } = await supabase.rpc("get_rolling_active_users", {
-        days_back: daysBack,
+        days_back: uniqueVisitorsWindow,
         window_size: 7,
       });
       if (error) throw error;
-      const rawData = (data as unknown as { day: string; count: number }[]).map((d) => ({
-        day: d.day,
+      return (data as unknown as { day: string; count: number }[]).map((d) => ({
+        day: d.day.split("T")[0],
         count: Number(d.count),
       }));
-      return fillMissingDays(rawData, ["count"], daysBack, period, "max") as {
-        day: string;
-        count: number;
-      }[];
     },
     refetchInterval: 60 * 60 * 1000,
   });
-
-  // Compute DAU today vs yesterday
-  const dauToday =
-    dailyActiveUsers.length >= 1 ? dailyActiveUsers[dailyActiveUsers.length - 1]?.count || 0 : 0;
-  const dauYesterday =
-    dailyActiveUsers.length >= 2 ? dailyActiveUsers[dailyActiveUsers.length - 2]?.count || 0 : 0;
-  const dauDiff = dauToday - dauYesterday;
-  const dauTrend: "up" | "down" | "flat" = dauDiff > 0 ? "up" : dauDiff < 0 ? "down" : "flat";
 
   // Fetch top users - refresh every hour
   const { data: topUsers = [], isLoading: topUsersLoading } = useQuery({
@@ -698,7 +685,7 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000,
   });
 
-  // Daily unique visitors series (all pages) for the dedicated chart
+  // Daily unique visitors series (all pages) for the combined activity chart
   const { data: uniqueVisitorsSeries = [], isLoading: uniqueVisitorsSeriesLoading } = useQuery({
     queryKey: ["admin-unique-visitors-series", uniqueVisitorsWindow],
     queryFn: async () => {
@@ -707,14 +694,42 @@ export function AdminStats() {
       });
       if (error) throw error;
       const rows = (data as unknown as { day: string; unique_visitors: number }[]) || [];
-      return rows
-        .map((r) => ({
-          day: format(new Date(r.day), "dd/MM"),
-          unique_visitors: Number(r.unique_visitors) || 0,
-        }));
+      return rows.map((r) => ({
+        day: r.day.split("T")[0],
+        unique_visitors: Number(r.unique_visitors) || 0,
+      }));
     },
     refetchInterval: 60 * 60 * 1000,
   });
+
+  // Merged daily series for the combined activity widget (engaged users + unique visitors)
+  const activitySeries = useMemo(() => {
+    const engagedMap = new globalThis.Map(dailyActiveUsers.map((d) => [d.day, d.count]));
+    const visitorsMap = new globalThis.Map(
+      uniqueVisitorsSeries.map((d) => [d.day, d.unique_visitors]),
+    );
+    const filled: { day: string; engaged: number; visitors: number }[] = [];
+    const today = new Date();
+    const startDate = new Date(today);
+    startDate.setDate(startDate.getDate() - uniqueVisitorsWindow);
+    for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
+      const key = format(d, "yyyy-MM-dd");
+      filled.push({
+        day: format(d, "dd/MM", { locale: fr }),
+        engaged: engagedMap.get(key) ?? 0,
+        visitors: visitorsMap.get(key) ?? 0,
+      });
+    }
+    return filled;
+  }, [dailyActiveUsers, uniqueVisitorsSeries, uniqueVisitorsWindow]);
+
+  // Compute engaged users today vs yesterday (from the filled series)
+  const dauToday =
+    activitySeries.length >= 1 ? activitySeries[activitySeries.length - 1]?.engaged || 0 : 0;
+  const dauYesterday =
+    activitySeries.length >= 2 ? activitySeries[activitySeries.length - 2]?.engaged || 0 : 0;
+  const dauDiff = dauToday - dauYesterday;
+  const dauTrend: "up" | "down" | "flat" = dauDiff > 0 ? "up" : dauDiff < 0 ? "down" : "flat";
 
 
 
@@ -1058,6 +1073,7 @@ export function AdminStats() {
       queryClient.invalidateQueries({ queryKey: ["admin-shares-by-day"] }),
       queryClient.invalidateQueries({ queryKey: ["admin-marketing-stats"] }),
       queryClient.invalidateQueries({ queryKey: ["admin-marketing-views-by-day"] }),
+      queryClient.invalidateQueries({ queryKey: ["admin-dau", uniqueVisitorsWindow] }),
       queryClient.invalidateQueries({ queryKey: ["admin-unique-visitors", uniqueVisitorsWindow] }),
       queryClient.invalidateQueries({
         queryKey: ["admin-unique-visitors-series", uniqueVisitorsWindow],
@@ -1573,113 +1589,40 @@ export function AdminStats() {
                     >
                       <CardHeader className="pb-2">
                         <CardTitle
-                          className="text-lg flex items-center gap-2"
-                          title="Utilisateurs ayant au moins 2 jours d'activité distincts sur la fenêtre glissante de 7 jours (admins exclus)."
+                          className="text-lg flex items-center gap-2 flex-wrap"
+                          title="Actifs engagés : utilisateurs avec au moins 2 jours d'activité distincts sur 7 jours glissants (admins exclus). Visiteurs uniques : sessions uniques toutes pages confondues."
                         >
                           <Activity className="w-5 h-5 text-violet-500" />
-                          Actifs engagés (7j glissants)
-                          {!dauLoading && (
-                            <span className="ml-auto flex items-center gap-1.5">
-                              <span className="text-xl font-bold text-violet-600">{dauToday}</span>
-                              {dauTrend === "up" && (
-                                <span className="flex items-center text-xs font-medium text-green-600">
-                                  <ArrowUp className="w-3 h-3" />+{dauDiff}
+                          Activité & visiteurs
+                          <span className="ml-auto flex items-center gap-3">
+                            {!dauLoading && (
+                              <span className="flex items-center gap-1.5">
+                                <span className="text-xl font-bold text-violet-600">
+                                  {dauToday}
                                 </span>
-                              )}
-                              {dauTrend === "down" && (
-                                <span className="flex items-center text-xs font-medium text-red-500">
-                                  <ArrowDown className="w-3 h-3" />
-                                  {dauDiff}
-                                </span>
-                              )}
-                              {dauTrend === "flat" && (
-                                <span className="flex items-center text-xs font-medium text-muted-foreground">
-                                  <Minus className="w-3 h-3" />0
-                                </span>
-                              )}
-                            </span>
-                          )}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        {dauLoading ? (
-                          <Skeleton className="h-[200px] w-full" />
-                        ) : (
-                          <ResponsiveContainer width="100%" height={200}>
-                            <LineChart
-                              data={dailyActiveUsers}
-                              margin={{ top: 5, right: 5, left: -20, bottom: 0 }}
-                            >
-                              <CartesianGrid
-                                strokeDasharray="3 3"
-                                stroke="hsl(var(--border))"
-                                opacity={0.3}
-                              />
-                              <XAxis
-                                dataKey="day"
-                                tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
-                                axisLine={false}
-                                tickLine={false}
-                                interval="preserveStartEnd"
-                              />
-                              <YAxis
-                                tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
-                                allowDecimals={false}
-                                axisLine={false}
-                                tickLine={false}
-                              />
-                              <Tooltip
-                                formatter={(value: number) => [value, "Actifs (7j)"]}
-                                contentStyle={{
-                                  background: "hsl(var(--card))",
-                                  border: "1px solid hsl(var(--border))",
-                                  borderRadius: "8px",
-                                  fontSize: "12px",
-                                }}
-                              />
-                              <Line
-                                type="monotone"
-                                dataKey="count"
-                                stroke="#8b5cf6"
-                                strokeWidth={2.5}
-                                dot={
-                                  dailyActiveUsers.length <= 31
-                                    ? {
-                                        r: 4,
-                                        fill: "#8b5cf6",
-                                        strokeWidth: 2,
-                                        stroke: "hsl(var(--card))",
-                                      }
-                                    : false
-                                }
-                                activeDot={{ r: 6 }}
-                              />
-                            </LineChart>
-                          </ResponsiveContainer>
-                        )}
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {periodConfig[period].label} — {granularityConfig[granularity].labelFr}
-                        </p>
-                      </CardContent>
-                    </DraggableStatsSection>
-                  );
-
-                case "unique-visitors-chart":
-                  return (
-                    <DraggableStatsSection
-                      key={sectionId}
-                      id={sectionId}
-                      cardWidth={getCardWidth(sectionId)}
-                      onWidthChange={handleWidthChange}
-                    >
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-lg flex items-center gap-2">
-                          <Users className="w-5 h-5 text-teal-500" />
-                          Visiteurs uniques ({uniqueVisitorsWindow}j)
-                          <span className="ml-auto flex items-center gap-2">
-                            <span className="text-xl font-bold text-teal-600">
-                              {formatNumber(uniqueVisitorsWindowed)}
-                            </span>
+                                {dauTrend === "up" && (
+                                  <span className="flex items-center text-xs font-medium text-green-600">
+                                    <ArrowUp className="w-3 h-3" />+{dauDiff}
+                                  </span>
+                                )}
+                                {dauTrend === "down" && (
+                                  <span className="flex items-center text-xs font-medium text-red-500">
+                                    <ArrowDown className="w-3 h-3" />
+                                    {dauDiff}
+                                  </span>
+                                )}
+                                {dauTrend === "flat" && (
+                                  <span className="flex items-center text-xs font-medium text-muted-foreground">
+                                    <Minus className="w-3 h-3" />0
+                                  </span>
+                                )}
+                              </span>
+                            )}
+                            {!uniqueVisitorsWindowedLoading && (
+                              <span className="text-xl font-bold text-teal-600">
+                                {formatNumber(uniqueVisitorsWindowed)}
+                              </span>
+                            )}
                             <ToggleGroup
                               type="single"
                               value={String(uniqueVisitorsWindow)}
@@ -1700,23 +1643,30 @@ export function AdminStats() {
                       </CardHeader>
                       <CardContent>
                         <AdaptiveChart
-                          data={uniqueVisitorsSeries}
+                          data={activitySeries}
                           xAxisKey="day"
                           lines={[
                             {
-                              dataKey: "unique_visitors",
+                              dataKey: "engaged",
+                              name: "Actifs engagés (7j glissants)",
+                              stroke: "#8b5cf6",
+                              showDots: true,
+                            },
+                            {
+                              dataKey: "visitors",
                               name: "Visiteurs uniques",
                               stroke: "hsl(173, 80%, 36%)",
                               showDots: true,
                             },
                           ]}
-                          isLoading={uniqueVisitorsSeriesLoading}
-                          height={200}
+                          isLoading={dauLoading || uniqueVisitorsSeriesLoading}
+                          height={220}
                           baseDataPoints={uniqueVisitorsWindow}
-                          emptyMessage="Aucune visite sur la période"
+                          emptyMessage="Aucune activité sur la période"
                         />
                         <p className="text-xs text-muted-foreground mt-1">
-                          Toutes pages confondues — {uniqueVisitorsWindow} derniers jours
+                          {uniqueVisitorsWindow} derniers jours — actifs engagés (admins exclus) vs
+                          visiteurs uniques toutes pages confondues
                         </p>
                       </CardContent>
                     </DraggableStatsSection>
