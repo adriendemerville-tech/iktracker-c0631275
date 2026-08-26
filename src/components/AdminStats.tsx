@@ -1661,6 +1661,64 @@ export function AdminStats() {
                     </DraggableStatsSection>
                   );
 
+                case "unique-visitors-chart":
+                  return (
+                    <DraggableStatsSection
+                      key={sectionId}
+                      id={sectionId}
+                      cardWidth={getCardWidth(sectionId)}
+                      onWidthChange={handleWidthChange}
+                    >
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Users className="w-5 h-5 text-teal-500" />
+                          Visiteurs uniques ({uniqueVisitorsWindow}j)
+                          <span className="ml-auto flex items-center gap-2">
+                            <span className="text-xl font-bold text-teal-600">
+                              {formatNumber(uniqueVisitorsWindowed)}
+                            </span>
+                            <ToggleGroup
+                              type="single"
+                              value={String(uniqueVisitorsWindow)}
+                              onValueChange={(v) =>
+                                v && setUniqueVisitorsWindow(Number(v) as 7 | 30)
+                              }
+                              className="h-7 border rounded-md p-0.5"
+                            >
+                              <ToggleGroupItem value="7" className="h-6 px-2 text-xs">
+                                7j
+                              </ToggleGroupItem>
+                              <ToggleGroupItem value="30" className="h-6 px-2 text-xs">
+                                30j
+                              </ToggleGroupItem>
+                            </ToggleGroup>
+                          </span>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <AdaptiveChart
+                          data={uniqueVisitorsSeries}
+                          xAxisKey="day"
+                          lines={[
+                            {
+                              dataKey: "unique_visitors",
+                              name: "Visiteurs uniques",
+                              stroke: "hsl(var(--chart-2))",
+                              showDots: true,
+                            },
+                          ]}
+                          isLoading={uniqueVisitorsSeriesLoading}
+                          height={200}
+                          baseDataPoints={uniqueVisitorsWindow}
+                          emptyMessage="Aucune visite sur la période"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Toutes pages confondues — {uniqueVisitorsWindow} derniers jours
+                        </p>
+                      </CardContent>
+                    </DraggableStatsSection>
+                  );
+
                 case "signup-funnel":
                   return (
                     <DraggableStatsSection
