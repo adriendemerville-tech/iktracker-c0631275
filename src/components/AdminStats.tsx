@@ -385,13 +385,13 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000, // 1 hour
   });
 
-  // Fetch 7-day rolling active users on the activity widget window (7/30 days, daily)
+  // Rolling active users over the selected window (7 or 30 days), shown on 30 days of history
   const { data: dailyActiveUsers = [], isLoading: dauLoading } = useQuery({
     queryKey: ["admin-dau", uniqueVisitorsWindow],
     queryFn: async () => {
       const { data, error } = await supabase.rpc("get_rolling_active_users", {
-        days_back: uniqueVisitorsWindow,
-        window_size: 7,
+        days_back: 30,
+        window_size: uniqueVisitorsWindow,
       });
       if (error) throw error;
       return (data as unknown as { day: string; count: number }[]).map((d) => ({
@@ -705,7 +705,7 @@ export function AdminStats() {
     const filled: { day: string; engaged: number; visitors: number }[] = [];
     const today = new Date();
     const startDate = new Date(today);
-    startDate.setDate(startDate.getDate() - uniqueVisitorsWindow);
+    startDate.setDate(startDate.getDate() - 30);
     for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
       const key = format(d, "yyyy-MM-dd");
       filled.push({
@@ -1584,7 +1584,7 @@ export function AdminStats() {
                       <CardHeader className="pb-2">
                         <CardTitle
                           className="text-lg flex items-center gap-2 flex-wrap"
-                          title="Actifs engagés : utilisateurs avec au moins 2 jours d'activité distincts sur 7 jours glissants (admins exclus). Visiteurs uniques : sessions uniques toutes pages confondues."
+                          title={`Fenêtre glissante de ${uniqueVisitorsWindow} jours. Actifs engagés : utilisateurs avec au moins 2 jours d'activité distincts sur la fenêtre (admins exclus). Visiteurs uniques : sessions distinctes toutes pages confondues sur la fenêtre.`}
                         >
                           <Activity className="w-5 h-5 text-violet-500" />
                           Activité & visiteurs
@@ -1642,26 +1642,27 @@ export function AdminStats() {
                           lines={[
                             {
                               dataKey: "engaged",
-                              name: "Actifs engagés (7j glissants)",
+                              name: `Actifs engagés (${uniqueVisitorsWindow}j glissants)`,
                               stroke: "#8b5cf6",
                               showDots: true,
                             },
                             {
                               dataKey: "visitors",
-                              name: "Visiteurs uniques",
-                              stroke: "hsl(173, 80%, 36%)",
-                              showDots: true,
-                            },
-                          ]}
-                          isLoading={dauLoading || uniqueVisitorsSeriesLoading}
-                          height={220}
-                          baseDataPoints={uniqueVisitorsWindow}
-                          emptyMessage="Aucune activité sur la période"
-                        />
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {uniqueVisitorsWindow} derniers jours — actifs engagés (admins exclus) vs
-                          visiteurs uniques toutes pages confondues
-                        </p>
+                               name: `Visiteurs uniques (${uniqueVisitorsWindow}j glissants)`,
+                               stroke: "hsl(173, 80%, 36%)",
+                               showDots: true,
+                             },
+                           ]}
+                           isLoading={dauLoading || uniqueVisitorsSeriesLoading}
+                           height={220}
+                           baseDataPoints={30}
+                           emptyMessage="Aucune activité sur la période"
+                         />
+                         <p className="text-xs text-muted-foreground mt-1">
+                           30 derniers jours — chaque point = fenêtre glissante de{" "}
+                           {uniqueVisitorsWindow} jours (actifs engagés hors admins vs visiteurs
+                           uniques toutes pages)
+                         </p>
                       </CardContent>
                     </DraggableStatsSection>
                   );
