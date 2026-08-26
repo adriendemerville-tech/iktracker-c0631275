@@ -1425,7 +1425,7 @@ export function AdminStats() {
                       cardWidth={getCardWidth(sectionId)}
                       onWidthChange={handleWidthChange}
                     >
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
                         {/* Online users - real-time */}
                         <Card className="bg-gradient-to-br from-green-500/10 to-green-600/5 border-green-500/20">
                           <CardContent className="p-4">
