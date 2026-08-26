@@ -1253,7 +1253,7 @@ export function AdminStats() {
                               {
                                 dataKey: "unique_visitors",
                                 name: "Visiteurs uniques",
-                                stroke: "hsl(var(--chart-2))",
+                                stroke: "hsl(173, 80%, 36%)",
                               },
                             ]}
                             isLoading={marketingViewsLoading}
@@ -1706,7 +1706,7 @@ export function AdminStats() {
                             {
                               dataKey: "unique_visitors",
                               name: "Visiteurs uniques",
-                              stroke: "hsl(var(--chart-2))",
+                              stroke: "hsl(173, 80%, 36%)",
                               showDots: true,
                             },
                           ]}
