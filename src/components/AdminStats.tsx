@@ -1059,6 +1059,9 @@ export function AdminStats() {
       queryClient.invalidateQueries({ queryKey: ["admin-marketing-stats"] }),
       queryClient.invalidateQueries({ queryKey: ["admin-marketing-views-by-day"] }),
       queryClient.invalidateQueries({ queryKey: ["admin-unique-visitors", uniqueVisitorsWindow] }),
+      queryClient.invalidateQueries({
+        queryKey: ["admin-unique-visitors-series", uniqueVisitorsWindow],
+      }),
       queryClient.invalidateQueries({ queryKey: ["admin-signup-clicks-by-day"] }),
       queryClient.invalidateQueries({ queryKey: ["admin-marketing-by-page"] }),
       queryClient.invalidateQueries({ queryKey: ["admin-recent-signups"] }),
