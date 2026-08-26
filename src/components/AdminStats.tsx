@@ -1648,20 +1648,21 @@ export function AdminStats() {
                             },
                             {
                               dataKey: "visitors",
-                              name: "Visiteurs uniques",
-                              stroke: "hsl(173, 80%, 36%)",
-                              showDots: true,
-                            },
-                          ]}
-                          isLoading={dauLoading || uniqueVisitorsSeriesLoading}
-                          height={220}
-                          baseDataPoints={uniqueVisitorsWindow}
-                          emptyMessage="Aucune activité sur la période"
-                        />
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {uniqueVisitorsWindow} derniers jours — actifs engagés (admins exclus) vs
-                          visiteurs uniques toutes pages confondues
-                        </p>
+                               name: `Visiteurs uniques (${uniqueVisitorsWindow}j glissants)`,
+                               stroke: "hsl(173, 80%, 36%)",
+                               showDots: true,
+                             },
+                           ]}
+                           isLoading={dauLoading || uniqueVisitorsSeriesLoading}
+                           height={220}
+                           baseDataPoints={30}
+                           emptyMessage="Aucune activité sur la période"
+                         />
+                         <p className="text-xs text-muted-foreground mt-1">
+                           30 derniers jours — chaque point = fenêtre glissante de{" "}
+                           {uniqueVisitorsWindow} jours (actifs engagés hors admins vs visiteurs
+                           uniques toutes pages)
+                         </p>
                       </CardContent>
                     </DraggableStatsSection>
                   );
