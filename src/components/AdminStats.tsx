@@ -1073,6 +1073,7 @@ export function AdminStats() {
       queryClient.invalidateQueries({ queryKey: ["admin-shares-by-day"] }),
       queryClient.invalidateQueries({ queryKey: ["admin-marketing-stats"] }),
       queryClient.invalidateQueries({ queryKey: ["admin-marketing-views-by-day"] }),
+      queryClient.invalidateQueries({ queryKey: ["admin-dau", uniqueVisitorsWindow] }),
       queryClient.invalidateQueries({ queryKey: ["admin-unique-visitors", uniqueVisitorsWindow] }),
       queryClient.invalidateQueries({
         queryKey: ["admin-unique-visitors-series", uniqueVisitorsWindow],
