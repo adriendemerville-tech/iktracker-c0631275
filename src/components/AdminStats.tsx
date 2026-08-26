@@ -393,7 +393,7 @@ export function AdminStats() {
         day: d.day,
         count: Number(d.count),
       }));
-      return fillMissingDays(rawData, ["count"], daysBack, period) as {
+      return fillMissingDays(rawData, ["count"], daysBack, period, "max") as {
         day: string;
         count: number;
       }[];
@@ -494,7 +494,7 @@ export function AdminStats() {
         const dayData = dataMap[dateKey];
         if (dayData) {
           valueKeys.forEach((k) => {
-            monthMap[monthKey][k] += dayData[k] || 0;
+            monthMap[monthKey][k] = merge(monthMap[monthKey][k], dayData[k] || 0);
           });
         }
       }
@@ -519,7 +519,7 @@ export function AdminStats() {
         const dayData = dataMap[dateKey];
         if (dayData) {
           valueKeys.forEach((k) => {
-            weekMap[weekKey][k] += dayData[k] || 0;
+            weekMap[weekKey][k] = merge(weekMap[weekKey][k], dayData[k] || 0);
           });
         }
       }
