@@ -929,6 +929,14 @@ export function AdminStats() {
         isLoading: marketingStatsLoading,
       },
       {
+        id: "unique-visitors-7d",
+        icon: <Users className="w-5 h-5 text-teal-500" />,
+        label: "Visiteurs uniques 7j",
+        value: formatNumber(uniqueVisitors7d),
+        subValue: "Toutes pages confondues",
+        isLoading: uniqueVisitors7dLoading,
+      },
+      {
         id: "cta-clicks",
         icon: <MousePointer className="w-5 h-5 text-amber-500" />,
         label: "Clics CTA",
