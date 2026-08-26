@@ -680,12 +680,12 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000,
   });
 
-  // Fetch 7-day unique visitors across all pages - refresh every hour
-  const { data: uniqueVisitors7d = 0, isLoading: uniqueVisitors7dLoading } = useQuery({
-    queryKey: ["admin-unique-visitors-7d"],
+  // Fetch rolling unique visitors across all pages (7 or 30 days) - refresh every hour
+  const { data: uniqueVisitorsWindowed = 0, isLoading: uniqueVisitorsWindowedLoading } = useQuery({
+    queryKey: ["admin-unique-visitors", uniqueVisitorsWindow],
     queryFn: async () => {
       const { data, error } = await supabase.rpc("get_marketing_views_by_day", {
-        days_back: 7,
+        days_back: uniqueVisitorsWindow,
       });
       if (error) throw error;
       const rows = data as unknown as { day: string; views: number; unique_visitors: number }[];
