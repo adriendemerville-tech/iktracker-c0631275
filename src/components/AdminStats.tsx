@@ -455,12 +455,18 @@ export function AdminStats() {
   });
 
   // Helper: fill missing days in chart data
+  // `mode` : "sum" pour les compteurs d'événements (inscriptions, clics...),
+  // "max" pour les métriques d'utilisateurs uniques déjà cumulées sur une
+  // fenêtre glissante (actifs 7j) — les additionner compterait N fois la même personne.
   const fillMissingDays = (
     rawData: { day: string; [key: string]: any }[],
     valueKeys: string[],
     daysBack: number,
     _currentPeriod: PeriodFilter,
+    mode: "sum" | "max" = "sum",
   ): Record<string, any>[] => {
+    const merge = (a: number, b: number) => (mode === "max" ? Math.max(a, b) : a + b);
+
     const dataMap: Record<string, Record<string, number>> = {};
     rawData.forEach((d) => {
       const key = d.day.split("T")[0];
