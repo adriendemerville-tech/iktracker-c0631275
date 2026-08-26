@@ -938,13 +938,7 @@ export function AdminStats() {
         subValue: "Toutes pages confondues",
         isLoading: uniqueVisitorsWindowedLoading,
         header: (
-          <div className="flex items-center justify-between w-full gap-2">
-            <div className="flex items-center gap-1.5 min-w-0">
-              <Users className="w-4 h-4 text-teal-500 shrink-0" />
-              <span className="text-[11px] leading-tight text-muted-foreground truncate">
-                Visiteurs uniques {uniqueVisitorsWindow}j
-              </span>
-            </div>
+          <div className="flex items-center w-full gap-2">
             <ToggleGroup
               type="single"
               value={String(uniqueVisitorsWindow)}
@@ -964,6 +958,10 @@ export function AdminStats() {
                 30j
               </ToggleGroupItem>
             </ToggleGroup>
+            <Users className="w-4 h-4 text-teal-500 shrink-0" />
+            <span className="text-[11px] leading-tight text-muted-foreground truncate">
+              Visiteurs uniques {uniqueVisitorsWindow}j
+            </span>
           </div>
         ),
       },
