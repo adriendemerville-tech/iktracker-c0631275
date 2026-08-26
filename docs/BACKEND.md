@@ -1,6 +1,9 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 4.6.1 — 24 août 2026
+> Version 4.6.2 — 26 août 2026
+
+**Notes v4.6.2 (réinitialisation Google Sign-In, 26 août 2026)**
+- Le provider Google Sign-In a été désactivé puis réactivé via la configuration OAuth managée Lovable Cloud afin de remplacer toute configuration personnalisée résiduelle responsable de `redirect_uri_mismatch`. Les écrans `/auth` et `/signup` utilisent le broker managé `lovable.auth.signInWithOAuth` avec `redirect_uri: window.location.origin`.
 
 **Notes v4.6.1 (déploiement Worker & diagnostic Custom Domain, 23 août 2026)**
 - **Déploiement `iktracker-bot-router` via `wrangler deploy`** : routes `iktracker.fr/*` et `www.iktracker.fr/*` poussées avec succès. Le Worker reste **inactif en production** à cause du conflit **Orange-to-Orange** (l'origine Lovable est elle-même derrière Cloudflare). Un test en Custom Domain sur `worker-cd-test.iktracker.fr` a prouvé que la bascule fonctionne, mais qu'elle exige le retrait préalable de `iktracker.fr` des domaines personnalisés Lovable (sinon `iktracker.lovable.app` renvoie `302 → iktracker.fr`). La procédure de bascule est documentée ci-dessous.
@@ -505,6 +508,8 @@ Toutes les Edge Functions utilisent `verify_jwt = false` — la validation JWT e
 1. **Signup** : Email + mot de passe (confirmation email requise)
 2. **Login** : Email/mot de passe ou Google OAuth
 3. **Session** : JWT géré par le client Supabase (`supabase.auth`)
+
+Google Sign-In utilise les identifiants OAuth managés Lovable Cloud. En cas de `redirect_uri_mismatch`, réinitialiser le provider via la configuration sociale managée plutôt que modifier le callback dans le frontend.
 
 ### Scopes OAuth au sign-in
 
