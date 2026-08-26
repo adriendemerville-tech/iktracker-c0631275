@@ -678,6 +678,20 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000,
   });
 
+  // Fetch 7-day unique visitors across all pages - refresh every hour
+  const { data: uniqueVisitors7d = 0, isLoading: uniqueVisitors7dLoading } = useQuery({
+    queryKey: ["admin-unique-visitors-7d"],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("get_marketing_views_by_day", {
+        days_back: 7,
+      });
+      if (error) throw error;
+      const rows = data as unknown as { day: string; views: number; unique_visitors: number }[];
+      return rows.reduce((sum, row) => sum + (Number(row.unique_visitors) || 0), 0);
+    },
+    refetchInterval: 60 * 60 * 1000,
+  });
+
   // Fetch signup clicks by day - refresh every hour
   const { data: signupClicksByDay = [], isLoading: signupClicksLoading } = useQuery({
     queryKey: ["admin-signup-clicks-by-day", period, granularity],
@@ -915,6 +929,14 @@ export function AdminStats() {
         isLoading: marketingStatsLoading,
       },
       {
+        id: "unique-visitors-7d",
+        icon: <Users className="w-5 h-5 text-teal-500" />,
+        label: "Visiteurs uniques 7j",
+        value: formatNumber(uniqueVisitors7d),
+        subValue: "Toutes pages confondues",
+        isLoading: uniqueVisitors7dLoading,
+      },
+      {
         id: "cta-clicks",
         icon: <MousePointer className="w-5 h-5 text-amber-500" />,
         label: "Clics CTA",
@@ -963,7 +985,7 @@ export function AdminStats() {
         isLoading: marketingStatsLoading,
       },
     ],
-    [marketingStats, marketingStatsLoading, period],
+    [marketingStats, marketingStatsLoading, period, uniqueVisitors7d, uniqueVisitors7dLoading],
   );
 
   // PDF export removed - use CSV instead
@@ -983,6 +1005,7 @@ export function AdminStats() {
       queryClient.invalidateQueries({ queryKey: ["admin-shares-by-day"] }),
       queryClient.invalidateQueries({ queryKey: ["admin-marketing-stats"] }),
       queryClient.invalidateQueries({ queryKey: ["admin-marketing-views-by-day"] }),
+      queryClient.invalidateQueries({ queryKey: ["admin-unique-visitors-7d"] }),
       queryClient.invalidateQueries({ queryKey: ["admin-signup-clicks-by-day"] }),
       queryClient.invalidateQueries({ queryKey: ["admin-marketing-by-page"] }),
       queryClient.invalidateQueries({ queryKey: ["admin-recent-signups"] }),
