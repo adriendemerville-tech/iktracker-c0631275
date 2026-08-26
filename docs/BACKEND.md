@@ -181,6 +181,7 @@ Utilisateur → Cloudflare DNS (proxied)
 | `get_monthly_stats(months_back)` | Stats mensuelles |
 | `get_daily_active_users(days_back)` | DAU par jour |
 | `get_rolling_active_users(days_back, window_size)` | Utilisateurs actifs glissants |
+| `get_rolling_unique_visitors(days_back, window_size)` | Visiteurs uniques (sessions distinctes) sur fenêtre glissante, admins et IP exclues |
 | `get_registrations_by_day(days_back)` | Inscriptions par jour |
 | `get_top_users(sort_by, limit_count)` | Top users par trips/km/IK |
 | `get_user_stats(_user_id)` | Stats détaillées d'un utilisateur |
