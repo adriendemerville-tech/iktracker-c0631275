@@ -704,8 +704,10 @@ export function AdminStats() {
 
   // Merged daily series for the combined activity widget (engaged users + unique visitors)
   const activitySeries = useMemo(() => {
-    const engagedMap = new Map(dailyActiveUsers.map((d) => [d.day, d.count]));
-    const visitorsMap = new Map(uniqueVisitorsSeries.map((d) => [d.day, d.unique_visitors]));
+    const engagedMap = new globalThis.Map(dailyActiveUsers.map((d) => [d.day, d.count]));
+    const visitorsMap = new globalThis.Map(
+      uniqueVisitorsSeries.map((d) => [d.day, d.unique_visitors]),
+    );
     const filled: { day: string; engaged: number; visitors: number }[] = [];
     const today = new Date();
     const startDate = new Date(today);
