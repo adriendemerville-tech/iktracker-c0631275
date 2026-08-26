@@ -705,7 +705,7 @@ export function AdminStats() {
     const filled: { day: string; engaged: number; visitors: number }[] = [];
     const today = new Date();
     const startDate = new Date(today);
-    startDate.setDate(startDate.getDate() - uniqueVisitorsWindow);
+    startDate.setDate(startDate.getDate() - 30);
     for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
       const key = format(d, "yyyy-MM-dd");
       filled.push({
