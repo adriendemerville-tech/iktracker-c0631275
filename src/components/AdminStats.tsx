@@ -187,7 +187,11 @@ export function AdminStats() {
     const saved = localStorage.getItem("admin-stats-section-order");
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved) as string[];
+        const known = parsed.filter((id) => DEFAULT_SECTION_ORDER.includes(id));
+        // Append any new sections added since the order was saved
+        const missing = DEFAULT_SECTION_ORDER.filter((id) => !known.includes(id));
+        return [...known, ...missing];
       } catch {
         return DEFAULT_SECTION_ORDER;
       }
@@ -694,6 +698,26 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000,
   });
 
+  // Daily unique visitors series (all pages) for the dedicated chart
+  const { data: uniqueVisitorsSeries = [], isLoading: uniqueVisitorsSeriesLoading } = useQuery({
+    queryKey: ["admin-unique-visitors-series", uniqueVisitorsWindow],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("get_marketing_views_by_day", {
+        days_back: uniqueVisitorsWindow,
+      });
+      if (error) throw error;
+      const rows = (data as unknown as { day: string; unique_visitors: number }[]) || [];
+      return rows
+        .map((r) => ({
+          day: format(new Date(r.day), "dd/MM"),
+          unique_visitors: Number(r.unique_visitors) || 0,
+        }));
+    },
+    refetchInterval: 60 * 60 * 1000,
+  });
+
+
+
   // Fetch signup clicks by day - refresh every hour
   const { data: signupClicksByDay = [], isLoading: signupClicksLoading } = useQuery({
     queryKey: ["admin-signup-clicks-by-day", period, granularity],
@@ -1035,6 +1059,9 @@ export function AdminStats() {
       queryClient.invalidateQueries({ queryKey: ["admin-marketing-stats"] }),
       queryClient.invalidateQueries({ queryKey: ["admin-marketing-views-by-day"] }),
       queryClient.invalidateQueries({ queryKey: ["admin-unique-visitors", uniqueVisitorsWindow] }),
+      queryClient.invalidateQueries({
+        queryKey: ["admin-unique-visitors-series", uniqueVisitorsWindow],
+      }),
       queryClient.invalidateQueries({ queryKey: ["admin-signup-clicks-by-day"] }),
       queryClient.invalidateQueries({ queryKey: ["admin-marketing-by-page"] }),
       queryClient.invalidateQueries({ queryKey: ["admin-recent-signups"] }),
@@ -1632,6 +1659,64 @@ export function AdminStats() {
                         )}
                         <p className="text-xs text-muted-foreground mt-1">
                           {periodConfig[period].label} — {granularityConfig[granularity].labelFr}
+                        </p>
+                      </CardContent>
+                    </DraggableStatsSection>
+                  );
+
+                case "unique-visitors-chart":
+                  return (
+                    <DraggableStatsSection
+                      key={sectionId}
+                      id={sectionId}
+                      cardWidth={getCardWidth(sectionId)}
+                      onWidthChange={handleWidthChange}
+                    >
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Users className="w-5 h-5 text-teal-500" />
+                          Visiteurs uniques ({uniqueVisitorsWindow}j)
+                          <span className="ml-auto flex items-center gap-2">
+                            <span className="text-xl font-bold text-teal-600">
+                              {formatNumber(uniqueVisitorsWindowed)}
+                            </span>
+                            <ToggleGroup
+                              type="single"
+                              value={String(uniqueVisitorsWindow)}
+                              onValueChange={(v) =>
+                                v && setUniqueVisitorsWindow(Number(v) as 7 | 30)
+                              }
+                              className="h-7 border rounded-md p-0.5"
+                            >
+                              <ToggleGroupItem value="7" className="h-6 px-2 text-xs">
+                                7j
+                              </ToggleGroupItem>
+                              <ToggleGroupItem value="30" className="h-6 px-2 text-xs">
+                                30j
+                              </ToggleGroupItem>
+                            </ToggleGroup>
+                          </span>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <AdaptiveChart
+                          data={uniqueVisitorsSeries}
+                          xAxisKey="day"
+                          lines={[
+                            {
+                              dataKey: "unique_visitors",
+                              name: "Visiteurs uniques",
+                              stroke: "hsl(var(--chart-2))",
+                              showDots: true,
+                            },
+                          ]}
+                          isLoading={uniqueVisitorsSeriesLoading}
+                          height={200}
+                          baseDataPoints={uniqueVisitorsWindow}
+                          emptyMessage="Aucune visite sur la période"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Toutes pages confondues — {uniqueVisitorsWindow} derniers jours
                         </p>
                       </CardContent>
                     </DraggableStatsSection>
