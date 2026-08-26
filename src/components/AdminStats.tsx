@@ -385,13 +385,13 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000, // 1 hour
   });
 
-  // Fetch 7-day rolling active users on the activity widget window (7/30 days, daily)
+  // Rolling active users over the selected window (7 or 30 days), shown on 30 days of history
   const { data: dailyActiveUsers = [], isLoading: dauLoading } = useQuery({
     queryKey: ["admin-dau", uniqueVisitorsWindow],
     queryFn: async () => {
       const { data, error } = await supabase.rpc("get_rolling_active_users", {
-        days_back: uniqueVisitorsWindow,
-        window_size: 7,
+        days_back: 30,
+        window_size: uniqueVisitorsWindow,
       });
       if (error) throw error;
       return (data as unknown as { day: string; count: number }[]).map((d) => ({
