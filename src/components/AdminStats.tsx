@@ -1584,7 +1584,7 @@ export function AdminStats() {
                       <CardHeader className="pb-2">
                         <CardTitle
                           className="text-lg flex items-center gap-2 flex-wrap"
-                          title="Actifs engagés : utilisateurs avec au moins 2 jours d'activité distincts sur 7 jours glissants (admins exclus). Visiteurs uniques : sessions uniques toutes pages confondues."
+                          title={`Fenêtre glissante de ${uniqueVisitorsWindow} jours. Actifs engagés : utilisateurs avec au moins 2 jours d'activité distincts sur la fenêtre (admins exclus). Visiteurs uniques : sessions distinctes toutes pages confondues sur la fenêtre.`}
                         >
                           <Activity className="w-5 h-5 text-violet-500" />
                           Activité & visiteurs
