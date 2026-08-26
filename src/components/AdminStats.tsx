@@ -685,7 +685,7 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000,
   });
 
-  // Daily unique visitors series (all pages) for the dedicated chart
+  // Daily unique visitors series (all pages) for the combined activity chart
   const { data: uniqueVisitorsSeries = [], isLoading: uniqueVisitorsSeriesLoading } = useQuery({
     queryKey: ["admin-unique-visitors-series", uniqueVisitorsWindow],
     queryFn: async () => {
@@ -694,14 +694,40 @@ export function AdminStats() {
       });
       if (error) throw error;
       const rows = (data as unknown as { day: string; unique_visitors: number }[]) || [];
-      return rows
-        .map((r) => ({
-          day: format(new Date(r.day), "dd/MM"),
-          unique_visitors: Number(r.unique_visitors) || 0,
-        }));
+      return rows.map((r) => ({
+        day: r.day.split("T")[0],
+        unique_visitors: Number(r.unique_visitors) || 0,
+      }));
     },
     refetchInterval: 60 * 60 * 1000,
   });
+
+  // Merged daily series for the combined activity widget (engaged users + unique visitors)
+  const activitySeries = useMemo(() => {
+    const engagedMap = new Map(dailyActiveUsers.map((d) => [d.day, d.count]));
+    const visitorsMap = new Map(uniqueVisitorsSeries.map((d) => [d.day, d.unique_visitors]));
+    const filled: { day: string; engaged: number; visitors: number }[] = [];
+    const today = new Date();
+    const startDate = new Date(today);
+    startDate.setDate(startDate.getDate() - uniqueVisitorsWindow);
+    for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
+      const key = format(d, "yyyy-MM-dd");
+      filled.push({
+        day: format(d, "dd/MM", { locale: fr }),
+        engaged: engagedMap.get(key) ?? 0,
+        visitors: visitorsMap.get(key) ?? 0,
+      });
+    }
+    return filled;
+  }, [dailyActiveUsers, uniqueVisitorsSeries, uniqueVisitorsWindow]);
+
+  // Compute engaged users today vs yesterday (from the filled series)
+  const dauToday =
+    activitySeries.length >= 1 ? activitySeries[activitySeries.length - 1]?.engaged || 0 : 0;
+  const dauYesterday =
+    activitySeries.length >= 2 ? activitySeries[activitySeries.length - 2]?.engaged || 0 : 0;
+  const dauDiff = dauToday - dauYesterday;
+  const dauTrend: "up" | "down" | "flat" = dauDiff > 0 ? "up" : dauDiff < 0 ? "down" : "flat";
 
 
 
