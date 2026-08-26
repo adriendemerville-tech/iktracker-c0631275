@@ -2643,6 +2643,13 @@ export type Database = {
           day: string
         }[]
       }
+      get_rolling_unique_visitors: {
+        Args: { days_back?: number; window_size?: number }
+        Returns: {
+          day: string
+          unique_visitors: number
+        }[]
+      }
       get_share_stats: { Args: never; Returns: Json }
       get_shares_by_day: {
         Args: { days_back?: number }

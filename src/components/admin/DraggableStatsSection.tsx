@@ -18,9 +18,9 @@ interface DraggableStatsSectionProps {
 }
 
 const widthClassMap: Record<CardWidth, string> = {
-  1: "col-span-1",
-  2: "col-span-2",
-  3: "col-span-3",
+  1: "col-span-1 lg:col-span-1",
+  2: "col-span-1 lg:col-span-2",
+  3: "col-span-1 lg:col-span-3",
 };
 
 const widthLabels: Record<CardWidth, string> = {
