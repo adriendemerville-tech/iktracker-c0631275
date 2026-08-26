@@ -1642,7 +1642,7 @@ export function AdminStats() {
                           lines={[
                             {
                               dataKey: "engaged",
-                              name: "Actifs engagés (7j glissants)",
+                              name: `Actifs engagés (${uniqueVisitorsWindow}j glissants)`,
                               stroke: "#8b5cf6",
                               showDots: true,
                             },
