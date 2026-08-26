@@ -12,6 +12,12 @@ import ReCAPTCHA from "react-google-recaptcha";
 import { PersonaPicker, PERSONA_OPTIONS, type PersonaValue } from "@/components/PersonaPicker";
 import { trackSignupEvent } from "@/lib/signup-tracking";
 import { markOAuthStart, resolveOAuthReturn, clearOAuthPending } from "@/lib/oauth-return-tracking";
+import {
+  buildOAuthDiagnostic,
+  readOAuthErrorFromUrl,
+  type OAuthDiagnostic,
+} from "@/lib/oauth-diagnostics";
+import { OAuthErrorDialog } from "@/components/OAuthErrorDialog";
 
 const RECAPTCHA_SITE_KEY = "6LeqDVMsAAAAAE_prKZwP9zj8ovr49OFOQnoISsP";
 
@@ -54,6 +60,7 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<"google" | "apple" | null>(null);
+  const [oauthDiagnostic, setOauthDiagnostic] = useState<OAuthDiagnostic | null>(null);
   // Priorise Apple sur iPhone/iPad (Sign in with Apple natif), Google ailleurs.
   const [isIOS, setIsIOS] = useState(false);
   useEffect(() => {
@@ -180,7 +187,15 @@ const Signup = () => {
         "signup_error",
         `oauth_${provider}: ${(error?.message || "unknown").slice(0, 200)}`,
       );
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      // Diagnostic détaillé (redirect_uri_mismatch, client utilisé, URI à autoriser…)
+      const urlError = readOAuthErrorFromUrl();
+      setOauthDiagnostic(
+        buildOAuthDiagnostic(
+          provider,
+          urlError?.code ?? error?.code ?? "oauth_error",
+          urlError?.description ?? error?.message ?? "",
+        ),
+      );
       setOauthLoading(null);
     }
   };
@@ -726,6 +741,7 @@ const Signup = () => {
           </div>
         </div>
       </div>
+      <OAuthErrorDialog diagnostic={oauthDiagnostic} onClose={() => setOauthDiagnostic(null)} />
     </>
   );
 };

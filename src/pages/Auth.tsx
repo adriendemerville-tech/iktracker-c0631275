@@ -18,6 +18,8 @@ import {
 } from "lucide-react";
 import { AuthForm } from "@/components/AuthForm";
 import { PersonaPicker, PERSONA_OPTIONS, type PersonaValue } from "@/components/PersonaPicker";
+import { buildOAuthDiagnostic, type OAuthDiagnostic } from "@/lib/oauth-diagnostics";
+import { OAuthErrorDialog } from "@/components/OAuthErrorDialog";
 
 // Deployed domain - OAuth redirects here
 const DEPLOYED_DOMAIN = "iktracker.lovable.app";
@@ -32,6 +34,7 @@ const Auth = () => {
   const [showLoginForm, setShowLoginForm] = useState(true);
   const [showPersonaPicker, setShowPersonaPicker] = useState(false);
   const [pendingUserId, setPendingUserId] = useState<string | null>(null);
+  const [oauthDiagnostic, setOauthDiagnostic] = useState<OAuthDiagnostic | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -151,13 +154,9 @@ const Auth = () => {
         return;
       }
 
-      // Show OAuth errors from URL hash
+      // Show OAuth errors from URL hash — avec diagnostic détaillé
       if (error) {
-        toast({
-          title: "Erreur OAuth",
-          description: errorDescription || error,
-          variant: "destructive",
-        });
+        setOauthDiagnostic(buildOAuthDiagnostic("google", error, errorDescription || ""));
         window.location.hash = "";
         setShowLoginForm(true);
         setCheckingAuth(false);
@@ -491,6 +490,7 @@ const Auth = () => {
             </div>
           </div>
         </div>
+        <OAuthErrorDialog diagnostic={oauthDiagnostic} onClose={() => setOauthDiagnostic(null)} />
       </>
     );
   }

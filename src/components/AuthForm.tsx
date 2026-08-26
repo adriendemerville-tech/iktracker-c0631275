@@ -9,6 +9,12 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { trackSignupEvent } from "@/lib/signup-tracking";
 import { markOAuthStart, resolveOAuthReturn, clearOAuthPending } from "@/lib/oauth-return-tracking";
+import {
+  buildOAuthDiagnostic,
+  readOAuthErrorFromUrl,
+  type OAuthDiagnostic,
+} from "@/lib/oauth-diagnostics";
+import { OAuthErrorDialog } from "@/components/OAuthErrorDialog";
 
 // Validate a `next` search-param as a same-origin relative path so we can safely
 // redirect after login/signup/OAuth (used by the OAuth consent route).
@@ -54,6 +60,7 @@ export const AuthForm = ({
     return () => clearTimeout(t);
   }, [cooldown]);
   const [oauthLoading, setOauthLoading] = useState<"google" | "azure" | "apple" | null>(null);
+  const [oauthDiagnostic, setOauthDiagnostic] = useState<OAuthDiagnostic | null>(null);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const nextPath = safeNextPath(searchParams.get("next"));
@@ -111,7 +118,19 @@ export const AuthForm = ({
       if (error) throw error;
     } catch (error: any) {
       trackSignupEvent("signup_error", error?.message ?? "oauth_error", "auth");
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      if (provider === "google" || provider === "apple") {
+        // Diagnostic détaillé (redirect_uri_mismatch, client utilisé, URI à autoriser…)
+        const urlError = readOAuthErrorFromUrl();
+        setOauthDiagnostic(
+          buildOAuthDiagnostic(
+            provider,
+            urlError?.code ?? error?.code ?? "oauth_error",
+            urlError?.description ?? error?.message ?? "",
+          ),
+        );
+      } else {
+        toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      }
       setOauthLoading(null);
     }
   };
@@ -457,11 +476,12 @@ export const AuthForm = ({
               onClick={() => setMode("login")}
               className="text-base text-primary hover:text-primary/80 transition-colors font-normal focus-visible-ring rounded-xs underline-offset-4 hover:underline"
             >
-              Déjà un compte ? Connectez-vous
+            Déjà un compte ? Connectez-vous
             </button>
           </div>
         )}
       </div>
+      <OAuthErrorDialog diagnostic={oauthDiagnostic} onClose={() => setOauthDiagnostic(null)} />
     </div>
   );
 };
