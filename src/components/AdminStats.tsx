@@ -985,7 +985,7 @@ export function AdminStats() {
         isLoading: marketingStatsLoading,
       },
     ],
-    [marketingStats, marketingStatsLoading, period],
+    [marketingStats, marketingStatsLoading, period, uniqueVisitors7d, uniqueVisitors7dLoading],
   );
 
   // PDF export removed - use CSV instead
