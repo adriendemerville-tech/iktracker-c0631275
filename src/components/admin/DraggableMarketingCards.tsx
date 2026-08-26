@@ -28,6 +28,7 @@ interface MarketingCardData {
   value: string | number;
   subValue?: string;
   isLoading: boolean;
+  header?: ReactNode;
 }
 
 interface SortableCardProps {
