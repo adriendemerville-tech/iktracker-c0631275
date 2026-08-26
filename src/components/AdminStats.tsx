@@ -135,6 +135,8 @@ export function AdminStats() {
   const isDesktop = !isMobile;
 
   const [granularity, setGranularity] = useState<Granularity>("day");
+  const [uniqueVisitorsWindow, setUniqueVisitorsWindow] = useState<7 | 30>(7);
+
 
   // Refresh all admin stats at 7:00 AM every day
   useEffect(() => {
