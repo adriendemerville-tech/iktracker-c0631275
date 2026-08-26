@@ -175,7 +175,7 @@ export function DraggableMarketingCards({
 
   if (!isDesktop) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-6 auto-rows-fr">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 auto-rows-fr">
         {orderedCards.map((card) => (
           <SortableCard key={card.id} card={card} isDesktop={false} />
         ))}
@@ -186,7 +186,7 @@ export function DraggableMarketingCards({
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <SortableContext items={orderedCards.map((c) => c.id)} strategy={rectSortingStrategy}>
-        <div className="grid grid-cols-2 md:grid-cols-6 lg:grid-cols-15 gap-3 mb-6 auto-rows-fr">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-11 gap-3 mb-6 auto-rows-fr">
           {orderedCards.map((card) => (
             <SortableCard key={card.id} card={card} isDesktop={true} />
           ))}
