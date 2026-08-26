@@ -698,6 +698,27 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000,
   });
 
+  // Daily unique visitors series (all pages) for the dedicated chart
+  const { data: uniqueVisitorsSeries = [], isLoading: uniqueVisitorsSeriesLoading } = useQuery({
+    queryKey: ["admin-unique-visitors-series", uniqueVisitorsWindow],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("get_marketing_views_by_day", {
+        days_back: uniqueVisitorsWindow,
+      });
+      if (error) throw error;
+      const rows = (data as unknown as { day: string; unique_visitors: number }[]) || [];
+      return rows
+        .map((r) => ({
+          day: format(new Date(r.day), "dd/MM"),
+          unique_visitors: Number(r.unique_visitors) || 0,
+        }))
+        .sort();
+    },
+    refetchInterval: 60 * 60 * 1000,
+  });
+
+
+
   // Fetch signup clicks by day - refresh every hour
   const { data: signupClicksByDay = [], isLoading: signupClicksLoading } = useQuery({
     queryKey: ["admin-signup-clicks-by-day", period, granularity],
