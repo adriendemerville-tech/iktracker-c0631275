@@ -187,7 +187,11 @@ export function AdminStats() {
     const saved = localStorage.getItem("admin-stats-section-order");
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved) as string[];
+        const known = parsed.filter((id) => DEFAULT_SECTION_ORDER.includes(id));
+        // Append any new sections added since the order was saved
+        const missing = DEFAULT_SECTION_ORDER.filter((id) => !known.includes(id));
+        return [...known, ...missing];
       } catch {
         return DEFAULT_SECTION_ORDER;
       }
