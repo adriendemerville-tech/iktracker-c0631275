@@ -30,10 +30,12 @@ export function readOAuthErrorFromUrl(): { code: string; description: string } |
   return { code, description: decodeURIComponent(description.replace(/\+/g, " ")) };
 }
 
-/** URI de callback du backend d'authentification (à autoriser côté Google). */
-export function backendCallbackUrl(): string {
-  const base = (import.meta.env.VITE_SUPABASE_URL as string | undefined) ?? "";
-  return `${base.replace(/\/$/, "")}/auth/v1/callback`;
+/**
+ * Où trouver l'URI de callback à autoriser côté Google.
+ * L'URL brute du backend n'est jamais affichée aux utilisateurs.
+ */
+export function backendCallbackLocation(): string {
+  return "Affichée dans les réglages d'authentification du backend (Sign In Methods → Google)";
 }
 
 /** URI de redirection envoyée par l'app au broker OAuth. */
@@ -51,7 +53,7 @@ export function buildOAuthDiagnostic(
     { label: "Code d'erreur", value: code || "inconnu" },
     { label: "Message du fournisseur", value: description || "(aucun)" },
     { label: "URI de redirection envoyée par l'app", value: appRedirectUri() },
-    { label: "URI de callback à autoriser dans Google Cloud Console", value: backendCallbackUrl() },
+    { label: "URI de callback à autoriser dans Google Cloud Console", value: backendCallbackLocation() },
     {
       label: "Client OAuth utilisé",
       value:
