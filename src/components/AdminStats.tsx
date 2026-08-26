@@ -711,8 +711,7 @@ export function AdminStats() {
         .map((r) => ({
           day: format(new Date(r.day), "dd/MM"),
           unique_visitors: Number(r.unique_visitors) || 0,
-        }))
-        .sort();
+        }));
     },
     refetchInterval: 60 * 60 * 1000,
   });
