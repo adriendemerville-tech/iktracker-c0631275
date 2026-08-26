@@ -135,6 +135,8 @@ export function AdminStats() {
   const isDesktop = !isMobile;
 
   const [granularity, setGranularity] = useState<Granularity>("day");
+  const [uniqueVisitorsWindow, setUniqueVisitorsWindow] = useState<7 | 30>(7);
+
 
   // Refresh all admin stats at 7:00 AM every day
   useEffect(() => {
@@ -678,12 +680,12 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000,
   });
 
-  // Fetch 7-day unique visitors across all pages - refresh every hour
-  const { data: uniqueVisitors7d = 0, isLoading: uniqueVisitors7dLoading } = useQuery({
-    queryKey: ["admin-unique-visitors-7d"],
+  // Fetch rolling unique visitors across all pages (7 or 30 days) - refresh every hour
+  const { data: uniqueVisitorsWindowed = 0, isLoading: uniqueVisitorsWindowedLoading } = useQuery({
+    queryKey: ["admin-unique-visitors", uniqueVisitorsWindow],
     queryFn: async () => {
       const { data, error } = await supabase.rpc("get_marketing_views_by_day", {
-        days_back: 7,
+        days_back: uniqueVisitorsWindow,
       });
       if (error) throw error;
       const rows = data as unknown as { day: string; views: number; unique_visitors: number }[];
@@ -931,10 +933,39 @@ export function AdminStats() {
       {
         id: "unique-visitors-7d",
         icon: <Users className="w-5 h-5 text-teal-500" />,
-        label: "Visiteurs uniques 7j",
-        value: formatNumber(uniqueVisitors7d),
+        label: `Visiteurs uniques ${uniqueVisitorsWindow}j`,
+        value: formatNumber(uniqueVisitorsWindowed),
         subValue: "Toutes pages confondues",
-        isLoading: uniqueVisitors7dLoading,
+        isLoading: uniqueVisitorsWindowedLoading,
+        header: (
+          <div className="flex items-center justify-between w-full gap-2">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <Users className="w-4 h-4 text-teal-500 shrink-0" />
+              <span className="text-[11px] leading-tight text-muted-foreground truncate">
+                Visiteurs uniques {uniqueVisitorsWindow}j
+              </span>
+            </div>
+            <ToggleGroup
+              type="single"
+              value={String(uniqueVisitorsWindow)}
+              onValueChange={(v) => setUniqueVisitorsWindow(Number(v) as 7 | 30)}
+              className="h-5 border rounded-md p-0.5 shrink-0"
+            >
+              <ToggleGroupItem
+                value="7"
+                className="h-4 min-w-[22px] px-1 text-[10px] data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+              >
+                7j
+              </ToggleGroupItem>
+              <ToggleGroupItem
+                value="30"
+                className="h-4 min-w-[22px] px-1 text-[10px] data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+              >
+                30j
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
+        ),
       },
       {
         id: "cta-clicks",
@@ -985,7 +1016,7 @@ export function AdminStats() {
         isLoading: marketingStatsLoading,
       },
     ],
-    [marketingStats, marketingStatsLoading, period, uniqueVisitors7d, uniqueVisitors7dLoading],
+    [marketingStats, marketingStatsLoading, period, uniqueVisitorsWindowed, uniqueVisitorsWindowedLoading, uniqueVisitorsWindow],
   );
 
   // PDF export removed - use CSV instead
@@ -1005,7 +1036,7 @@ export function AdminStats() {
       queryClient.invalidateQueries({ queryKey: ["admin-shares-by-day"] }),
       queryClient.invalidateQueries({ queryKey: ["admin-marketing-stats"] }),
       queryClient.invalidateQueries({ queryKey: ["admin-marketing-views-by-day"] }),
-      queryClient.invalidateQueries({ queryKey: ["admin-unique-visitors-7d"] }),
+      queryClient.invalidateQueries({ queryKey: ["admin-unique-visitors", uniqueVisitorsWindow] }),
       queryClient.invalidateQueries({ queryKey: ["admin-signup-clicks-by-day"] }),
       queryClient.invalidateQueries({ queryKey: ["admin-marketing-by-page"] }),
       queryClient.invalidateQueries({ queryKey: ["admin-recent-signups"] }),
@@ -1017,7 +1048,7 @@ export function AdminStats() {
     ]);
     // Small delay to show animation
     setTimeout(() => setIsRefreshing(false), 500);
-  }, [queryClient]);
+  }, [queryClient, uniqueVisitorsWindow]);
 
   const exportToCSV = () => {
     // Stats CSV
