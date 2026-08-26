@@ -385,35 +385,22 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000, // 1 hour
   });
 
-  // Fetch 7-day rolling active users with period + granularity
+  // Fetch 7-day rolling active users on the activity widget window (7/30 days, daily)
   const { data: dailyActiveUsers = [], isLoading: dauLoading } = useQuery({
-    queryKey: ["admin-dau", period, granularity],
+    queryKey: ["admin-dau", uniqueVisitorsWindow],
     queryFn: async () => {
-      const daysBack = periodConfig[period].daysBack;
       const { data, error } = await supabase.rpc("get_rolling_active_users", {
-        days_back: daysBack,
+        days_back: uniqueVisitorsWindow,
         window_size: 7,
       });
       if (error) throw error;
-      const rawData = (data as unknown as { day: string; count: number }[]).map((d) => ({
-        day: d.day,
+      return (data as unknown as { day: string; count: number }[]).map((d) => ({
+        day: d.day.split("T")[0],
         count: Number(d.count),
       }));
-      return fillMissingDays(rawData, ["count"], daysBack, period, "max") as {
-        day: string;
-        count: number;
-      }[];
     },
     refetchInterval: 60 * 60 * 1000,
   });
-
-  // Compute DAU today vs yesterday
-  const dauToday =
-    dailyActiveUsers.length >= 1 ? dailyActiveUsers[dailyActiveUsers.length - 1]?.count || 0 : 0;
-  const dauYesterday =
-    dailyActiveUsers.length >= 2 ? dailyActiveUsers[dailyActiveUsers.length - 2]?.count || 0 : 0;
-  const dauDiff = dauToday - dauYesterday;
-  const dauTrend: "up" | "down" | "flat" = dauDiff > 0 ? "up" : dauDiff < 0 ? "down" : "flat";
 
   // Fetch top users - refresh every hour
   const { data: topUsers = [], isLoading: topUsersLoading } = useQuery({
