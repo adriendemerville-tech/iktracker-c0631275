@@ -1048,7 +1048,7 @@ export function AdminStats() {
     ]);
     // Small delay to show animation
     setTimeout(() => setIsRefreshing(false), 500);
-  }, [queryClient]);
+  }, [queryClient, uniqueVisitorsWindow]);
 
   const exportToCSV = () => {
     // Stats CSV
