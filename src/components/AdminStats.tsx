@@ -933,10 +933,39 @@ export function AdminStats() {
       {
         id: "unique-visitors-7d",
         icon: <Users className="w-5 h-5 text-teal-500" />,
-        label: "Visiteurs uniques 7j",
-        value: formatNumber(uniqueVisitors7d),
+        label: `Visiteurs uniques ${uniqueVisitorsWindow}j`,
+        value: formatNumber(uniqueVisitorsWindowed),
         subValue: "Toutes pages confondues",
-        isLoading: uniqueVisitors7dLoading,
+        isLoading: uniqueVisitorsWindowedLoading,
+        header: (
+          <div className="flex items-center justify-between w-full gap-2">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <Users className="w-4 h-4 text-teal-500 shrink-0" />
+              <span className="text-[11px] leading-tight text-muted-foreground truncate">
+                Visiteurs uniques {uniqueVisitorsWindow}j
+              </span>
+            </div>
+            <ToggleGroup
+              type="single"
+              value={String(uniqueVisitorsWindow)}
+              onValueChange={(v) => setUniqueVisitorsWindow(Number(v) as 7 | 30)}
+              className="h-5 border rounded-md p-0.5 shrink-0"
+            >
+              <ToggleGroupItem
+                value="7"
+                className="h-4 min-w-[22px] px-1 text-[10px] data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+              >
+                7j
+              </ToggleGroupItem>
+              <ToggleGroupItem
+                value="30"
+                className="h-4 min-w-[22px] px-1 text-[10px] data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+              >
+                30j
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
+        ),
       },
       {
         id: "cta-clicks",
