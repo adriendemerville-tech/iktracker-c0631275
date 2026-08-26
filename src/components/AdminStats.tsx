@@ -671,26 +671,13 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000,
   });
 
-  // Fetch rolling unique visitors across all pages (7 or 30 days) - refresh every hour
-  const { data: uniqueVisitorsWindowed = 0, isLoading: uniqueVisitorsWindowedLoading } = useQuery({
-    queryKey: ["admin-unique-visitors", uniqueVisitorsWindow],
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc("get_marketing_views_by_day", {
-        days_back: uniqueVisitorsWindow,
-      });
-      if (error) throw error;
-      const rows = data as unknown as { day: string; views: number; unique_visitors: number }[];
-      return rows.reduce((sum, row) => sum + (Number(row.unique_visitors) || 0), 0);
-    },
-    refetchInterval: 60 * 60 * 1000,
-  });
-
-  // Daily unique visitors series (all pages) for the combined activity chart
+  // Rolling unique visitors series (all pages), same rolling window as the engaged users line
   const { data: uniqueVisitorsSeries = [], isLoading: uniqueVisitorsSeriesLoading } = useQuery({
     queryKey: ["admin-unique-visitors-series", uniqueVisitorsWindow],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("get_marketing_views_by_day", {
-        days_back: uniqueVisitorsWindow,
+      const { data, error } = await supabase.rpc("get_rolling_unique_visitors", {
+        days_back: 30,
+        window_size: uniqueVisitorsWindow,
       });
       if (error) throw error;
       const rows = (data as unknown as { day: string; unique_visitors: number }[]) || [];
@@ -701,6 +688,13 @@ export function AdminStats() {
     },
     refetchInterval: 60 * 60 * 1000,
   });
+
+  // Headline KPI: unique visitors over the last rolling window (last point of the series)
+  const uniqueVisitorsWindowed =
+    uniqueVisitorsSeries.length > 0
+      ? (uniqueVisitorsSeries[uniqueVisitorsSeries.length - 1]?.unique_visitors ?? 0)
+      : 0;
+  const uniqueVisitorsWindowedLoading = uniqueVisitorsSeriesLoading;
 
   // Merged daily series for the combined activity widget (engaged users + unique visitors)
   const activitySeries = useMemo(() => {
