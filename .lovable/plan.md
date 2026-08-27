@@ -212,15 +212,17 @@ publication exige un compte connecté.
 
 ## 6. Ordre de livraison
 
-1. Migration DB : profils, niveaux, discussions, réponses, votes, modération,
-   RLS + GRANT, bucket avatars.
-2. Server functions : CRUD, similarité, votes, profil.
+1. Migration DB : profils (persona inclus), niveaux, discussions, réponses,
+   votes, enregistrements, pièces jointes, modération, RLS + GRANT, buckets
+   `forum-avatars` et `forum-attachments`.
+2. Server functions : CRUD, similarité, votes, enregistrement, upload, profil.
 3. Agents IA (classement, SAV, modération) via la passerelle Lovable AI.
-4. UI `/app/forum` + fiche profil + modale de passage de niveau (§2.1).
-5. Surface publique SSR : home `/forum` (§5.2), discussions, lien header (§5.1),
-   éditeur ouvert avec publication après connexion (§5.3), JSON-LD + sitemap.
-
-6. Admin modération + mise à jour `docs/BACKEND.md`.
+4. UI `/app/forum` + fiche profil + modale de passage de niveau (§2.1) +
+   actions au survol (§3.3) + pièces jointes (§3.2).
+5. Surface publique SSR : home `/forum` (§5.2) avec liens SAV/tutoriel et
+   recommandations, discussions, lien header (§5.1), éditeur ouvert avec
+   publication après connexion (§5.3), JSON-LD, sitemap dynamique (§3.1).
+6. Admin modération + mise à jour `docs/BACKEND.md` et régénération du PDF.
 
 ## Détails techniques
 
@@ -228,5 +230,9 @@ publication exige un compte connecté.
 - Slug : normalisation sans accents, stop-words français retirés, max 4 segments,
   suffixe numérique en cas de collision.
 - Indexation : `seo_indexable` passe à vrai quand la discussion a au moins une
-  réponse et n'est pas en file de modération ; le sitemap SSR lit ce drapeau.
-- Avatars : bucket public, politique d'écriture limitée au propriétaire.
+  réponse et n'est pas en file de modération ; le sitemap forum lit ce drapeau.
+- Avatars et pièces jointes : buckets publics en lecture, écriture limitée au
+  propriétaire, validation MIME et taille côté serveur.
+- Recommandations : requête SQL pondérée (votes, fraîcheur, catégorie, persona),
+  pas d'appel IA par page pour préserver le coût et le TTFB.
+
