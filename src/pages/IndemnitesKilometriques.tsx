@@ -414,7 +414,11 @@ export default function IndemnitesKilometriques() {
             majoration de 20 % appliquée automatiquement aux véhicules 100 % électriques et le
             passage de tranche kilométrique signalé dès qu'il est atteint. Un changement de
             véhicule ou de puissance fiscale déclenche, au choix, le recalcul des trajets déjà
-            enregistrés. L'ensemble est gratuit à vie, sans abonnement ni carte bancaire.
+            enregistrés. L'ensemble est{" "}
+            <strong className="text-foreground">
+              gratuit à vie, sans abonnement ni carte bancaire
+            </strong>
+            .
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link to="/mode-tournee">
