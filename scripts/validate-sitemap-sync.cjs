@@ -1,6 +1,6 @@
 /**
  * Script de validation CI : vérifie que les URLs statiques sont identiques
- * entre l'Edge Function (supabase/functions/sitemap/index.ts)
+ * entre la route SSR (src/routes/sitemap[.]xml.ts)
  * et le script prebuild (scripts/generate-sitemap.cjs).
  *
  * Usage : node scripts/validate-sitemap-sync.cjs
@@ -12,18 +12,9 @@ const path = require("path");
 
 function extractStaticPages(filePath) {
   const content = fs.readFileSync(filePath, "utf-8");
-  // Match all url: '...' entries in the staticPages array
-  const urlMatches = [...content.matchAll(/url:\s*['"]([^'"]+)['"]/g)];
-  const urls = urlMatches.map((m) => m[1]).sort();
-
-  // Match lastmod values paired with urls
-  const entries = [
-    ...content.matchAll(/url:\s*['"]([^'"]+)['"].*?(?:lastmod:\s*['"]([^'"]+)['"])?/gs),
-  ];
-
-  // Better approach: extract full objects
+  // Accepte `url:` (script prebuild) et `path:` (route SSR)
   const pageRegex =
-    /\{\s*url:\s*['"]([^'"]+)['"],\s*priority:\s*['"]([^'"]+)['"],\s*changefreq:\s*['"]([^'"]+)['"](?:,\s*lastmod:\s*['"]([^'"]+)['"])?\s*\}/g;
+    /\{\s*(?:url|path):\s*['"]([^'"]+)['"],\s*priority:\s*['"]([^'"]+)['"],\s*changefreq:\s*['"]([^'"]+)['"](?:,\s*lastmod:\s*['"]([^'"]+)['"])?\s*,?\s*\}/g;
   const pages = [];
   let match;
   while ((match = pageRegex.exec(content)) !== null) {
@@ -37,11 +28,11 @@ function extractStaticPages(filePath) {
   return pages;
 }
 
-const edgeFunctionPath = path.join(__dirname, "..", "supabase", "functions", "sitemap", "index.ts");
+const edgeFunctionPath = path.join(__dirname, "..", "src", "routes", "sitemap[.]xml.ts");
 const prebuildPath = path.join(__dirname, "generate-sitemap.cjs");
 
 if (!fs.existsSync(edgeFunctionPath)) {
-  console.error("❌ Edge Function file not found:", edgeFunctionPath);
+  console.error("❌ SSR sitemap route not found:", edgeFunctionPath);
   process.exit(1);
 }
 if (!fs.existsSync(prebuildPath)) {
@@ -51,6 +42,7 @@ if (!fs.existsSync(prebuildPath)) {
 
 const edgePages = extractStaticPages(edgeFunctionPath);
 const prebuildPages = extractStaticPages(prebuildPath);
+
 
 let hasErrors = false;
 
