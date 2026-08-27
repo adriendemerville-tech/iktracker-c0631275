@@ -346,6 +346,7 @@ const Landing = ({ initialUserCount }: LandingProps) => {
                 <div className="mt-6 flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
                   <Counter
                     value={initialUserCount ?? 1000}
+                    initialValue={initialUserCount ?? 1000}
                     label="inscrits"
                     unit=""
                     variant="accent"
