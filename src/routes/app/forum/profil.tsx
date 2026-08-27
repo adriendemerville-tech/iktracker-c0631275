@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import ForumProfilePage from "@/pages/forum/ForumProfilePage";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 export const Route = createFileRoute("/app/forum/profil")({
   head: () => ({
