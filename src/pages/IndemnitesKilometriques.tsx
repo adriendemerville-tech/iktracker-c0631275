@@ -226,8 +226,25 @@ export default function IndemnitesKilometriques() {
               Une <strong className="text-foreground">indemnité kilométrique</strong> est le
               remboursement forfaitaire des frais engagés lorsqu'un véhicule personnel est utilisé à
               des fins professionnelles. Elle est calculée à partir d'un barème publié chaque année
-              par la Direction générale des finances publiques et repris par l'URSSAF pour
-              l'exonération de cotisations sociales.
+              par la{" "}
+              <a
+                href="https://www.impots.gouv.fr"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline underline-offset-4"
+              >
+                Direction générale des finances publiques (DGFiP)
+              </a>{" "}
+              et repris par l'
+              <a
+                href="https://www.urssaf.fr"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline underline-offset-4"
+              >
+                URSSAF
+              </a>{" "}
+              pour l'exonération de cotisations sociales.
             </p>
             <p>
               Le forfait couvre l'ensemble des coûts d'usage du véhicule :{" "}
@@ -297,8 +314,17 @@ export default function IndemnitesKilometriques() {
             </table>
           </div>
           <p className="text-xs text-muted-foreground mt-3">
-            Source : barème kilométrique DGFiP (BOFiP), applicable aux revenus déclarés en 2026.
-            Majoration de 20 % pour les véhicules 100 % électriques.
+            Source :{" "}
+            <a
+              href="https://www.impots.gouv.fr/professionnel/resultats?query=bar%C3%A8me%20kilom%C3%A9trique"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary underline underline-offset-4"
+            >
+              barème kilométrique DGFiP (BOFiP)
+            </a>
+            , applicable aux revenus déclarés en 2026. Majoration de 20 % pour les véhicules 100 %
+            électriques.
           </p>
         </section>
 
