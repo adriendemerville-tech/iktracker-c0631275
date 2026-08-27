@@ -21,5 +21,9 @@ export const Route = createFileRoute("/app/forum/profil")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: ForumProfilePage,
+  component: () => (
+    <ProtectedRoute>
+      <ForumProfilePage />
+    </ProtectedRoute>
+  ),
 });
