@@ -292,12 +292,12 @@ export default {
 
       // Cluster « calcul / étapes » → pilier des 7 étapes
       "/blog/calculer-indemnites-kilometriques-2026-guide":
-        "/blog/7-etapes-du-calcul-indemnite-frais-kilometriques",
+        "/indemnites-kilometriques",
       "/blog/comment-calculer-frais-kilometriques-remboursement":
-        "/blog/7-etapes-du-calcul-indemnite-frais-kilometriques",
-      "/blog/etapes-rapport-kilometrique": "/blog/7-etapes-du-calcul-indemnite-frais-kilometriques",
+        "/indemnites-kilometriques",
+      "/blog/etapes-rapport-kilometrique": "/indemnites-kilometriques",
       "/blog/precision-calcul-frais-kilometriques-2026":
-        "/blog/7-etapes-du-calcul-indemnite-frais-kilometriques",
+        "/indemnites-kilometriques",
       // Réorientation : report en déclaration
       "/blog/etapes-declaration-fiscale-kilometrage-guide":
         "/blog/declaration-2042-ou-reporter-ses-indemnites-kilometriques",
