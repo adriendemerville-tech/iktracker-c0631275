@@ -94,14 +94,13 @@ export const createDiscussion = createServerFn({ method: "POST" })
 
     const base = buildDiscussionSlug(data.title);
     let slug = base;
-    for (let i = 2; i < 40; i++) {
-      const { data: taken } = await supabase
-        .from("forum_discussions")
-        .select("id")
-        .eq("slug", slug)
-        .maybeSingle();
-      if (!taken) break;
-      slug = `${base}-${i}`;
+    const { data: taken } = await supabase
+      .from("forum_discussions")
+      .select("id")
+      .eq("slug", slug)
+      .maybeSingle();
+    if (taken) {
+      slug = `${base}-${Math.floor(100000 + Math.random() * 900000)}`;
     }
 
     const { data: row, error } = await supabase
