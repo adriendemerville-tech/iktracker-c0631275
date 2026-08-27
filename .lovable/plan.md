@@ -180,11 +180,18 @@ Rendue en SSR, entièrement lisible sans compte :
   `/forum?categorie=...` (SSR, pas de state client obligatoire).
 - Tri : Récentes / Actives / Populaires (votes), par paramètre d'URL.
 - Liste de discussions : titre (lien vers le slug), extrait, catégorie, pseudo
-  + badge de niveau de l'auteur, date, nombre de réponses et de votes.
-- Colonne latérale : discussions les plus utiles, membres les plus actifs,
-  règles de la communauté, lien vers le centre d'aide.
+  + métier + badge de niveau de l'auteur, date, réponses, votes, indicateur de
+  pièce jointe, et actions au survol (§3.3).
+- Bloc « Besoin d'aide tout de suite ? » avec liens vers la page SAV et la
+  page Tutoriel, placé haut de page et répété en bas.
+- Bloc « Discussions recommandées » : sélection mêlant les plus utiles
+  (votes + réponse validée), les récentes sans réponse, et les discussions
+  proches du métier du visiteur quand il est connecté.
+- Colonne latérale : dernières réponses, membres les plus actifs, règles de
+  la communauté.
 - Pagination SSR indexable (`/forum?page=2`), `rel=canonical` propre.
 - JSON-LD : `CollectionPage` + `BreadcrumbList` + `ItemList` des discussions.
+
 
 ### 5.3 Rédiger sans compte, publier connecté (nouveau)
 
