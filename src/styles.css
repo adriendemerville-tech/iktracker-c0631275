@@ -340,8 +340,10 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: var(--font-sans);
-    font-size-adjust: 0.52; /* DM Sans x-height ratio */
+    /* NB : pas de font-size-adjust ici — les @font-face de repli (métriques
+       Capsize plus bas) s'en chargent sans double ajustement au swap. */
   }
+
 
   h1,
   h2,
