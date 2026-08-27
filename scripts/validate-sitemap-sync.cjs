@@ -75,17 +75,17 @@ for (const url of sharedUrls) {
   const p = prebuildMap[url];
 
   if (e.priority !== p.priority) {
-    console.error(`❌ Priority mismatch for ${url}: Edge=${e.priority}, Prebuild=${p.priority}`);
+    console.error(`❌ Priority mismatch for ${url}: SSR=${e.priority}, Prebuild=${p.priority}`);
     hasErrors = true;
   }
   if (e.changefreq !== p.changefreq) {
     console.error(
-      `❌ Changefreq mismatch for ${url}: Edge=${e.changefreq}, Prebuild=${p.changefreq}`,
+      `❌ Changefreq mismatch for ${url}: SSR=${e.changefreq}, Prebuild=${p.changefreq}`,
     );
     hasErrors = true;
   }
   if (e.lastmod && p.lastmod && e.lastmod !== p.lastmod) {
-    console.error(`❌ Lastmod mismatch for ${url}: Edge=${e.lastmod}, Prebuild=${p.lastmod}`);
+    console.error(`❌ Lastmod mismatch for ${url}: SSR=${e.lastmod}, Prebuild=${p.lastmod}`);
     hasErrors = true;
   }
 }
