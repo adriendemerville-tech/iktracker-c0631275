@@ -43,6 +43,14 @@ Disallow: /sso
 Disallow: /offline
 Disallow: /debug/
 Disallow: /.lovable/oauth/consent
+Allow: /forum
+Allow: /forum/
+Disallow: /app/forum/
+Disallow: /forum/nouveau
+Disallow: /*?draft=
+Disallow: /*&draft=
+Disallow: /*?preview=
+Disallow: /*?reply=
 
 # === MOTEURS DE RECHERCHE CLASSIQUES ===
 User-agent: Googlebot
@@ -61,6 +69,14 @@ Disallow: /sso
 Disallow: /offline
 Disallow: /debug/
 Disallow: /.lovable/oauth/consent
+Allow: /forum
+Allow: /forum/
+Disallow: /app/forum/
+Disallow: /forum/nouveau
+Disallow: /*?draft=
+Disallow: /*&draft=
+Disallow: /*?preview=
+Disallow: /*?reply=
 
 # === RÉSEAUX SOCIAUX ===
 User-agent: Twitterbot
@@ -78,6 +94,14 @@ Disallow: /sso
 Disallow: /offline
 Disallow: /debug/
 Disallow: /.lovable/oauth/consent
+Allow: /forum
+Allow: /forum/
+Disallow: /app/forum/
+Disallow: /forum/nouveau
+Disallow: /*?draft=
+Disallow: /*&draft=
+Disallow: /*?preview=
+Disallow: /*?reply=
 
 # === RÈGLE PAR DÉFAUT ===
 User-agent: *
@@ -92,9 +116,18 @@ Disallow: /sso
 Disallow: /offline
 Disallow: /debug/
 Disallow: /.lovable/oauth/consent
+Allow: /forum
+Allow: /forum/
+Disallow: /app/forum/
+Disallow: /forum/nouveau
+Disallow: /*?draft=
+Disallow: /*&draft=
+Disallow: /*?preview=
+Disallow: /*?reply=
 
 # === SITEMAP & GUIDE IA ===
 Sitemap: https://iktracker.fr/sitemap.xml
+Sitemap: https://iktracker.fr/sitemap-forum.xml
 
 # Atom feed (derniers articles publiés)
 # https://iktracker.fr/feed.xml
