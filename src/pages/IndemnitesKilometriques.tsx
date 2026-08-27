@@ -340,12 +340,14 @@ export default function IndemnitesKilometriques() {
 
         {/* Simulateur */}
         <section id="simulateur-ik" className="max-w-4xl mx-auto px-4 py-10 scroll-mt-24">
-          <IKSimulator
-            idSuffix="-ik-pillar"
-            title="Simulateur d'indemnités kilométriques"
-            subtitle="Estimez le montant de vos indemnités kilométriques 2026 selon votre puissance fiscale et votre kilométrage annuel."
-            trackerPage="indemnites-kilometriques"
-          />
+          <Suspense fallback={<div className="min-h-[520px]" aria-hidden="true" />}>
+            <IKSimulator
+              idSuffix="-ik-pillar"
+              title="Simulateur d'indemnités kilométriques"
+              subtitle="Estimez le montant de vos indemnités kilométriques 2026 selon votre puissance fiscale et votre kilométrage annuel."
+              trackerPage="indemnites-kilometriques"
+            />
+          </Suspense>
         </section>
 
         {/* Méthode */}
