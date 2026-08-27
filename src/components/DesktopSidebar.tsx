@@ -399,10 +399,24 @@ export const DesktopSidebar = ({
               </Button>
             )}
 
+            {/* Forum link */}
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowFeedbackSheet(false);
+                navigate("/forum");
+              }}
+              className="w-full justify-start text-muted-foreground hover:text-foreground"
+            >
+              <MessageSquare className="w-4 h-4 mr-2" />
+              Rejoindre le forum
+            </Button>
+
             {/* Feedback Form */}
             <div>
               <FeedbackForm />
             </div>
+
 
             <Separator />
 
