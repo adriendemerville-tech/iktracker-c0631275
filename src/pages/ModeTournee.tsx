@@ -272,7 +272,11 @@ export default function ModeTournee() {
 
                 <p className="text-lg md:text-xl text-muted-foreground mb-8 min-h-[6rem] sm:min-h-[5rem] md:min-h-[4.5rem]">
                   Enchaînez 10 clients dans la journée ? Enregistrez gratuitement tous vos arrêts
-                  grâce à la localisation GPS. Distance totale calculée automatiquement.
+                  grâce à la <strong className="text-foreground">localisation GPS</strong>.{" "}
+                  <strong className="text-foreground">
+                    Distance totale calculée automatiquement
+                  </strong>
+                  .
                 </p>
 
                 <div className="flex flex-wrap gap-4 mb-8">
