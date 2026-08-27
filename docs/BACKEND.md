@@ -167,7 +167,7 @@ Utilisateur → Cloudflare DNS (proxied)
 | `partner_request_logs` | Logs des appels Partner API (path, status, temps, partenaire) | ✅ admin |
 | `partner_webhooks` | Webhooks sortants partenaires (URL, secret HMAC, événements) | ✅ admin |
 
-### Fonctions de base de données (24 fonctions)
+### Fonctions de base de données (25 fonctions)
 
 #### Fonctions d'accès aux rôles
 
@@ -222,6 +222,7 @@ Utilisateur → Cloudflare DNS (proxied)
 | `cleanup_expired_shares()` | Supprime les rapports expirés |
 | `cleanup_old_phone_numbers()` | Anonymise les téléphones > 7 jours |
 | `update_updated_at_column()` | Trigger pour auto-update updated_at |
+| `get_public_user_count()` | Retourne le nombre total d'utilisateurs inscrits (`count(*) FROM auth.users`). Fonction publique (`SECURITY DEFINER`) sans PII, utilisée par le compteur de preuve sociale sur la page d'accueil. Exécutable par `anon`, `authenticated` et `service_role`. |
 
 ---
 

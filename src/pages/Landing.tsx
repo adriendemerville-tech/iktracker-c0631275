@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
+import { Counter } from "@/components/Counter";
 import {
   ArrowRight,
   CheckCircle2,
@@ -28,6 +29,10 @@ import {
   Users,
   Repeat,
 } from "lucide-react";
+
+interface LandingProps {
+  initialUserCount?: number;
+}
 
 // Lazy load AuthForm - not needed for initial LCP
 const AuthForm = lazy(() => import("@/components/AuthForm").then((m) => ({ default: m.AuthForm })));
@@ -173,7 +178,7 @@ const LANDING_DEFAULTS = {
 // useLayoutEffect côté client (applique le swap avant le paint), useEffect côté serveur.
 const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
-const Landing = () => {
+const Landing = ({ initialUserCount }: LandingProps) => {
 
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -338,20 +343,18 @@ const Landing = () => {
                 </ul>
 
                 {/* Social proof */}
-                <div className="mt-6 flex items-center gap-3 justify-center lg:justify-start">
-                  <div className="flex -space-x-2">
-                    {[...Array(4)].map((_, i) => (
-                      <div
-                        key={i}
-                        className="w-8 h-8 rounded-full bg-primary/20 border-2 border-background flex items-center justify-center"
-                      >
-                        <Users className="h-3.5 w-3.5 text-primary" />
-                      </div>
-                    ))}
-                  </div>
+                <div className="mt-6 flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
+                  <Counter
+                    value={initialUserCount ?? 1000}
+                    label="inscrits"
+                    unit=""
+                    variant="accent"
+                    decimals={0}
+                  />
                   <p className="text-sm text-muted-foreground">
-                    <strong className="text-foreground">+2 000</strong> professionnels utilisent
-                    IKtracker
+                    <strong className="text-foreground">6 nouveaux membres</strong> chaque jour
+                    <br />
+                    rejoignent la communauté IKtracker
                   </p>
                 </div>
               </div>
