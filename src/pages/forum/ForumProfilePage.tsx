@@ -82,7 +82,7 @@ export default function ForumProfilePage() {
         },
       });
       if (!res.ok) {
-        toast.error(res.error === "pseudo_taken" ? "Ce pseudo est déjà pris." : res.error);
+        toast.error(res.error);
         return;
       }
       await refresh();
