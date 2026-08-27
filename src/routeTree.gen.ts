@@ -73,6 +73,7 @@ import { Route as ApiPublicContentFreshnessAuditRouteImport } from './routes/api
 import { Route as ApiPublicSubmitIndexingRouteImport } from './routes/api/public/submit-indexing'
 import { Route as AppAdminIndexRouteImport } from './routes/app/admin/index'
 import { Route as AppAdminPartnersRouteImport } from './routes/app/admin/partners'
+import { Route as AppForumProfilRouteImport } from './routes/app/forum/profil'
 import { Route as BlogAuteurSlugRouteImport } from './routes/blog/auteur/$slug'
 import { Route as BlogEditIndexRouteImport } from './routes/blog/edit/index'
 import { Route as BlogEditIdRouteImport } from './routes/blog/edit/$id'
@@ -407,6 +408,11 @@ const AppAdminPartnersRoute = AppAdminPartnersRouteImport.update({
   path: '/app/admin/partners',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppForumProfilRoute = AppForumProfilRouteImport.update({
+  id: '/app/forum/profil',
+  path: '/app/forum/profil',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BlogAuteurSlugRoute = BlogAuteurSlugRouteImport.update({
   id: '/blog/auteur/$slug',
   path: '/blog/auteur/$slug',
@@ -516,6 +522,7 @@ export interface FileRoutesByFullPath {
   '/api/public/content-freshness-audit': typeof ApiPublicContentFreshnessAuditRoute
   '/api/public/submit-indexing': typeof ApiPublicSubmitIndexingRoute
   '/app/admin/partners': typeof AppAdminPartnersRoute
+  '/app/forum/profil': typeof AppForumProfilRoute
   '/blog/auteur/$slug': typeof BlogAuteurSlugRoute
   '/blog/edit/$id': typeof BlogEditIdRoute
   '/forum/categorie/$category': typeof ForumCategorieCategoryRoute
@@ -591,6 +598,7 @@ export interface FileRoutesByTo {
   '/api/public/content-freshness-audit': typeof ApiPublicContentFreshnessAuditRoute
   '/api/public/submit-indexing': typeof ApiPublicSubmitIndexingRoute
   '/app/admin/partners': typeof AppAdminPartnersRoute
+  '/app/forum/profil': typeof AppForumProfilRoute
   '/blog/auteur/$slug': typeof BlogAuteurSlugRoute
   '/blog/edit/$id': typeof BlogEditIdRoute
   '/forum/categorie/$category': typeof ForumCategorieCategoryRoute
@@ -667,6 +675,7 @@ export interface FileRoutesById {
   '/api/public/content-freshness-audit': typeof ApiPublicContentFreshnessAuditRoute
   '/api/public/submit-indexing': typeof ApiPublicSubmitIndexingRoute
   '/app/admin/partners': typeof AppAdminPartnersRoute
+  '/app/forum/profil': typeof AppForumProfilRoute
   '/blog/auteur/$slug': typeof BlogAuteurSlugRoute
   '/blog/edit/$id': typeof BlogEditIdRoute
   '/forum/categorie/$category': typeof ForumCategorieCategoryRoute
@@ -744,6 +753,7 @@ export interface FileRouteTypes {
     | '/api/public/content-freshness-audit'
     | '/api/public/submit-indexing'
     | '/app/admin/partners'
+    | '/app/forum/profil'
     | '/blog/auteur/$slug'
     | '/blog/edit/$id'
     | '/forum/categorie/$category'
@@ -819,6 +829,7 @@ export interface FileRouteTypes {
     | '/api/public/content-freshness-audit'
     | '/api/public/submit-indexing'
     | '/app/admin/partners'
+    | '/app/forum/profil'
     | '/blog/auteur/$slug'
     | '/blog/edit/$id'
     | '/forum/categorie/$category'
@@ -894,6 +905,7 @@ export interface FileRouteTypes {
     | '/api/public/content-freshness-audit'
     | '/api/public/submit-indexing'
     | '/app/admin/partners'
+    | '/app/forum/profil'
     | '/blog/auteur/$slug'
     | '/blog/edit/$id'
     | '/forum/categorie/$category'
@@ -970,6 +982,7 @@ export interface RootRouteChildren {
   ApiPublicContentFreshnessAuditRoute: typeof ApiPublicContentFreshnessAuditRoute
   ApiPublicSubmitIndexingRoute: typeof ApiPublicSubmitIndexingRoute
   AppAdminPartnersRoute: typeof AppAdminPartnersRoute
+  AppForumProfilRoute: typeof AppForumProfilRoute
   BlogAuteurSlugRoute: typeof BlogAuteurSlugRoute
   BlogEditIdRoute: typeof BlogEditIdRoute
   ForumCategorieCategoryRoute: typeof ForumCategorieCategoryRoute
@@ -1433,6 +1446,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminPartnersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/forum/profil': {
+      id: '/app/forum/profil'
+      path: '/app/forum/profil'
+      fullPath: '/app/forum/profil'
+      preLoaderRoute: typeof AppForumProfilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/blog/auteur/$slug': {
       id: '/blog/auteur/$slug'
       path: '/blog/auteur/$slug'
@@ -1563,6 +1583,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicContentFreshnessAuditRoute: ApiPublicContentFreshnessAuditRoute,
   ApiPublicSubmitIndexingRoute: ApiPublicSubmitIndexingRoute,
   AppAdminPartnersRoute: AppAdminPartnersRoute,
+  AppForumProfilRoute: AppForumProfilRoute,
   BlogAuteurSlugRoute: BlogAuteurSlugRoute,
   BlogEditIdRoute: BlogEditIdRoute,
   ForumCategorieCategoryRoute: ForumCategorieCategoryRoute,
