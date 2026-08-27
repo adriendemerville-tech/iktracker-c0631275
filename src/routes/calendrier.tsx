@@ -18,7 +18,7 @@ export const Route = createFileRoute("/calendrier")({
       { name: "robots", content: "index, follow, max-image-preview:large, max-snippet:-1" },
       {
         property: "og:title",
-        content: "Synchronisation Calendrier IKtracker | Google Calendar & Outlook",
+        content: "Synchronisation calendrier : trajets automatiques depuis Google Calendar et Outlook",
       },
       {
         property: "og:description",
@@ -31,7 +31,7 @@ export const Route = createFileRoute("/calendrier")({
       { property: "og:site_name", content: "IKtracker" },
       { property: "og:image", content: "https://iktracker.fr/logo-iktracker-250.webp" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Synchronisation Calendrier IKtracker" },
+      { name: "twitter:title", content: "Synchronisation calendrier : trajets automatiques depuis Google et Outlook" },
       {
         name: "twitter:description",
         content:

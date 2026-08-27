@@ -16,7 +16,7 @@ export const Route = createFileRoute("/indemnites-kilometriques")({
           "indemnités kilométriques, indemnité kilométrique 2026, calcul indemnité kilométrique, barème indemnités kilométriques, IK 2026, remboursement kilométrique URSSAF",
       },
       { name: "robots", content: "index, follow, max-image-preview:large, max-snippet:-1" },
-      { property: "og:title", content: "Indemnités kilométriques 2026 : barème et simulateur" },
+      { property: "og:title", content: "Indemnités kilométriques 2026 : barème officiel DGFiP, simulateur et relevés" },
       {
         property: "og:description",
         content:
@@ -28,7 +28,7 @@ export const Route = createFileRoute("/indemnites-kilometriques")({
       { property: "og:site_name", content: "IKtracker" },
       { property: "og:image", content: "https://iktracker.fr/logo-iktracker-250.webp" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Indemnités kilométriques 2026 : barème et simulateur" },
+      { name: "twitter:title", content: "Indemnités kilométriques 2026 : barème officiel DGFiP, simulateur et relevés" },
       {
         name: "twitter:description",
         content:

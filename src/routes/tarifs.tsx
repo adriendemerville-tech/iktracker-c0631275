@@ -15,7 +15,7 @@ export const Route = createFileRoute("/tarifs")({
         content:
           "indemnités kilométriques gratuit, calcul IK sans abonnement, logiciel frais kilométriques 0€, alternative gratuite Izika Drivers Note",
       },
-      { property: "og:title", content: "Tarifs IKtracker — 0€, gratuit à vie" },
+      { property: "og:title", content: "Tarifs IKtracker : gratuit à vie, fonctionnalités incluses et engagements" },
       {
         property: "og:description",
         content:

@@ -12,7 +12,7 @@ export const Route = createFileRoute("/signup")({
       },
       {
         property: "og:title",
-        content: "Créer un compte gratuit | IKtracker - Outil communautaire",
+        content: "Créer un compte IKtracker : suivi kilométrique gratuit et relevés",
       },
       {
         property: "og:description",

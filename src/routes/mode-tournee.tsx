@@ -16,7 +16,7 @@ export const Route = createFileRoute("/mode-tournee")({
           "mode tournée GPS, commercial itinérant, tournée VRP, note de frais kilométrique, suivi kilométrique infirmière libérale, indemnités kilométriques artisan, frais kilométriques multi-arrêts, auto-entrepreneur déplacement, application gratuite tournée",
       },
       { name: "robots", content: "index, follow, max-image-preview:large, max-snippet:-1" },
-      { property: "og:title", content: "Mode Tournée IKtracker | Suivi kilométrique multi-arrêts" },
+      { property: "og:title", content: "Mode Tournée GPS : suivi multi-arrêts, distances et note de frais" },
       {
         property: "og:description",
         content:
@@ -30,7 +30,7 @@ export const Route = createFileRoute("/mode-tournee")({
       { name: "twitter:card", content: "summary_large_image" },
       {
         name: "twitter:title",
-        content: "Mode Tournée IKtracker | Suivi kilométrique multi-arrêts",
+        content: "Mode Tournée GPS : suivi multi-arrêts, distances et note de frais",
       },
       {
         name: "twitter:description",

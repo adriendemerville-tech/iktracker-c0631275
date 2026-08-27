@@ -18,7 +18,7 @@ export const Route = createFileRoute("/fonctionnalites")({
       { name: "robots", content: "index, follow, max-image-preview:large, max-snippet:-1" },
       {
         property: "og:title",
-        content: "Fonctionnalités IKtracker — Toutes les fonctionnalités gratuites",
+        content: "Fonctionnalités IKtracker : calcul IK, mode tournée GPS, sync agenda et rapports",
       },
       {
         property: "og:description",
@@ -33,7 +33,7 @@ export const Route = createFileRoute("/fonctionnalites")({
       { name: "twitter:card", content: "summary_large_image" },
       {
         name: "twitter:title",
-        content: "Fonctionnalités IKtracker — Toutes les fonctionnalités gratuites",
+        content: "Fonctionnalités IKtracker : calcul IK, mode tournée GPS, sync agenda et rapports",
       },
       {
         name: "twitter:description",
