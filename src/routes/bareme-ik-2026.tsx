@@ -4,7 +4,7 @@ import BaremeIK2026 from "@/pages/BaremeIK2026";
 export const Route = createFileRoute("/bareme-ik-2026")({
   head: () => ({
     meta: [
-      { title: "Barème kilométrique 2026 URSSAF : tableau + simulateur" },
+      { title: "Barème kilométrique 2026 DGFiP/URSSAF : tableau officiel et simulateur" },
       {
         name: "description",
         content:
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/bareme-ik-2026")({
       },
       {
         property: "og:title",
-        content: "Barème Kilométrique 2026 Officiel - Simulateur IK Gratuit",
+        content: "Barème kilométrique 2026 DGFiP/URSSAF : tableau officiel et simulateur",
       },
       {
         property: "og:description",
@@ -30,7 +30,7 @@ export const Route = createFileRoute("/bareme-ik-2026")({
       { property: "og:site_name", content: "IKtracker" },
       { property: "og:image", content: "https://iktracker.fr/logo-iktracker-250.webp" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Barème Kilométrique 2026 Officiel | IKtracker" },
+      { name: "twitter:title", content: "Barème kilométrique 2026 DGFiP/URSSAF : tableau officiel et simulateur" },
       {
         name: "twitter:description",
         content:

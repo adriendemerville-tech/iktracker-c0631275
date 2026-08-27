@@ -4,7 +4,7 @@ import ExpertComptable from "@/pages/ExpertComptable";
 export const Route = createFileRoute("/expert-comptable")({
   head: () => ({
     meta: [
-      { title: "Logiciel IK pour experts-comptables & cabinets | Export PDF/Excel" },
+      { title: "Logiciel IK pour experts-comptables : relevés PDF/Excel et export clients" },
       {
         name: "description",
         content:
@@ -18,7 +18,7 @@ export const Route = createFileRoute("/expert-comptable")({
       { name: "robots", content: "index, follow, max-image-preview:large, max-snippet:-1" },
       {
         property: "og:title",
-        content: "IKtracker pour Experts-Comptables | Export IK PDF et Excel",
+        content: "Logiciel IK pour experts-comptables : relevés PDF/Excel et export clients",
       },
       {
         property: "og:description",
@@ -31,7 +31,7 @@ export const Route = createFileRoute("/expert-comptable")({
       { property: "og:site_name", content: "IKtracker" },
       { property: "og:image", content: "https://iktracker.fr/logo-iktracker-250.webp" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "IKtracker pour Experts-Comptables" },
+      { name: "twitter:title", content: "Logiciel IK pour experts-comptables : relevés PDF/Excel et export clients" },
       {
         name: "twitter:description",
         content:

@@ -4,7 +4,7 @@ import NoteDeFraisKilometrique from "@/pages/NoteDeFraisKilometrique";
 export const Route = createFileRoute("/note-de-frais-kilometrique")({
   head: () => ({
     meta: [
-      { title: "Note de frais kilométrique 2025-2026 | Modèle & calcul gratuit" },
+      { title: "Note de frais kilométrique 2026 : modèle, calcul et justificatifs URSSAF" },
       {
         name: "description",
         content:
@@ -16,7 +16,7 @@ export const Route = createFileRoute("/note-de-frais-kilometrique")({
           "note de frais kilométrique, modèle note de frais kilométrique, comment faire une note de frais kilométrique, calcul note de frais, justifier frais kilométrique impôt, remboursement kilométrique",
       },
       { name: "robots", content: "index, follow, max-image-preview:large, max-snippet:-1" },
-      { property: "og:title", content: "Note de frais kilométrique 2025-2026 | Modèle gratuit" },
+      { property: "og:title", content: "Note de frais kilométrique 2026 : modèle, calcul et justificatifs URSSAF" },
       {
         property: "og:description",
         content:

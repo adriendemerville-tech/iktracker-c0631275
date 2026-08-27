@@ -4,7 +4,7 @@ import FraisReels from "@/pages/FraisReels";
 export const Route = createFileRoute("/frais-reels")({
   head: () => ({
     meta: [
-      { title: "Frais réels ou abattement 10% ? Simulateur impôts 2026" },
+      { title: "Frais réels ou abattement 10 % : simulateur et comparatif impôts 2026" },
       {
         name: "description",
         content:
@@ -15,7 +15,7 @@ export const Route = createFileRoute("/frais-reels")({
         content:
           "frais réels 2025, frais reel impot, calcul frais réel, frais kilometrique impot, abattement 10%, déclaration impôts 2026, optimisation fiscale, justifier frais kilométrique",
       },
-      { property: "og:title", content: "Frais Réels vs Abattement 10% : Calculateur Gratuit 2026" },
+      { property: "og:title", content: "Frais réels ou abattement 10 % : simulateur et comparatif impôts 2026" },
       {
         property: "og:description",
         content:
