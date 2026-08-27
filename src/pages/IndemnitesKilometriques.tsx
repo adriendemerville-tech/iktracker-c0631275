@@ -203,17 +203,18 @@ export default function IndemnitesKilometriques() {
             <strong className="text-foreground"> Simulateur gratuit, sans inscription.</strong>
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
-            <a href="#simulateur-ik">
-              <Button size="lg" className="gap-2">
+            <a href="#simulateur-ik" className="w-full sm:w-auto">
+              <Button size="lg" className="gap-2 w-full sm:w-auto">
                 Calculer mes indemnités <ArrowRight className="w-4 h-4" />
               </Button>
             </a>
-            <Link to="/bareme-ik-2026">
-              <Button size="lg" variant="outline">
+            <Link to="/bareme-ik-2026" className="w-full sm:w-auto">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto">
                 Voir le barème détaillé
               </Button>
             </Link>
           </div>
+
         </section>
 
         {/* Définition */}
