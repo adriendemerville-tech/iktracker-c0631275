@@ -115,7 +115,31 @@ export default function IndemnitesKilometriques() {
             }),
           )}
         </script>
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "TechArticle",
+            "@id": `${PAGE_URL}#article`,
+            headline: "Indemnités kilométriques 2026 : barème, calcul et méthode de suivi",
+            description:
+              "Méthode complète de calcul et de justification des indemnités kilométriques 2026 : barème DGFiP, majoration électrique, carnet de bord opposable, suivi GPS et rapports automatiques.",
+            inLanguage: "fr-FR",
+            url: PAGE_URL,
+            mainEntityOfPage: PAGE_URL,
+            datePublished: "2026-08-27",
+            dateModified: PAGE_UPDATED,
+            author: FOUNDER_PERSON,
+            publisher: { "@type": "Organization", "@id": ORGANIZATION_ID, name: "IKtracker" },
+            about: [
+              { "@type": "Thing", name: "Indemnité kilométrique" },
+              { "@type": "Thing", name: "Barème kilométrique DGFiP" },
+              { "@type": "Thing", name: "Frais réels" },
+            ],
+            mentions: METHOD_STEPS.map((s) => ({ "@type": "Thing", name: s.t })),
+          })}
+        </script>
       </Helmet>
+
 
       <MarketingNav />
 
