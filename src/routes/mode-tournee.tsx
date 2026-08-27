@@ -8,7 +8,7 @@ export const Route = createFileRoute("/mode-tournee")({
       {
         name: "description",
         content:
-          "Mode Tournée : arrêts clients enregistrés par GPS, détection automatique des stops, distances recalculées entre étapes, note de frais générée. Pour IDEL, artisans, commerciaux.",
+          "Mode Tournée : arrêts clients enregistrés par GPS, détection des stops, distances recalculées entre étapes, note de frais générée. Pour IDEL, artisans, commerciaux.",
       },
       {
         name: "keywords",
