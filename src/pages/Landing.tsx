@@ -180,6 +180,7 @@ const LANDING_DEFAULTS = {
 const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 const Landing = ({ initialUserCount }: LandingProps) => {
+  const { count: liveUserCount } = useLiveUserCount({ initialCount: initialUserCount });
 
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
