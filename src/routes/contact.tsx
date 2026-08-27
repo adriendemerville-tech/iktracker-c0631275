@@ -23,11 +23,13 @@ export const Route = createFileRoute("/contact")({
       { property: "og:locale", content: "fr_FR" },
       { property: "og:site_name", content: "IKtracker" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:title", content: "Contactez IKtracker" },
+      { name: "twitter:title", content: "Contact IKtracker : support, bug, suggestion et partenariats" },
       {
         name: "twitter:description",
-        content: "Une question sur IKtracker ? Contactez-nous facilement.",
+        content:
+          "Support technique, bug, suggestion ou demande partenaire : écrivez à l'équipe IKtracker.",
       },
+
     ],
     links: [{ rel: "canonical", href: "https://iktracker.fr/contact" }],
   }),
