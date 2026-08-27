@@ -105,7 +105,7 @@ Chaque discussion porte :
    RLS + GRANT, bucket avatars.
 2. Server functions : CRUD, similarité, votes, profil.
 3. Agents IA (classement, SAV, modération) via la passerelle Lovable AI.
-4. UI `/app/forum` + fiche profil.
+4. UI `/app/forum` + fiche profil + modale de passage de niveau (§2.1).
 5. Surface publique SSR `/forum` + JSON-LD + sitemap.
 6. Admin modération + mise à jour `docs/BACKEND.md`.
 
