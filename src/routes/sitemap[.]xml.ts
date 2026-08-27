@@ -150,12 +150,21 @@ export const Route = createFileRoute("/sitemap.xml")({
           };
         });
 
+        // Le forum ne doit jamais casser le sitemap principal.
+        let forumEntries: SitemapEntry[] = [];
+        try {
+          forumEntries = await fetchForumEntries();
+        } catch (e) {
+          console.error("[sitemap] forum entries failed:", e);
+        }
+
         const xml = [
           `<?xml version="1.0" encoding="UTF-8"?>`,
           `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`,
-          ...[...staticPages, ...blogEntries].map(renderUrl),
+          ...[...staticPages, ...blogEntries, ...forumEntries].map(renderUrl),
           `</urlset>`,
         ].join("\n");
+
 
         return new Response(xml, {
           headers: {
