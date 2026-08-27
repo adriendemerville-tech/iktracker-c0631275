@@ -4,7 +4,7 @@ import Artisans from "@/pages/Artisans";
 export const Route = createFileRoute("/artisans")({
   head: () => ({
     meta: [
-      { title: "Frais kilométriques artisan : suivi des trajets de chantier" },
+      { title: "Frais kilométriques artisan : calcul barème 2026 et trajets de chantier" },
       {
         name: "description",
         content:
@@ -12,7 +12,7 @@ export const Route = createFileRoute("/artisans")({
       },
       {
         property: "og:title",
-        content: "Frais kilométriques artisan : trajets de chantier et devis",
+        content: "Frais kilométriques artisan : calcul barème 2026 et trajets de chantier",
       },
       {
         property: "og:description",
@@ -25,7 +25,7 @@ export const Route = createFileRoute("/artisans")({
       { property: "og:site_name", content: "IKtracker" },
       { property: "og:image", content: "https://iktracker.fr/logo-iktracker-250.webp" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Frais kilométriques artisan : trajets de chantier" },
+      { name: "twitter:title", content: "Frais kilométriques artisan : calcul barème 2026 et trajets de chantier" },
       {
         name: "twitter:description",
         content:
