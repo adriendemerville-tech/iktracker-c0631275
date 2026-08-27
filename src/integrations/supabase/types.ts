@@ -2884,6 +2884,8 @@ export type Database = {
         Args: { _max_idle?: string }
         Returns: number
       }
+      forum_level_for: { Args: { _points: number }; Returns: string }
+      forum_recalc_profile: { Args: { _user_id: string }; Returns: undefined }
       get_ab_test_results: { Args: { days_back?: number }; Returns: Json }
       get_admin_stats: {
         Args: { end_date?: string; start_date?: string }
@@ -2960,6 +2962,7 @@ export type Database = {
         }[]
       }
       get_download_stats: { Args: never; Returns: Json }
+      get_forum_stats: { Args: never; Returns: Json }
       get_linked_user: { Args: { _uid: string }; Returns: string }
       get_linked_users: { Args: { _uid: string }; Returns: string[] }
       get_marketing_stats: { Args: { days_back?: number }; Returns: Json }
