@@ -6,11 +6,52 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { IKSimulator } from "@/components/marketing/IKSimulator";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
+import {
+  buildSoftwareApplicationSchema,
+  FOUNDER_PERSON,
+  ORGANIZATION_ID,
+} from "@/lib/seo-schemas";
 import { IK_BAREME_2024 } from "@/types/trip";
-import { ArrowRight, Calculator, ShieldCheck, Zap, FileDown, MapPin } from "lucide-react";
+import {
+  ArrowRight,
+  Calculator,
+  ShieldCheck,
+  Zap,
+  FileDown,
+  MapPin,
+  Route as RouteIcon,
+  CalendarDays,
+  Repeat,
+  Mail,
+} from "lucide-react";
 
 const PAGE_URL = "https://iktracker.fr/indemnites-kilometriques";
+const PAGE_UPDATED = "2026-08-27";
+
+/** Méthode singulière IKtracker — texte servi en SSR pour SEO/GEO */
+const METHOD_STEPS = [
+  {
+    icon: RouteIcon,
+    t: "Mode Tournée : une journée, plusieurs arrêts, un seul enregistrement",
+    d: "Le GPS relève la position toutes les 10 secondes et détecte automatiquement un arrêt au-delà de 2 minutes dans un rayon de 100 mètres. Chaque étape devient un segment daté avec sa distance réelle, calculée en Haversine pendant le trajet puis affinée via Distance Matrix à la clôture. Une tournée oubliée est auto-finalisée et signalée à vérifier : aucune journée ne disparaît du carnet de bord.",
+  },
+  {
+    icon: Repeat,
+    t: "Trajets ponctuels ou récurrents, saisis en quelques secondes",
+    d: "Un déplacement isolé se crée par dictée vocale ou en langage naturel (« Aix puis Salon, visite chantier »), avec autocomplétion d'adresses issue de la Géoplateforme IGN. Les tournées habituelles se déclarent une fois en trajets récurrents : elles se régénèrent seules, sans ressaisie ni oubli en fin de mois.",
+  },
+  {
+    icon: CalendarDays,
+    t: "Calendrier synchronisé : l'agenda devient le carnet de bord",
+    d: "Google Calendar et Outlook sont synchronisés quatre fois par jour. Les rendez-vous d'un même agenda sur une même journée sont regroupés automatiquement en tournée, avec retour à l'adresse du domicile en fallback et affectation du véhicule par défaut. Les rendez-vous futurs restent masqués jusqu'à leur date réelle : le registre ne contient jamais de kilomètres non parcourus.",
+  },
+  {
+    icon: Mail,
+    t: "Rapports automatiques et archive opposable",
+    d: "Un relevé mensuel et annuel est généré et envoyé par email à l'utilisateur et à son expert-comptable, avec lien signé temporaire vers le PDF. Chaque ligne porte date, motif, départ, arrivée, distance, véhicule et puissance fiscale — le format attendu par l'URSSAF — et reste consultable dans l'archive pendant la durée légale de conservation de 3 ans.",
+  },
+];
+
 
 const faqs = [
   {
@@ -115,7 +156,31 @@ export default function IndemnitesKilometriques() {
             }),
           )}
         </script>
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "TechArticle",
+            "@id": `${PAGE_URL}#article`,
+            headline: "Indemnités kilométriques 2026 : barème, calcul et méthode de suivi",
+            description:
+              "Méthode complète de calcul et de justification des indemnités kilométriques 2026 : barème DGFiP, majoration électrique, carnet de bord opposable, suivi GPS et rapports automatiques.",
+            inLanguage: "fr-FR",
+            url: PAGE_URL,
+            mainEntityOfPage: PAGE_URL,
+            datePublished: "2026-08-27",
+            dateModified: PAGE_UPDATED,
+            author: FOUNDER_PERSON,
+            publisher: { "@type": "Organization", "@id": ORGANIZATION_ID, name: "IKtracker" },
+            about: [
+              { "@type": "Thing", name: "Indemnité kilométrique" },
+              { "@type": "Thing", name: "Barème kilométrique DGFiP" },
+              { "@type": "Thing", name: "Frais réels" },
+            ],
+            mentions: METHOD_STEPS.map((s) => ({ "@type": "Thing", name: s.t })),
+          })}
+        </script>
       </Helmet>
+
 
       <MarketingNav />
 
@@ -290,7 +355,56 @@ export default function IndemnitesKilometriques() {
           </div>
         </section>
 
+        {/* Méthode singulière IKtracker */}
+        <section className="max-w-4xl mx-auto px-4 py-10">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+            La méthode IKtracker : du trajet réel à l'indemnité justifiable
+          </h2>
+          <p className="text-muted-foreground leading-relaxed mb-6">
+            La difficulté des indemnités kilométriques n'est pas le calcul, c'est la preuve. Un
+            barème s'applique en une multiplication ; un carnet de bord opposable, lui, se
+            construit jour après jour. IKtracker part donc du déplacement réel — enregistré,
+            horodaté, mesuré — et remonte jusqu'au montant fiscal, plutôt que l'inverse. Cette
+            logique explique les quatre briques ci-dessous, conçues par un entrepreneur
+            indépendant pour son propre usage de terrain.
+          </p>
+          <div className="grid sm:grid-cols-2 gap-4">
+            {METHOD_STEPS.map(({ icon: Icon, t, d }) => (
+              <Card key={t} className="border-border">
+                <CardContent className="p-5">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                      <Icon className="w-5 h-5 text-primary" />
+                    </div>
+                    <h3 className="font-semibold text-foreground leading-snug">{t}</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{d}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          <p className="text-muted-foreground leading-relaxed mt-6">
+            Chaque trajet enregistré est ensuite converti au barème DGFiP en vigueur, avec la
+            majoration de 20 % appliquée automatiquement aux véhicules 100 % électriques et le
+            passage de tranche kilométrique signalé dès qu'il est atteint. Un changement de
+            véhicule ou de puissance fiscale déclenche, au choix, le recalcul des trajets déjà
+            enregistrés. L'ensemble est gratuit à vie, sans abonnement ni carte bancaire.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link to="/mode-tournee">
+              <Button variant="outline">Découvrir le Mode Tournée</Button>
+            </Link>
+            <Link to="/calendrier">
+              <Button variant="outline">Synchronisation calendrier</Button>
+            </Link>
+            <Link to="/fonctionnalites">
+              <Button variant="outline">Toutes les fonctionnalités</Button>
+            </Link>
+          </div>
+        </section>
+
         {/* Cas particuliers + maillage */}
+
         <section className="max-w-3xl mx-auto px-4 py-10">
           <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6">
             Cas particuliers et ressources
