@@ -8,7 +8,7 @@ export const Route = createFileRoute("/installer")({
       {
         name: "description",
         content:
-          "Installez IKtracker en 2 minutes sur iPhone ou Android, directement depuis votre navigateur. Application gratuite, sans App Store, sans compte payant.",
+          "Installer IKtracker sur iPhone ou Android en 2 minutes : ajout à l'écran d'accueil depuis le navigateur (PWA), sans App Store ni Play Store. Pas à pas illustré, application gratuite.",
       },
       {
         name: "keywords",

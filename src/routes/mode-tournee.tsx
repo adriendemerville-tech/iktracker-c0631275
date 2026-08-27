@@ -8,7 +8,7 @@ export const Route = createFileRoute("/mode-tournee")({
       {
         name: "description",
         content:
-          "Enregistrez chaque arrêt client par GPS et générez votre note de frais kilométrique en un clic. Gratuit pour infirmiers libéraux, artisans, commerciaux et livreurs.",
+          "Mode Tournée : enregistrement GPS des arrêts clients, détection automatique des stops, distances recalculées entre étapes et note de frais kilométrique générée. Gratuit pour IDEL, artisans, commerciaux.",
       },
       {
         name: "keywords",

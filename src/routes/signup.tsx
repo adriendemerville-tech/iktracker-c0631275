@@ -8,7 +8,7 @@ export const Route = createFileRoute("/signup")({
       {
         name: "description",
         content:
-          "Rejoignez la communauté IKtracker : automatisez vos indemnités kilométriques via GPS et calendrier. Mode Tournée, comparateur frais réels, barème 2026, export PDF. 100% gratuit.",
+          "Création de compte IKtracker : calcul des IK au barème 2026, mode Tournée GPS, synchronisation calendrier, comparateur frais réels vs abattement 10 %, exports PDF. 100 % gratuit, sans carte.",
       },
       {
         property: "og:title",

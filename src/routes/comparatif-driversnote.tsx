@@ -8,7 +8,7 @@ export const Route = createFileRoute("/comparatif-driversnote")({
       {
         name: "description",
         content:
-          "Driversnote est trop cher ou trop intrusif ? Découvrez IKtracker, l'alternative sans GPS permanent, sans boîtier à acheter et 100% gratuite.",
+          "Comparatif Driversnote vs IKtracker : pas de boîtier à acheter, pas de tracking GPS permanent, calcul des IK au barème fiscal français, gratuit. Tableau comparatif prix, confidentialité et fonctions.",
       },
       {
         name: "keywords",

@@ -8,7 +8,7 @@ export const Route = createFileRoute("/calendrier")({
       {
         name: "description",
         content:
-          "Synchronisez librement IKtracker avec Google Calendar ou Outlook. Vos rendez-vous deviennent automatiquement des trajets avec calcul des IK en illimité.",
+          "Synchronisation Google Calendar et Outlook : chaque rendez-vous géolocalisé devient un trajet avec calcul des indemnités kilométriques au barème officiel, regroupés par jour en tournée.",
       },
       {
         name: "keywords",

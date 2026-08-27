@@ -8,7 +8,7 @@ export const Route = createFileRoute("/fonctionnalites")({
       {
         name: "description",
         content:
-          "Découvrez toutes les fonctionnalités gratuites d'IKtracker : calcul des indemnités kilométriques 2025-2026, Mode Tournée GPS, synchronisation calendrier, saisie vocale, export PDF/Excel, relevés automatiques.",
+          "Fonctionnalités IKtracker : calcul des IK au barème 2025-2026, mode Tournée GPS avec détection des arrêts, trajets depuis l'agenda, saisie vocale et langage naturel, exports PDF/Excel, majoration +20 % électrique.",
       },
       {
         name: "keywords",
