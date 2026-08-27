@@ -12,18 +12,42 @@ Deux réserves à cadrer dès le départ :
   utile (bot SAV validé ou réponse humaine votée), sinon Google voit des pages
   vides et cela pénalise le domaine.
 
-## 1. Identité utilisateur (nouveau)
+## 0. Ce qui manquait (revue v3)
+
+Le plan v2 couvrait l'essentiel mais restait sous les standards d'un forum
+moderne. Ajouts retenus, inspirés de Reddit et de jeuxvideo.com :
+
+- Reddit : vote haut/bas avec score visible, tri Récent/Actif/Populaire,
+  enregistrement personnel d'une discussion, partage en un clic, réponse
+  « meilleure réponse » épinglée par l'auteur, réponses imbriquées sur
+  2 niveaux, aperçu de lien, signalement communautaire, karma (nos niveaux).
+- jeuxvideo.com : catégories fortes en page d'accueil, fil « dernières
+  réponses », pastille « nouveau depuis votre dernière visite », pagination
+  claire et lisible sans JS, profil public simple avec ancienneté et compteur
+  de messages.
+- Ajouts propres à IKtracker : pièces jointes (photo/PDF de relevé), liens
+  SAV et tutoriel en évidence, recommandations de discussions.
+
+Volontairement exclus pour l'instant : messagerie privée, notifications push,
+flux personnalisé algorithmique, récompenses payantes.
+
+## 1. Identité utilisateur
 
 Table `forum_profiles`, une ligne par utilisateur, pré-remplie à la première visite
 à partir du compte :
 - pseudo (par défaut dérivé du prénom/email, modifiable, unique)
 - avatar (upload dans un bucket public `forum-avatars`, redimensionné)
-- bio courte, profession/persona (repris de `user_preferences`)
+- bio courte
+- métier / persona : repris de `user_preferences.persona` renseigné à
+  l'inscription, affiché publiquement sous le pseudo (ex. « Artisan »,
+  « Infirmier libéral »), modifiable depuis le profil forum
 - ancienneté = date de création du compte
 - compteurs : discussions créées, réponses, votes positifs reçus
 
 Champs privés jamais exposés publiquement : email, plaque, nom réel.
-Vue publique `forum_public_profiles` exposant uniquement les champs sûrs.
+Vue publique `forum_public_profiles` exposant uniquement les champs sûrs
+(pseudo, avatar, persona, niveau, ancienneté, compteurs).
+
 
 ## 2. Niveaux
 
