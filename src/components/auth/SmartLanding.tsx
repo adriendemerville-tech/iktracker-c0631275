@@ -3,11 +3,15 @@ import { Navigate, useLocation } from "@/lib/router-compat";
 import { useHydrated } from "@tanstack/react-router";
 import Landing from "@/pages/Landing";
 
+interface SmartLandingProps {
+  initialUserCount?: number;
+}
+
 // Les points d'entrée publics ("/", "/auth", "/signup") doivent rendre du vrai HTML
 // en SSR : les crawlers n'exécutent pas de JS. On rend donc toujours la page
 // publique côté serveur, la redirection des utilisateurs connectés a lieu après
 // hydratation. Chaque page a son propre module pour ne pas mutualiser les chunks.
-export const SmartLanding = () => {
+export const SmartLanding = ({ initialUserCount }: SmartLandingProps) => {
   const { user, loading } = useAuth();
   const location = useLocation();
   const hydrated = useHydrated();
@@ -17,7 +21,7 @@ export const SmartLanding = () => {
     return <Navigate to="/app" replace />;
   }
 
-  return <Landing />;
+  return <Landing initialUserCount={initialUserCount} />;
 };
 
 export default SmartLanding;

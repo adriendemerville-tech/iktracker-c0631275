@@ -2606,6 +2606,7 @@ export type Database = {
           persona: string
         }[]
       }
+      get_public_user_count: { Args: never; Returns: number }
       get_recent_signups: {
         Args: { limit_count?: number }
         Returns: {
