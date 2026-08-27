@@ -76,6 +76,7 @@ import { Route as AppAdminPartnersRouteImport } from './routes/app/admin/partner
 import { Route as BlogAuteurSlugRouteImport } from './routes/blog/auteur/$slug'
 import { Route as BlogEditIndexRouteImport } from './routes/blog/edit/index'
 import { Route as BlogEditIdRouteImport } from './routes/blog/edit/$id'
+import { Route as ForumCategorieCategoryRouteImport } from './routes/forum/categorie/$category'
 import { Route as AdminBlogEditIndexRouteImport } from './routes/admin/blog/edit/index'
 import { Route as AdminBlogEditIdRouteImport } from './routes/admin/blog/edit/$id'
 import { Route as AppAdminBlogIndexRouteImport } from './routes/app/admin/blog/index'
@@ -421,6 +422,11 @@ const BlogEditIdRoute = BlogEditIdRouteImport.update({
   path: '/blog/edit/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ForumCategorieCategoryRoute = ForumCategorieCategoryRouteImport.update({
+  id: '/forum/categorie/$category',
+  path: '/forum/categorie/$category',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminBlogEditIndexRoute = AdminBlogEditIndexRouteImport.update({
   id: '/admin/blog/edit/',
   path: '/admin/blog/edit/',
@@ -512,6 +518,7 @@ export interface FileRoutesByFullPath {
   '/app/admin/partners': typeof AppAdminPartnersRoute
   '/blog/auteur/$slug': typeof BlogAuteurSlugRoute
   '/blog/edit/$id': typeof BlogEditIdRoute
+  '/forum/categorie/$category': typeof ForumCategorieCategoryRoute
   '/admin/blog/': typeof AdminBlogIndexRoute
   '/app/admin/': typeof AppAdminIndexRoute
   '/blog/edit/': typeof BlogEditIndexRoute
@@ -586,6 +593,7 @@ export interface FileRoutesByTo {
   '/app/admin/partners': typeof AppAdminPartnersRoute
   '/blog/auteur/$slug': typeof BlogAuteurSlugRoute
   '/blog/edit/$id': typeof BlogEditIdRoute
+  '/forum/categorie/$category': typeof ForumCategorieCategoryRoute
   '/admin/blog': typeof AdminBlogIndexRoute
   '/app/admin': typeof AppAdminIndexRoute
   '/blog/edit': typeof BlogEditIndexRoute
@@ -661,6 +669,7 @@ export interface FileRoutesById {
   '/app/admin/partners': typeof AppAdminPartnersRoute
   '/blog/auteur/$slug': typeof BlogAuteurSlugRoute
   '/blog/edit/$id': typeof BlogEditIdRoute
+  '/forum/categorie/$category': typeof ForumCategorieCategoryRoute
   '/admin/blog/': typeof AdminBlogIndexRoute
   '/app/admin/': typeof AppAdminIndexRoute
   '/blog/edit/': typeof BlogEditIndexRoute
@@ -737,6 +746,7 @@ export interface FileRouteTypes {
     | '/app/admin/partners'
     | '/blog/auteur/$slug'
     | '/blog/edit/$id'
+    | '/forum/categorie/$category'
     | '/admin/blog/'
     | '/app/admin/'
     | '/blog/edit/'
@@ -811,6 +821,7 @@ export interface FileRouteTypes {
     | '/app/admin/partners'
     | '/blog/auteur/$slug'
     | '/blog/edit/$id'
+    | '/forum/categorie/$category'
     | '/admin/blog'
     | '/app/admin'
     | '/blog/edit'
@@ -885,6 +896,7 @@ export interface FileRouteTypes {
     | '/app/admin/partners'
     | '/blog/auteur/$slug'
     | '/blog/edit/$id'
+    | '/forum/categorie/$category'
     | '/admin/blog/'
     | '/app/admin/'
     | '/blog/edit/'
@@ -960,6 +972,7 @@ export interface RootRouteChildren {
   AppAdminPartnersRoute: typeof AppAdminPartnersRoute
   BlogAuteurSlugRoute: typeof BlogAuteurSlugRoute
   BlogEditIdRoute: typeof BlogEditIdRoute
+  ForumCategorieCategoryRoute: typeof ForumCategorieCategoryRoute
   AdminBlogIndexRoute: typeof AdminBlogIndexRoute
   AppAdminIndexRoute: typeof AppAdminIndexRoute
   BlogEditIndexRoute: typeof BlogEditIndexRoute
@@ -1441,6 +1454,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogEditIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/forum/categorie/$category': {
+      id: '/forum/categorie/$category'
+      path: '/forum/categorie/$category'
+      fullPath: '/forum/categorie/$category'
+      preLoaderRoute: typeof ForumCategorieCategoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/blog/edit/': {
       id: '/admin/blog/edit/'
       path: '/admin/blog/edit'
@@ -1545,6 +1565,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppAdminPartnersRoute: AppAdminPartnersRoute,
   BlogAuteurSlugRoute: BlogAuteurSlugRoute,
   BlogEditIdRoute: BlogEditIdRoute,
+  ForumCategorieCategoryRoute: ForumCategorieCategoryRoute,
   AdminBlogIndexRoute: AdminBlogIndexRoute,
   AppAdminIndexRoute: AppAdminIndexRoute,
   BlogEditIndexRoute: BlogEditIndexRoute,
