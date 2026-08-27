@@ -146,7 +146,9 @@ publication exige un compte connecté.
 2. Server functions : CRUD, similarité, votes, profil.
 3. Agents IA (classement, SAV, modération) via la passerelle Lovable AI.
 4. UI `/app/forum` + fiche profil + modale de passage de niveau (§2.1).
-5. Surface publique SSR `/forum` + JSON-LD + sitemap.
+5. Surface publique SSR : home `/forum` (§5.2), discussions, lien header (§5.1),
+   éditeur ouvert avec publication après connexion (§5.3), JSON-LD + sitemap.
+
 6. Admin modération + mise à jour `docs/BACKEND.md`.
 
 ## Détails techniques
