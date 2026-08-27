@@ -5,6 +5,7 @@ import { CrawlersBanner } from "@/components/marketing/CrawlersBanner";
 import { Link, useNavigate } from "@/lib/router-compat";
 import { getSupabase } from "@/integrations/supabase/lazy";
 import { usePageContent } from "@/hooks/usePageContent";
+import { useLiveUserCount } from "@/hooks/useLiveUserCount";
 import { HERO_VARIANTS, DEFAULT_VARIANT, getHeroVariant, type HeroVariant } from "@/lib/ab-test";
 import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
