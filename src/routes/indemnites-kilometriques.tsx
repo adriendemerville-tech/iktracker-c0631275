@@ -8,7 +8,7 @@ export const Route = createFileRoute("/indemnites-kilometriques")({
       {
         name: "description",
         content:
-          "Indemnités kilométriques 2026 : barème officiel DGFiP, calcul au réel, +20 % électrique, justificatifs URSSAF. Simulateur gratuit, mode tournée GPS, sync agenda et relevés PDF.",
+          "Indemnités kilométriques 2026 : barème officiel DGFiP, calcul au réel, +20 % électrique, justificatifs URSSAF. Simulateur gratuit, mode tournée GPS, sync agenda, relevés PDF.",
       },
       {
         name: "keywords",

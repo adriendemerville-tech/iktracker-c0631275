@@ -8,7 +8,7 @@ export const Route = createFileRoute("/tarifs")({
       {
         name: "description",
         content:
-          "Tarifs IKtracker : 0 €, toutes les fonctionnalités incluses (calcul IK 2026, mode tournée GPS, sync calendrier, exports PDF/Excel). Pas d'abonnement, de carte bancaire ni de version premium.",
+          "Tarifs IKtracker : 0 €, tout inclus (calcul IK 2026, mode tournée GPS, sync calendrier, exports PDF/Excel). Ni abonnement, ni carte bancaire, ni version premium.",
       },
       {
         name: "keywords",

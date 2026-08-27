@@ -8,7 +8,7 @@ export const Route = createFileRoute("/comparatif-izika")({
       {
         name: "description",
         content:
-          "Comparatif Izika vs IKtracker : prix (abonnement vs 0 €), synchronisation agenda, rapports fiscaux conformes au barème officiel, respect de la vie privée. Tableau détaillé fonction par fonction.",
+          "Comparatif Izika vs IKtracker : abonnement vs 0 €, synchronisation agenda, rapports fiscaux conformes au barème officiel, vie privée. Tableau fonction par fonction.",
       },
       {
         name: "keywords",

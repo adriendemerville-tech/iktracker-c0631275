@@ -8,7 +8,7 @@ export const Route = createFileRoute("/signup")({
       {
         name: "description",
         content:
-          "Création de compte IKtracker : calcul des IK au barème 2026, mode Tournée GPS, synchronisation calendrier, comparateur frais réels vs abattement 10 %, exports PDF. 100 % gratuit, sans carte.",
+          "Création de compte IKtracker : calcul IK au barème 2026, mode Tournée GPS, sync calendrier, comparateur frais réels, exports PDF. 100 % gratuit, sans carte bancaire.",
       },
       {
         property: "og:title",

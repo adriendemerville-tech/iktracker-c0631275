@@ -13,7 +13,7 @@ export const Route = createFileRoute("/logiciel-devis-artisan")({
       {
         name: "description",
         content:
-          "Stack outils pour artisan du bâtiment : devis dictés à la voix avec DictaDevi, frais kilométriques au barème officiel avec IKtracker, visibilité Google avec Crawlers. Guide complet et tarifs.",
+          "Outils pour artisan du bâtiment : devis dictés à la voix (DictaDevi), frais kilométriques au barème officiel (IKtracker), visibilité Google (Crawlers). Guide et tarifs.",
       },
       {
         name: "keywords",

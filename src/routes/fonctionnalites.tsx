@@ -8,7 +8,7 @@ export const Route = createFileRoute("/fonctionnalites")({
       {
         name: "description",
         content:
-          "Fonctionnalités IKtracker : calcul des IK au barème 2025-2026, mode Tournée GPS avec détection des arrêts, trajets depuis l'agenda, saisie vocale et langage naturel, exports PDF/Excel, majoration +20 % électrique.",
+          "Fonctionnalités IKtracker : calcul IK barème 2026, mode Tournée GPS, trajets depuis l'agenda, saisie vocale, exports PDF/Excel, +20 % électrique. Tout est gratuit.",
       },
       {
         name: "keywords",

@@ -8,7 +8,7 @@ export const Route = createFileRoute("/calendrier")({
       {
         name: "description",
         content:
-          "Synchronisation Google Calendar et Outlook : chaque rendez-vous géolocalisé devient un trajet avec calcul des indemnités kilométriques au barème officiel, regroupés par jour en tournée.",
+          "Synchronisation Google Calendar et Outlook : chaque rendez-vous géolocalisé devient un trajet avec calcul des IK au barème officiel, regroupés par jour en tournée.",
       },
       {
         name: "keywords",
