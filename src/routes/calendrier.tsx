@@ -8,7 +8,7 @@ export const Route = createFileRoute("/calendrier")({
       {
         name: "description",
         content:
-          "Synchronisez librement IKtracker avec Google Calendar ou Outlook. Vos rendez-vous deviennent automatiquement des trajets avec calcul des IK en illimité.",
+          "Synchronisation Google Calendar et Outlook : chaque rendez-vous géolocalisé devient un trajet avec calcul des IK au barème officiel, regroupés par jour en tournée.",
       },
       {
         name: "keywords",
@@ -23,7 +23,7 @@ export const Route = createFileRoute("/calendrier")({
       {
         property: "og:description",
         content:
-          "Synchronisez librement IKtracker avec Google Calendar ou Outlook. Vos rendez-vous deviennent automatiquement des trajets avec calcul des IK en illimité.",
+          "Chaque rendez-vous géolocalisé de Google Calendar ou Outlook devient un trajet avec calcul des IK au barème officiel, regroupés par jour en tournée.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://iktracker.fr/calendrier" },
@@ -35,7 +35,7 @@ export const Route = createFileRoute("/calendrier")({
       {
         name: "twitter:description",
         content:
-          "Synchronisez librement IKtracker avec Google Calendar ou Outlook. Vos rendez-vous deviennent automatiquement des trajets avec calcul des IK en illimité.",
+          "Chaque rendez-vous géolocalisé de Google Calendar ou Outlook devient un trajet avec calcul des IK au barème officiel, regroupés par jour en tournée.",
       },
       { name: "twitter:image", content: "https://iktracker.fr/logo-iktracker-250.webp" },
       { name: "geo.region", content: "FR" },

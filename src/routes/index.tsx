@@ -4,7 +4,7 @@ import { HOME_JSON_LD_SCRIPTS } from "@/lib/home-schemas";
 
 const TITLE = "Indemnités kilométriques 2026 : l'application gratuite";
 const DESCRIPTION =
-  "Calculez vos indemnités kilométriques au barème URSSAF 2026 : suivi GPS des tournées, sync agenda, export PDF comptable. 100% gratuit, sans carte bancaire.";
+  "Calcul des indemnités kilométriques au barème officiel 2026 : suivi GPS des tournées, trajets créés depuis l'agenda, +20 % électrique, relevés PDF comptables. Gratuit à vie.";
 
 export const Route = createFileRoute("/")({
   head: () => ({

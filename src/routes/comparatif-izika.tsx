@@ -8,7 +8,7 @@ export const Route = createFileRoute("/comparatif-izika")({
       {
         name: "description",
         content:
-          "Pourquoi payer un abonnement Izika ? Découvrez IKtracker, l'alternative 100% gratuite qui synchronise votre agenda et génère vos rapports fiscaux conformes.",
+          "Comparatif Izika vs IKtracker : abonnement vs 0 €, synchronisation agenda, rapports fiscaux conformes au barème officiel, vie privée. Tableau fonction par fonction.",
       },
       {
         name: "keywords",

@@ -8,7 +8,7 @@ export const Route = createFileRoute("/tarifs")({
       {
         name: "description",
         content:
-          "IKtracker est 100% gratuit à vie : 0€, sans abonnement ni carte bancaire. Calculez vos indemnités kilométriques 2025-2026 sans payer.",
+          "Tarifs IKtracker : 0 €, tout inclus (calcul IK 2026, mode tournée GPS, sync calendrier, exports PDF/Excel). Ni abonnement, ni carte bancaire, ni version premium.",
       },
       {
         name: "keywords",
