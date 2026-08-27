@@ -580,7 +580,9 @@ export default function IndemnitesKilometriques() {
         </section>
       </main>
 
-      <EnhancedMarketingFooter />
+      <Suspense fallback={<div className="min-h-[400px]" aria-hidden="true" />}>
+        <EnhancedMarketingFooter />
+      </Suspense>
     </>
   );
 }
