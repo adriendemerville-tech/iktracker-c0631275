@@ -92,11 +92,18 @@ Le contenu textuel doit être présent dans le HTML initial (vérifiable par cur
 
 5. SEO
 ------
-- Ajouter /forum, /forum/categorie/:slug et les discussions indexables au sitemap
-  dynamique (pagination, lastmod = last_activity_at, priorité 0.6-0.8).
-  Le forum ne doit jamais faire échouer le sitemap principal : try/catch isolé.
+- Sitemap dédié : route SSR `src/routes/sitemap-forum[.]xml.ts` listant /forum,
+  /forum/categorie/:slug et les discussions `status = 'published'` et
+  `seo_indexable = true` (lastmod = last_activity_at, priorité 0.6-0.8,
+  changefreq daily/weekly, pagination au-delà de 5 000 URL).
+  Le sitemap principal ne référence le forum que par une entrée statique,
+  dans un try/catch isolé : le forum ne doit jamais casser le sitemap global.
+- robots.txt : directive `Sitemap: https://<domaine>/sitemap-forum.xml`,
+  `Allow: /forum` et `/forum/`, `Disallow: /app/forum/`, `/forum/nouveau`
+  et les paramètres de brouillon/prévisualisation (`/*?*draft=`, `/*?*preview=`).
 - Lien "Forum" dans la navigation publique et dans la nav applicative.
 - noindex sur les discussions status != 'published' ou seo_indexable = false.
+- Les profils restent privés (sous /app), donc hors sitemap.
 
 6. BOTS IA (optionnel mais prévoir les hooks)
 ---------------------------------------------
