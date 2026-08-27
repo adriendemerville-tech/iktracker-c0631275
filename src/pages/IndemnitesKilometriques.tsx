@@ -476,6 +476,54 @@ export default function IndemnitesKilometriques() {
               — repas et hébergement lors des missions éloignées.
             </li>
           </ul>
+
+          <h3 className="text-xl font-bold text-foreground mt-10 mb-4">Sources officielles</h3>
+          <ul className="space-y-3 text-muted-foreground">
+            <li>
+              <a
+                href="https://www.impots.gouv.fr/professionnel/resultats?query=bar%C3%A8me%20kilom%C3%A9trique"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline underline-offset-4"
+              >
+                Barème kilométrique DGFiP / BOFiP
+              </a>{" "}
+              — texte officiel et simulateur de l'administration fiscale.
+            </li>
+            <li>
+              <a
+                href="https://www.urssaf.fr/accueil/outils-documentation/taux-et-baremes/frais-professionnels.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline underline-offset-4"
+              >
+                Frais professionnels — URSSAF
+              </a>{" "}
+              — règles de remboursement et exonération de cotisations.
+            </li>
+            <li>
+              <a
+                href="https://www.service-public.fr/particuliers/vosdroits/F35100"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline underline-offset-4"
+              >
+                Frais réels : frais de déplacement — Service-public.fr
+              </a>{" "}
+              — fiche officielle pour les particuliers.
+            </li>
+            <li>
+              <a
+                href="https://www.legifrance.gouv.fr/codes/id/LEGIARTI000046299349/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline underline-offset-4"
+              >
+                Code général des impôts — article 83
+              </a>{" "}
+              — base légale des frais professionnels.
+            </li>
+          </ul>
         </section>
 
         {/* FAQ */}
