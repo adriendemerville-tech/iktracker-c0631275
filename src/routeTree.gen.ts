@@ -65,6 +65,7 @@ import { Route as BlogIndexRouteImport } from './routes/blog/index'
 import { Route as BlogSlugRouteImport } from './routes/blog/$slug'
 import { Route as DebugTourModalRouteImport } from './routes/debug/tour-modal'
 import { Route as ForumIndexRouteImport } from './routes/forum/index'
+import { Route as ForumSlugRouteImport } from './routes/forum/$slug'
 import { Route as TemporaryreportIdRouteImport } from './routes/temporaryreport/$id'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable/oauth/consent'
 import { Route as AdminBlogIndexRouteImport } from './routes/admin/blog/index'
@@ -364,6 +365,11 @@ const ForumIndexRoute = ForumIndexRouteImport.update({
   path: '/forum/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ForumSlugRoute = ForumSlugRouteImport.update({
+  id: '/forum/$slug',
+  path: '/forum/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TemporaryreportIdRoute = TemporaryreportIdRouteImport.update({
   id: '/temporaryreport/$id',
   path: '/temporaryreport/$id',
@@ -494,6 +500,7 @@ export interface FileRoutesByFullPath {
   '/app/theme-onboarding': typeof AppThemeOnboardingRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/debug/tour-modal': typeof DebugTourModalRoute
+  '/forum/$slug': typeof ForumSlugRoute
   '/temporaryreport/$id': typeof TemporaryreportIdRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
@@ -567,6 +574,7 @@ export interface FileRoutesByTo {
   '/app/theme-onboarding': typeof AppThemeOnboardingRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/debug/tour-modal': typeof DebugTourModalRoute
+  '/forum/$slug': typeof ForumSlugRoute
   '/temporaryreport/$id': typeof TemporaryreportIdRoute
   '/admin': typeof AdminIndexRoute
   '/app': typeof AppIndexRoute
@@ -641,6 +649,7 @@ export interface FileRoutesById {
   '/app/theme-onboarding': typeof AppThemeOnboardingRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/debug/tour-modal': typeof DebugTourModalRoute
+  '/forum/$slug': typeof ForumSlugRoute
   '/temporaryreport/$id': typeof TemporaryreportIdRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
@@ -716,6 +725,7 @@ export interface FileRouteTypes {
     | '/app/theme-onboarding'
     | '/blog/$slug'
     | '/debug/tour-modal'
+    | '/forum/$slug'
     | '/temporaryreport/$id'
     | '/admin/'
     | '/app/'
@@ -789,6 +799,7 @@ export interface FileRouteTypes {
     | '/app/theme-onboarding'
     | '/blog/$slug'
     | '/debug/tour-modal'
+    | '/forum/$slug'
     | '/temporaryreport/$id'
     | '/admin'
     | '/app'
@@ -862,6 +873,7 @@ export interface FileRouteTypes {
     | '/app/theme-onboarding'
     | '/blog/$slug'
     | '/debug/tour-modal'
+    | '/forum/$slug'
     | '/temporaryreport/$id'
     | '/admin/'
     | '/app/'
@@ -936,6 +948,7 @@ export interface RootRouteChildren {
   AppThemeOnboardingRoute: typeof AppThemeOnboardingRoute
   BlogSlugRoute: typeof BlogSlugRoute
   DebugTourModalRoute: typeof DebugTourModalRoute
+  ForumSlugRoute: typeof ForumSlugRoute
   TemporaryreportIdRoute: typeof TemporaryreportIdRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AppIndexRoute: typeof AppIndexRoute
@@ -1351,6 +1364,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ForumIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/forum/$slug': {
+      id: '/forum/$slug'
+      path: '/forum/$slug'
+      fullPath: '/forum/$slug'
+      preLoaderRoute: typeof ForumSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/temporaryreport/$id': {
       id: '/temporaryreport/$id'
       path: '/temporaryreport/$id'
@@ -1513,6 +1533,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppThemeOnboardingRoute: AppThemeOnboardingRoute,
   BlogSlugRoute: BlogSlugRoute,
   DebugTourModalRoute: DebugTourModalRoute,
+  ForumSlugRoute: ForumSlugRoute,
   TemporaryreportIdRoute: TemporaryreportIdRoute,
   AdminIndexRoute: AdminIndexRoute,
   AppIndexRoute: AppIndexRoute,
