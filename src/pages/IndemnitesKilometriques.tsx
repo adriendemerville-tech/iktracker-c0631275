@@ -355,7 +355,56 @@ export default function IndemnitesKilometriques() {
           </div>
         </section>
 
+        {/* Méthode singulière IKtracker */}
+        <section className="max-w-4xl mx-auto px-4 py-10">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+            La méthode IKtracker : du trajet réel à l'indemnité justifiable
+          </h2>
+          <p className="text-muted-foreground leading-relaxed mb-6">
+            La difficulté des indemnités kilométriques n'est pas le calcul, c'est la preuve. Un
+            barème s'applique en une multiplication ; un carnet de bord opposable, lui, se
+            construit jour après jour. IKtracker part donc du déplacement réel — enregistré,
+            horodaté, mesuré — et remonte jusqu'au montant fiscal, plutôt que l'inverse. Cette
+            logique explique les quatre briques ci-dessous, conçues par un entrepreneur
+            indépendant pour son propre usage de terrain.
+          </p>
+          <div className="grid sm:grid-cols-2 gap-4">
+            {METHOD_STEPS.map(({ icon: Icon, t, d }) => (
+              <Card key={t} className="border-border">
+                <CardContent className="p-5">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                      <Icon className="w-5 h-5 text-primary" />
+                    </div>
+                    <h3 className="font-semibold text-foreground leading-snug">{t}</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{d}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          <p className="text-muted-foreground leading-relaxed mt-6">
+            Chaque trajet enregistré est ensuite converti au barème DGFiP en vigueur, avec la
+            majoration de 20 % appliquée automatiquement aux véhicules 100 % électriques et le
+            passage de tranche kilométrique signalé dès qu'il est atteint. Un changement de
+            véhicule ou de puissance fiscale déclenche, au choix, le recalcul des trajets déjà
+            enregistrés. L'ensemble est gratuit à vie, sans abonnement ni carte bancaire.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link to="/mode-tournee">
+              <Button variant="outline">Découvrir le Mode Tournée</Button>
+            </Link>
+            <Link to="/calendrier">
+              <Button variant="outline">Synchronisation calendrier</Button>
+            </Link>
+            <Link to="/fonctionnalites">
+              <Button variant="outline">Toutes les fonctionnalités</Button>
+            </Link>
+          </div>
+        </section>
+
         {/* Cas particuliers + maillage */}
+
         <section className="max-w-3xl mx-auto px-4 py-10">
           <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6">
             Cas particuliers et ressources
