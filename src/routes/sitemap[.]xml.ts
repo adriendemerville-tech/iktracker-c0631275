@@ -76,6 +76,43 @@ async function fetchAllPublishedPosts() {
   return all;
 }
 
+async function fetchForumEntries(): Promise<SitemapEntry[]> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const entries: SitemapEntry[] = [
+    { path: "/forum", priority: "0.8", changefreq: "daily" },
+  ];
+
+  const { data: categories } = await supabaseAdmin
+    .from("forum_categories")
+    .select("slug")
+    .order("sort_order");
+  for (const c of categories ?? []) {
+    entries.push({
+      path: `/forum/categorie/${c.slug}`,
+      priority: "0.6",
+      changefreq: "daily",
+    });
+  }
+
+  const { data: discussions } = await supabaseAdmin
+    .from("forum_discussions")
+    .select("slug, last_activity_at, updated_at")
+    .eq("status", "published")
+    .eq("seo_indexable", true)
+    .order("last_activity_at", { ascending: false })
+    .limit(5000);
+  for (const d of discussions ?? []) {
+    const stamp = d.last_activity_at || d.updated_at;
+    entries.push({
+      path: `/forum/${d.slug}`,
+      lastmod: stamp ? new Date(stamp).toISOString().split("T")[0] : undefined,
+      changefreq: "weekly",
+      priority: "0.7",
+    });
+  }
+  return entries;
+}
+
 function renderUrl(e: SitemapEntry) {
   return [
     `  <url>`,
