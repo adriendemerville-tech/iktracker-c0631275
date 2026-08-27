@@ -5,6 +5,7 @@ import { CrawlersBanner } from "@/components/marketing/CrawlersBanner";
 import { Link, useNavigate } from "@/lib/router-compat";
 import { getSupabase } from "@/integrations/supabase/lazy";
 import { usePageContent } from "@/hooks/usePageContent";
+import { useLiveUserCount } from "@/hooks/useLiveUserCount";
 import { HERO_VARIANTS, DEFAULT_VARIANT, getHeroVariant, type HeroVariant } from "@/lib/ab-test";
 import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
@@ -179,6 +180,7 @@ const LANDING_DEFAULTS = {
 const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 const Landing = ({ initialUserCount }: LandingProps) => {
+  const { count: liveUserCount } = useLiveUserCount({ initialCount: initialUserCount });
 
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -345,7 +347,7 @@ const Landing = ({ initialUserCount }: LandingProps) => {
                 {/* Social proof */}
                 <div className="mt-6 flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
                   <Counter
-                    value={initialUserCount ?? 1000}
+                    value={liveUserCount}
                     initialValue={initialUserCount ?? 1000}
                     label="inscrits"
                     unit=""
