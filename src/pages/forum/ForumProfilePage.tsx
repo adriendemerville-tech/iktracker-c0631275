@@ -56,8 +56,11 @@ export default function ForumProfilePage() {
         .from("forum-avatars")
         .upload(path, file, { upsert: true, contentType: file.type });
       if (error) throw error;
-      const { data } = supabase.storage.from("forum-avatars").getPublicUrl(path);
-      setAvatarUrl(`${data.publicUrl}?v=${Date.now()}`);
+      // Bucket privé : lien signé longue durée (1 an) stocké sur la fiche.
+      const { data } = await supabase.storage
+        .from("forum-avatars")
+        .createSignedUrl(path, 60 * 60 * 24 * 365);
+      setAvatarUrl(data?.signedUrl ?? null);
       toast.success("Photo mise à jour");
     } catch {
       toast.error("Envoi de la photo impossible.");
