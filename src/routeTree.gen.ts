@@ -27,6 +27,7 @@ import { Route as FonctionnalitesRouteImport } from './routes/fonctionnalites'
 import { Route as FraisReelsRouteImport } from './routes/frais-reels'
 import { Route as IndemniteGrandDeplacement2026RouteImport } from './routes/indemnite-grand-deplacement-2026'
 import { Route as IndemniteKilometriqueVeloRouteImport } from './routes/indemnite-kilometrique-velo'
+import { Route as IndemnitesKilometriquesRouteImport } from './routes/indemnites-kilometriques'
 import { Route as IndependantsRouteImport } from './routes/independants'
 import { Route as IndChar233pendantsRouteImport } from './routes/indépendants'
 import { Route as InstallRouteImport } from './routes/install'
@@ -171,6 +172,11 @@ const IndemniteKilometriqueVeloRoute =
     path: '/indemnite-kilometrique-velo',
     getParentRoute: () => rootRouteImport,
   } as any)
+const IndemnitesKilometriquesRoute = IndemnitesKilometriquesRouteImport.update({
+  id: '/indemnites-kilometriques',
+  path: '/indemnites-kilometriques',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndependantsRoute = IndependantsRouteImport.update({
   id: '/independants',
   path: '/independants',
@@ -448,6 +454,7 @@ export interface FileRoutesByFullPath {
   '/frais-reels': typeof FraisReelsRoute
   '/indemnite-grand-deplacement-2026': typeof IndemniteGrandDeplacement2026Route
   '/indemnite-kilometrique-velo': typeof IndemniteKilometriqueVeloRoute
+  '/indemnites-kilometriques': typeof IndemnitesKilometriquesRoute
   '/independants': typeof IndependantsRoute
   '/indépendants': typeof IndChar233pendantsRoute
   '/install': typeof InstallRoute
@@ -519,6 +526,7 @@ export interface FileRoutesByTo {
   '/frais-reels': typeof FraisReelsRoute
   '/indemnite-grand-deplacement-2026': typeof IndemniteGrandDeplacement2026Route
   '/indemnite-kilometrique-velo': typeof IndemniteKilometriqueVeloRoute
+  '/indemnites-kilometriques': typeof IndemnitesKilometriquesRoute
   '/independants': typeof IndependantsRoute
   '/indépendants': typeof IndChar233pendantsRoute
   '/install': typeof InstallRoute
@@ -591,6 +599,7 @@ export interface FileRoutesById {
   '/frais-reels': typeof FraisReelsRoute
   '/indemnite-grand-deplacement-2026': typeof IndemniteGrandDeplacement2026Route
   '/indemnite-kilometrique-velo': typeof IndemniteKilometriqueVeloRoute
+  '/indemnites-kilometriques': typeof IndemnitesKilometriquesRoute
   '/independants': typeof IndependantsRoute
   '/indépendants': typeof IndChar233pendantsRoute
   '/install': typeof InstallRoute
@@ -664,6 +673,7 @@ export interface FileRouteTypes {
     | '/frais-reels'
     | '/indemnite-grand-deplacement-2026'
     | '/indemnite-kilometrique-velo'
+    | '/indemnites-kilometriques'
     | '/independants'
     | '/indépendants'
     | '/install'
@@ -735,6 +745,7 @@ export interface FileRouteTypes {
     | '/frais-reels'
     | '/indemnite-grand-deplacement-2026'
     | '/indemnite-kilometrique-velo'
+    | '/indemnites-kilometriques'
     | '/independants'
     | '/indépendants'
     | '/install'
@@ -806,6 +817,7 @@ export interface FileRouteTypes {
     | '/frais-reels'
     | '/indemnite-grand-deplacement-2026'
     | '/indemnite-kilometrique-velo'
+    | '/indemnites-kilometriques'
     | '/independants'
     | '/indépendants'
     | '/install'
@@ -878,6 +890,7 @@ export interface RootRouteChildren {
   FraisReelsRoute: typeof FraisReelsRoute
   IndemniteGrandDeplacement2026Route: typeof IndemniteGrandDeplacement2026Route
   IndemniteKilometriqueVeloRoute: typeof IndemniteKilometriqueVeloRoute
+  IndemnitesKilometriquesRoute: typeof IndemnitesKilometriquesRoute
   IndependantsRoute: typeof IndependantsRoute
   IndChar233pendantsRoute: typeof IndChar233pendantsRoute
   InstallRoute: typeof InstallRoute
@@ -1057,6 +1070,13 @@ declare module '@tanstack/react-router' {
       path: '/indemnite-kilometrique-velo'
       fullPath: '/indemnite-kilometrique-velo'
       preLoaderRoute: typeof IndemniteKilometriqueVeloRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/indemnites-kilometriques': {
+      id: '/indemnites-kilometriques'
+      path: '/indemnites-kilometriques'
+      fullPath: '/indemnites-kilometriques'
+      preLoaderRoute: typeof IndemnitesKilometriquesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/independants': {
@@ -1438,6 +1458,7 @@ const rootRouteChildren: RootRouteChildren = {
   FraisReelsRoute: FraisReelsRoute,
   IndemniteGrandDeplacement2026Route: IndemniteGrandDeplacement2026Route,
   IndemniteKilometriqueVeloRoute: IndemniteKilometriqueVeloRoute,
+  IndemnitesKilometriquesRoute: IndemnitesKilometriquesRoute,
   IndependantsRoute: IndependantsRoute,
   IndChar233pendantsRoute: IndChar233pendantsRoute,
   InstallRoute: InstallRoute,
