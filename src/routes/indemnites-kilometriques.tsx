@@ -8,7 +8,7 @@ export const Route = createFileRoute("/indemnites-kilometriques")({
       {
         name: "description",
         content:
-          "Indemnités kilométriques 2026 : définition, barème officiel DGFiP par puissance fiscale, méthode de calcul, majoration 20 % électrique et justificatifs. Simulateur gratuit.",
+          "Indemnités kilométriques 2026 : barème officiel DGFiP par puissance fiscale, calcul au réel, majoration 20 % électrique, justificatifs URSSAF. Simulateur gratuit + méthode IKtracker (mode tournée GPS, sync agenda, relevés PDF).",
       },
       {
         name: "keywords",
