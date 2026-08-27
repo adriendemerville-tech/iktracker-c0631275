@@ -93,11 +93,51 @@ Chaque discussion porte :
 
 ## 5. Surfaces
 
-- `/forum` et `/forum/<slug>` : public, SSR, indexable, lecture seule pour les
-  visiteurs, CTA de connexion pour participer.
+- `/forum` : home du forum, public, SSR, indexable.
+- `/forum/<slug>` : discussion, public, SSR, indexable.
 - `/app/forum` : espace connecté — création, réponses, votes, profil.
 - `/app/profile` : édition du profil forum (pseudo, avatar, bio).
 - Admin : file de modération, discussions signalées, contrôle de l'indexation.
+
+### 5.1 Entrée depuis la home (nouveau)
+
+Lien « Forum » ajouté dans le header public (desktop : à côté des liens
+existants ; mobile : dans le menu plein écran), pointant vers `/forum`.
+Pour un utilisateur connecté, le header de `/app` pointe vers `/app/forum`.
+Ajout au footer et au maillage interne (page pilier, blog) pour l'autorité SEO.
+
+### 5.2 Home du forum `/forum` (nouveau)
+
+Rendue en SSR, entièrement lisible sans compte :
+- En-tête : titre H1 « Forum IKtracker », phrase de positionnement, compteurs
+  (discussions, réponses, membres) et CTA « Poser une question ».
+- Filtres par catégorie (finances, urssaf, salarié, retraite, mutuelle,
+  véhicules, imposition, facturation électronique) sous forme de liens
+  `/forum?categorie=...` (SSR, pas de state client obligatoire).
+- Tri : Récentes / Actives / Populaires (votes), par paramètre d'URL.
+- Liste de discussions : titre (lien vers le slug), extrait, catégorie, pseudo
+  + badge de niveau de l'auteur, date, nombre de réponses et de votes.
+- Colonne latérale : discussions les plus utiles, membres les plus actifs,
+  règles de la communauté, lien vers le centre d'aide.
+- Pagination SSR indexable (`/forum?page=2`), `rel=canonical` propre.
+- JSON-LD : `CollectionPage` + `BreadcrumbList` + `ItemList` des discussions.
+
+### 5.3 Rédiger sans compte, publier connecté (nouveau)
+
+Tout le monde peut ouvrir l'éditeur (nouvelle discussion ou réponse) ; seule la
+publication exige un compte connecté.
+
+- L'éditeur est accessible depuis `/forum` et depuis une discussion.
+- Le brouillon est conservé en `localStorage` (clé par cible : `new` ou
+  l'identifiant de la discussion), avec sauvegarde continue.
+- Au clic sur « Publier » sans session : redirection vers `/auth` avec le
+  paramètre de retour ; après connexion ou inscription, retour à l'éditeur,
+  brouillon restauré, publication en un clic.
+- Aucune écriture serveur anonyme : les server functions de publication passent
+  par `requireSupabaseAuth`, les RLS n'autorisent l'insertion qu'au propriétaire.
+- Message clair sous l'éditeur : « Lecture libre. Un compte gratuit est requis
+  pour publier. » plutôt qu'un blocage de la saisie.
+
 
 ## 6. Ordre de livraison
 
@@ -106,7 +146,9 @@ Chaque discussion porte :
 2. Server functions : CRUD, similarité, votes, profil.
 3. Agents IA (classement, SAV, modération) via la passerelle Lovable AI.
 4. UI `/app/forum` + fiche profil + modale de passage de niveau (§2.1).
-5. Surface publique SSR `/forum` + JSON-LD + sitemap.
+5. Surface publique SSR : home `/forum` (§5.2), discussions, lien header (§5.1),
+   éditeur ouvert avec publication après connexion (§5.3), JSON-LD + sitemap.
+
 6. Admin modération + mise à jour `docs/BACKEND.md`.
 
 ## Détails techniques
