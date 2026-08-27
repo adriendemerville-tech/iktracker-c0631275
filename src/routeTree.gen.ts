@@ -64,6 +64,8 @@ import { Route as AppThemeOnboardingRouteImport } from './routes/app/theme-onboa
 import { Route as BlogIndexRouteImport } from './routes/blog/index'
 import { Route as BlogSlugRouteImport } from './routes/blog/$slug'
 import { Route as DebugTourModalRouteImport } from './routes/debug/tour-modal'
+import { Route as ForumIndexRouteImport } from './routes/forum/index'
+import { Route as ForumSlugRouteImport } from './routes/forum/$slug'
 import { Route as TemporaryreportIdRouteImport } from './routes/temporaryreport/$id'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable/oauth/consent'
 import { Route as AdminBlogIndexRouteImport } from './routes/admin/blog/index'
@@ -71,9 +73,11 @@ import { Route as ApiPublicContentFreshnessAuditRouteImport } from './routes/api
 import { Route as ApiPublicSubmitIndexingRouteImport } from './routes/api/public/submit-indexing'
 import { Route as AppAdminIndexRouteImport } from './routes/app/admin/index'
 import { Route as AppAdminPartnersRouteImport } from './routes/app/admin/partners'
+import { Route as AppForumProfilRouteImport } from './routes/app/forum/profil'
 import { Route as BlogAuteurSlugRouteImport } from './routes/blog/auteur/$slug'
 import { Route as BlogEditIndexRouteImport } from './routes/blog/edit/index'
 import { Route as BlogEditIdRouteImport } from './routes/blog/edit/$id'
+import { Route as ForumCategorieCategoryRouteImport } from './routes/forum/categorie/$category'
 import { Route as AdminBlogEditIndexRouteImport } from './routes/admin/blog/edit/index'
 import { Route as AdminBlogEditIdRouteImport } from './routes/admin/blog/edit/$id'
 import { Route as AppAdminBlogIndexRouteImport } from './routes/app/admin/blog/index'
@@ -358,6 +362,16 @@ const DebugTourModalRoute = DebugTourModalRouteImport.update({
   path: '/debug/tour-modal',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ForumIndexRoute = ForumIndexRouteImport.update({
+  id: '/forum/',
+  path: '/forum/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForumSlugRoute = ForumSlugRouteImport.update({
+  id: '/forum/$slug',
+  path: '/forum/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TemporaryreportIdRoute = TemporaryreportIdRouteImport.update({
   id: '/temporaryreport/$id',
   path: '/temporaryreport/$id',
@@ -394,6 +408,11 @@ const AppAdminPartnersRoute = AppAdminPartnersRouteImport.update({
   path: '/app/admin/partners',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppForumProfilRoute = AppForumProfilRouteImport.update({
+  id: '/app/forum/profil',
+  path: '/app/forum/profil',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BlogAuteurSlugRoute = BlogAuteurSlugRouteImport.update({
   id: '/blog/auteur/$slug',
   path: '/blog/auteur/$slug',
@@ -407,6 +426,11 @@ const BlogEditIndexRoute = BlogEditIndexRouteImport.update({
 const BlogEditIdRoute = BlogEditIdRouteImport.update({
   id: '/blog/edit/$id',
   path: '/blog/edit/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForumCategorieCategoryRoute = ForumCategorieCategoryRouteImport.update({
+  id: '/forum/categorie/$category',
+  path: '/forum/categorie/$category',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminBlogEditIndexRoute = AdminBlogEditIndexRouteImport.update({
@@ -488,16 +512,20 @@ export interface FileRoutesByFullPath {
   '/app/theme-onboarding': typeof AppThemeOnboardingRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/debug/tour-modal': typeof DebugTourModalRoute
+  '/forum/$slug': typeof ForumSlugRoute
   '/temporaryreport/$id': typeof TemporaryreportIdRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/blog/': typeof BlogIndexRoute
+  '/forum/': typeof ForumIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/content-freshness-audit': typeof ApiPublicContentFreshnessAuditRoute
   '/api/public/submit-indexing': typeof ApiPublicSubmitIndexingRoute
   '/app/admin/partners': typeof AppAdminPartnersRoute
+  '/app/forum/profil': typeof AppForumProfilRoute
   '/blog/auteur/$slug': typeof BlogAuteurSlugRoute
   '/blog/edit/$id': typeof BlogEditIdRoute
+  '/forum/categorie/$category': typeof ForumCategorieCategoryRoute
   '/admin/blog/': typeof AdminBlogIndexRoute
   '/app/admin/': typeof AppAdminIndexRoute
   '/blog/edit/': typeof BlogEditIndexRoute
@@ -560,16 +588,20 @@ export interface FileRoutesByTo {
   '/app/theme-onboarding': typeof AppThemeOnboardingRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/debug/tour-modal': typeof DebugTourModalRoute
+  '/forum/$slug': typeof ForumSlugRoute
   '/temporaryreport/$id': typeof TemporaryreportIdRoute
   '/admin': typeof AdminIndexRoute
   '/app': typeof AppIndexRoute
   '/blog': typeof BlogIndexRoute
+  '/forum': typeof ForumIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/content-freshness-audit': typeof ApiPublicContentFreshnessAuditRoute
   '/api/public/submit-indexing': typeof ApiPublicSubmitIndexingRoute
   '/app/admin/partners': typeof AppAdminPartnersRoute
+  '/app/forum/profil': typeof AppForumProfilRoute
   '/blog/auteur/$slug': typeof BlogAuteurSlugRoute
   '/blog/edit/$id': typeof BlogEditIdRoute
+  '/forum/categorie/$category': typeof ForumCategorieCategoryRoute
   '/admin/blog': typeof AdminBlogIndexRoute
   '/app/admin': typeof AppAdminIndexRoute
   '/blog/edit': typeof BlogEditIndexRoute
@@ -633,16 +665,20 @@ export interface FileRoutesById {
   '/app/theme-onboarding': typeof AppThemeOnboardingRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/debug/tour-modal': typeof DebugTourModalRoute
+  '/forum/$slug': typeof ForumSlugRoute
   '/temporaryreport/$id': typeof TemporaryreportIdRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/blog/': typeof BlogIndexRoute
+  '/forum/': typeof ForumIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/content-freshness-audit': typeof ApiPublicContentFreshnessAuditRoute
   '/api/public/submit-indexing': typeof ApiPublicSubmitIndexingRoute
   '/app/admin/partners': typeof AppAdminPartnersRoute
+  '/app/forum/profil': typeof AppForumProfilRoute
   '/blog/auteur/$slug': typeof BlogAuteurSlugRoute
   '/blog/edit/$id': typeof BlogEditIdRoute
+  '/forum/categorie/$category': typeof ForumCategorieCategoryRoute
   '/admin/blog/': typeof AdminBlogIndexRoute
   '/app/admin/': typeof AppAdminIndexRoute
   '/blog/edit/': typeof BlogEditIndexRoute
@@ -707,16 +743,20 @@ export interface FileRouteTypes {
     | '/app/theme-onboarding'
     | '/blog/$slug'
     | '/debug/tour-modal'
+    | '/forum/$slug'
     | '/temporaryreport/$id'
     | '/admin/'
     | '/app/'
     | '/blog/'
+    | '/forum/'
     | '/.lovable/oauth/consent'
     | '/api/public/content-freshness-audit'
     | '/api/public/submit-indexing'
     | '/app/admin/partners'
+    | '/app/forum/profil'
     | '/blog/auteur/$slug'
     | '/blog/edit/$id'
+    | '/forum/categorie/$category'
     | '/admin/blog/'
     | '/app/admin/'
     | '/blog/edit/'
@@ -779,16 +819,20 @@ export interface FileRouteTypes {
     | '/app/theme-onboarding'
     | '/blog/$slug'
     | '/debug/tour-modal'
+    | '/forum/$slug'
     | '/temporaryreport/$id'
     | '/admin'
     | '/app'
     | '/blog'
+    | '/forum'
     | '/.lovable/oauth/consent'
     | '/api/public/content-freshness-audit'
     | '/api/public/submit-indexing'
     | '/app/admin/partners'
+    | '/app/forum/profil'
     | '/blog/auteur/$slug'
     | '/blog/edit/$id'
+    | '/forum/categorie/$category'
     | '/admin/blog'
     | '/app/admin'
     | '/blog/edit'
@@ -851,16 +895,20 @@ export interface FileRouteTypes {
     | '/app/theme-onboarding'
     | '/blog/$slug'
     | '/debug/tour-modal'
+    | '/forum/$slug'
     | '/temporaryreport/$id'
     | '/admin/'
     | '/app/'
     | '/blog/'
+    | '/forum/'
     | '/.lovable/oauth/consent'
     | '/api/public/content-freshness-audit'
     | '/api/public/submit-indexing'
     | '/app/admin/partners'
+    | '/app/forum/profil'
     | '/blog/auteur/$slug'
     | '/blog/edit/$id'
+    | '/forum/categorie/$category'
     | '/admin/blog/'
     | '/app/admin/'
     | '/blog/edit/'
@@ -924,16 +972,20 @@ export interface RootRouteChildren {
   AppThemeOnboardingRoute: typeof AppThemeOnboardingRoute
   BlogSlugRoute: typeof BlogSlugRoute
   DebugTourModalRoute: typeof DebugTourModalRoute
+  ForumSlugRoute: typeof ForumSlugRoute
   TemporaryreportIdRoute: typeof TemporaryreportIdRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AppIndexRoute: typeof AppIndexRoute
   BlogIndexRoute: typeof BlogIndexRoute
+  ForumIndexRoute: typeof ForumIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicContentFreshnessAuditRoute: typeof ApiPublicContentFreshnessAuditRoute
   ApiPublicSubmitIndexingRoute: typeof ApiPublicSubmitIndexingRoute
   AppAdminPartnersRoute: typeof AppAdminPartnersRoute
+  AppForumProfilRoute: typeof AppForumProfilRoute
   BlogAuteurSlugRoute: typeof BlogAuteurSlugRoute
   BlogEditIdRoute: typeof BlogEditIdRoute
+  ForumCategorieCategoryRoute: typeof ForumCategorieCategoryRoute
   AdminBlogIndexRoute: typeof AdminBlogIndexRoute
   AppAdminIndexRoute: typeof AppAdminIndexRoute
   BlogEditIndexRoute: typeof BlogEditIndexRoute
@@ -1331,6 +1383,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DebugTourModalRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/forum/': {
+      id: '/forum/'
+      path: '/forum'
+      fullPath: '/forum/'
+      preLoaderRoute: typeof ForumIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forum/$slug': {
+      id: '/forum/$slug'
+      path: '/forum/$slug'
+      fullPath: '/forum/$slug'
+      preLoaderRoute: typeof ForumSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/temporaryreport/$id': {
       id: '/temporaryreport/$id'
       path: '/temporaryreport/$id'
@@ -1380,6 +1446,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminPartnersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/forum/profil': {
+      id: '/app/forum/profil'
+      path: '/app/forum/profil'
+      fullPath: '/app/forum/profil'
+      preLoaderRoute: typeof AppForumProfilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/blog/auteur/$slug': {
       id: '/blog/auteur/$slug'
       path: '/blog/auteur/$slug'
@@ -1399,6 +1472,13 @@ declare module '@tanstack/react-router' {
       path: '/blog/edit/$id'
       fullPath: '/blog/edit/$id'
       preLoaderRoute: typeof BlogEditIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forum/categorie/$category': {
+      id: '/forum/categorie/$category'
+      path: '/forum/categorie/$category'
+      fullPath: '/forum/categorie/$category'
+      preLoaderRoute: typeof ForumCategorieCategoryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/blog/edit/': {
@@ -1493,16 +1573,20 @@ const rootRouteChildren: RootRouteChildren = {
   AppThemeOnboardingRoute: AppThemeOnboardingRoute,
   BlogSlugRoute: BlogSlugRoute,
   DebugTourModalRoute: DebugTourModalRoute,
+  ForumSlugRoute: ForumSlugRoute,
   TemporaryreportIdRoute: TemporaryreportIdRoute,
   AdminIndexRoute: AdminIndexRoute,
   AppIndexRoute: AppIndexRoute,
   BlogIndexRoute: BlogIndexRoute,
+  ForumIndexRoute: ForumIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicContentFreshnessAuditRoute: ApiPublicContentFreshnessAuditRoute,
   ApiPublicSubmitIndexingRoute: ApiPublicSubmitIndexingRoute,
   AppAdminPartnersRoute: AppAdminPartnersRoute,
+  AppForumProfilRoute: AppForumProfilRoute,
   BlogAuteurSlugRoute: BlogAuteurSlugRoute,
   BlogEditIdRoute: BlogEditIdRoute,
+  ForumCategorieCategoryRoute: ForumCategorieCategoryRoute,
   AdminBlogIndexRoute: AdminBlogIndexRoute,
   AppAdminIndexRoute: AppAdminIndexRoute,
   BlogEditIndexRoute: BlogEditIndexRoute,
