@@ -827,7 +827,10 @@ img {
    NB : l'ancien bloc @font-face sans `src` était ignoré par les navigateurs. */
 @font-face {
   font-family: "Plus Jakarta Sans Fallback";
-  src: local("Arial");
+  src:
+    local("Arial"),
+    local("Helvetica Neue"),
+    local("Roboto");
   size-adjust: 104.01%;
   ascent-override: 99.8%;
   descent-override: 21.35%;
@@ -836,12 +839,16 @@ img {
 
 @font-face {
   font-family: "DM Sans Fallback";
-  src: local("Arial");
+  src:
+    local("Arial"),
+    local("Helvetica Neue"),
+    local("Roboto");
   size-adjust: 97.72%;
   ascent-override: 101.51%;
   descent-override: 31.72%;
   line-gap-override: 0%;
 }
+
 
 /* Skeleton loader with exact aspect ratios */
 .skeleton-phone {
