@@ -104,7 +104,47 @@ Chaque discussion porte :
 - meta description générée par IA (150-160 caractères) résumant la question
 - JSON-LD `DiscussionForumPosting` (auteur = pseudo, réponses = `Comment`,
   votes = `InteractionCounter`) + `BreadcrumbList`
-- ajout automatique au sitemap une fois indexable
+
+### 3.1 Sitemap dynamique (nouveau)
+
+Oui, il en faut un dédié. Le sitemap actuel liste pages statiques + blog ;
+le forum grossira vite et changera tous les jours.
+
+- Nouvelle route SSR `src/routes/forum-sitemap[.]xml.ts` listant les
+  discussions `seo_indexable = true`, avec `lastmod` = dernière activité.
+- `sitemap.xml` devient un index de sitemaps référençant le sitemap principal
+  et le sitemap forum (proxy Worker Cloudflare inchangé).
+- Pagination du sitemap forum par tranches de 5 000 URL au-delà du seuil.
+- Publication d'une discussion indexable → soumission automatique via la
+  file `indexing_submissions` (IndexNow + Google Indexing API déjà en place).
+
+### 3.2 Pièces jointes (nouveau)
+
+Photos et PDF autorisés dans une discussion comme dans une réponse.
+
+- Bucket `forum-attachments`, écriture réservée au propriétaire authentifié,
+  lecture publique.
+- Types acceptés : jpg, png, webp, heic, pdf. 5 Mo max par fichier,
+  4 fichiers max par message ; validation MIME + extension côté serveur.
+- Images : miniature générée et affichage en lightbox ; PDF : carte avec nom,
+  taille et lien de téléchargement.
+- Suppression du fichier si le message est supprimé ou modéré.
+- Anti-abus : les pièces jointes ne sont visibles publiquement qu'après le
+  passage du bot modérateur ; jamais d'exécution, `Content-Disposition`
+  approprié.
+
+### 3.3 Actions au survol : enregistrer et partager (nouveau)
+
+Sous chaque discussion (liste et page détail), barre d'actions révélée au
+survol (toujours visible au tactile) :
+- Voter (haut/bas) avec score.
+- Enregistrer : table `forum_saved_posts` (user_id, discussion_id) ;
+  retrouvable dans `/app/forum/enregistrees`. Sans session, le clic propose
+  la connexion.
+- Partager : `navigator.share` sur mobile, sinon copie du lien avec toast,
+  plus liens LinkedIn / X / e-mail.
+- Signaler : envoi en file de modération.
+
 
 ## 4. Bots
 
