@@ -113,11 +113,16 @@ discussions de la catégorie support), branchées sur Lovable AI Gateway.
 
 7. TESTS
 --------
-Vitest : slugification, calcul de niveau, présence des JSON-LD et du contenu
-dans le HTML SSR des 3 routes publiques.
+Vitest : slugification, calcul de niveau, et surtout une suite SSR/SEO
+(`src/test/ssr-forum-seo.test.ts`) qui rend chaque route publique avec un
+User-Agent Googlebot et vérifie : title unique < 60, meta description < 160,
+og:* et twitter:card, canonical, JSON-LD (CollectionPage sur /forum,
+ItemList + BreadcrumbList sur les catégories, DiscussionForumPosting sur une
+discussion) et présence du contenu textuel dans le HTML initial.
+Ajouter un test qui vérifie que /sitemap-forum.xml renvoie du XML valide.
 
 Ne pose pas de questions, implémente directement. Ordre : migration, lib,
-composants, pages, routes SSR, sitemap, navigation, tests.
+composants, pages, routes SSR, sitemap dédié, robots.txt, navigation, tests.
 ```
 
 ---
@@ -127,5 +132,6 @@ composants, pages, routes SSR, sitemap, navigation, tests.
 - **GRANT obligatoires** après chaque `CREATE TABLE` : sans eux, l'API renvoie une erreur de permission même avec des policies correctes.
 - **Buckets publics interdits** : avatars et pièces jointes en bucket privé + signed URL.
 - **Rôles de modération** dans une table dédiée + fonction `security definer`, jamais sur le profil.
-- **Sitemap** : entrées forum encapsulées dans un `try/catch` pour ne pas casser le sitemap global.
-- **SSR** : vérifier avec `curl` que le texte des discussions est bien dans le HTML initial, pas seulement après hydratation.
+- **Sitemap dédié** : un fichier `/sitemap-forum.xml` séparé évite de faire grossir le sitemap principal et isole les pannes ; entrées encapsulées dans un `try/catch`.
+- **robots.txt** : autoriser explicitement `/forum`, bloquer l'espace connecté et les brouillons, déclarer le sitemap forum.
+- **SSR** : vérifier avec `curl` que le texte des discussions est bien dans le HTML initial, pas seulement après hydratation, et le figer par des tests automatisés.
