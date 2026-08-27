@@ -1,9 +1,18 @@
+import { lazy, Suspense } from "react";
 import { Helmet } from "@/lib/helmet-compat";
 import { Link } from "@/lib/router-compat";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
-import { EnhancedMarketingFooter } from "@/components/marketing/EnhancedMarketingFooter";
 import { Breadcrumb } from "@/components/Breadcrumb";
-import { IKSimulator } from "@/components/marketing/IKSimulator";
+
+// Chargés à la demande : hors chemin critique du LCP mobile
+const EnhancedMarketingFooter = lazy(() =>
+  import("@/components/marketing/EnhancedMarketingFooter").then((m) => ({
+    default: m.EnhancedMarketingFooter,
+  })),
+);
+const IKSimulator = lazy(() =>
+  import("@/components/marketing/IKSimulator").then((m) => ({ default: m.IKSimulator })),
+);
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
