@@ -4,7 +4,7 @@ import Lexique from "@/pages/Lexique";
 export const Route = createFileRoute("/lexique")({
   head: () => ({
     meta: [
-      { title: "Lexique des indemnités kilométriques 2026 | IKtracker" },
+      { title: "Lexique des indemnités kilométriques 2026 : définitions et barème" },
       {
         name: "description",
         content:

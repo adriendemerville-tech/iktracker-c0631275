@@ -4,7 +4,7 @@ import Install from "@/pages/Install";
 export const Route = createFileRoute("/installer")({
   head: () => ({
     meta: [
-      { title: "Installer IKtracker gratuitement sur iPhone et Android" },
+      { title: "Installer IKtracker : PWA iPhone/Android, mode tournée et sync agenda" },
       {
         name: "description",
         content:
@@ -16,7 +16,7 @@ export const Route = createFileRoute("/installer")({
           "installer IKtracker, PWA indemnités kilométriques, application iOS IK, Android frais kilométriques, installer sans App Store, application gratuite mobile",
       },
       { name: "robots", content: "index, follow, max-image-preview:large, max-snippet:-1" },
-      { property: "og:title", content: "Installer IKtracker | Application PWA iOS et Android" },
+      { property: "og:title", content: "Installer IKtracker : PWA iPhone/Android, mode tournée et sync agenda" },
       {
         property: "og:description",
         content:
@@ -28,7 +28,7 @@ export const Route = createFileRoute("/installer")({
       { property: "og:site_name", content: "IKtracker" },
       { property: "og:image", content: "https://iktracker.fr/logo-iktracker-250.webp" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Installer IKtracker | PWA iOS et Android" },
+      { name: "twitter:title", content: "Installer IKtracker : PWA iPhone/Android, mode tournée et sync agenda" },
       {
         name: "twitter:description",
         content:

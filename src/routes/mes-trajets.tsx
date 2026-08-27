@@ -4,7 +4,7 @@ import MesTrajetsLanding from "@/pages/MesTrajetsLanding";
 export const Route = createFileRoute("/mes-trajets")({
   head: () => ({
     meta: [
-      { title: "Mes Trajets — Journal kilométrique pro gratuit | IKtracker" },
+      { title: "Mes trajets : journal kilométrique pro, saisie et export URSSAF" },
       {
         name: "description",
         content:
@@ -16,7 +16,7 @@ export const Route = createFileRoute("/mes-trajets")({
           "mes trajets, journal de bord kilométrique, suivi trajets professionnels, trajets récurrents, carnet de bord URSSAF, application trajets pro, registre kilométrique",
       },
       { name: "robots", content: "index, follow, max-image-preview:large, max-snippet:-1" },
-      { property: "og:title", content: "Mes Trajets — Journal kilométrique pro gratuit" },
+      { property: "og:title", content: "Mes trajets : journal kilométrique pro, saisie et export URSSAF" },
       {
         property: "og:description",
         content:

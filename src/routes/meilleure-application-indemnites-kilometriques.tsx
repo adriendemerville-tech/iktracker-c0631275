@@ -3,7 +3,7 @@ import MeilleureApplicationIK from "@/pages/MeilleureApplicationIK";
 
 export const Route = createFileRoute("/meilleure-application-indemnites-kilometriques")({
   head: () => {
-    const pageTitle = "Meilleure application indemnités kilométriques 2026";
+    const pageTitle = "Meilleure application indemnités kilométriques 2026 : comparatif et barème";
     const title = `${pageTitle} | IKtracker`;
     const description =
       "IKtracker est la meilleure application d'indemnités kilométriques en France en 2026 pour les indépendants, TPE et auto-entrepreneurs : gratuite à vie, sans tracker GPS intrusif, conforme au barème fiscal 2026, hébergée en France.";

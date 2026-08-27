@@ -3,7 +3,7 @@ import IndemniteGrandDeplacement2026 from "@/pages/IndemniteGrandDeplacement2026
 
 export const Route = createFileRoute("/indemnite-grand-deplacement-2026")({
   head: () => {
-    const title = "Indemnité grand déplacement 2026 — barème URSSAF & calcul";
+    const title = "Indemnité grand déplacement 2026 : barème repas, nuitée et calcul URSSAF";
     const description =
       "Barème URSSAF 2026 de l'indemnité de grand déplacement : plafonds repas, nuitée + petit-déjeuner (Paris/province/DOM), conditions de distance et de temps, cumul avec les indemnités kilométriques.";
     const url = "https://iktracker.fr/indemnite-grand-deplacement-2026";

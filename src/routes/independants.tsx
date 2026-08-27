@@ -4,7 +4,7 @@ import Independants from "@/pages/Independants";
 export const Route = createFileRoute("/independants")({
   head: () => ({
     meta: [
-      { title: "Indépendants : visibilité SEO, GEO et acquisition de clients" },
+      { title: "Indépendants : SEO, GEO et acquisition de clients en ligne" },
       {
         name: "description",
         content:
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/independants")({
       },
       {
         property: "og:title",
-        content: "Indépendants : visibilité en ligne et acquisition de clients",
+        content: "Indépendants : SEO, GEO et acquisition de clients en ligne",
       },
       {
         property: "og:description",
@@ -30,7 +30,7 @@ export const Route = createFileRoute("/independants")({
       { property: "og:site_name", content: "IKtracker" },
       { property: "og:image", content: "https://iktracker.fr/logo-iktracker-250.webp" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Indépendants : SEO, GEO et acquisition de clients" },
+      { name: "twitter:title", content: "Indépendants : SEO, GEO et acquisition de clients en ligne" },
       {
         name: "twitter:description",
         content:
