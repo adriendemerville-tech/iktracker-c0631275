@@ -17,7 +17,7 @@ export const Route = createFileRoute("/signup")({
       {
         property: "og:description",
         content:
-          "Rejoignez la communauté IKtracker. Automatisez vos IK : mode tournée GPS, synchronisation calendrier, comparateur frais réels. 100% gratuit.",
+          "Compte IKtracker : calcul IK barème 2026, mode tournée GPS, synchronisation calendrier, comparateur frais réels, exports PDF. 100 % gratuit.",
       },
       { property: "og:url", content: "https://iktracker.fr/signup" },
       { property: "og:type", content: "website" },
@@ -32,7 +32,7 @@ export const Route = createFileRoute("/signup")({
       {
         name: "twitter:description",
         content:
-          "Outil communautaire 100% gratuit. Mode Tournée GPS, synchronisation calendrier, comparateur frais réels, export PDF.",
+          "Calcul IK barème 2026, mode Tournée GPS, synchronisation calendrier, comparateur frais réels, export PDF. 100 % gratuit.",
       },
       { name: "twitter:image", content: "https://iktracker.fr/logo-iktracker-250.webp" },
       { name: "robots", content: "index, follow, max-image-preview:large, max-snippet:-1" },
