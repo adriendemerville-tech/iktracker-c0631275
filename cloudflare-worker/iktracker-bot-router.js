@@ -249,6 +249,7 @@ export default {
       "/synchronisation-calendrier-iktracker": "/calendrier",
       "/nos-offres": "/tarifs",
       "/simulateur": "/bareme-ik-2026",
+      "/blog/7-etapes-du-calcul-indemnite-frais-kilometriques": "/indemnites-kilometriques",
       "/deduction-frais-reels": "/frais-reels",
       "/vehicules-electriques": "/bareme-ik-2026#vehicules-electriques",
       "/install": "/installer",

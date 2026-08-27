@@ -4,6 +4,9 @@
  * (cloudflare-worker/iktracker-bot-router.js, map LEGACY_REDIRECTS).
  */
 export const BLOG_SLUG_REDIRECTS: Record<string, string> = {
+  // Cluster indemnites kilometriques -> page pilier produit
+  "7-etapes-du-calcul-indemnite-frais-kilometriques": "/indemnites-kilometriques",
+
   // Cluster « frais réels vs forfait »
   "frais-reels-vs-forfait": "/blog/frais-reels-ou-forfait-optimisation-impots-2026",
   "frais-reels-vs-forfait-guide-complet": "/blog/frais-reels-ou-forfait-optimisation-impots-2026",
