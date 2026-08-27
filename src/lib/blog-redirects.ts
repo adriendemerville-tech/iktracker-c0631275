@@ -4,6 +4,9 @@
  * (cloudflare-worker/iktracker-bot-router.js, map LEGACY_REDIRECTS).
  */
 export const BLOG_SLUG_REDIRECTS: Record<string, string> = {
+  // Cluster indemnites kilometriques -> page pilier produit
+  "7-etapes-du-calcul-indemnite-frais-kilometriques": "/indemnites-kilometriques",
+
   // Cluster « frais réels vs forfait »
   "frais-reels-vs-forfait": "/blog/frais-reels-ou-forfait-optimisation-impots-2026",
   "frais-reels-vs-forfait-guide-complet": "/blog/frais-reels-ou-forfait-optimisation-impots-2026",
@@ -35,12 +38,12 @@ export const BLOG_SLUG_REDIRECTS: Record<string, string> = {
 
   // Cluster « calcul / étapes »
   "calculer-indemnites-kilometriques-2026-guide":
-    "/blog/7-etapes-du-calcul-indemnite-frais-kilometriques",
+    "/indemnites-kilometriques",
   "comment-calculer-frais-kilometriques-remboursement":
-    "/blog/7-etapes-du-calcul-indemnite-frais-kilometriques",
-  "etapes-rapport-kilometrique": "/blog/7-etapes-du-calcul-indemnite-frais-kilometriques",
+    "/indemnites-kilometriques",
+  "etapes-rapport-kilometrique": "/indemnites-kilometriques",
   "precision-calcul-frais-kilometriques-2026":
-    "/blog/7-etapes-du-calcul-indemnite-frais-kilometriques",
+    "/indemnites-kilometriques",
   "etapes-declaration-fiscale-kilometrage-guide":
     "/blog/declaration-2042-ou-reporter-ses-indemnites-kilometriques",
 

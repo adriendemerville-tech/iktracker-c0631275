@@ -18,6 +18,7 @@ const staticPages: SitemapEntry[] = [
   { path: "/expert-comptable", priority: "0.7", changefreq: "monthly" },
   { path: "/installer", priority: "0.6", changefreq: "monthly" },
   { path: "/bareme-ik-2026", priority: "0.9", changefreq: "monthly" },
+  { path: "/indemnites-kilometriques", priority: "1.0", changefreq: "monthly" },
   { path: "/frais-reels", priority: "0.8", changefreq: "monthly" },
   { path: "/note-de-frais-kilometrique", priority: "0.8", changefreq: "monthly" },
   { path: "/indemnite-kilometrique-velo", priority: "0.8", changefreq: "monthly" },

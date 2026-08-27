@@ -20,6 +20,7 @@ const staticPages = [
   { url: "/expert-comptable", priority: "0.7", changefreq: "monthly" },
   { url: "/installer", priority: "0.6", changefreq: "monthly" },
   { url: "/bareme-ik-2026", priority: "0.9", changefreq: "monthly" },
+  { url: "/indemnites-kilometriques", priority: "1.0", changefreq: "monthly" },
   { url: "/frais-reels", priority: "0.8", changefreq: "monthly" },
   { url: "/note-de-frais-kilometrique", priority: "0.8", changefreq: "monthly" },
   { url: "/indemnite-kilometrique-velo", priority: "0.8", changefreq: "monthly" },

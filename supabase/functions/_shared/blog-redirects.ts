@@ -41,14 +41,12 @@ export const BLOG_SLUG_REDIRECTS: Record<string, string> = {
   "dossier-ik-2026-les-7-regles-d-or-d-un-suivi-kilometrique-conforme-anti-redresse":
     "/blog/controle-urssaf-liste-des-pieces-a-fournir",
 
-  // Cluster « calcul / étapes »
-  "calculer-indemnites-kilometriques-2026-guide":
-    "/blog/7-etapes-du-calcul-indemnite-frais-kilometriques",
-  "comment-calculer-frais-kilometriques-remboursement":
-    "/blog/7-etapes-du-calcul-indemnite-frais-kilometriques",
-  "etapes-rapport-kilometrique": "/blog/7-etapes-du-calcul-indemnite-frais-kilometriques",
-  "precision-calcul-frais-kilometriques-2026":
-    "/blog/7-etapes-du-calcul-indemnite-frais-kilometriques",
+  // Cluster « calcul / étapes » → page pilier produit « indemnités kilométriques »
+  "7-etapes-du-calcul-indemnite-frais-kilometriques": "/indemnites-kilometriques",
+  "calculer-indemnites-kilometriques-2026-guide": "/indemnites-kilometriques",
+  "comment-calculer-frais-kilometriques-remboursement": "/indemnites-kilometriques",
+  "etapes-rapport-kilometrique": "/indemnites-kilometriques",
+  "precision-calcul-frais-kilometriques-2026": "/indemnites-kilometriques",
   "etapes-declaration-fiscale-kilometrage-guide":
     "/blog/declaration-2042-ou-reporter-ses-indemnites-kilometriques",
 
