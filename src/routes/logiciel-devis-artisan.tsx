@@ -22,7 +22,7 @@ export const Route = createFileRoute("/logiciel-devis-artisan")({
       },
       {
         property: "og:title",
-        content: "Logiciel de devis artisan : la stack outils du bâtiment",
+        content: "Logiciel de devis artisan : devis vocal, calcul IK et suivi des déplacements",
       },
       {
         property: "og:description",
@@ -35,7 +35,7 @@ export const Route = createFileRoute("/logiciel-devis-artisan")({
       { property: "og:site_name", content: "IKtracker" },
       { property: "og:image", content: "https://iktracker.fr/logo-iktracker-250.webp" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Logiciel de devis artisan : la stack outils du bâtiment" },
+      { name: "twitter:title", content: "Logiciel de devis artisan : devis vocal, calcul IK et suivi des déplacements" },
       {
         name: "twitter:description",
         content:

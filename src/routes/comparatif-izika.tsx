@@ -17,7 +17,7 @@ export const Route = createFileRoute("/comparatif-izika")({
       },
       {
         property: "og:title",
-        content: "Izika vs IKtracker : Le Comparatif 2026 (Alternative Gratuite)",
+        content: "Comparatif Izika vs IKtracker : barème, fonctionnalités et tarifs 2026",
       },
       {
         property: "og:description",
@@ -30,7 +30,7 @@ export const Route = createFileRoute("/comparatif-izika")({
       { property: "og:site_name", content: "IKtracker" },
       { property: "og:image", content: "https://iktracker.fr/logo-iktracker-250.webp" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Izika vs IKtracker : Comparatif 2026" },
+      { name: "twitter:title", content: "Comparatif Izika vs IKtracker : barème, fonctionnalités et tarifs 2026" },
       {
         name: "twitter:description",
         content: "L'alternative gratuite à Izika pour vos indemnités kilométriques.",

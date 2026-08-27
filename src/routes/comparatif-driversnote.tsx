@@ -17,7 +17,7 @@ export const Route = createFileRoute("/comparatif-driversnote")({
       },
       {
         property: "og:title",
-        content: "Driversnote vs IKtracker : Avez-vous vraiment besoin d'un mouchard GPS ?",
+        content: "Comparatif Driversnote vs IKtracker : iBeacon, GPS, agenda et tarifs 2026",
       },
       {
         property: "og:description",
@@ -30,7 +30,7 @@ export const Route = createFileRoute("/comparatif-driversnote")({
       { property: "og:site_name", content: "IKtracker" },
       { property: "og:image", content: "https://iktracker.fr/logo-iktracker-250.webp" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Alternative Driversnote Gratuite 2026" },
+      { name: "twitter:title", content: "Comparatif Driversnote vs IKtracker : iBeacon, GPS, agenda et tarifs 2026" },
       {
         name: "twitter:description",
         content:

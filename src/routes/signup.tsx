@@ -27,7 +27,7 @@ export const Route = createFileRoute("/signup")({
       { name: "twitter:card", content: "summary" },
       {
         name: "twitter:title",
-        content: "Créer un compte gratuit | IKtracker - Outil communautaire",
+        content: "Créer un compte IKtracker : suivi kilométrique gratuit et relevés",
       },
       {
         name: "twitter:description",
