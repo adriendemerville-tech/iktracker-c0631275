@@ -26,7 +26,7 @@ export const Route = createFileRoute("/blog/")({
   },
   head: () => ({
     meta: [
-      { title: "Barème & indemnités kilométriques 2026 — Blog IKtracker" },
+      { title: "Blog IKtracker : barème, indemnités kilométriques et guides 2026" },
       {
         name: "description",
         content:

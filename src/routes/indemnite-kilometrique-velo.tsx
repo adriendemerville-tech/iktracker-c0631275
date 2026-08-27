@@ -4,7 +4,7 @@ import IndemniteKilometriqueVelo from "@/pages/IndemniteKilometriqueVelo";
 export const Route = createFileRoute("/indemnite-kilometrique-velo")({
   head: () => ({
     meta: [
-      { title: "Indemnité kilométrique vélo 2025-2026 | Forfait Mobilités Durables" },
+      { title: "Indemnité kilométrique vélo 2026 : montant FMD, plafond et calcul" },
       {
         name: "description",
         content:
@@ -18,7 +18,7 @@ export const Route = createFileRoute("/indemnite-kilometrique-velo")({
       { name: "robots", content: "index, follow, max-image-preview:large, max-snippet:-1" },
       {
         property: "og:title",
-        content: "Indemnité kilométrique vélo 2025-2026 | Forfait Mobilités Durables",
+        content: "Indemnité kilométrique vélo 2026 : montant FMD, plafond et calcul",
       },
       {
         property: "og:description",
