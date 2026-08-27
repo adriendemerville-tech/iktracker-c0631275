@@ -212,20 +212,20 @@ export default function IndemnitesKilometriques() {
                 </tr>
               </thead>
               <tbody>
-                {IK_BAREME_2024.map((row, i) => (
-                  <tr key={i} className="border-t border-border">
+                {IK_BAREME_2024.map((row) => (
+                  <tr key={row.cv} className="border-t border-border">
                     <th scope="row" className="text-left p-3 font-medium text-foreground">
-                      {row.fiscalPower >= 7 ? "7 CV et plus" : `${row.fiscalPower} CV`}
+                      {row.cv === "7+" ? "7 CV et plus" : `${row.cv} CV`}
                     </th>
-                    {brackets.map((b) => (
-                      <td key={b.key} className="p-3 text-muted-foreground">
-                        {row[b.key].rate.toFixed(3)} €/km
-                        {"fixedAmount" in row[b.key] &&
-                        (row[b.key] as { fixedAmount?: number }).fixedAmount
-                          ? ` + ${(row[b.key] as { fixedAmount?: number }).fixedAmount} €`
-                          : ""}
-                      </td>
-                    ))}
+                    {brackets.map((b) => {
+                      const cell = row[b.key];
+                      return (
+                        <td key={b.key} className="p-3 text-muted-foreground">
+                          {cell.rate.toFixed(3)} €/km
+                          {"fixed" in cell ? ` + ${cell.fixed} €` : ""}
+                        </td>
+                      );
+                    })}
                   </tr>
                 ))}
               </tbody>
