@@ -40,6 +40,34 @@ Expert       150+
 
 Badge affiché à côté du pseudo, recalculé par trigger après chaque post/vote.
 
+### 2.1 Célébration de passage de niveau (nouveau)
+
+Objectif : marquer le moment sans bloquer l'usage, renforcer la rétention.
+
+- Détection : le trigger de recalcul compare ancien/nouveau niveau ; si
+  progression, il insère une ligne `forum_level_events` (user_id, niveau,
+  created_at, seen_at NULL).
+- Déclencheur UI : au chargement de `/app/forum` (et après chaque action
+  post/vote via invalidation TanStack Query), une requête récupère les
+  événements non vus ; la modale s'affiche pour chacun puis marque `seen_at`.
+- Modale animée (composant `LevelUpDialog`, Motion for React) :
+  1. Ouverture : fondu + scale 0.9 → 1 (spring, `stiffness 260, damping 20`).
+  2. Badge du nouveau niveau : entrée en rotation légère + rebond, halo
+     lumineux pulsé (`box-shadow` animé sur la couleur du niveau).
+  3. Confettis discrets en canvas (couleurs de la charte, ~120 particules,
+     1,8 s max, désactivés si `prefers-reduced-motion`).
+  4. Texte : « Vous êtes désormais Habitué » + récapitulatif (X réponses,
+     Y votes utiles) + CTA « Continuer ».
+- Couleur par niveau (tokens sémantiques dans `src/styles.css`) :
+  Contributeur = secondary, Habitué = accent, Référent = primary, Expert =
+  dégradé primary → accent avec badge doré.
+- Son : aucun. Accessibilité : `role="dialog"`, focus piégé, fermeture Échap,
+  version statique sans animation si `prefers-reduced-motion`.
+- Une seule modale à la fois : les événements multiples s'affichent en file,
+  du plus ancien au plus récent.
+- L'événement Expert déclenche aussi une notification email récapitulative
+  (réutilisable plus tard pour d'autres jalons).
+
 ## 3. Discussions et SEO
 
 Chaque discussion porte :
