@@ -1,9 +1,18 @@
+import { lazy, Suspense } from "react";
 import { Helmet } from "@/lib/helmet-compat";
 import { Link } from "@/lib/router-compat";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
-import { EnhancedMarketingFooter } from "@/components/marketing/EnhancedMarketingFooter";
 import { Breadcrumb } from "@/components/Breadcrumb";
-import { IKSimulator } from "@/components/marketing/IKSimulator";
+
+// Chargés à la demande : hors chemin critique du LCP mobile
+const EnhancedMarketingFooter = lazy(() =>
+  import("@/components/marketing/EnhancedMarketingFooter").then((m) => ({
+    default: m.EnhancedMarketingFooter,
+  })),
+);
+const IKSimulator = lazy(() =>
+  import("@/components/marketing/IKSimulator").then((m) => ({ default: m.IKSimulator })),
+);
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -331,12 +340,14 @@ export default function IndemnitesKilometriques() {
 
         {/* Simulateur */}
         <section id="simulateur-ik" className="max-w-4xl mx-auto px-4 py-10 scroll-mt-24">
-          <IKSimulator
-            idSuffix="-ik-pillar"
-            title="Simulateur d'indemnités kilométriques"
-            subtitle="Estimez le montant de vos indemnités kilométriques 2026 selon votre puissance fiscale et votre kilométrage annuel."
-            trackerPage="indemnites-kilometriques"
-          />
+          <Suspense fallback={<div className="min-h-[520px]" aria-hidden="true" />}>
+            <IKSimulator
+              idSuffix="-ik-pillar"
+              title="Simulateur d'indemnités kilométriques"
+              subtitle="Estimez le montant de vos indemnités kilométriques 2026 selon votre puissance fiscale et votre kilométrage annuel."
+              trackerPage="indemnites-kilometriques"
+            />
+          </Suspense>
         </section>
 
         {/* Méthode */}
@@ -569,7 +580,9 @@ export default function IndemnitesKilometriques() {
         </section>
       </main>
 
-      <EnhancedMarketingFooter />
+      <Suspense fallback={<div className="min-h-[400px]" aria-hidden="true" />}>
+        <EnhancedMarketingFooter />
+      </Suspense>
     </>
   );
 }
