@@ -64,6 +64,7 @@ import { Route as AppThemeOnboardingRouteImport } from './routes/app/theme-onboa
 import { Route as BlogIndexRouteImport } from './routes/blog/index'
 import { Route as BlogSlugRouteImport } from './routes/blog/$slug'
 import { Route as DebugTourModalRouteImport } from './routes/debug/tour-modal'
+import { Route as ForumIndexRouteImport } from './routes/forum/index'
 import { Route as TemporaryreportIdRouteImport } from './routes/temporaryreport/$id'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable/oauth/consent'
 import { Route as AdminBlogIndexRouteImport } from './routes/admin/blog/index'
@@ -358,6 +359,11 @@ const DebugTourModalRoute = DebugTourModalRouteImport.update({
   path: '/debug/tour-modal',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ForumIndexRoute = ForumIndexRouteImport.update({
+  id: '/forum/',
+  path: '/forum/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TemporaryreportIdRoute = TemporaryreportIdRouteImport.update({
   id: '/temporaryreport/$id',
   path: '/temporaryreport/$id',
@@ -492,6 +498,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/blog/': typeof BlogIndexRoute
+  '/forum/': typeof ForumIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/content-freshness-audit': typeof ApiPublicContentFreshnessAuditRoute
   '/api/public/submit-indexing': typeof ApiPublicSubmitIndexingRoute
@@ -564,6 +571,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/app': typeof AppIndexRoute
   '/blog': typeof BlogIndexRoute
+  '/forum': typeof ForumIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/content-freshness-audit': typeof ApiPublicContentFreshnessAuditRoute
   '/api/public/submit-indexing': typeof ApiPublicSubmitIndexingRoute
@@ -637,6 +645,7 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/blog/': typeof BlogIndexRoute
+  '/forum/': typeof ForumIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/content-freshness-audit': typeof ApiPublicContentFreshnessAuditRoute
   '/api/public/submit-indexing': typeof ApiPublicSubmitIndexingRoute
@@ -711,6 +720,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/app/'
     | '/blog/'
+    | '/forum/'
     | '/.lovable/oauth/consent'
     | '/api/public/content-freshness-audit'
     | '/api/public/submit-indexing'
@@ -783,6 +793,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/app'
     | '/blog'
+    | '/forum'
     | '/.lovable/oauth/consent'
     | '/api/public/content-freshness-audit'
     | '/api/public/submit-indexing'
@@ -855,6 +866,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/app/'
     | '/blog/'
+    | '/forum/'
     | '/.lovable/oauth/consent'
     | '/api/public/content-freshness-audit'
     | '/api/public/submit-indexing'
@@ -928,6 +940,7 @@ export interface RootRouteChildren {
   AdminIndexRoute: typeof AdminIndexRoute
   AppIndexRoute: typeof AppIndexRoute
   BlogIndexRoute: typeof BlogIndexRoute
+  ForumIndexRoute: typeof ForumIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicContentFreshnessAuditRoute: typeof ApiPublicContentFreshnessAuditRoute
   ApiPublicSubmitIndexingRoute: typeof ApiPublicSubmitIndexingRoute
@@ -1331,6 +1344,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DebugTourModalRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/forum/': {
+      id: '/forum/'
+      path: '/forum'
+      fullPath: '/forum/'
+      preLoaderRoute: typeof ForumIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/temporaryreport/$id': {
       id: '/temporaryreport/$id'
       path: '/temporaryreport/$id'
@@ -1497,6 +1517,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminIndexRoute: AdminIndexRoute,
   AppIndexRoute: AppIndexRoute,
   BlogIndexRoute: BlogIndexRoute,
+  ForumIndexRoute: ForumIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicContentFreshnessAuditRoute: ApiPublicContentFreshnessAuditRoute,
   ApiPublicSubmitIndexingRoute: ApiPublicSubmitIndexingRoute,
