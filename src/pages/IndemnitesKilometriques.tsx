@@ -6,11 +6,52 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { IKSimulator } from "@/components/marketing/IKSimulator";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
+import {
+  buildSoftwareApplicationSchema,
+  FOUNDER_PERSON,
+  ORGANIZATION_ID,
+} from "@/lib/seo-schemas";
 import { IK_BAREME_2024 } from "@/types/trip";
-import { ArrowRight, Calculator, ShieldCheck, Zap, FileDown, MapPin } from "lucide-react";
+import {
+  ArrowRight,
+  Calculator,
+  ShieldCheck,
+  Zap,
+  FileDown,
+  MapPin,
+  Route as RouteIcon,
+  CalendarDays,
+  Repeat,
+  Mail,
+} from "lucide-react";
 
 const PAGE_URL = "https://iktracker.fr/indemnites-kilometriques";
+const PAGE_UPDATED = "2026-08-27";
+
+/** Méthode singulière IKtracker — texte servi en SSR pour SEO/GEO */
+const METHOD_STEPS = [
+  {
+    icon: RouteIcon,
+    t: "Mode Tournée : une journée, plusieurs arrêts, un seul enregistrement",
+    d: "Le GPS relève la position toutes les 10 secondes et détecte automatiquement un arrêt au-delà de 2 minutes dans un rayon de 100 mètres. Chaque étape devient un segment daté avec sa distance réelle, calculée en Haversine pendant le trajet puis affinée via Distance Matrix à la clôture. Une tournée oubliée est auto-finalisée et signalée à vérifier : aucune journée ne disparaît du carnet de bord.",
+  },
+  {
+    icon: Repeat,
+    t: "Trajets ponctuels ou récurrents, saisis en quelques secondes",
+    d: "Un déplacement isolé se crée par dictée vocale ou en langage naturel (« Aix puis Salon, visite chantier »), avec autocomplétion d'adresses issue de la Géoplateforme IGN. Les tournées habituelles se déclarent une fois en trajets récurrents : elles se régénèrent seules, sans ressaisie ni oubli en fin de mois.",
+  },
+  {
+    icon: CalendarDays,
+    t: "Calendrier synchronisé : l'agenda devient le carnet de bord",
+    d: "Google Calendar et Outlook sont synchronisés quatre fois par jour. Les rendez-vous d'un même agenda sur une même journée sont regroupés automatiquement en tournée, avec retour à l'adresse du domicile en fallback et affectation du véhicule par défaut. Les rendez-vous futurs restent masqués jusqu'à leur date réelle : le registre ne contient jamais de kilomètres non parcourus.",
+  },
+  {
+    icon: Mail,
+    t: "Rapports automatiques et archive opposable",
+    d: "Un relevé mensuel et annuel est généré et envoyé par email à l'utilisateur et à son expert-comptable, avec lien signé temporaire vers le PDF. Chaque ligne porte date, motif, départ, arrivée, distance, véhicule et puissance fiscale — le format attendu par l'URSSAF — et reste consultable dans l'archive pendant la durée légale de conservation de 3 ans.",
+  },
+];
+
 
 const faqs = [
   {
