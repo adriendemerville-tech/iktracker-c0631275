@@ -7,10 +7,18 @@ interface CounterProps {
   unit: string;
   variant?: "default" | "accent";
   decimals?: number;
+  initialValue?: number;
 }
 
-export function Counter({ value, label, unit, variant = "default", decimals = 0 }: CounterProps) {
-  const [displayValue, setDisplayValue] = useState(0);
+export function Counter({
+  value,
+  label,
+  unit,
+  variant = "default",
+  decimals = 0,
+  initialValue = 0,
+}: CounterProps) {
+  const [displayValue, setDisplayValue] = useState(initialValue);
   const animationRef = useRef<number | undefined>(undefined);
   const startTimeRef = useRef<number | null>(null);
   const prevValueRef = useRef<number | null>(null);
