@@ -4,7 +4,7 @@ import Install from "@/pages/Install";
 export const Route = createFileRoute("/installer")({
   head: () => ({
     meta: [
-      { title: "Installer IKtracker gratuitement sur iPhone et Android" },
+      { title: "Installer IKtracker : PWA iPhone/Android, mode tournée et sync agenda" },
       {
         name: "description",
         content:

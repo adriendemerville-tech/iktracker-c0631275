@@ -4,7 +4,7 @@ import ComparatifIzika from "@/pages/ComparatifIzika";
 export const Route = createFileRoute("/comparatif-izika")({
   head: () => ({
     meta: [
-      { title: "Izika vs IKtracker : Le Comparatif 2026 (Alternative Gratuite)" },
+      { title: "Comparatif Izika vs IKtracker : barème, fonctionnalités et tarifs 2026" },
       {
         name: "description",
         content:

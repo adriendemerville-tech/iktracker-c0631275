@@ -4,7 +4,7 @@ import Fonctionnalites from "@/pages/Fonctionnalites";
 export const Route = createFileRoute("/fonctionnalites")({
   head: () => ({
     meta: [
-      { title: "Fonctionnalités IKtracker — Toutes les fonctionnalités gratuites" },
+      { title: "Fonctionnalités IKtracker : calcul IK, mode tournée GPS, sync agenda et rapports" },
       {
         name: "description",
         content:

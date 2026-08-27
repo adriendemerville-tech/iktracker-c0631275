@@ -4,7 +4,7 @@ import IndemnitesKilometriques from "@/pages/IndemnitesKilometriques";
 export const Route = createFileRoute("/indemnites-kilometriques")({
   head: () => ({
     meta: [
-      { title: "Indemnités kilométriques 2026 : barème, calcul et simulateur" },
+      { title: "Indemnités kilométriques 2026 : barème officiel DGFiP, simulateur et relevés" },
       {
         name: "description",
         content:

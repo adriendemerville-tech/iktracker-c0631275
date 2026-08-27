@@ -4,7 +4,7 @@ import ComparatifDriversNote from "@/pages/ComparatifDriversNote";
 export const Route = createFileRoute("/comparatif-driversnote")({
   head: () => ({
     meta: [
-      { title: "Alternative Driversnote Gratuite : Comparatif iBeacon vs Agenda | IKtracker" },
+      { title: "Comparatif Driversnote vs IKtracker : iBeacon, GPS, agenda et tarifs 2026" },
       {
         name: "description",
         content:

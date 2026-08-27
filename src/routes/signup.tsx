@@ -4,7 +4,7 @@ import { SmartSignup } from "@/components/auth/SmartSignup";
 export const Route = createFileRoute("/signup")({
   head: () => ({
     meta: [
-      { title: "Créer un compte gratuit - Outil communautaire IK | IKtracker" },
+      { title: "Créer un compte IKtracker : suivi kilométrique gratuit et relevés" },
       {
         name: "description",
         content:

@@ -9,7 +9,7 @@ import {
 export const Route = createFileRoute("/logiciel-devis-artisan")({
   head: () => ({
     meta: [
-      { title: "Logiciel de devis artisan : devis vocal, IK et visibilité" },
+      { title: "Logiciel de devis artisan : devis vocal, calcul IK et suivi des déplacements" },
       {
         name: "description",
         content:

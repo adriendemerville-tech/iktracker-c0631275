@@ -4,7 +4,7 @@ import ModeTournee from "@/pages/ModeTournee";
 export const Route = createFileRoute("/mode-tournee")({
   head: () => ({
     meta: [
-      { title: "Mode Tournée GPS : tous vos arrêts clients en 1 trajet" },
+      { title: "Mode Tournée GPS : suivi multi-arrêts, distances et note de frais" },
       {
         name: "description",
         content:

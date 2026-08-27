@@ -4,7 +4,7 @@ import Calendrier from "@/pages/Calendrier";
 export const Route = createFileRoute("/calendrier")({
   head: () => ({
     meta: [
-      { title: "Synchronisation Calendrier IKtracker | Google Calendar & Outlook" },
+      { title: "Synchronisation calendrier : trajets automatiques depuis Google Calendar et Outlook" },
       {
         name: "description",
         content:

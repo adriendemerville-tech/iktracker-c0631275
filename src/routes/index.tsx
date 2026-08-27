@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SmartLanding } from "@/components/auth/SmartLanding";
 import { HOME_JSON_LD_SCRIPTS } from "@/lib/home-schemas";
 
-const TITLE = "Indemnités kilométriques 2026 : l'application gratuite";
+const TITLE = "Indemnités kilométriques 2026 : barème officiel, calcul et relevés";
 const DESCRIPTION =
   "Calcul des indemnités kilométriques au barème officiel 2026 : suivi GPS des tournées, trajets créés depuis l'agenda, +20 % électrique, relevés PDF comptables. Gratuit à vie.";
 
