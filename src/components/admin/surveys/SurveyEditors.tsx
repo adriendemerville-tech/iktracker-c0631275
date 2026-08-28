@@ -264,6 +264,31 @@ export function ContentBlockEditor({
             </div>
           </>
         )}
+
+        {block.type === "cta" && (
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label className="text-xs">Ancre du bouton</Label>
+              <Input
+                value={(block.config.buttonLabel as string) || ""}
+                onChange={(e) =>
+                  onChange({ ...block, config: { ...block.config, buttonLabel: e.target.value } })
+                }
+                placeholder="Forum"
+              />
+            </div>
+            <div>
+              <Label className="text-xs">Page de destination</Label>
+              <Input
+                value={(block.config.buttonUrl as string) || ""}
+                onChange={(e) =>
+                  onChange({ ...block, config: { ...block.config, buttonUrl: e.target.value } })
+                }
+                placeholder="https://iktracker.fr/forum/"
+              />
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
