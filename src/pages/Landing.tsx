@@ -619,11 +619,12 @@ const Landing = ({ initialUserCount }: LandingProps) => {
                     ),
                   )}
                 </ul>
-                <Link to="/installer" className="py-[12px]">
-                  <Button variant="outline" className="gap-2 w-full sm:w-auto my-0">
-                    Guide d'installation
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
+                <Link
+                  to="/installer"
+                  className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                >
+                  Guide d'installation
+                  <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
             </div>
@@ -651,11 +652,12 @@ const Landing = ({ initialUserCount }: LandingProps) => {
                     ),
                   )}
                 </ul>
-                <Link to="/mode-tournee">
-                  <Button variant="outline" className="gap-2 w-full sm:w-auto">
-                    En savoir plus
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
+                <Link
+                  to="/mode-tournee"
+                  className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                >
+                  Découvrir le mode tournée
+                  <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
               <Suspense fallback={<PhonePlaceholder />}>
@@ -689,11 +691,12 @@ const Landing = ({ initialUserCount }: LandingProps) => {
                     </li>
                   ))}
                 </ul>
-                <Link to="/calendrier">
-                  <Button variant="outline" className="gap-2 w-full sm:w-auto">
-                    En savoir plus
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
+                <Link
+                  to="/calendrier"
+                  className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                >
+                  Voir la synchronisation calendrier
+                  <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
             </div>
@@ -721,11 +724,12 @@ const Landing = ({ initialUserCount }: LandingProps) => {
                     ),
                   )}
                 </ul>
-                <Link to="/expert-comptable">
-                  <Button variant="outline" className="gap-2 w-full sm:w-auto">
-                    En savoir plus
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
+                <Link
+                  to="/expert-comptable"
+                  className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                >
+                  Envoyer un relevé à mon comptable
+                  <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
 
@@ -995,11 +999,11 @@ const Landing = ({ initialUserCount }: LandingProps) => {
         </section>
 
         {/* CTA Section */}
-        <section className="py-32 bg-primary text-primary-foreground section-contained">
+        <section className="py-24 md:py-32 bg-primary text-primary-foreground section-contained">
           <div className="container mx-auto px-4 text-center">
-            <div className="max-w-3xl mx-auto space-y-6">
+            <div className="max-w-2xl mx-auto space-y-6">
               <h2 className="text-3xl md:text-4xl font-bold">{c.cta_title}</h2>
-              <p className="text-xl opacity-90">{c.cta_subtitle}</p>
+              <p className="text-lg md:text-xl opacity-90">{c.cta_subtitle}</p>
               <p className="text-sm opacity-80">
                 Barème conforme aux{" "}
                 <a
@@ -1014,35 +1018,35 @@ const Landing = ({ initialUserCount }: LandingProps) => {
               </p>
             </div>
 
-            {/* QR Code for desktop users */}
-            <div className="hidden md:flex flex-col items-center gap-3 mt-8">
-              <div className="bg-white p-4 rounded-xl shadow-lg">
+            <div className="mt-8 md:mt-10">
+              <Link to="/signup" onClick={trackSignupClick}>
+                <Button size="lg" variant="secondary" className="gap-2 text-lg px-8 py-6 shadow-xl">
+                  Créer mon compte gratuit
+                  <ArrowRight className="h-5 w-5" />
+                </Button>
+              </Link>
+            </div>
+
+            {/* QR Code as subtle secondary option */}
+            <div className="hidden md:flex flex-col items-center gap-2 mt-10 opacity-80">
+              <p className="text-xs opacity-70 flex items-center gap-2">
+                <Smartphone className="h-3.5 w-3.5" />
+                Ou scannez pour installer sur mobile
+              </p>
+              <div className="bg-white p-2 rounded-lg shadow-md">
                 <Suspense
                   fallback={
-                    <div className="w-[140px] h-[140px] bg-gray-200 animate-pulse rounded" />
+                    <div className="w-[100px] h-[100px] bg-gray-200 animate-pulse rounded" />
                   }
                 >
                   <QRCodeSVG
                     value="https://iktracker.fr/install"
-                    size={140}
+                    size={100}
                     level="M"
                     includeMargin={false}
                   />
                 </Suspense>
               </div>
-              <p className="text-sm opacity-80 flex items-center gap-2">
-                <Smartphone className="h-4 w-4" />
-                Scannez pour installer sur mobile
-              </p>
-            </div>
-
-            <div className="mt-10">
-              <Link to="/signup" onClick={trackSignupClick}>
-                <Button size="lg" variant="secondary" className="gap-2 text-lg px-8 py-6">
-                  Créer mon compte gratuit
-                  <ArrowRight className="h-5 w-5" />
-                </Button>
-              </Link>
             </div>
           </div>
         </section>
