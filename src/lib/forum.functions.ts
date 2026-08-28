@@ -168,6 +168,17 @@ export const updateForumPseudo = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
+    // Unicité du surnom (insensible à la casse), hors soi-même
+    const { data: taken } = await supabase
+      .from("forum_profiles")
+      .select("user_id")
+      .ilike("pseudo", data.pseudo)
+      .neq("user_id", userId)
+      .maybeSingle();
+    if (taken) {
+      return { ok: false as const, error: "Ce pseudo est déjà utilisé." };
+    }
+
     const { data: existing } = await supabase
       .from("forum_profiles")
       .select("user_id")
