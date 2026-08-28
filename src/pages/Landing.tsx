@@ -619,11 +619,12 @@ const Landing = ({ initialUserCount }: LandingProps) => {
                     ),
                   )}
                 </ul>
-                <Link to="/installer" className="py-[12px]">
-                  <Button variant="outline" className="gap-2 w-full sm:w-auto my-0">
-                    Guide d'installation
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
+                <Link
+                  to="/installer"
+                  className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                >
+                  Guide d'installation
+                  <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
             </div>
@@ -651,11 +652,12 @@ const Landing = ({ initialUserCount }: LandingProps) => {
                     ),
                   )}
                 </ul>
-                <Link to="/mode-tournee">
-                  <Button variant="outline" className="gap-2 w-full sm:w-auto">
-                    En savoir plus
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
+                <Link
+                  to="/mode-tournee"
+                  className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                >
+                  Découvrir le mode tournée
+                  <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
               <Suspense fallback={<PhonePlaceholder />}>
@@ -689,11 +691,12 @@ const Landing = ({ initialUserCount }: LandingProps) => {
                     </li>
                   ))}
                 </ul>
-                <Link to="/calendrier">
-                  <Button variant="outline" className="gap-2 w-full sm:w-auto">
-                    En savoir plus
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
+                <Link
+                  to="/calendrier"
+                  className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                >
+                  Voir la synchronisation calendrier
+                  <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
             </div>
@@ -721,11 +724,12 @@ const Landing = ({ initialUserCount }: LandingProps) => {
                     ),
                   )}
                 </ul>
-                <Link to="/expert-comptable">
-                  <Button variant="outline" className="gap-2 w-full sm:w-auto">
-                    En savoir plus
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
+                <Link
+                  to="/expert-comptable"
+                  className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                >
+                  Envoyer un relevé à mon comptable
+                  <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
 
