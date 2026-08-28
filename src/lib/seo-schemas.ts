@@ -71,7 +71,7 @@ export const IKTRACKER_FEATURES = [
   "Lexique fiscal interactif avec export PDF",
   "API partenaires et serveur MCP pour assistants IA (trajets, véhicules, cumul annuel)",
   "Programme d'affiliation pour experts-comptables et prescripteurs",
-  "Sélection profession au signup pour personnalisation : libéral, commercial, artisan, expert-comptable, salarié",
+  "Forum communautaire des professionnels itinérants : catégories thématiques, votes, profils contributeurs et notifications de réponses par email",
   "Aucune publicité, aucune revente de données, aucun abonnement, aucune carte bancaire requise",
 ];
 
