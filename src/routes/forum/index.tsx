@@ -15,13 +15,14 @@ const URL = "https://iktracker.fr/forum";
 
 export const Route = createFileRoute("/forum/")({
   loader: async () => {
-    const [categories, recent, popular, stats] = await Promise.all([
+    const [categories, recent, popular, stats, topContributors] = await Promise.all([
       fetchCategories(),
       fetchDiscussions({ sort: "recent", limit: 20 }),
       fetchDiscussions({ sort: "popular", limit: 20 }),
       fetchForumStats(),
+      fetchTopContributors(8),
     ]);
-    return { categories, recent, popular, stats };
+    return { categories, recent, popular, stats, topContributors };
   },
   head: ({ loaderData }) => {
     const items = (loaderData?.recent ?? []).map((d) => ({ slug: d.slug, title: d.title }));
