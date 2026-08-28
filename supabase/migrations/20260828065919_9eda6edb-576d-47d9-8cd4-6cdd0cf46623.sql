@@ -1,0 +1,1 @@
+UPDATE public.forum_discussions SET seo_indexable = true WHERE status = 'published' AND seo_indexable = false;

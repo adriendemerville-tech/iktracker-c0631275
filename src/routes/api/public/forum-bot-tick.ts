@@ -179,7 +179,7 @@ ${existingTitles.slice(0, 30).map((t: string) => `- ${t}`).join("\n") || "- (auc
       category_slug: category.slug,
       meta_description: buildMetaDescription(body),
       status: "published",
-      seo_indexable: false,
+      seo_indexable: true,
       is_bot: true,
       created_at: createdAt,
       updated_at: createdAt,

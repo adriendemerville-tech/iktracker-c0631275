@@ -161,7 +161,7 @@ export const createDiscussion = createServerFn({ method: "POST" })
         category_slug: slugifyWord(data.category_slug),
         meta_description: buildMetaDescription(data.body),
         status: "published",
-        seo_indexable: false,
+        seo_indexable: true,
         last_activity_at: new Date().toISOString(),
       })
       .select("id, slug")
