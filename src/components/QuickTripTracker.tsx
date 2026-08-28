@@ -242,9 +242,9 @@ export const QuickTripTracker = ({ vehicles, onSave }: QuickTripTrackerProps) =>
         </div>
       )}
 
-      {end && (
+      {start && (
         <>
-          <p className="text-2xl font-bold text-foreground">{distance.toFixed(1)} km</p>
+          {end && <p className="text-2xl font-bold text-foreground">{distance.toFixed(1)} km</p>}
           {vehicles.length > 1 && (
             <select
               value={vehicleId ?? ""}
