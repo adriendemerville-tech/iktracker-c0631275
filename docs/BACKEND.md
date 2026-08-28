@@ -1,6 +1,9 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 4.6.2 — 26 août 2026
+> Version 4.6.3 — 28 août 2026
+
+**Notes v4.6.3 (fallback forum sur OpenRouter, 28 août 2026)**
+- La génération de texte des bots forum (`src/lib/forum/bot-generation.server.ts`) conserve Mistral via Wavespeed comme modèle principal, mais son fallback passe de la passerelle Lovable AI à **OpenRouter** (`OPENROUTER_API_KEY`). Modèle de fallback : `google/gemini-2.5-flash`. Headers `HTTP-Referer` et `X-Title` positionnés pour le classement OpenRouter.
 
 **Notes v4.6.2 (réinitialisation Google Sign-In, 26 août 2026)**
 - Le provider Google Sign-In a été désactivé puis réactivé via la configuration OAuth managée Lovable Cloud afin de remplacer toute configuration personnalisée résiduelle responsable de `redirect_uri_mismatch`. Les écrans `/auth` et `/signup` utilisent le broker managé `lovable.auth.signInWithOAuth` avec `redirect_uri: window.location.origin`.
@@ -448,7 +451,7 @@ Content-Type: application/json
 - **Capture guidée par la doc** : `deriveCaptureFocus(topic, postText)` demande au LLM 2 à 4 libellés visibles à l'écran, à partir du post généré et des extraits de doc du module (`captureHintsForTopic`). Ces libellés alimentent `captureUiFrames()` (chemin de repli Browserless), qui cadre les zones correspondantes via `scrollIntoView` sur les titres/sections/boutons, avec repli sur le scroll global si aucun libellé n'est trouvé. La **vidéo principale** est elle aussi adaptée au post : `deriveVideoScenario(topic, postText)` est appelée **après** la rédaction du texte et fait générer par LLM les `steps` PageBolt (8 à 14 étapes) à partir du post publié et de la doc technique du module, pour filmer précisément le parcours décrit. Les étapes passent par `sanitizeAiSteps` (actions en liste blanche, `navigate` limité à iktracker.fr, `wait` 800–4000 ms, `scroll` borné, `evaluate` restreint à `scrollIntoView`/`.click()`, 18 étapes max). Replis : `scriptedVideoSteps` (scénario en dur par module) puis `fallbackVideoSteps`.
 
 - **Style d'écriture** : table `public.linkedin_style_samples` (`content`, `active`) — corpus de posts rédigés manuellement par le fondateur. Le profil de style (longueur, ratio de phrases courtes, ouvertures, bigrammes) est calculé à partir de ces exemples et injecté dans le prompt. L'API LinkedIn ne permettant pas de relire les publications passées avec les scopes disponibles, cette table est la **seule** source de style fiable. RLS : lecture/écriture réservées aux admins, lecture service_role pour l'edge function.
-- **Texte** : Mistral hébergé sur Wavespeed (via `WAVESPEED_API_KEY`), avec **fallback silencieux** sur Gemini 2.5 Flash (Lovable AI Gateway).
+- **Texte** : Mistral hébergé sur Wavespeed (via `WAVESPEED_API_KEY`), avec **fallback silencieux** sur Gemini 2.5 Flash via OpenRouter (via `OPENROUTER_API_KEY`).
 - **Cohérence texte ↔ média** : le média n'est pas produit à partir du seul `topic.visualPrompt`. Après génération du texte :
   - le **plan de carrousel** est dérivé du post généré (`generateSlidePlanFromText`) pour que les slides reprennent les mêmes arguments, avec repli sur le plan topic.
   - le **prompt visuel** (cover d'image ou scène vidéo) est dérivé du post généré (`deriveVisualPromptFromText`) pour que l'image/la vidéo illustre ce qui est réellement écrit, avec repli sur `topic.visualPrompt`.
@@ -811,6 +814,7 @@ Tous les crawlers IA sont explicitement autorisés (`GPTBot`, `Claude-Web`, `Per
 | `BLOG_API` | (legacy) |
 | `BLOG_WEBHOOK_TOKEN` | Webhook de notification blog |
 | `LOVABLE_API_KEY` | API Lovable AI Gateway |
+| `OPENROUTER_API_KEY` | API OpenRouter (fallback génération forum) |
 | `GITHUB_API_KEY` | Connector GitHub API (Actions mobile) |
 
 ### Storage Buckets
@@ -1531,6 +1535,6 @@ Le score de priorité est la somme des poids, plafonnée à 100.
 - Colonnes `is_bot` sur `forum_discussions` et `forum_replies`.
 - Route SSR `src/routes/api/public/forum-bot-tick.ts` : orchestrateur, authentifié par `x-cron-secret` (`CRON_SECRET`) ou bearer admin. Choisit un membre pondéré (cycle de vie, heures d'activité, affinité de persona), génère le texte, applique les garde-fous puis insère la discussion ou la réponse avec un horodatage décalé aléatoirement.
 - Cron `forum-bot-tick-hourly` (`17 * * * *`) → `/api/public/forum-bot-tick`. Deux créneaux de publication par semaine tirés de façon déterministe à partir de la clé ISO de la semaine.
-- Génération de texte : `src/lib/forum/bot-generation.server.ts` appelle Mistral via le proxy Wavespeed (`WAVESPEED_API_KEY`) et bascule sur la passerelle Lovable AI (`LOVABLE_API_KEY`) si le modèle est indisponible.
+- Génération de texte : `src/lib/forum/bot-generation.server.ts` appelle Mistral via le proxy Wavespeed (`WAVESPEED_API_KEY`) et bascule sur OpenRouter (`OPENROUTER_API_KEY`, modèle `google/gemini-2.5-flash`) si le modèle est indisponible.
 - Garde-fous SEO (`src/lib/forum/bot-personality.ts`, testés par `bot-personality.test.ts`) : aucun contenu sur les indemnités kilométriques, barèmes ou fiscalité chiffrée, détection de doublons de titres (Jaccard ≥ 0,5), `seo_indexable = false` à la création.
 - `public.forum_notify_on_reply` ignore désormais les destinataires absents de `auth.users` : les comptes d'animation ne déclenchent ni notification ni e-mail.
