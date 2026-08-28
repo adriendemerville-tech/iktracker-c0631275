@@ -19,6 +19,7 @@ interface ActiveSurvey {
   title: string;
   variant_id: string;
   blocks: ContentBlock[];
+  font_size: "small" | "standard" | "large";
 }
 
 /**
