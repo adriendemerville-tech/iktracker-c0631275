@@ -190,24 +190,6 @@ export default function ForumHome({ data }: { data: ForumHomeData }) {
                 </>
               )}
             </section>
-                <div className="flex items-center gap-3">
-                  <ForumAvatar pseudo={profile.pseudo} avatarUrl={profile.avatar_url} size={44} />
-                  <div>
-                    <p className="text-sm font-medium">{profile.pseudo}</p>
-                    <ForumLevelBadge level={profile.level} />
-                  </div>
-                </div>
-                <p className="mt-3 text-xs text-muted-foreground">
-                  {profile.points} points · {profile.discussions_count} discussions ·{" "}
-                  {profile.replies_count} réponses
-                </p>
-                <Link to="/app/forum/profil">
-                  <Button variant="outline" size="sm" className="mt-3 w-full">
-                    Modifier ma fiche
-                  </Button>
-                </Link>
-              </section>
-            )}
 
             <section className="rounded-xl border border-border bg-card p-4">
               <h2 className="mb-3 text-sm font-semibold">Aide IKtracker</h2>
