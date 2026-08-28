@@ -139,6 +139,15 @@ export const upsertForumProfile = createServerFn({ method: "POST" })
       vehicle: data.vehicle ?? null,
     };
 
+    const { data: taken } = await context.supabase
+      .from("forum_profiles")
+      .select("user_id")
+      .ilike("pseudo", data.pseudo)
+      .neq("user_id", context.userId)
+      .maybeSingle();
+    if (taken) {
+      return { ok: false as const, error: "Ce pseudo est déjà utilisé." };
+    }
 
     const { data: row, error } = await context.supabase
       .from("forum_profiles")
