@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useEmailGate, UNVERIFIED_TOUR_LIMIT } from "@/hooks/useEmailGate";
 import { ForumNotificationsBell } from "@/components/forum/ForumNotificationsBell";
+import { ForumSuggestionBanner } from "@/components/forum/ForumSuggestionBanner";
 import { useTrips } from "@/hooks/useTrips";
 import {
   useTourTracker,
@@ -1280,6 +1281,9 @@ ${IKTRACKER_MENTION}
         <main className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto px-4 pt-3 space-y-3 md:space-y-5 pb-36 md:pb-4">
           {/* Trajet en direct — mobile uniquement, en tête de la home */}
           {isMobile && !isTourActive && <QuickTripTracker vehicles={vehicles} onSave={addTrip} />}
+
+          {/* Suggestion forum — desktop uniquement, une fois par session */}
+          <ForumSuggestionBanner />
 
           {/* Geolocation Banner - hide if tour is active (permission already granted) */}
           {showGeoBanner && !isTourActive && (

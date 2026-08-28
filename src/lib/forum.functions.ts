@@ -443,6 +443,87 @@ export const reportForumContent = createServerFn({ method: "POST" })
     return { ok: true as const };
   });
 
+/** Catégories / mots-clés privilégiés selon le persona métier. */
+const PERSONA_FORUM_AFFINITY: Record<string, { categories: string[]; keywords: string[] }> = {
+  sante_liberal: {
+    categories: ["complementaire-sante", "mutuelle", "vehicules"],
+    keywords: ["patient", "tournée", "domicile", "visite", "cabinet"],
+  },
+  artisan_btp: {
+    categories: ["facturation-electronique", "vehicules", "finances"],
+    keywords: ["devis", "chantier", "facture", "client", "camion"],
+  },
+  consultant_freelance: {
+    categories: ["finances", "imposition", "urssaf"],
+    keywords: ["freelance", "mission", "client", "tjm"],
+  },
+  commercial_immobilier: {
+    categories: ["vehicules", "finances", "salarie"],
+    keywords: ["commercial", "terrain", "prospection", "voiture"],
+  },
+  expert_comptable_tns: {
+    categories: ["imposition", "urssaf", "finances"],
+    keywords: ["comptable", "déclaration", "fiscal", "bilan"],
+  },
+  autre: {
+    categories: [],
+    keywords: [],
+  },
+};
+
+/**
+ * Suggère une discussion du forum adaptée au persona du membre connecté.
+ * Retourne null si aucune discussion pertinente n'est disponible.
+ */
+export const suggestForumDiscussion = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+
+    const { data: prefs } = await supabase
+      .from("user_preferences")
+      .select("persona")
+      .eq("user_id", userId)
+      .maybeSingle();
+    const persona = (prefs?.persona as string | null) ?? "autre";
+    const affinity = PERSONA_FORUM_AFFINITY[persona] ?? PERSONA_FORUM_AFFINITY.autre;
+
+    const { data: discussions } = await supabase
+      .from("forum_discussions")
+      .select("id, title, slug, category_slug, reply_count, last_activity_at")
+      .eq("status", "published")
+      .neq("author_id", userId)
+      .order("last_activity_at", { ascending: false })
+      .limit(40);
+
+    if (!discussions?.length) return { ok: true as const, suggestion: null };
+
+    const scored = discussions.map((d) => {
+      let score = d.reply_count; // discussions actives en priorité
+      if (affinity.categories.includes(d.category_slug)) score += 20;
+      const haystack = d.title.toLowerCase();
+      for (const kw of affinity.keywords) {
+        if (haystack.includes(kw)) score += 10;
+      }
+      return { d, score };
+    });
+    scored.sort((a, b) => b.score - a.score);
+
+    // Léger aléa parmi les 3 meilleures pour varier d'une session à l'autre.
+    const pool = scored.slice(0, 3);
+    const pick = pool[Math.floor(Math.random() * pool.length)].d;
+
+    return {
+      ok: true as const,
+      suggestion: {
+        id: pick.id,
+        title: pick.title,
+        slug: pick.slug,
+        contributions: pick.reply_count + 1, // sujet + réponses
+      },
+    };
+  });
+
 /** Marque les événements de passage de niveau comme vus. */
 export const markLevelEventsSeen = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
