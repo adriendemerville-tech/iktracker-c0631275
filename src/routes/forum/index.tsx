@@ -1,6 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import ForumHome from "@/pages/forum/ForumHome";
-import { fetchCategories, fetchDiscussions, fetchForumStats } from "@/lib/forum/queries";
+import {
+  fetchCategories,
+  fetchDiscussions,
+  fetchForumStats,
+  fetchTopContributors,
+} from "@/lib/forum/queries";
 import { buildForumBreadcrumb, buildForumCollectionSchema } from "@/lib/forum/schemas";
 
 const TITLE = "Forum indemnités kilométriques : entraide des indépendants | IKtracker";
