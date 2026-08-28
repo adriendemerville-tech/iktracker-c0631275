@@ -479,15 +479,11 @@ const Landing = ({ initialUserCount }: LandingProps) => {
         </Suspense>
 
         {/* Statistics Section - Independent Workers */}
-        <section className="py-16 md:py-24 px-4 section-contained">
+        <section className="py-12 md:py-16 px-4 section-contained">
           <div className="container mx-auto">
             <div className="max-w-4xl mx-auto">
-              <div className="text-center mb-10 md:mb-14">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
-                  <Car className="h-4 w-4" />
-                  Le saviez-vous ?
-                </div>
-                <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">
+              <div className="text-center mb-8">
+                <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3">
                   {c.stats_title.includes("beaucoup") ? (
                     <>
                       Les indépendants roulent <span className="text-primary">beaucoup</span>
@@ -501,7 +497,8 @@ const Landing = ({ initialUserCount }: LandingProps) => {
                 </p>
               </div>
 
-              <div className="grid md:grid-cols-3 gap-6 mb-10">
+              <div className="grid md:grid-cols-3 gap-6 mb-6">
+
                 <div className="p-6 rounded-2xl bg-card border border-border text-center group hover:border-primary/50 transition-colors">
                   <div className="text-4xl md:text-5xl font-extrabold text-primary mb-2">
                     15 000
