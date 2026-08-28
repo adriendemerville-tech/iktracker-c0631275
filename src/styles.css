@@ -954,3 +954,12 @@ img {
 .pac-container {
   z-index: 9999 !important;
 }
+
+/* Survey widget font size setting (small / standard / large) */
+[data-survey-size="small"] { --survey-scale: 0.85; }
+[data-survey-size="standard"] { --survey-scale: 1; }
+[data-survey-size="large"] { --survey-scale: 1.25; }
+[data-survey-size] .text-xs { font-size: calc(0.75rem * var(--survey-scale, 1)); }
+[data-survey-size] .text-sm { font-size: calc(0.875rem * var(--survey-scale, 1)); }
+[data-survey-size] .text-base { font-size: calc(1rem * var(--survey-scale, 1)); }
+[data-survey-size] .text-lg { font-size: calc(1.125rem * var(--survey-scale, 1)); }
