@@ -237,6 +237,14 @@ export function buildOrganizationSchema() {
       "Comptabilité indépendants",
       "Déclaration BNC BIC",
       "Véhicules électriques fiscalité",
+      "Forum communautaire des professionnels itinérants",
     ],
+    subjectOf: {
+      "@type": "CollectionPage",
+      "@id": `${SITE_URL}/forum#collection`,
+      url: `${SITE_URL}/forum`,
+      name: "Forum IKtracker",
+    },
+
   };
 }
