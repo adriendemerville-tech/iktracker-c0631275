@@ -73,10 +73,10 @@ export function SurveyPreview({ survey, variant, onClose }: SurveyPreviewProps) 
   );
   const sizeClass =
     longestText > 700
-      ? "w-[min(88vw,40rem)] h-[min(75vh,34rem)]"
+      ? "w-[min(88vw,40rem)] max-h-[min(75vh,34rem)]"
       : longestText > 350
-        ? "w-[min(88vw,32rem)] h-[min(70vh,30rem)]"
-        : "w-80 h-[420px]";
+        ? "w-[min(88vw,32rem)] max-h-[min(70vh,30rem)]"
+        : "w-80 max-h-[420px]";
 
   return (
     <div

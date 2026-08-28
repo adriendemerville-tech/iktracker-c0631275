@@ -854,22 +854,20 @@ export function AdminSurveys() {
           }
         }}
       >
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
+        <DialogContent className="bg-transparent border-none shadow-none p-0 sm:max-w-none w-auto flex flex-col items-center [&>button]:hidden">
+          <DialogHeader className="sr-only">
             <DialogTitle className="text-base">Aperçu du survey</DialogTitle>
           </DialogHeader>
-          <div className="flex flex-col items-center justify-center py-4">
-            {previewSurvey && previewVariants[previewVariantIndex] && (
-              <SurveyPreview
-                survey={previewSurvey}
-                variant={previewVariants[previewVariantIndex]}
-                onClose={() => {
-                  setPreviewSurvey(null);
-                  setPreviewVariants([]);
-                }}
-              />
-            )}
-          </div>
+          {previewSurvey && previewVariants[previewVariantIndex] && (
+            <SurveyPreview
+              survey={previewSurvey}
+              variant={previewVariants[previewVariantIndex]}
+              onClose={() => {
+                setPreviewSurvey(null);
+                setPreviewVariants([]);
+              }}
+            />
+          )}
           {previewVariants.length > 1 && (
             <div className="flex justify-center gap-2 mt-2">
               {previewVariants.map((v, i) => (
