@@ -288,6 +288,33 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle, updateTrip }:
     }
   };
 
+  const handleToggleRoundTrip = async () => {
+    if (!displayTrip || isRecalc) return;
+    const next = !displayTrip.roundTrip;
+    setIsRecalc(true);
+    try {
+      const base = displayDistance;
+      const newDistance = Math.round((next ? base * 2 : base / 2) * 10) / 10;
+      const updated = await updateTrip(displayTrip.id, {
+        roundTrip: next,
+        distance: newDistance,
+      } as Partial<Omit<Trip, "id">>);
+      if (updated) {
+        setLocalDistance(updated.distance);
+        setLocalIk(updated.ikAmount);
+        toast({
+          title: next ? "Aller-retour activé" : "Aller simple",
+          description: `${newDistance.toFixed(1)} km`,
+        });
+      }
+    } catch (e) {
+      console.error(e);
+      toast({ title: "Erreur", description: "Mise à jour impossible.", variant: "destructive" });
+    } finally {
+      setIsRecalc(false);
+    }
+  };
+
   const handleAddStop = async (s: AddressSuggestion) => {
     if (!displayTrip) return;
     if (!s.lat || !s.lng) {
