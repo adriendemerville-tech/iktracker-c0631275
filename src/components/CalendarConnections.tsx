@@ -405,10 +405,24 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
         }),
       );
 
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
+      if (!accessToken) {
+        toast.error("Session expirée, reconnectez-vous puis réessayez.");
+        setConnectingOutlook(false);
+        return;
+      }
+
       // Get auth URL from edge function
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/outlook-calendar-auth?action=authorize&state=${state}`,
-        { method: "GET" },
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/outlook-calendar-auth?action=authorize&state=${encodeURIComponent(state)}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string,
+          },
+        },
       );
 
       if (!response.ok) {
