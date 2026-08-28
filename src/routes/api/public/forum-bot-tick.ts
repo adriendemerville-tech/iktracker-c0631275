@@ -64,7 +64,7 @@ async function loadBots(admin: Admin): Promise<BotProfileContext[]> {
     .from("forum_profiles")
     .select("user_id, pseudo, persona, bio")
     .in("user_id", ids);
-  const byId = new Map((profiles ?? []).map((p: any) => [p.user_id as string, p]));
+  const byId = new Map<string, any>((profiles ?? []).map((p: any) => [p.user_id as string, p]));
   return bots
     .map((b: any) => {
       const p = byId.get(b.user_id as string);
@@ -125,7 +125,7 @@ TITRE: <titre de 40 à 110 caractères, sans point final, formulé comme un vrai
 CORPS: <ton message>`;
 
   const user = `Titres déjà présents sur le forum (ne les répète pas, choisis un angle nettement différent) :
-${existingTitles.slice(0, 30).map((t) => `- ${t}`).join("\n") || "- (aucun)"}`;
+${existingTitles.slice(0, 30).map((t: string) => `- ${t}`).join("\n") || "- (aucun)"}`;
 
   const generated = await generateForumText(system, user, { size: "large", temperature: 1 });
   if (!generated) return { status: "error", reason: "modèle indisponible", bot: bot.user_id };
@@ -229,7 +229,7 @@ async function createBotReply(admin: Admin, bots: BotProfileContext[], now: Date
     .from("forum_profiles")
     .select("user_id, pseudo, persona")
     .in("user_id", authorIds);
-  const authorById = new Map((authors ?? []).map((a: any) => [a.user_id as string, a]));
+  const authorById = new Map<string, any>((authors ?? []).map((a: any) => [a.user_id as string, a]));
 
   const targets: ReplyTarget[] = open
     .filter((d: any) => !(d.is_bot && shouldStayUnanswered(d.id as string)))
