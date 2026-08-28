@@ -98,15 +98,31 @@ export function AdminForum() {
   });
 
   const profilesQuery = useQuery({
-    queryKey: ["admin-forum-profiles-count"],
+    queryKey: ["admin-forum-profiles"],
     queryFn: async () => {
-      const { count, error } = await supabase
+      const { data, error } = await supabase
         .from("forum_profiles")
-        .select("user_id", { count: "exact", head: true });
+        .select(
+          "user_id, pseudo, persona, level, points, discussions_count, replies_count, upvotes_received, is_moderator, member_since, last_seen_at, city",
+        )
+        .order("points", { ascending: false })
+        .limit(500);
       if (error) throw error;
-      return count ?? 0;
+      return data ?? [];
     },
   });
+
+  const botsQuery = useQuery({
+    queryKey: ["admin-forum-bots"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("forum_bot_profiles")
+        .select("user_id, is_active, lifecycle, activity_weight, last_discussion_at, last_reply_at");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
 
   const visitsQuery = useQuery({
     queryKey: ["admin-forum-visits"],
