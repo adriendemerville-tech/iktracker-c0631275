@@ -900,6 +900,105 @@ export type Database = {
           },
         ]
       }
+      forum_bot_profiles: {
+        Row: {
+          active_days: number[]
+          active_hours: number[]
+          activity_weight: number
+          age_band: string
+          created_at: string
+          disc_color: string
+          is_active: boolean
+          last_discussion_at: string | null
+          last_reply_at: string | null
+          lifecycle: string
+          memory: Json
+          register: string
+          signature: string | null
+          typo_rate: number
+          updated_at: string
+          user_id: string
+          verbosity: string
+        }
+        Insert: {
+          active_days?: number[]
+          active_hours?: number[]
+          activity_weight?: number
+          age_band: string
+          created_at?: string
+          disc_color: string
+          is_active?: boolean
+          last_discussion_at?: string | null
+          last_reply_at?: string | null
+          lifecycle?: string
+          memory?: Json
+          register: string
+          signature?: string | null
+          typo_rate?: number
+          updated_at?: string
+          user_id: string
+          verbosity?: string
+        }
+        Update: {
+          active_days?: number[]
+          active_hours?: number[]
+          activity_weight?: number
+          age_band?: string
+          created_at?: string
+          disc_color?: string
+          is_active?: boolean
+          last_discussion_at?: string | null
+          last_reply_at?: string | null
+          lifecycle?: string
+          memory?: Json
+          register?: string
+          signature?: string | null
+          typo_rate?: number
+          updated_at?: string
+          user_id?: string
+          verbosity?: string
+        }
+        Relationships: []
+      }
+      forum_bot_runs: {
+        Row: {
+          bot_user_id: string | null
+          created_at: string
+          id: string
+          kind: string
+          model: string | null
+          output: string | null
+          reason: string | null
+          status: string
+          target_id: string | null
+          target_type: string | null
+        }
+        Insert: {
+          bot_user_id?: string | null
+          created_at?: string
+          id?: string
+          kind: string
+          model?: string | null
+          output?: string | null
+          reason?: string | null
+          status?: string
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Update: {
+          bot_user_id?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          model?: string | null
+          output?: string | null
+          reason?: string | null
+          status?: string
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Relationships: []
+      }
       forum_categories: {
         Row: {
           created_at: string
@@ -933,6 +1032,7 @@ export type Database = {
           category_slug: string
           created_at: string
           id: string
+          is_bot: boolean
           is_locked: boolean
           is_pinned: boolean
           last_activity_at: string
@@ -954,6 +1054,7 @@ export type Database = {
           category_slug: string
           created_at?: string
           id?: string
+          is_bot?: boolean
           is_locked?: boolean
           is_pinned?: boolean
           last_activity_at?: string
@@ -975,6 +1076,7 @@ export type Database = {
           category_slug?: string
           created_at?: string
           id?: string
+          is_bot?: boolean
           is_locked?: boolean
           is_pinned?: boolean
           last_activity_at?: string
@@ -1185,6 +1287,7 @@ export type Database = {
           discussion_id: string
           id: string
           is_ai: boolean
+          is_bot: boolean
           parent_reply_id: string | null
           status: string
           updated_at: string
@@ -1198,6 +1301,7 @@ export type Database = {
           discussion_id: string
           id?: string
           is_ai?: boolean
+          is_bot?: boolean
           parent_reply_id?: string | null
           status?: string
           updated_at?: string
@@ -1211,6 +1315,7 @@ export type Database = {
           discussion_id?: string
           id?: string
           is_ai?: boolean
+          is_bot?: boolean
           parent_reply_id?: string | null
           status?: string
           updated_at?: string

@@ -71,6 +71,7 @@ import { Route as TemporaryreportIdRouteImport } from './routes/temporaryreport/
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable/oauth/consent'
 import { Route as AdminBlogIndexRouteImport } from './routes/admin/blog/index'
 import { Route as ApiPublicContentFreshnessAuditRouteImport } from './routes/api/public/content-freshness-audit'
+import { Route as ApiPublicForumBotTickRouteImport } from './routes/api/public/forum-bot-tick'
 import { Route as ApiPublicSubmitIndexingRouteImport } from './routes/api/public/submit-indexing'
 import { Route as AppAdminIndexRouteImport } from './routes/app/admin/index'
 import { Route as AppAdminPartnersRouteImport } from './routes/app/admin/partners'
@@ -399,6 +400,11 @@ const ApiPublicContentFreshnessAuditRoute =
     path: '/api/public/content-freshness-audit',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicForumBotTickRoute = ApiPublicForumBotTickRouteImport.update({
+  id: '/api/public/forum-bot-tick',
+  path: '/api/public/forum-bot-tick',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicSubmitIndexingRoute = ApiPublicSubmitIndexingRouteImport.update({
   id: '/api/public/submit-indexing',
   path: '/api/public/submit-indexing',
@@ -527,6 +533,7 @@ export interface FileRoutesByFullPath {
   '/forum/': typeof ForumIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/content-freshness-audit': typeof ApiPublicContentFreshnessAuditRoute
+  '/api/public/forum-bot-tick': typeof ApiPublicForumBotTickRoute
   '/api/public/submit-indexing': typeof ApiPublicSubmitIndexingRoute
   '/app/admin/partners': typeof AppAdminPartnersRoute
   '/app/forum/profil': typeof AppForumProfilRoute
@@ -604,6 +611,7 @@ export interface FileRoutesByTo {
   '/forum': typeof ForumIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/content-freshness-audit': typeof ApiPublicContentFreshnessAuditRoute
+  '/api/public/forum-bot-tick': typeof ApiPublicForumBotTickRoute
   '/api/public/submit-indexing': typeof ApiPublicSubmitIndexingRoute
   '/app/admin/partners': typeof AppAdminPartnersRoute
   '/app/forum/profil': typeof AppForumProfilRoute
@@ -682,6 +690,7 @@ export interface FileRoutesById {
   '/forum/': typeof ForumIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/content-freshness-audit': typeof ApiPublicContentFreshnessAuditRoute
+  '/api/public/forum-bot-tick': typeof ApiPublicForumBotTickRoute
   '/api/public/submit-indexing': typeof ApiPublicSubmitIndexingRoute
   '/app/admin/partners': typeof AppAdminPartnersRoute
   '/app/forum/profil': typeof AppForumProfilRoute
@@ -761,6 +770,7 @@ export interface FileRouteTypes {
     | '/forum/'
     | '/.lovable/oauth/consent'
     | '/api/public/content-freshness-audit'
+    | '/api/public/forum-bot-tick'
     | '/api/public/submit-indexing'
     | '/app/admin/partners'
     | '/app/forum/profil'
@@ -838,6 +848,7 @@ export interface FileRouteTypes {
     | '/forum'
     | '/.lovable/oauth/consent'
     | '/api/public/content-freshness-audit'
+    | '/api/public/forum-bot-tick'
     | '/api/public/submit-indexing'
     | '/app/admin/partners'
     | '/app/forum/profil'
@@ -915,6 +926,7 @@ export interface FileRouteTypes {
     | '/forum/'
     | '/.lovable/oauth/consent'
     | '/api/public/content-freshness-audit'
+    | '/api/public/forum-bot-tick'
     | '/api/public/submit-indexing'
     | '/app/admin/partners'
     | '/app/forum/profil'
@@ -993,6 +1005,7 @@ export interface RootRouteChildren {
   ForumIndexRoute: typeof ForumIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicContentFreshnessAuditRoute: typeof ApiPublicContentFreshnessAuditRoute
+  ApiPublicForumBotTickRoute: typeof ApiPublicForumBotTickRoute
   ApiPublicSubmitIndexingRoute: typeof ApiPublicSubmitIndexingRoute
   AppAdminPartnersRoute: typeof AppAdminPartnersRoute
   AppForumProfilRoute: typeof AppForumProfilRoute
@@ -1445,6 +1458,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicContentFreshnessAuditRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/forum-bot-tick': {
+      id: '/api/public/forum-bot-tick'
+      path: '/api/public/forum-bot-tick'
+      fullPath: '/api/public/forum-bot-tick'
+      preLoaderRoute: typeof ApiPublicForumBotTickRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/submit-indexing': {
       id: '/api/public/submit-indexing'
       path: '/api/public/submit-indexing'
@@ -1602,6 +1622,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForumIndexRoute: ForumIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicContentFreshnessAuditRoute: ApiPublicContentFreshnessAuditRoute,
+  ApiPublicForumBotTickRoute: ApiPublicForumBotTickRoute,
   ApiPublicSubmitIndexingRoute: ApiPublicSubmitIndexingRoute,
   AppAdminPartnersRoute: AppAdminPartnersRoute,
   AppForumProfilRoute: AppForumProfilRoute,
