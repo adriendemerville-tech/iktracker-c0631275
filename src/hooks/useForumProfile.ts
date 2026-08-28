@@ -39,8 +39,20 @@ export function useForumProfile() {
       )
       .eq("user_id", user.id)
       .maybeSingle();
-    setProfile((data as ForumProfile | null) ?? null);
+    if (data) {
+      setProfile(data as ForumProfile);
+      setLoading(false);
+      return;
+    }
+    // Fiche contributeur créée automatiquement à la première visite du forum.
+    try {
+      const res = await ensureForumProfile();
+      setProfile(res.ok ? (res.profile as ForumProfile) : null);
+    } catch {
+      setProfile(null);
+    }
     setLoading(false);
+
   }, [user]);
 
   useEffect(() => {
