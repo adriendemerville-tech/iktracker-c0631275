@@ -13,6 +13,8 @@ import {
   targetWeight,
   violatesAdviceGuard,
   violatesSeoGuard,
+  violatesToneGuard,
+  titleSimilarity,
   weeklyDiscussionSlots,
   weightedPick,
   type BotProfileContext,
@@ -145,7 +147,8 @@ ${existingTitles.slice(0, 30).map((t: string) => `- ${t}`).join("\n") || "- (auc
   const title = cleanModelText(titleMatch[1]!).slice(0, 120);
   let body = cleanModelText(bodyMatch[1]!);
 
-  const guard = violatesSeoGuard(`${title}\n${body}`) ?? violatesAdviceGuard(body);
+  const guard =
+    violatesSeoGuard(`${title}\n${body}`) ?? violatesAdviceGuard(body) ?? violatesToneGuard(body);
   if (guard) {
     return { status: "rejected", reason: guard, bot: bot.user_id, model: generated.model, output: title };
   }
@@ -244,6 +247,7 @@ async function createBotReply(admin: Admin, bots: BotProfileContext[], now: Date
     }));
   if (!targets.length) return { status: "skipped", reason: "aucune cible éligible" };
 
+  const botIds = new Set(bots.map((b) => b.user_id));
   const awake = bots.filter((b) => isBotAwake(b, now));
   const pool = awake.length ? awake : bots;
   const bot = weightedPick(
@@ -263,13 +267,30 @@ async function createBotReply(admin: Admin, bots: BotProfileContext[], now: Date
 
   const { data: replies } = await admin
     .from("forum_replies")
-    .select("id, author_id, body, created_at")
+    .select("id, author_id, body, created_at, is_bot")
     .eq("discussion_id", target.discussion_id)
     .eq("status", "published")
     .order("created_at", { ascending: true })
     .limit(12);
 
-  if ((replies ?? []).some((r: any) => r.author_id === bot.user_id) && Math.random() < 0.8) {
+  const list = (replies ?? []) as any[];
+  const last = list[list.length - 1];
+
+  // Jamais deux messages d'affilée du même membre, ni deux bots à la suite
+  // sans qu'un humain ne soit intervenu entre-temps.
+  if (last && last.author_id === bot.user_id) {
+    return { status: "skipped", reason: "le membre vient déjà de répondre" };
+  }
+  if (!list.length && discussion.author_id === bot.user_id) {
+    return { status: "skipped", reason: "le membre est l'auteur du fil" };
+  }
+  if (last && (last.is_bot === true || botIds.has(last.author_id as string))) {
+    const humanAfter = false;
+    if (!humanAfter && Math.random() < 0.85) {
+      return { status: "skipped", reason: "dernier message déjà écrit par un membre animé" };
+    }
+  }
+  if (list.some((r) => r.author_id === bot.user_id) && Math.random() < 0.9) {
     return { status: "skipped", reason: "le membre a déjà répondu" };
   }
 
@@ -292,7 +313,7 @@ ${thread ? `\nRéponses déjà publiées :\n${thread}` : ""}`;
   if (!generated) return { status: "error", reason: "modèle indisponible", bot: bot.user_id };
 
   let body = cleanModelText(generated.text);
-  const guard = violatesSeoGuard(body) ?? violatesAdviceGuard(body);
+  const guard = violatesSeoGuard(body) ?? violatesAdviceGuard(body) ?? violatesToneGuard(body);
   if (guard) {
     return {
       status: "rejected",
@@ -304,6 +325,18 @@ ${thread ? `\nRéponses déjà publiées :\n${thread}` : ""}`;
     };
   }
   if (body.length < 15) return { status: "rejected", reason: "réponse trop courte", bot: bot.user_id };
+
+  // Anti-redite : on refuse une réponse qui recopie le fond d'un message déjà publié.
+  const redundant = list.some((r) => titleSimilarity(body, String(r.body)) >= 0.45);
+  if (redundant) {
+    return {
+      status: "rejected",
+      reason: "réponse redondante avec le fil",
+      bot: bot.user_id,
+      target_id: target.discussion_id,
+      model: generated.model,
+    };
+  }
 
   body = applyTypos(body, bot.typo_rate);
 
