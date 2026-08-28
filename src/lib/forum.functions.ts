@@ -15,7 +15,9 @@ const ProfileSchema = z.object({
   bio: z.string().trim().max(400).optional().nullable(),
   persona: z.string().trim().max(60).optional().nullable(),
   avatar_url: z.string().trim().max(500).optional().nullable(),
+  city: z.string().trim().max(80).optional().nullable(),
 });
+
 
 const DiscussionSchema = z.object({
   title: z.string().trim().min(10).max(120),
