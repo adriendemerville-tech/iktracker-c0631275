@@ -631,7 +631,7 @@ export function TextBlock({
   );
 }
 
-function InfoBlock({
+export function InfoBlock({
   block,
   onButtonClick,
 }: {
