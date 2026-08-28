@@ -92,6 +92,7 @@ export function AdminSurveys() {
     target_user_count: null as number | null,
     target_min_days_since_signup: null as number | null,
     target_max_days_since_signup: null as number | null,
+    font_size: "standard" as "small" | "standard" | "large",
   });
 
   // ---- Queries ----
