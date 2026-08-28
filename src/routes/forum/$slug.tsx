@@ -1,7 +1,7 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import ForumDiscussionPage from "@/pages/forum/ForumDiscussionPage";
 import { fetchDiscussionBySlug } from "@/lib/forum/queries";
-import { buildDiscussionSchema, buildForumBreadcrumb } from "@/lib/forum/schemas";
+import { buildDiscussionSchema, buildForumBreadcrumb, buildQAPageSchema, isQuestionDiscussion } from "@/lib/forum/schemas";
 import { buildMetaDescription } from "@/lib/forum/constants";
 
 export const Route = createFileRoute("/forum/$slug")({
