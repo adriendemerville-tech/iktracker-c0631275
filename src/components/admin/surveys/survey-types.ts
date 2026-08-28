@@ -1,10 +1,10 @@
-import { MessageSquare, Star, Camera, Share2, ListChecks, Info } from "lucide-react";
+import { MessageSquare, Star, Camera, Share2, ListChecks, Info, Link2 } from "lucide-react";
 
 // ---- Types ----
 
 export interface ContentBlock {
   id: string;
-  type: "poll" | "rating" | "text_question" | "screenshot" | "share" | "info";
+  type: "poll" | "rating" | "text_question" | "screenshot" | "share" | "info" | "cta";
   config: Record<string, unknown>;
 }
 
@@ -52,6 +52,7 @@ export const CONTENT_BLOCK_TYPES = [
   { value: "rating", label: "Note sur 5", icon: Star },
   { value: "text_question", label: "Question ouverte", icon: MessageSquare },
   { value: "info", label: "Texte / info", icon: Info },
+  { value: "cta", label: "Bouton / lien", icon: Link2 },
   { value: "screenshot", label: "Capture d'écran", icon: Camera },
   { value: "share", label: "Partage", icon: Share2 },
 ] as const;
@@ -104,6 +105,8 @@ export function defaultContentBlock(type: ContentBlock["type"]): ContentBlock {
       };
     case "info":
       return { ...base, config: { title: "", text: "", buttonLabel: "", buttonUrl: "" } };
+    case "cta":
+      return { ...base, config: { buttonLabel: "Forum", buttonUrl: "https://iktracker.fr/forum/" } };
     default:
       return base;
   }
