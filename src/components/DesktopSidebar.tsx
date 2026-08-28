@@ -46,7 +46,9 @@ import {
   ChevronRight,
   ChevronLeft,
   FolderArchive,
+  MessagesSquare,
 } from "lucide-react";
+import { useForumNotifications } from "@/hooks/useForumNotifications";
 import { QRCodeSVG } from "qrcode.react";
 import founderImage from "@/assets/founder-adrien-optimized.webp";
 import { Vehicle } from "@/types/trip";
