@@ -359,7 +359,7 @@ export default function ForumHome({ data }: { data: ForumHomeData }) {
                             {m.contributions} contribution{m.contributions > 1 ? "s" : ""}
                           </span>
                         </span>
-                        <ForumLevelBadge level={m.level} />
+                        <ForumLevelBadge level={m.level} moderator={m.is_moderator} />
                     </li>
                   ))}
                 </ul>
