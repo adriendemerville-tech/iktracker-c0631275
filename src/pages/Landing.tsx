@@ -5,6 +5,7 @@ import { Link, useNavigate } from "@/lib/router-compat";
 import { getSupabase } from "@/integrations/supabase/lazy";
 import { usePageContent } from "@/hooks/usePageContent";
 import { useLiveUserCount } from "@/hooks/useLiveUserCount";
+import { useLiveTripStats } from "@/hooks/useLiveTripStats";
 import { HERO_VARIANTS, DEFAULT_VARIANT, getHeroVariant, type HeroVariant } from "@/lib/ab-test";
 import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,8 @@ import {
 
 interface LandingProps {
   initialUserCount?: number;
+  initialTripCount?: number;
+  initialTotalKm?: number;
 }
 
 // Lazy load AuthForm - not needed for initial LCP
@@ -181,8 +184,12 @@ const LANDING_DEFAULTS = {
 // useLayoutEffect côté client (applique le swap avant le paint), useEffect côté serveur.
 const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
-const Landing = ({ initialUserCount }: LandingProps) => {
+const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: LandingProps) => {
   const { count: liveUserCount } = useLiveUserCount({ initialCount: initialUserCount });
+  const { tripCount: liveTripCount, totalKm: liveTotalKm } = useLiveTripStats({
+    initialTripCount,
+    initialTotalKm,
+  });
 
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -347,7 +354,7 @@ const Landing = ({ initialUserCount }: LandingProps) => {
                 </ul>
 
                 {/* Social proof */}
-                <div className="mt-6 flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
+                <div className="mt-6 flex flex-wrap items-center gap-4 justify-center lg:justify-start">
                   <Counter
                     value={liveUserCount}
                     initialValue={initialUserCount ?? 1000}
@@ -356,12 +363,27 @@ const Landing = ({ initialUserCount }: LandingProps) => {
                     variant="accent"
                     decimals={0}
                   />
-                  <p className="text-sm text-muted-foreground">
-                    <strong className="text-foreground">6 nouveaux membres</strong> chaque jour
-                    <br />
-                    rejoignent la communauté IKtracker
-                  </p>
+                  <Counter
+                    value={liveTripCount}
+                    initialValue={initialTripCount ?? 0}
+                    label="trajets enregistrés"
+                    unit=""
+                    variant="accent"
+                    decimals={0}
+                  />
+                  <Counter
+                    value={liveTotalKm}
+                    initialValue={initialTotalKm ?? 0}
+                    label="kilomètres suivis"
+                    unit="km"
+                    variant="accent"
+                    decimals={0}
+                  />
                 </div>
+                <p className="mt-3 text-sm text-muted-foreground">
+                  <strong className="text-foreground">6 nouveaux membres</strong> chaque jour
+                  rejoignent la communauté IKtracker
+                </p>
               </div>
 
               {/* Right: Auth form or Phone mockup - Reserved space with fixed dimensions to prevent CLS */}

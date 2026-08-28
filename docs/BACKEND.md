@@ -1,6 +1,9 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 4.6.5 — 28 août 2026
+> Version 4.6.6 — 28 août 2026
+
+**Notes v4.6.6 (compteurs homepage, 28 août 2026)**
+- **Compteurs publics de la homepage** : nouvelle fonction SQL `public.get_public_trip_stats()` retournant le nombre de trajets validés (`status='validated'`, `deleted_at IS NULL`) et la somme des distances en km. Exposée publiquement (`EXECUTE` pour `anon`, `authenticated`, `service_role`) en `SECURITY DEFINER` pour la preuve sociale SSR. Consommée par `src/lib/trip-stats.functions.ts` et le hook `src/hooks/useLiveTripStats.ts` (rafraîchissement toutes les 60 s, retour d'onglet). La home affiche désormais trois compteurs : inscrits, trajets enregistrés, kilomètres suivis.
 
 **Notes v4.6.5 (surveys, forum & trajets, 28 août 2026)**
 - **Surveys** : nouveau type de bloc `cta` (« Bouton / lien ») avec champs `text` (message affiché) + `label` (ancre) + `url` (destination). Un bloc `info`/`cta` porteur d'un bouton d'action masque la navigation « Suivant ». Aperçu admin disponible (`SurveyPreview`). Règle d'exposition confirmée : un utilisateur ayant répondu, atteint le plafond d'impressions, ou **fermé deux fois** la survey ne la revoit plus.
