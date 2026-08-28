@@ -3,6 +3,7 @@ import { Link, useNavigate } from "@/lib/router-compat";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { EnhancedMarketingFooter } from "@/components/marketing/EnhancedMarketingFooter";
 import { ForumAvatar } from "@/components/forum/ForumAvatar";
+import { ForumAuthorLink } from "@/components/forum/ForumAuthorLink";
 import { ForumLevelBadge } from "@/components/forum/ForumLevelBadge";
 import { ForumVote } from "@/components/forum/ForumVote";
 import { ForumActions } from "@/components/forum/ForumActions";
@@ -243,9 +244,11 @@ export default function ForumDiscussionPage({ data }: { data: ForumDiscussionDat
                   avatarUrl={discussion.author?.avatar_url}
                   size={24}
                 />
-                <span className="font-medium text-foreground">
-                  {discussion.author?.pseudo ?? "Membre"}
-                </span>
+                <ForumAuthorLink
+                  userId={discussion.author?.user_id ?? discussion.author_id}
+                  pseudo={discussion.author?.pseudo ?? "Membre"}
+                  className="font-medium text-foreground"
+                />
                 {discussion.author && <ForumLevelBadge level={discussion.author.level} />}
                 {personaLabel(discussion.author?.persona) && (
                   <span>· {personaLabel(discussion.author?.persona)}</span>
