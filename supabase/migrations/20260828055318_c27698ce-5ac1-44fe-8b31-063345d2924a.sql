@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.forum_notify_on_reply() FROM PUBLIC, anon, authenticated;
