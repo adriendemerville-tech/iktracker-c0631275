@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { extractCityFromAddress, geocodeAddress } from "@/lib/geocoding";
 import { AddressAutocompleteInput } from "./AddressAutocompleteInput";
+import { Switch } from "@/components/ui/switch";
 import { AddressSuggestion } from "@/hooks/useAddressAutocomplete";
 
 import { useGoogleMaps } from "@/hooks/useGoogleMaps";
@@ -283,6 +284,33 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle, updateTrip }:
     } catch (e) {
       console.error(e);
       toast({ title: "Erreur", description: "Recalcul impossible.", variant: "destructive" });
+    } finally {
+      setIsRecalc(false);
+    }
+  };
+
+  const handleToggleRoundTrip = async () => {
+    if (!displayTrip || isRecalc) return;
+    const next = !displayTrip.roundTrip;
+    setIsRecalc(true);
+    try {
+      const base = displayDistance;
+      const newDistance = Math.round((next ? base * 2 : base / 2) * 10) / 10;
+      const updated = await updateTrip(displayTrip.id, {
+        roundTrip: next,
+        distance: newDistance,
+      } as Partial<Omit<Trip, "id">>);
+      if (updated) {
+        setLocalDistance(updated.distance);
+        setLocalIk(updated.ikAmount);
+        toast({
+          title: next ? "Aller-retour activé" : "Aller simple",
+          description: `${newDistance.toFixed(1)} km`,
+        });
+      }
+    } catch (e) {
+      console.error(e);
+      toast({ title: "Erreur", description: "Mise à jour impossible.", variant: "destructive" });
     } finally {
       setIsRecalc(false);
     }
@@ -662,12 +690,28 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle, updateTrip }:
                   </p>
                 </div>
               </div>
-              {displayTrip.roundTrip && (
-                <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
-                  <ArrowRight className="w-3 h-3" />
-                  <ArrowRight className="w-3 h-3 rotate-180" />
-                  Aller-retour inclus
-                </p>
+              {isTour ? (
+                displayTrip.roundTrip && (
+                  <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+                    <ArrowRight className="w-3 h-3" />
+                    <ArrowRight className="w-3 h-3 rotate-180" />
+                    Aller-retour inclus
+                  </p>
+                )
+              ) : (
+                <div className="mt-3 flex items-center justify-between gap-3 border-t border-border/50 pt-3">
+                  <span className="text-xs text-muted-foreground flex items-center gap-1">
+                    <ArrowRight className="w-3 h-3" />
+                    <ArrowRight className="w-3 h-3 rotate-180" />
+                    Aller-retour
+                  </span>
+                  <Switch
+                    checked={!!displayTrip.roundTrip}
+                    disabled={isRecalc}
+                    onCheckedChange={handleToggleRoundTrip}
+                    aria-label="Aller-retour"
+                  />
+                </div>
               )}
             </div>
 
