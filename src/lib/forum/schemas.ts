@@ -114,3 +114,75 @@ export function buildForumCollectionSchema(input: {
     },
   };
 }
+
+/** Une discussion est traitée comme Q/R si elle pose explicitement une question. */
+export function isQuestionDiscussion(title: string, body: string): boolean {
+  const t = title.toLowerCase();
+  const b = body.slice(0, 600).toLowerCase();
+  if (title.includes("?") || body.slice(0, 600).includes("?")) return true;
+  return /\b(comment|pourquoi|quel|quelle|quels|quelles|est-ce que|faut-il|qui a|besoin d'aide|conseil)\b/.test(
+    `${t} ${b}`,
+  );
+}
+
+/** QAPage : hiérarchie question / réponse acceptée / réponses suggérées. */
+export function buildQAPageSchema(input: {
+  slug: string;
+  title: string;
+  body: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+  voteScore: number;
+  author: SchemaAuthor;
+  replies: {
+    id: string;
+    body: string;
+    created_at: string;
+    vote_score: number;
+    author?: SchemaAuthor;
+  }[];
+}): Record<string, unknown> {
+  const url = `${FORUM_BASE_URL}/${input.slug}`;
+  const answerNode = (reply: (typeof input.replies)[number]) => ({
+    "@type": "Answer",
+    "@id": `${url}#reponse-${reply.id}`,
+    url: `${url}#reponse-${reply.id}`,
+    text: reply.body.slice(0, 3000),
+    datePublished: reply.created_at,
+    upvoteCount: Math.max(0, reply.vote_score),
+    author: personNode(reply.author),
+  });
+
+  const sorted = [...input.replies].sort((a, b) => b.vote_score - a.vote_score);
+  const [best, ...rest] = sorted;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "QAPage",
+    "@id": `${url}#qapage`,
+    url,
+    inLanguage: "fr-FR",
+    isPartOf: { "@id": "https://iktracker.fr/#website" },
+    publisher: { "@id": ORG_ID },
+    mainEntity: {
+      "@type": "Question",
+      "@id": `${url}#question`,
+      name: input.title,
+      text: input.body.slice(0, 5000) || input.description,
+      answerCount: input.replies.length,
+      upvoteCount: Math.max(0, input.voteScore),
+      datePublished: input.createdAt,
+      dateModified: input.updatedAt,
+      author: personNode(input.author),
+      ...(best && best.vote_score > 0 ? { acceptedAnswer: answerNode(best) } : {}),
+      ...(sorted.length
+        ? {
+            suggestedAnswer: (best && best.vote_score > 0 ? rest : sorted)
+              .slice(0, 20)
+              .map(answerNode),
+          }
+        : {}),
+    },
+  };
+}
