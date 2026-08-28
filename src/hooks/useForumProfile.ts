@@ -14,6 +14,7 @@ export type ForumProfile = {
   replies_count: number;
   upvotes_received: number;
   member_since: string;
+  pseudo_enabled: boolean;
 };
 
 /** Fiche d'identité forum du membre connecté (null si non connecté ou non créée). */
@@ -32,7 +33,7 @@ export function useForumProfile() {
     const { data } = await supabase
       .from("forum_profiles")
       .select(
-        "user_id, pseudo, avatar_url, bio, persona, level, points, discussions_count, replies_count, upvotes_received, member_since",
+        "user_id, pseudo, avatar_url, bio, persona, level, points, discussions_count, replies_count, upvotes_received, member_since, pseudo_enabled",
       )
       .eq("user_id", user.id)
       .maybeSingle();

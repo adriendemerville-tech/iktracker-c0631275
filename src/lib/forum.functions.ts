@@ -76,6 +76,54 @@ export const upsertForumProfile = createServerFn({ method: "POST" })
     return { ok: true as const, profile: row };
   });
 
+const PseudoUpdateSchema = z.object({
+  pseudo: PseudoSchema,
+  pseudo_enabled: z.boolean(),
+});
+
+/** Met à jour le surnom du membre connecté (et son affichage public). */
+export const updateForumPseudo = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => PseudoUpdateSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+
+    const { data: existing } = await supabase
+      .from("forum_profiles")
+      .select("user_id")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (existing) {
+      const { error } = await supabase
+        .from("forum_profiles")
+        .update({ pseudo: data.pseudo, pseudo_enabled: data.pseudo_enabled })
+        .eq("user_id", userId);
+      if (error) {
+        if (error.code === "23505") {
+          return { ok: false as const, error: "Ce pseudo est déjà utilisé." };
+        }
+        console.error("updateForumPseudo", error);
+        return { ok: false as const, error: "Impossible d'enregistrer le surnom." };
+      }
+      return { ok: true as const };
+    }
+
+    const { error } = await supabase.from("forum_profiles").insert({
+      user_id: userId,
+      pseudo: data.pseudo,
+      pseudo_enabled: data.pseudo_enabled,
+    });
+    if (error) {
+      if (error.code === "23505") {
+        return { ok: false as const, error: "Ce pseudo est déjà utilisé." };
+      }
+      console.error("updateForumPseudo insert", error);
+      return { ok: false as const, error: "Impossible d'enregistrer le surnom." };
+    }
+    return { ok: true as const };
+  });
+
 /** Publie une nouvelle discussion (slug SEO + méta-description auto). */
 export const createDiscussion = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
