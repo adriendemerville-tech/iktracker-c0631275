@@ -596,319 +596,159 @@ const Landing = ({ initialUserCount }: LandingProps) => {
           </div>
         </section>
 
-        {/* Phone Mockup Demo */}
-
-        <section className="py-16 md:py-24 bg-gradient-to-b from-background to-muted/30 section-contained">
+        {/* Product demos - unified tabbed section */}
+        <section className="py-12 md:py-20 bg-gradient-to-b from-background to-muted/30 section-contained">
           <div className="container mx-auto px-4">
-            <div className="grid lg:grid-cols-2 gap-8 md:gap-16 items-center">
-              <div className="order-2 lg:order-1">
-                <Suspense fallback={<PhonePlaceholder />}>
-                  <AnimatedPhoneMockup />
-                </Suspense>
-              </div>
-              <div className="space-y-4 md:space-y-6 order-1 lg:order-2">
-                <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold">{c.mobile_title}</h2>
-                <p className="text-base md:text-lg text-muted-foreground">{c.mobile_subtitle}</p>
-                <ul className="space-y-2 md:space-y-3">
-                  {["Fonctionne hors-ligne", "Notifications rappels", "GPS temps réel"].map(
-                    (item, i) => (
-                      <li key={i} className="flex items-center gap-3">
-                        <Check className="h-5 w-5 text-primary flex-shrink-0" />
-                        <span className="text-sm md:text-base">{item}</span>
-                      </li>
-                    ),
-                  )}
-                </ul>
-                <Link
-                  to="/installer"
-                  className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
-                >
-                  Guide d'installation
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
+            <div className="text-center mb-8 md:mb-12">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold">
+                Tout ce dont vous avez besoin, en un seul endroit
+              </h2>
+              <p className="text-base md:text-lg text-muted-foreground mt-3">
+                Application mobile, mode tournée GPS, synchronisation calendrier et relevé PDF.
+              </p>
             </div>
-          </div>
-        </section>
 
-        {/* Tour Mode Demo */}
-        <section className="py-16 md:py-24 section-contained">
-          <div className="container mx-auto px-4">
-            <div className="grid lg:grid-cols-2 gap-8 md:gap-16 items-center">
-              <div className="space-y-4 md:space-y-6">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm">
-                  <Route className="h-4 w-4" />
-                  Nouveau
-                </div>
-                <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold">{c.tour_title}</h2>
-                <p className="text-base md:text-lg text-muted-foreground">{c.tour_subtitle}</p>
-                <ul className="space-y-2 md:space-y-3">
-                  {["GPS en temps réel", "Arrêts illimités", "Calcul automatique"].map(
-                    (item, i) => (
-                      <li key={i} className="flex items-center gap-3">
-                        <Check className="h-5 w-5 text-primary flex-shrink-0" />
-                        <span className="text-sm md:text-base">{item}</span>
-                      </li>
-                    ),
-                  )}
-                </ul>
-                <Link
-                  to="/mode-tournee"
-                  className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
-                >
-                  Découvrir le mode tournée
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
-              <Suspense fallback={<PhonePlaceholder />}>
-                <TourModeMockup />
-              </Suspense>
-            </div>
-          </div>
-        </section>
+            <Tabs defaultValue="mobile" className="max-w-5xl mx-auto">
+              <TabsList className="mx-auto flex flex-wrap justify-center h-auto gap-1 mb-8">
+                <TabsTrigger value="mobile" className="gap-2">
+                  <Smartphone className="h-4 w-4" /> Mobile
+                </TabsTrigger>
+                <TabsTrigger value="tour" className="gap-2">
+                  <Route className="h-4 w-4" /> Mode tournée
+                </TabsTrigger>
+                <TabsTrigger value="calendar" className="gap-2">
+                  <Calendar className="h-4 w-4" /> Calendrier
+                </TabsTrigger>
+                <TabsTrigger value="pdf" className="gap-2">
+                  <FileText className="h-4 w-4" /> Relevé PDF
+                </TabsTrigger>
+              </TabsList>
 
-        {/* Calendar Sync Demo */}
-        <section className="py-16 md:py-24 bg-muted/30 section-contained">
-          <div className="container mx-auto px-4">
-            <div className="grid lg:grid-cols-2 gap-8 md:gap-16 items-center">
-              <div className="order-2 lg:order-1">
-                <Suspense fallback={<CalendarPlaceholder />}>
-                  <CalendarSyncDemo />
-                </Suspense>
-              </div>
-              <div className="space-y-4 md:space-y-6 order-1 lg:order-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm">
-                  <Calendar className="h-4 w-4" />
-                  Intégration
-                </div>
-                <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold">{c.calendar_title}</h2>
-                <p className="text-base md:text-lg text-muted-foreground">{c.calendar_subtitle}</p>
-                <ul className="space-y-2 md:space-y-3">
-                  {["Google Calendar", "Microsoft Outlook", "Import en un clic"].map((item, i) => (
-                    <li key={i} className="flex items-center gap-3">
-                      <Check className="h-5 w-5 text-primary flex-shrink-0" />
-                      <span className="text-sm md:text-base">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  to="/calendrier"
-                  className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
-                >
-                  Voir la synchronisation calendrier
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* PDF Report Section - iOS Style */}
-        <section className="py-16 md:py-24 bg-gradient-to-b from-muted/20 to-background section-contained">
-          <div className="container mx-auto px-4">
-            <div className="grid lg:grid-cols-2 gap-8 md:gap-16 items-center">
-              <div className="space-y-4 md:space-y-6">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm">
-                  <FileText className="h-4 w-4" />
-                  Export
-                </div>
-                <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold">{c.pdf_title}</h2>
-                <p className="text-base md:text-lg text-muted-foreground">{c.pdf_subtitle}</p>
-                <ul className="space-y-2 md:space-y-3">
-                  {["Format PDF ou Excel", "Barème fiscal 2026", "Envoi direct par email"].map(
-                    (item, i) => (
-                      <li key={i} className="flex items-center gap-3">
-                        <Check className="h-5 w-5 text-primary flex-shrink-0" />
-                        <span className="text-sm md:text-base">{item}</span>
-                      </li>
-                    ),
-                  )}
-                </ul>
-                <Link
-                  to="/expert-comptable"
-                  className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
-                >
-                  Envoyer un relevé à mon comptable
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
-
-              {/* iOS-style PDF Report Mockup */}
-              <div
-                ref={pdfRef}
-                className={`relative transition-all duration-700 ${pdfVisible ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-8 scale-95"}`}
-              >
-                {/* Subtle shadow backdrop */}
-                <div className="absolute -inset-4 bg-gradient-to-br from-primary/5 to-transparent rounded-[2rem] blur-2xl" />
-
-                {/* Main PDF Document */}
-                <div
-                  className="relative bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100 flex flex-col"
-                  style={{ aspectRatio: "0.7" }}
-                >
-                  {/* Header bar with logo */}
-                  <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-100">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                          <FileText className="h-4 w-4 text-primary" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-semibold text-gray-900">Relevé IK</p>
-                          <p className="text-xs text-gray-500">Décembre 2026</p>
-                        </div>
-                      </div>
-                      <img
-                        src="/logo-iktracker-250.webp"
-                        alt="IKtracker"
-                        width={24}
-                        height={24}
-                        className="h-6 w-6 opacity-60"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    </div>
+              <TabsContent value="mobile">
+                <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
+                  <div className="order-2 lg:order-1">
+                    <Suspense fallback={<PhonePlaceholder />}>
+                      <AnimatedPhoneMockup />
+                    </Suspense>
                   </div>
-
-                  {/* Document content */}
-                  <div className="p-6 space-y-5 flex-1">
-                    {/* Summary cards */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <div
-                        className="bg-gray-50 rounded-xl p-4 transition-all duration-500"
-                        style={{
-                          transitionDelay: pdfVisible ? "100ms" : "0ms",
-                          opacity: pdfVisible ? 1 : 0,
-                          transform: pdfVisible ? "translateY(0)" : "translateY(10px)",
-                        }}
-                      >
-                        <p className="text-xs text-gray-500 mb-1">Distance totale</p>
-                        <p className="text-lg font-bold text-gray-900">1 247 km</p>
-                      </div>
-                      <div
-                        className="bg-primary/5 rounded-xl p-4 transition-all duration-500"
-                        style={{
-                          transitionDelay: pdfVisible ? "200ms" : "0ms",
-                          opacity: pdfVisible ? 1 : 0,
-                          transform: pdfVisible ? "translateY(0)" : "translateY(10px)",
-                        }}
-                      >
-                        <p className="text-xs text-gray-500 mb-1">Indemnités</p>
-                        <p className="text-lg font-bold text-primary">687,50 €</p>
-                      </div>
-                    </div>
-
-                    {/* Vehicle info */}
-                    <div
-                      className="bg-gray-50 rounded-xl p-4 transition-all duration-500"
-                      style={{
-                        transitionDelay: pdfVisible ? "300ms" : "0ms",
-                        opacity: pdfVisible ? 1 : 0,
-                        transform: pdfVisible ? "translateY(0)" : "translateY(10px)",
-                      }}
+                  <div className="space-y-4 order-1 lg:order-2">
+                    <h3 className="text-xl md:text-2xl font-bold">{c.mobile_title}</h3>
+                    <p className="text-muted-foreground">{c.mobile_subtitle}</p>
+                    <ul className="space-y-2">
+                      {["Fonctionne hors-ligne", "Notifications rappels", "GPS temps réel"].map(
+                        (item, i) => (
+                          <li key={i} className="flex items-center gap-3">
+                            <Check className="h-5 w-5 text-primary flex-shrink-0" />
+                            <span className="text-sm md:text-base">{item}</span>
+                          </li>
+                        ),
+                      )}
+                    </ul>
+                    <Link
+                      to="/installer"
+                      className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-white shadow-xs flex items-center justify-center">
-                          <Car className="h-5 w-5 text-gray-600" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">Peugeot 308</p>
-                          <p className="text-xs text-gray-500">5 CV fiscaux • AB-123-CD</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Trip list preview */}
-                    <div
-                      className="space-y-2 transition-all duration-500"
-                      style={{
-                        transitionDelay: pdfVisible ? "400ms" : "0ms",
-                        opacity: pdfVisible ? 1 : 0,
-                        transform: pdfVisible ? "translateY(0)" : "translateY(10px)",
-                      }}
-                    >
-                      <p className="text-xs font-medium text-gray-400 uppercase tracking-wide px-1">
-                        Derniers trajets
-                      </p>
-                      {[
-                        { date: "18 déc", from: "Paris", to: "Lyon", km: "465 km" },
-                        { date: "15 déc", from: "Lyon", to: "Marseille", km: "315 km" },
-                        { date: "12 déc", from: "Marseille", to: "Nice", km: "198 km" },
-                      ].map((trip, i) => (
-                        <div
-                          key={i}
-                          className="flex items-center justify-between bg-white rounded-lg px-3 py-2.5 shadow-xs border border-gray-100"
-                        >
-                          <div className="flex items-center gap-3">
-                            <span className="text-xs text-gray-400 w-12">{trip.date}</span>
-                            <div className="flex items-center gap-1.5 text-sm text-gray-700">
-                              <span>{trip.from}</span>
-                              <ArrowRight className="h-3 w-3 text-gray-400" />
-                              <span>{trip.to}</span>
-                            </div>
-                          </div>
-                          <span className="text-sm font-medium text-gray-900">{trip.km}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Total */}
-                    <div
-                      className="flex items-center justify-between pt-3 border-t border-gray-100 transition-all duration-500"
-                      style={{
-                        transitionDelay: pdfVisible ? "500ms" : "0ms",
-                        opacity: pdfVisible ? 1 : 0,
-                        transform: pdfVisible ? "translateY(0)" : "translateY(10px)",
-                      }}
-                    >
-                      <span className="text-sm text-gray-500">Total à déclarer</span>
-                      <span className="text-xl font-bold text-primary">687,50 €</span>
-                    </div>
-                  </div>
-
-                  {/* Footer with logo and marketing */}
-                  <div
-                    className="bg-gray-50 px-6 py-4 border-t border-gray-100 transition-all duration-500"
-                    style={{
-                      transitionDelay: pdfVisible ? "550ms" : "0ms",
-                      opacity: pdfVisible ? 1 : 0,
-                    }}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <img
-                          src="/logo-iktracker-250.webp"
-                          alt="IKtracker"
-                          width={20}
-                          height={20}
-                          className="h-5 opacity-50"
-                          loading="lazy"
-                          decoding="async"
-                        />
-                      </div>
-                      <p className="text-xs text-gray-400">
-                        Simplifiez vos IK • <span className="text-primary">iktracker.fr</span>
-                      </p>
-                    </div>
+                      Guide d'installation
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
                   </div>
                 </div>
+              </TabsContent>
 
-                {/* Floating badge */}
-                <div
-                  className="absolute -bottom-3 -right-3 bg-green-500 text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2 text-sm font-medium transition-all duration-500"
-                  style={{
-                    transitionDelay: pdfVisible ? "600ms" : "0ms",
-                    opacity: pdfVisible ? 1 : 0,
-                    transform: pdfVisible ? "scale(1)" : "scale(0.8)",
-                  }}
-                >
-                  <Check className="h-4 w-4" />
-                  Conforme fiscal
+              <TabsContent value="tour">
+                <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
+                  <div className="space-y-4">
+                    <h3 className="text-xl md:text-2xl font-bold">{c.tour_title}</h3>
+                    <p className="text-muted-foreground">{c.tour_subtitle}</p>
+                    <ul className="space-y-2">
+                      {["GPS en temps réel", "Arrêts illimités", "Calcul automatique"].map(
+                        (item, i) => (
+                          <li key={i} className="flex items-center gap-3">
+                            <Check className="h-5 w-5 text-primary flex-shrink-0" />
+                            <span className="text-sm md:text-base">{item}</span>
+                          </li>
+                        ),
+                      )}
+                    </ul>
+                    <Link
+                      to="/mode-tournee"
+                      className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                    >
+                      Découvrir le mode tournée
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </div>
+                  <Suspense fallback={<PhonePlaceholder />}>
+                    <TourModeMockup />
+                  </Suspense>
                 </div>
-              </div>
-            </div>
+              </TabsContent>
+
+              <TabsContent value="calendar">
+                <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
+                  <div className="order-2 lg:order-1">
+                    <Suspense fallback={<CalendarPlaceholder />}>
+                      <CalendarSyncDemo />
+                    </Suspense>
+                  </div>
+                  <div className="space-y-4 order-1 lg:order-2">
+                    <h3 className="text-xl md:text-2xl font-bold">{c.calendar_title}</h3>
+                    <p className="text-muted-foreground">{c.calendar_subtitle}</p>
+                    <ul className="space-y-2">
+                      {["Google Calendar", "Microsoft Outlook", "Import en un clic"].map(
+                        (item, i) => (
+                          <li key={i} className="flex items-center gap-3">
+                            <Check className="h-5 w-5 text-primary flex-shrink-0" />
+                            <span className="text-sm md:text-base">{item}</span>
+                          </li>
+                        ),
+                      )}
+                    </ul>
+                    <Link
+                      to="/calendrier"
+                      className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                    >
+                      Voir la synchronisation calendrier
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="pdf">
+                <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
+                  <div className="space-y-4">
+                    <h3 className="text-xl md:text-2xl font-bold">{c.pdf_title}</h3>
+                    <p className="text-muted-foreground">{c.pdf_subtitle}</p>
+                    <ul className="space-y-2">
+                      {["Format PDF ou Excel", "Barème fiscal 2026", "Envoi direct par email"].map(
+                        (item, i) => (
+                          <li key={i} className="flex items-center gap-3">
+                            <Check className="h-5 w-5 text-primary flex-shrink-0" />
+                            <span className="text-sm md:text-base">{item}</span>
+                          </li>
+                        ),
+                      )}
+                    </ul>
+                    <Link
+                      to="/expert-comptable"
+                      className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                    >
+                      Envoyer un relevé à mon comptable
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </div>
+                  <div ref={pdfRef}>
+                    <Suspense fallback={<LazyPlaceholder height={420} />}>
+                      <PdfReportMockup />
+                    </Suspense>
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
         </section>
+
 
         {/* Expertise Fiscale Section - SEO Content */}
         <section className="py-16 md:py-24 section-contained" aria-labelledby="expertise-heading">
