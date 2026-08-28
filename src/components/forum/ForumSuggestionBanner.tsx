@@ -4,33 +4,41 @@ import { Link } from "@tanstack/react-router";
 import { MessageSquareMore, X } from "lucide-react";
 import { suggestForumDiscussion } from "@/lib/forum.functions";
 
-const SESSION_KEY = "ik_forum_banner_dismissed";
+const STORAGE_KEY = "ik_forum_banner_muted_until";
+const DAY_MS = 24 * 60 * 60 * 1000;
+const DISMISS_DURATION_MS = 30 * DAY_MS; // masquée : 1 mois
+const CLICK_DURATION_MS = 7 * DAY_MS; // cliquée : 1 semaine
 
 /**
- * Bannière de suggestion forum — desktop uniquement, affichée une fois par
- * session (masquable). Ciblée sur le persona métier du membre connecté.
+ * Bannière de suggestion forum — desktop uniquement. Ciblée sur le persona
+ * métier du membre connecté. Masquée (croix) : aucune suggestion pendant 1
+ * mois. Cliquée : disparition et aucune suggestion pendant 1 semaine.
  */
 export function ForumSuggestionBanner() {
-  const [dismissed, setDismissed] = useState<boolean | null>(null);
+  const [muted, setMuted] = useState<boolean | null>(null);
 
   useEffect(() => {
-    setDismissed(sessionStorage.getItem(SESSION_KEY) === "1");
+    const until = Number(localStorage.getItem(STORAGE_KEY) || 0);
+    setMuted(until > Date.now());
   }, []);
 
   const { data } = useQuery({
     queryKey: ["forum-suggestion"],
     queryFn: () => suggestForumDiscussion(),
     staleTime: 10 * 60 * 1000,
-    enabled: dismissed === false,
+    enabled: muted === false,
     retry: false,
   });
 
-  const dismiss = () => {
-    sessionStorage.setItem(SESSION_KEY, "1");
-    setDismissed(true);
+  const mute = (durationMs: number) => {
+    localStorage.setItem(STORAGE_KEY, String(Date.now() + durationMs));
+    setMuted(true);
   };
 
-  if (dismissed !== false) return null;
+  const dismiss = () => mute(DISMISS_DURATION_MS);
+  const follow = () => mute(CLICK_DURATION_MS);
+
+  if (muted !== false) return null;
   const suggestion = data?.suggestion;
   if (!suggestion) return null;
 
@@ -46,6 +54,7 @@ export function ForumSuggestionBanner() {
             to={`/forum/${suggestion.slug}` as string}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={follow}
             className="block truncate text-sm font-semibold text-primary hover:underline"
           >
             {suggestion.title}
