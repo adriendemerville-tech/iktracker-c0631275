@@ -80,6 +80,7 @@ export function SurveyPreview({ survey, variant, onClose }: SurveyPreviewProps) 
 
   return (
     <div
+      data-survey-size={(survey as any).font_size || "standard"}
       className={cn(
         sizeClass,
         "bg-card border border-border rounded-xl shadow-2xl overflow-hidden animate-fade-in flex flex-col"

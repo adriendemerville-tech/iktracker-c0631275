@@ -92,6 +92,7 @@ export function AdminSurveys() {
     target_user_count: null as number | null,
     target_min_days_since_signup: null as number | null,
     target_max_days_since_signup: null as number | null,
+    font_size: "standard" as "small" | "standard" | "large",
   });
 
   // ---- Queries ----
@@ -161,6 +162,7 @@ export function AdminSurveys() {
             target_user_count: form.target_user_count,
             target_min_days_since_signup: form.target_min_days_since_signup,
             target_max_days_since_signup: form.target_max_days_since_signup,
+            font_size: form.font_size,
             updated_at: new Date().toISOString(),
           } as any)
           .eq("id", editingSurvey.id);
@@ -204,6 +206,7 @@ export function AdminSurveys() {
             target_user_count: form.target_user_count,
             target_min_days_since_signup: form.target_min_days_since_signup,
             target_max_days_since_signup: form.target_max_days_since_signup,
+            font_size: form.font_size,
           } as any)
           .select()
           .single();
@@ -310,6 +313,7 @@ export function AdminSurveys() {
       target_user_count: null,
       target_min_days_since_signup: null,
       target_max_days_since_signup: null,
+      font_size: "standard",
     });
     setEditingVariants([]);
   }
@@ -328,6 +332,7 @@ export function AdminSurveys() {
       target_user_count: survey.target_user_count,
       target_min_days_since_signup: (survey as any).target_min_days_since_signup ?? null,
       target_max_days_since_signup: (survey as any).target_max_days_since_signup ?? null,
+      font_size: ((survey as any).font_size as "small" | "standard" | "large") || "standard",
     });
 
     const { data } = await supabase
@@ -494,6 +499,24 @@ export function AdminSurveys() {
                     }))
                   }
                 />
+              </div>
+              <div>
+                <Label>Taille de police</Label>
+                <Select
+                  value={form.font_size}
+                  onValueChange={(v) =>
+                    setForm((f) => ({ ...f, font_size: v as "small" | "standard" | "large" }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="small">Petit</SelectItem>
+                    <SelectItem value="standard">Standard</SelectItem>
+                    <SelectItem value="large">Grand</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
