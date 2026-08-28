@@ -767,6 +767,15 @@ export function AdminSurveys() {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8"
+                          title="Aperçu"
+                          onClick={() => openPreview(survey)}
+                        >
+                          <Eye className="w-4 h-4 text-primary" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
                           title="Modifier"
                           onClick={() => startEditing(survey)}
                         >
