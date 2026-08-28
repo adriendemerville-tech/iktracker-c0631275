@@ -1,0 +1,1 @@
+ALTER TABLE public.surveys ADD COLUMN IF NOT EXISTS font_size text NOT NULL DEFAULT 'standard' CHECK (font_size IN ('small','standard','large'));

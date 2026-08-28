@@ -2508,6 +2508,7 @@ export type Database = {
           delay_between_impressions_hours: number
           description: string | null
           duration_days: number
+          font_size: string
           id: string
           max_impressions_per_user: number
           published_at: string | null
@@ -2526,6 +2527,7 @@ export type Database = {
           delay_between_impressions_hours?: number
           description?: string | null
           duration_days?: number
+          font_size?: string
           id?: string
           max_impressions_per_user?: number
           published_at?: string | null
@@ -2544,6 +2546,7 @@ export type Database = {
           delay_between_impressions_hours?: number
           description?: string | null
           duration_days?: number
+          font_size?: string
           id?: string
           max_impressions_per_user?: number
           published_at?: string | null
