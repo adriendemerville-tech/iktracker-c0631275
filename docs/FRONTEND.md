@@ -676,8 +676,23 @@ src/
 - `src/components/auth/SmartRoutes.tsx` utilise des imports statiques et `useHydrated` : `/`, `/auth` et `/signup` renvoient désormais un HTML complet côté serveur (le body était vide auparavant, signalé par l'audit SEO).
 - `AuthForm.tsx`, `Auth.tsx`, `Signup.tsx` : tout accès `window`/`localStorage` est gardé ou différé après hydratation.
 
+## Surveys (widget & admin, 28 août 2026)
+
+- `src/components/admin/surveys/survey-types.ts` : bloc `cta` avec `text` (message), `label` (ancre du bouton) et `url` (destination).
+- `SurveyWidget.tsx` / `SurveyPreview.tsx` : rendu unifié `InfoBlock` (texte + bouton dans un conteneur scrollable, bouton centré et ancré en bas), masquage de « Suivant » quand le bloc porte un bouton d'action, croix sans liseré de focus, **largeur adaptative** (par défaut, 32rem, 40rem) selon le nombre de caractères du bloc le plus long.
+- Exposition : jamais réaffichée après réponse, plafond d'impressions atteint ou **deux fermetures manuelles**.
+- Admin : bouton « Aperçu » dans `AdminSurveys.tsx`.
+
+## Forum & trajets (28 août 2026)
+
+- `src/components/admin/AdminForum.tsx` : onglet Forum dans `/admin` (modération, statistiques de visites et de thèmes, bascule d'indexation SEO par discussion).
+- Fiche contributeur (`ForumAuthorLink`) et carte « Mon profil » : surnom activable, ville, véhicule ; unicité des surnoms insensible à la casse.
+- `src/components/TripViewSheet.tsx` : `Switch` aller-retour avec recalcul distance/IK.
+- `src/pages/MesTrajets.tsx` : trio de cartes du relevé comptable réparti sur la largeur (champ e-mail extensible en `lg:flex-1`) avec marges verticales.
+
 ## Changelog
 
+- **2.8** (28 août 2026) — Blocs CTA + aperçu + largeur adaptative des surveys, onglet Forum dans /admin, toggle aller-retour dans la fiche trajet, layout du relevé comptable.
 - **2.7** (20 août 2026) — Flux Atom `/feed.xml` (SSR, 50 articles, client admin) + lien RSS au footer ; `src/lib/page-dates.ts` comme source unique des dates éditoriales (JSON-LD + `<LastUpdated />`) ; audit accessibilité des 47 `<img>` (alts descriptifs, décoratives en `alt=""`, `<figure>`/`<figcaption>`) ; nouvelle landing `/logiciel-devis-artisan` avec hero LCP optimisé ; liens dofollow DictaDevi/Crawlers dans la bio auteur.
 - **2.6** (20 août 2026) — JSON-LD rendus en SSR via le wrapper `Helmet` de `helmet-compat` ; balise `<main>` ajoutée sur `/artisans` et `/logiciel-devis-artisan` ; suite de tests SSR des données structurées (`src/test/ssr-structured-data.test.ts`).
 - **2.5** (19 août 2026) — Qualité de code (lots 1 à 4 : Vitest, Prettier, typage, découpage), SSR restauré sur `/`, `/auth`, `/signup`, navigation marketing simplifiée + CTA mobile above the fold, A/B testing du H1 du hero avec suivi dans /admin > Stats, trajet en direct PWA.
