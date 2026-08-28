@@ -684,14 +684,16 @@ export function InfoBlock({
       {title && <p className="text-sm font-semibold text-foreground">{title}</p>}
       {text && <p className="text-xs text-muted-foreground whitespace-pre-wrap">{text}</p>}
       {buttonLabel && buttonUrl && (
-        <Button
-          size="sm"
-          variant={block.type === "cta" ? "default" : "outline"}
-          className={cn("w-full text-xs", pushButtonToBottom && "mt-auto")}
-          onClick={() => onButtonClick(buttonUrl)}
-        >
-          {buttonLabel}
-        </Button>
+        <div className={cn("flex justify-center", pushButtonToBottom && "mt-auto")}>
+          <Button
+            size="sm"
+            variant={block.type === "cta" ? "default" : "outline"}
+            className="w-auto text-xs px-6"
+            onClick={() => onButtonClick(buttonUrl)}
+          >
+            {buttonLabel}
+          </Button>
+        </div>
       )}
     </div>
   );
