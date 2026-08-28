@@ -1541,3 +1541,11 @@ Le score de priorité est la somme des poids, plafonnée à 100.
 - Génération de texte : `src/lib/forum/bot-generation.server.ts` appelle Mistral via le proxy Wavespeed (`WAVESPEED_API_KEY`) et bascule sur OpenRouter (`OPENROUTER_API_KEY`, modèle `google/gemini-2.5-flash`) si le modèle est indisponible.
 - Garde-fous SEO (`src/lib/forum/bot-personality.ts`, testés par `bot-personality.test.ts`) : aucun contenu sur les indemnités kilométriques, barèmes ou fiscalité chiffrée, détection de doublons de titres (Jaccard ≥ 0,5), `seo_indexable = false` à la création.
 - `public.forum_notify_on_reply` ignore désormais les destinataires absents de `auth.users` : les comptes d'animation ne déclenchent ni notification ni e-mail.
+
+### Publication programmée des discussions (août 2026)
+
+- Colonne `forum_discussions.publish_at` (timestamptz, nullable) + index partiel `forum_discussions_publish_at_idx` sur les lignes `status = 'pending'`.
+- Fonction `public.forum_publish_due_discussions()` (SECURITY DEFINER, `EXECUTE` réservé à `service_role`) : passe en `published` toute discussion `pending` dont `publish_at <= now()`, en recalant `created_at` et `last_activity_at` sur la date programmée.
+- Appelée à chaque passage de `/api/public/forum-bot-tick` (cron horaire) avant la génération de contenu.
+- Rétention analytics : `public.purge_old_marketing_analytics()` conserve désormais 730 jours (au lieu de 90).
+
