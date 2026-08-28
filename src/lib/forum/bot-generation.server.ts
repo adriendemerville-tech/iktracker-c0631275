@@ -1,9 +1,9 @@
 // Génération de texte pour les membres animés du forum.
 // Mistral via le proxy Wavespeed (déjà utilisé par les Edge Functions),
-// repli sur la passerelle Lovable AI en cas d'échec.
+// repli sur OpenRouter en cas d'échec.
 
 const WAVESPEED_BASE = "https://api.wavespeed.ai/api/v3";
-const AI_GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
+const OPENROUTER_BASE = "https://openrouter.ai/api/v1";
 const FALLBACK_MODEL = "google/gemini-2.5-flash";
 
 export type MistralSize = "small" | "large";
@@ -64,12 +64,17 @@ async function callMistral(
   return id ? wavespeedPoll(String(id), key) : null;
 }
 
-async function callGatewayFallback(system: string, user: string): Promise<string | null> {
-  const key = process.env["LOVABLE_API_KEY"];
+async function callOpenRouterFallback(system: string, user: string): Promise<string | null> {
+  const key = process.env["OPENROUTER_API_KEY"];
   if (!key) return null;
-  const res = await fetch(AI_GATEWAY, {
+  const res = await fetch(`${OPENROUTER_BASE}/chat/completions`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "Lovable-API-Key": key },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${key}`,
+      "HTTP-Referer": "https://iktracker.fr",
+      "X-Title": "IKtracker",
+    },
     body: JSON.stringify({
       model: FALLBACK_MODEL,
       messages: [
@@ -77,6 +82,7 @@ async function callGatewayFallback(system: string, user: string): Promise<string
         { role: "user", content: user },
       ],
       temperature: 0.9,
+      max_tokens: 900,
     }),
   });
   if (!res.ok) return null;
@@ -99,10 +105,10 @@ export async function generateForumText(
     console.error("[forum-bot] mistral failed", error);
   }
   try {
-    const text = await callGatewayFallback(system, user);
+    const text = await callOpenRouterFallback(system, user);
     if (text?.trim()) return { text: text.trim(), model: FALLBACK_MODEL };
   } catch (error) {
-    console.error("[forum-bot] gateway fallback failed", error);
+    console.error("[forum-bot] openrouter fallback failed", error);
   }
   return null;
 }
