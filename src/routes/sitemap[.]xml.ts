@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
+import { STATIC_PAGE_LASTMOD } from "@/lib/page-dates";
 
 const BASE_URL = "https://iktracker.fr";
 
