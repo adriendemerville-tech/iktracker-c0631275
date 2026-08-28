@@ -71,6 +71,7 @@ import {
   Key,
   Sparkles,
   Github,
+  MessagesSquare,
 } from "lucide-react";
 import {
   AlertDialog,
