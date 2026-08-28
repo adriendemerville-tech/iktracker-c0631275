@@ -249,6 +249,7 @@ export function SurveyWidget() {
           title: s.title,
           variant_id: chosen.id,
           blocks,
+          font_size: ((s as any).font_size as ActiveSurvey["font_size"]) || "standard",
         });
         return;
       }
