@@ -759,9 +759,11 @@ export function AdminSurveys() {
                             setExpandedSurveyId(expandedSurveyId === survey.id ? null : survey.id)
                           }
                         >
-                          <Eye
-                            className={`w-4 h-4 ${expandedSurveyId === survey.id ? "text-primary" : ""}`}
-                          />
+                          {expandedSurveyId === survey.id ? (
+                            <ChevronUp className="w-4 h-4 text-primary" />
+                          ) : (
+                            <ChevronDown className="w-4 h-4" />
+                          )}
                         </Button>
                         <Button
                           variant="ghost"
