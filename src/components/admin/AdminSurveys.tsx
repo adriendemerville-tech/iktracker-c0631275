@@ -291,8 +291,9 @@ export function AdminSurveys() {
       return;
     }
 
+    setPreviewVariants(variants);
     setPreviewVariantIndex(0);
-    setPreviewSurvey({ ...survey, variants } as any);
+    setPreviewSurvey(survey);
   }
 
   function resetForm() {
