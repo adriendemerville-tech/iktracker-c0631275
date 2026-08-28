@@ -49,6 +49,68 @@ const VoteSchema = z.object({
   value: z.union([z.literal(-1), z.literal(0), z.literal(1)]),
 });
 
+/** Crée automatiquement une fiche contributeur complète si elle n'existe pas encore. */
+export const ensureForumProfile = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId, claims } = context;
+
+    const { data: existing } = await supabase
+      .from("forum_profiles")
+      .select(
+        "user_id, pseudo, avatar_url, bio, persona, city, level, points, discussions_count, replies_count, upvotes_received, member_since, pseudo_enabled",
+      )
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (existing) return { ok: true as const, profile: existing, created: false };
+
+    const meta = (claims as { user_metadata?: Record<string, unknown>; email?: string } | null) ?? {};
+    const metaData = (meta.user_metadata ?? {}) as Record<string, unknown>;
+    const rawName =
+      (typeof metaData.full_name === "string" && metaData.full_name) ||
+      (typeof metaData.name === "string" && metaData.name) ||
+      (typeof meta.email === "string" ? meta.email.split("@")[0] : "") ||
+      "Membre";
+
+    const { data: prefs } = await supabase
+      .from("user_preferences")
+      .select("persona")
+      .eq("user_id", userId)
+      .maybeSingle();
+    const persona = prefs?.persona ?? null;
+    const job = personaLabel(persona) ?? "Indépendant";
+
+    const cleanBase =
+      rawName.replace(/[^\p{L}\p{N} _.-]/gu, "").trim().slice(0, 24) || "Membre";
+    const avatarSeed = encodeURIComponent(userId.slice(0, 12));
+    const payload = {
+      user_id: userId,
+      pseudo: cleanBase.length >= 3 ? cleanBase : `Membre ${cleanBase}`,
+      pseudo_enabled: true,
+      persona,
+      bio: `${job} sur IKtracker. Je suis les sujets déplacements, véhicules et gestion du quotidien.`,
+      avatar_url: `https://api.dicebear.com/7.x/thumbs/svg?seed=${avatarSeed}`,
+    };
+
+    for (let attempt = 0; attempt < 4; attempt += 1) {
+      const pseudo =
+        attempt === 0 ? payload.pseudo : `${payload.pseudo}${Math.floor(100 + Math.random() * 900)}`;
+      const { data: row, error } = await supabase
+        .from("forum_profiles")
+        .insert({ ...payload, pseudo })
+        .select(
+          "user_id, pseudo, avatar_url, bio, persona, city, level, points, discussions_count, replies_count, upvotes_received, member_since, pseudo_enabled",
+        )
+        .single();
+      if (!error && row) return { ok: true as const, profile: row, created: true };
+      if (error && error.code !== "23505") {
+        console.error("ensureForumProfile", error);
+        return { ok: false as const, error: "Impossible de créer la fiche." };
+      }
+    }
+    return { ok: false as const, error: "Impossible de créer la fiche." };
+  });
+
 /** Crée ou met à jour la fiche d'identité forum du membre connecté. */
 export const upsertForumProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -60,7 +122,9 @@ export const upsertForumProfile = createServerFn({ method: "POST" })
       bio: data.bio ?? null,
       persona: data.persona ?? null,
       avatar_url: data.avatar_url ?? null,
+      city: data.city ?? null,
     };
+
 
     const { data: row, error } = await context.supabase
       .from("forum_profiles")
