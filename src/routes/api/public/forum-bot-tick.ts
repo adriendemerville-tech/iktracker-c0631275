@@ -21,7 +21,13 @@ import {
 import { cleanModelText, generateForumText } from "@/lib/forum/bot-generation.server";
 import { buildDiscussionSlug, buildMetaDescription } from "@/lib/forum/constants";
 
-type Admin = ReturnType<typeof createClient>;
+// Client service-role typé librement : ces tables d'animation ne sont pas
+// exposées au client, on évite la propagation des types générés ici.
+type Admin = {
+  from: (table: string) => any;
+  rpc: (fn: string, args?: Record<string, unknown>) => any;
+  auth: { getUser: (jwt: string) => Promise<any> };
+};
 
 interface RunLog {
   kind: string;
