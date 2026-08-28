@@ -131,7 +131,14 @@ export const Route = createFileRoute("/sitemap.xml")({
         const xml = [
           `<?xml version="1.0" encoding="UTF-8"?>`,
           `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`,
-          ...[...staticPages, ...blogEntries, ...forumEntries].map(renderUrl),
+          ...[
+            ...staticPages.map((p) => ({
+              ...p,
+              lastmod: p.lastmod ?? STATIC_PAGE_LASTMOD[p.path],
+            })),
+            ...blogEntries,
+            ...forumEntries,
+          ].map(renderUrl),
           `</urlset>`,
         ].join("\n");
 
