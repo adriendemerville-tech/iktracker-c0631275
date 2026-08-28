@@ -360,7 +360,7 @@ export function SurveyWidget() {
         <div className="fixed inset-0 z-50 bg-black/50" onClick={() => setDismissed(true)} />
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
           <div className="w-80 bg-card border border-border rounded-xl shadow-2xl p-5 animate-fade-in pointer-events-auto">
-            <p className="text-center text-sm text-card-foreground">Merci pour votre retour ! 🙏</p>
+            <p className="text-center text-base text-card-foreground">Merci pour votre retour ! 🙏</p>
           </div>
         </div>
       </>
@@ -434,7 +434,7 @@ export function SurveyWidget() {
 
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted shrink-0">
-            <span className="text-xs font-semibold text-foreground truncate">{survey.title}</span>
+            <span className="text-sm font-semibold text-foreground truncate">{survey.title}</span>
             <button
               onClick={handleDismiss}
               className="text-muted-foreground hover:text-foreground transition-colors outline-none focus:outline-none"
@@ -490,7 +490,7 @@ export function SurveyWidget() {
           {!hasActionButton && (
             <div className="px-4 pb-3 shrink-0 flex items-center justify-between">
               {survey.blocks.length > 1 && (
-                <span className="text-[10px] text-muted-foreground">
+                <span className="text-xs text-muted-foreground">
                   {currentBlockIndex + 1}/{survey.blocks.length}
                 </span>
               )}
@@ -498,10 +498,10 @@ export function SurveyWidget() {
                 size="sm"
                 disabled={!hasAnswer}
                 onClick={handleNext}
-                className="ml-auto text-xs gap-1"
+                className="ml-auto text-sm gap-1"
               >
                 {isLast ? "Envoyer" : "Suivant"}
-                {isLast ? <Send className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                {isLast ? <Send className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
               </Button>
             </div>
           )}
@@ -534,8 +534,8 @@ export function PollBlock({
 
   return (
     <div className="space-y-2">
-      {question && <p className="text-sm font-medium text-foreground">{question}</p>}
-      <div className="space-y-1.5">
+      {question && <p className="text-base font-medium text-foreground">{question}</p>}
+      <div className="space-y-2">
         {options.map((opt, i) => {
           const personaOption = PERSONA_OPTIONS.find((p) => p.label === opt);
           const Icon = personaOption?.icon;
@@ -547,13 +547,13 @@ export function PollBlock({
               <button
                 onClick={() => onChange(isFree ? `__free_${i}__` : opt)}
                 className={cn(
-                  "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg border text-left text-xs transition-all",
+                  "w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg border text-left text-sm transition-all",
                   isSelected
                     ? "border-primary bg-primary/10 text-primary font-medium"
                     : "border-border bg-background text-muted-foreground hover:border-primary/40 hover:bg-muted/50",
                 )}
               >
-                {Icon && <Icon className="w-4 h-4 flex-shrink-0" />}
+                {Icon && <Icon className="w-5 h-5 flex-shrink-0" />}
                 <span>{opt}</span>
               </button>
               {isFree && isSelected && (
@@ -563,7 +563,7 @@ export function PollBlock({
                   placeholder="Précisez..."
                   rows={2}
                   maxLength={260}
-                  className="text-xs resize-none mt-1"
+                  className="text-sm resize-none mt-1"
                   autoFocus
                 />
               )}
@@ -575,7 +575,7 @@ export function PollBlock({
             <button
               onClick={() => onChange("__other__")}
               className={cn(
-                "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg border text-left text-xs transition-all",
+                "w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg border text-left text-sm transition-all",
                 value === "__other__"
                   ? "border-primary bg-primary/10 text-primary font-medium"
                   : "border-border bg-background text-muted-foreground hover:border-primary/40 hover:bg-muted/50",
@@ -590,7 +590,7 @@ export function PollBlock({
                 placeholder="Précisez..."
                 rows={2}
                 maxLength={260}
-                className="text-xs resize-none mt-1"
+                className="text-sm resize-none mt-1"
                 autoFocus
               />
             )}
@@ -616,9 +616,9 @@ export function RatingBlock({
 }) {
   const question = (block.config.question as string) || "";
   return (
-    <div className="space-y-2">
-      {question && <p className="text-sm font-medium text-foreground">{question}</p>}
-      <div className="flex gap-1 justify-center" onMouseLeave={() => onHover(0)}>
+    <div className="space-y-3">
+      {question && <p className="text-base font-medium text-foreground">{question}</p>}
+      <div className="flex gap-1.5 justify-center" onMouseLeave={() => onHover(0)}>
         {[1, 2, 3, 4, 5].map((n) => (
           <button
             key={n}
@@ -628,7 +628,7 @@ export function RatingBlock({
           >
             <Star
               className={cn(
-                "w-7 h-7 transition-colors",
+                "w-8 h-8 transition-colors",
                 (hovered || value || 0) >= n
                   ? "text-primary fill-primary"
                   : "text-muted-foreground/30",
@@ -653,14 +653,14 @@ export function TextBlock({
   const question = (block.config.question as string) || "";
   const placeholder = (block.config.placeholder as string) || "Votre réponse...";
   return (
-    <div className="space-y-2">
-      {question && <p className="text-sm font-medium text-foreground">{question}</p>}
+    <div className="space-y-3">
+      {question && <p className="text-base font-medium text-foreground">{question}</p>}
       <Textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         rows={3}
-        className="text-xs resize-none"
+        className="text-sm resize-none"
       />
     </div>
   );
@@ -680,15 +680,15 @@ export function InfoBlock({
   const buttonLabel = (block.config.buttonLabel as string) || "";
   const buttonUrl = (block.config.buttonUrl as string) || "";
   return (
-    <div className={cn("space-y-2", pushButtonToBottom && "flex flex-col flex-1 min-h-0")}>
-      {title && <p className="text-sm font-semibold text-foreground">{title}</p>}
-      {text && <p className="text-xs text-muted-foreground whitespace-pre-wrap">{text}</p>}
+    <div className={cn("space-y-3", pushButtonToBottom && "flex flex-col flex-1 min-h-0")}>
+      {title && <p className="text-base font-semibold text-foreground">{title}</p>}
+      {text && <p className="text-sm text-muted-foreground whitespace-pre-wrap">{text}</p>}
       {buttonLabel && buttonUrl && (
         <div className={cn("flex justify-center", pushButtonToBottom && "mt-auto")}>
           <Button
             size="sm"
             variant={block.type === "cta" ? "default" : "outline"}
-            className="w-auto text-xs px-6"
+            className="w-auto text-sm px-6"
             onClick={() => onButtonClick(buttonUrl)}
           >
             {buttonLabel}

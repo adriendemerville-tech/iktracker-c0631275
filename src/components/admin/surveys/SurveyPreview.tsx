@@ -88,7 +88,7 @@ export function SurveyPreview({ survey, variant, onClose }: SurveyPreviewProps) 
 
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted shrink-0">
-        <span className="text-xs font-semibold text-foreground truncate">{survey.title}</span>
+        <span className="text-sm font-semibold text-foreground truncate">{survey.title}</span>
         <button
           onClick={onClose}
           className="text-muted-foreground hover:text-foreground transition-colors outline-none focus:outline-none"
@@ -128,8 +128,8 @@ export function SurveyPreview({ survey, variant, onClose }: SurveyPreviewProps) 
           <InfoBlock block={block} onButtonClick={() => {}} pushButtonToBottom={hasActionButton} />
         )}
         {block.type === "screenshot" && (
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-foreground">
+          <div className="space-y-3">
+            <p className="text-base font-medium text-foreground">
               {(block.config.prompt as string) || "Partagez une capture d'écran"}
             </p>
             <Textarea
@@ -137,18 +137,18 @@ export function SurveyPreview({ survey, variant, onClose }: SurveyPreviewProps) 
               onChange={(e) => setResponses((r) => ({ ...r, [block.id]: e.target.value }))}
               placeholder="Commentaire (aperçu)"
               rows={2}
-              className="text-xs resize-none"
+              className="text-sm resize-none"
             />
           </div>
         )}
         {block.type === "share" && (
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-foreground">
+          <div className="space-y-3">
+            <p className="text-base font-medium text-foreground">
               {(block.config.message as string) || "Partagez IKtracker !"}
             </p>
             <div className="flex gap-2">
               {((block.config.channels as string[]) || ["whatsapp", "sms"]).map((ch) => (
-                <Button key={ch} size="sm" variant="outline" className="text-xs capitalize">
+                <Button key={ch} size="sm" variant="outline" className="text-sm capitalize">
                   {ch === "whatsapp" ? "WhatsApp" : "SMS"}
                 </Button>
               ))}
@@ -161,7 +161,7 @@ export function SurveyPreview({ survey, variant, onClose }: SurveyPreviewProps) 
       {!hasActionButton && (
         <div className="px-4 pb-3 shrink-0 flex items-center justify-between">
           {blocks.length > 1 && (
-            <span className="text-[10px] text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               {currentBlockIndex + 1}/{blocks.length}
             </span>
           )}
@@ -169,10 +169,10 @@ export function SurveyPreview({ survey, variant, onClose }: SurveyPreviewProps) 
             size="sm"
             disabled={!hasAnswer}
             onClick={handleNext}
-            className="ml-auto text-xs gap-1"
+            className="ml-auto text-sm gap-1"
           >
             {isLast ? "Envoyer" : "Suivant"}
-            {isLast ? <Send className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+            {isLast ? <Send className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
           </Button>
         </div>
       )}
