@@ -535,37 +535,13 @@ const Landing = ({ initialUserCount }: LandingProps) => {
                 </div>
               </div>
 
-              <div className="bg-muted/50 rounded-2xl p-6 md:p-8 border border-border">
-                <h3 className="font-semibold text-lg md:text-xl mb-4 text-center">
-                  Qui parcourt le plus de kilomètres ?
-                </h3>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {[
-                    { profession: "Infirmier libéral", km: "25 000 km/an" },
-                    { profession: "Commercial itinérant", km: "30 000 km/an" },
-                    { profession: "Artisan du bâtiment", km: "18 000 km/an" },
-                    { profession: "Consultant freelance", km: "12 000 km/an" },
-                  ].map((item, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center gap-3 p-3 rounded-xl bg-card border border-border"
-                    >
-                      <div>
-                        <div className="font-medium text-sm">{item.profession}</div>
-                        <div className="text-xs text-muted-foreground">{item.km}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <p className="text-center text-sm text-muted-foreground mt-6">
-                  Ces kilomètres non déclarés représentent des <strong>milliers d'euros</strong>{" "}
-                  d'économies fiscales perdues chaque année.
-                  <br />
-                  IKtracker vous aide à n'en oublier aucun.
-                </p>
-              </div>
+              <p className="text-center text-sm text-muted-foreground">
+                Ces kilomètres non déclarés représentent des <strong>milliers d'euros</strong>{" "}
+                d'économies fiscales perdues chaque année. IKtracker vous aide à n'en oublier aucun.
+              </p>
             </div>
           </div>
+
         </section>
 
         {/* Features Grid - Icons only */}
