@@ -697,6 +697,10 @@ const Admin = () => {
                 <Key className="w-4 h-4" />
                 <span className="hidden sm:inline">API</span>
               </TabsTrigger>
+              <TabsTrigger value="forum" className="flex items-center gap-1 text-xs sm:text-sm">
+                <MessagesSquare className="w-4 h-4" />
+                <span className="hidden sm:inline">Forum</span>
+              </TabsTrigger>
               {adminRole !== "viewer" && (
                 <TabsTrigger value="surveys" className="flex items-center gap-1 text-xs sm:text-sm">
                   <BarChart3 className="w-4 h-4" />
