@@ -59,8 +59,50 @@ const SOFTWARE_APPLICATION_SCHEMA = buildSoftwareApplicationSchema({
   pageUrl: "https://iktracker.fr/",
 });
 
+/**
+ * WebSite racine : déclare le forum communautaire comme partie du site pour que
+ * les moteurs et agents IA découvrent et citent cet espace de discussion.
+ */
+const WEBSITE_SCHEMA = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": "https://iktracker.fr/#website",
+  url: "https://iktracker.fr/",
+  name: "IKtracker",
+  inLanguage: "fr-FR",
+  publisher: { "@id": "https://iktracker.fr/#organization" },
+  hasPart: [
+    {
+      "@type": "CollectionPage",
+      "@id": "https://iktracker.fr/forum#collection",
+      url: "https://iktracker.fr/forum",
+      name: "Forum IKtracker — entraide des professionnels itinérants",
+      description:
+        "Forum communautaire francophone où les indépendants itinérants (infirmiers libéraux, artisans, commerciaux, consultants) échangent sur les déplacements professionnels : justificatifs et contrôles URSSAF, choix et entretien de véhicule, passage à l'électrique, organisation de tournées, outils et comptabilité.",
+      inLanguage: "fr-FR",
+      isPartOf: { "@id": "https://iktracker.fr/#website" },
+      publisher: { "@id": "https://iktracker.fr/#organization" },
+      about: [
+        "Déplacements professionnels des indépendants",
+        "Justificatifs et contrôle URSSAF",
+        "Choix et entretien de véhicule professionnel",
+        "Véhicules électriques et coût d'usage",
+        "Organisation des tournées",
+      ],
+    },
+    {
+      "@type": "Blog",
+      "@id": "https://iktracker.fr/blog#blog",
+      url: "https://iktracker.fr/blog",
+      name: "Blog IKtracker",
+    },
+  ],
+};
+
 /** Scripts JSON-LD prêts à être passés à `head().scripts` de la route "/". */
 export const HOME_JSON_LD_SCRIPTS = [
   { type: "application/ld+json", children: JSON.stringify(SOFTWARE_APPLICATION_SCHEMA) },
+  { type: "application/ld+json", children: JSON.stringify(WEBSITE_SCHEMA) },
   { type: "application/ld+json", children: JSON.stringify(FAQ_PAGE_SCHEMA) },
 ];
+
