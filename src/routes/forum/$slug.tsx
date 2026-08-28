@@ -55,18 +55,30 @@ export const Route = createFileRoute("/forum/$slug")({
         {
           type: "application/ld+json",
           children: JSON.stringify(
-            buildDiscussionSchema({
-              slug: discussion.slug,
-              title: discussion.title,
-              body: discussion.body,
-              description,
-              createdAt: new Date(discussion.created_at).toISOString(),
-              updatedAt: new Date(discussion.updated_at).toISOString(),
-              categoryLabel: category?.label ?? "Forum",
-              voteScore: discussion.vote_score,
-              author: discussion.author,
-              replies,
-            }),
+            isQuestionDiscussion(discussion.title, discussion.body)
+              ? buildQAPageSchema({
+                  slug: discussion.slug,
+                  title: discussion.title,
+                  body: discussion.body,
+                  description,
+                  createdAt: new Date(discussion.created_at).toISOString(),
+                  updatedAt: new Date(discussion.updated_at).toISOString(),
+                  voteScore: discussion.vote_score,
+                  author: discussion.author,
+                  replies,
+                })
+              : buildDiscussionSchema({
+                  slug: discussion.slug,
+                  title: discussion.title,
+                  body: discussion.body,
+                  description,
+                  createdAt: new Date(discussion.created_at).toISOString(),
+                  updatedAt: new Date(discussion.updated_at).toISOString(),
+                  categoryLabel: category?.label ?? "Forum",
+                  voteScore: discussion.vote_score,
+                  author: discussion.author,
+                  replies,
+                }),
           ),
         },
         {
