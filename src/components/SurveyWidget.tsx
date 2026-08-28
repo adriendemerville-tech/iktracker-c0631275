@@ -166,7 +166,7 @@ export function SurveyWidget() {
 
       if (!eligible.length) return;
 
-      // Check impressions — skip surveys already completed or shown too many times
+      // Check impressions — skip surveys already completed, dismissed twice, or shown too many times
       for (const s of eligible) {
         const { count: impressionCount } = await supabase
           .from("survey_impressions")
@@ -175,6 +175,16 @@ export function SurveyWidget() {
           .eq("user_id", user.id);
 
         if ((impressionCount ?? 0) >= s.max_impressions_per_user) continue;
+
+        // Hard stop: never re-show after two dismissals
+        const { count: dismissCount } = await supabase
+          .from("survey_impressions")
+          .select("*", { count: "exact", head: true })
+          .eq("survey_id", s.id)
+          .eq("user_id", user.id)
+          .eq("action", "dismissed");
+
+        if ((dismissCount ?? 0) >= 2) continue;
 
         // Check if already responded
         const { count: responseCount } = await supabase
