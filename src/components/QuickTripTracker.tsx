@@ -285,12 +285,6 @@ export const QuickTripTracker = ({ vehicles, onSave }: QuickTripTrackerProps) =>
             <span className="ml-2">Terminer le trajet</span>
           </Button>
         )}
-        {end && (
-          <Button onClick={handleSave} disabled={busy} className="flex-1" variant="gradient">
-            {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-            <span className={busy ? "ml-2" : ""}>Enregistrer</span>
-          </Button>
-        )}
         {start && (
           <Button onClick={reset} variant="ghost" disabled={busy}>
             Annuler
