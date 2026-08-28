@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { getSupabase } from "@/integrations/supabase/lazy";
 import { useAuth } from "@/hooks/useAuth";
+import { ensureForumProfile } from "@/lib/forum.functions";
+
 
 export type ForumProfile = {
   user_id: string;
