@@ -1234,6 +1234,7 @@ export type Database = {
           city: string | null
           created_at: string
           discussions_count: number
+          is_moderator: boolean
           last_seen_at: string
           level: string
           member_since: string
@@ -1253,6 +1254,7 @@ export type Database = {
           city?: string | null
           created_at?: string
           discussions_count?: number
+          is_moderator?: boolean
           last_seen_at?: string
           level?: string
           member_since?: string
@@ -1272,6 +1274,7 @@ export type Database = {
           city?: string | null
           created_at?: string
           discussions_count?: number
+          is_moderator?: boolean
           last_seen_at?: string
           level?: string
           member_since?: string
