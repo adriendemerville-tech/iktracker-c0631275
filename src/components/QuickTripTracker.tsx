@@ -105,14 +105,60 @@ export const QuickTripTracker = ({ vehicles, onSave }: QuickTripTrackerProps) =>
     }
   };
 
+  const reset = useCallback(() => {
+    localStorage.removeItem(STORAGE_KEY);
+    setStart(null);
+    setEnd(null);
+    setDistance(0);
+    setPurpose("");
+  }, []);
+
+  const persistTrip = useCallback(
+    async (startPoint: QuickPoint, endPoint: QuickPoint, km: number) => {
+      const vid = vehicleRef.current;
+      if (!vid) {
+        toast.error("Aucun véhicule", { description: "Ajoutez un véhicule avant d’enregistrer." });
+        return false;
+      }
+      if (km <= 0) {
+        toast.error("Distance nulle", {
+          description: "Le départ et l’arrivée sont au même endroit.",
+        });
+        return false;
+      }
+      const saved = await onSave({
+        vehicleId: vid,
+        startLocation: toLocation(startPoint, "other"),
+        endLocation: toLocation(endPoint, "other"),
+        distance: km,
+        baseDistance: km,
+        roundTrip: false,
+        purpose: purposeRef.current.trim() || "Déplacement professionnel",
+        startTime: new Date(startPoint.at),
+        endTime: new Date(endPoint.at),
+        status: "validated",
+      });
+      if (saved) {
+        toast.success("Trajet enregistré", { description: `${km.toFixed(1)} km` });
+        reset();
+        return true;
+      }
+      return false;
+    },
+    [onSave, reset],
+  );
+
   const handleFinish = async () => {
     if (!start) return;
     setBusy(true);
     try {
       const point = await capturePoint();
-      const km = await calculateDrivingDistance(start.lat, start.lng, point.lat, point.lng);
+      const km =
+        Math.round((await calculateDrivingDistance(start.lat, start.lng, point.lat, point.lng)) * 100) /
+        100;
       setEnd(point);
-      setDistance(Math.round(km * 100) / 100);
+      setDistance(km);
+      await persistTrip(start, point, km);
     } catch (e) {
       toast.error("Position indisponible", {
         description: e instanceof Error ? e.message : "Impossible de terminer le trajet.",
@@ -122,52 +168,50 @@ export const QuickTripTracker = ({ vehicles, onSave }: QuickTripTrackerProps) =>
     }
   };
 
-  const reset = () => {
-    localStorage.removeItem(STORAGE_KEY);
-    setStart(null);
-    setEnd(null);
-    setDistance(0);
-    setPurpose("");
-  };
+  // Arrêt long détecté → le trajet se termine et s'enregistre automatiquement.
+  useEffect(() => {
+    if (!start || end || !navigator?.geolocation) return;
+    let anchor: { lat: number; lng: number; at: number } | null = null;
+    let done = false;
 
-  const handleSave = async () => {
-    if (!start || !end) return;
-    if (!vehicleId) {
-      toast.error("Aucun véhicule", { description: "Ajoutez un véhicule avant d’enregistrer." });
-      return;
-    }
-    if (distance <= 0) {
-      toast.error("Distance nulle", {
-        description: "Le départ et l’arrivée sont au même endroit.",
-      });
-      return;
-    }
-    setBusy(true);
-    try {
-      const saved = await onSave({
-        vehicleId,
-        startLocation: toLocation(start, "other"),
-        endLocation: toLocation(end, "other"),
-        distance,
-        baseDistance: distance,
-        roundTrip: false,
-        purpose: purpose.trim() || "Déplacement professionnel",
-        startTime: new Date(start.at),
-        endTime: new Date(end.at),
-        status: "validated",
-      });
-      if (saved) {
-        toast.success("Trajet enregistré", { description: `${distance.toFixed(1)} km` });
-        reset();
-      }
-    } catch (e) {
-      toast.error("Enregistrement impossible", {
-        description: e instanceof Error ? e.message : "Réessayez dans un instant.",
-      });
-    } finally {
-      setBusy(false);
-    }
-  };
+    const watchId = navigator.geolocation.watchPosition(
+      (pos) => {
+        if (done) return;
+        const { latitude: lat, longitude: lng } = pos.coords;
+        const now = Date.now();
+        if (!anchor) {
+          anchor = { lat, lng, at: now };
+          return;
+        }
+        const movedM = getDistanceInKm(anchor.lat, anchor.lng, lat, lng) * 1000;
+        if (movedM > STOP_RADIUS_M) {
+          anchor = { lat, lng, at: now };
+          return;
+        }
+        if (now - anchor.at < STOP_DURATION_MS) return;
+        done = true;
+        void (async () => {
+          try {
+            const point = await capturePoint();
+            const km =
+              Math.round(
+                (await calculateDrivingDistance(start.lat, start.lng, point.lat, point.lng)) * 100,
+              ) / 100;
+            setEnd(point);
+            setDistance(km);
+            await persistTrip(start, point, km);
+          } catch {
+            done = false;
+          }
+        })();
+      },
+      () => undefined,
+      { enableHighAccuracy: true, maximumAge: 10000, timeout: 30000 },
+    );
+
+    return () => navigator.geolocation.clearWatch(watchId);
+  }, [start, end, persistTrip]);
+
 
   return (
     <section className="bg-card rounded-xl border border-border p-4 shadow-xs space-y-3">
