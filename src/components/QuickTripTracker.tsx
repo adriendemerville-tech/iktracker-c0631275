@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { MapPin, Play, Square, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/sonner";
 import { reverseGeocode } from "@/lib/geocoding";
-import { calculateDrivingDistance } from "@/lib/distance";
+import { calculateDrivingDistance, getDistanceInKm } from "@/lib/distance";
 import type { Trip, Vehicle, Location as TripLocation } from "@/types/trip";
 
 const STORAGE_KEY = "iktracker_quick_trip";
