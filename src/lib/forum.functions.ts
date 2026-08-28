@@ -112,7 +112,7 @@ export const ensureForumProfile = createServerFn({ method: "POST" })
         attempt === 0 ? payload.pseudo : `${payload.pseudo}${Math.floor(100 + Math.random() * 900)}`;
       const { data: row, error } = await supabase
         .from("forum_profiles")
-        .insert({ ...payload, pseudo })
+        .insert({ ...payload, pseudo } as never)
         .select(PROFILE_SELECT)
         .single();
       if (!error && row) return { ok: true as const, profile: row, created: true };
@@ -142,7 +142,7 @@ export const upsertForumProfile = createServerFn({ method: "POST" })
 
     const { data: row, error } = await context.supabase
       .from("forum_profiles")
-      .upsert(payload, { onConflict: "user_id" })
+      .upsert(payload as never, { onConflict: "user_id" })
       .select()
       .single();
 
