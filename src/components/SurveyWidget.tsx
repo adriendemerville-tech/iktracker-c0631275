@@ -478,7 +478,7 @@ export function SurveyWidget() {
 
 // ---- Sub-components ----
 
-function PollBlock({
+export function PollBlock({
   block,
   value,
   onChange,
