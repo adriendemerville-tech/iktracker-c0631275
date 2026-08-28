@@ -265,7 +265,7 @@ export const DesktopSidebar = ({
             <Button
               key={item.label}
               variant="ghost"
-              className={`${expanded ? "w-full justify-start gap-3 px-3" : "w-12 justify-center"} h-11 rounded-xl transition-all duration-200 ${
+              className={`relative ${expanded ? "w-full justify-start gap-3 px-3" : "w-12 justify-center"} h-11 rounded-xl transition-all duration-200 ${
                 item.isRecovery
                   ? "hover:bg-wizard-amber/10 group"
                   : item.active
@@ -273,19 +273,30 @@ export const DesktopSidebar = ({
                     : "hover:bg-accent"
               }`}
               onClick={item.onClick}
-              title={item.label}
+              title={
+                item.label === "Forum" && forumUnread > 0
+                  ? `Forum (${forumUnread} nouvelle${forumUnread > 1 ? "s" : ""} réponse${forumUnread > 1 ? "s" : ""})`
+                  : item.label
+              }
               aria-label={item.label}
               data-tutorial={item.tutorialId}
             >
-              <item.icon
-                className={`w-5 h-5 flex-shrink-0 transition-colors ${
-                  item.isRecovery
-                    ? "text-wizard-amber group-hover:scale-110 transition-transform"
-                    : item.active
-                      ? "text-primary"
-                      : "text-muted-foreground"
-                }`}
-              />
+              <span className="relative flex-shrink-0">
+                <item.icon
+                  className={`w-5 h-5 transition-colors ${
+                    item.isRecovery
+                      ? "text-wizard-amber group-hover:scale-110 transition-transform"
+                      : item.active
+                        ? "text-primary"
+                        : "text-muted-foreground"
+                  }`}
+                />
+                {item.label === "Forum" && forumUnread > 0 && (
+                  <span className="absolute -top-1.5 -right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-semibold leading-none text-destructive-foreground">
+                    {forumUnread > 9 ? "9+" : forumUnread}
+                  </span>
+                )}
+              </span>
               {expanded && (
                 <span
                   className={`text-base truncate ${
