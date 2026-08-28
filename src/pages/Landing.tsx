@@ -12,6 +12,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
 import { Counter } from "@/components/Counter";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PdfReportMockup } from "@/components/marketing/PdfReportMockup";
+
 import {
   ArrowRight,
   CheckCircle2,
