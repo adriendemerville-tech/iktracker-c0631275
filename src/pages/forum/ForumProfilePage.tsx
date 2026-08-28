@@ -26,6 +26,7 @@ export default function ForumProfilePage() {
   const [bio, setBio] = useState("");
   const [persona, setPersona] = useState("autre");
   const [city, setCity] = useState("");
+  const [vehicle, setVehicle] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -35,7 +36,8 @@ export default function ForumProfilePage() {
       setPseudo(profile.pseudo);
       setBio(profile.bio ?? "");
       setPersona(profile.persona ?? "autre");
-      setCity((profile as { city?: string | null }).city ?? "");
+      setCity(profile.city ?? "");
+      setVehicle(profile.vehicle ?? "");
       setAvatarUrl(profile.avatar_url);
     } else if (user && !loading) {
       const fallback = (user.email ?? "membre").split("@")[0];
@@ -84,6 +86,7 @@ export default function ForumProfilePage() {
           bio: bio.trim() || null,
           persona,
           city: city.trim() || null,
+          vehicle: vehicle.trim() || null,
           avatar_url: avatarUrl,
         },
       });
@@ -176,6 +179,19 @@ export default function ForumProfilePage() {
             maxLength={60}
             onChange={(e) => setCity(e.target.value)}
             placeholder="Ex : Nantes"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="vehicle" className="mb-1 block text-xs font-medium">
+            Véhicule (facultatif)
+          </label>
+          <Input
+            id="vehicle"
+            value={vehicle}
+            maxLength={60}
+            onChange={(e) => setVehicle(e.target.value)}
+            placeholder="Ex : Peugeot 308"
           />
         </div>
 
