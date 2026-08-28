@@ -66,7 +66,13 @@ async function loadBots(admin: Admin): Promise<BotProfileContext[]> {
     .from("forum_profiles")
     .select("user_id, pseudo, persona, bio, vehicle")
     .in("user_id", ids);
-...
+  const byId = new Map<string, any>((profiles ?? []).map((p: any) => [p.user_id as string, p]));
+  return bots
+    .map((b: any) => {
+      const p = byId.get(b.user_id as string);
+      if (!p) return null;
+      return {
+        ...b,
         pseudo: p.pseudo as string,
         persona: (p.persona ?? null) as string | null,
         bio: (p.bio ?? null) as string | null,
