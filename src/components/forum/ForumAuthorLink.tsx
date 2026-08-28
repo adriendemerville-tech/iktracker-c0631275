@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Link } from "@/lib/router-compat";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ForumAvatar } from "@/components/forum/ForumAvatar";
 import { ForumLevelBadge } from "@/components/forum/ForumLevelBadge";
@@ -121,16 +120,6 @@ export function ForumAuthorLink({ userId, pseudo, className }: ForumAuthorLinkPr
                 })}{" "}
                 · {profile.points} points
               </p>
-
-              {!anonymous && (
-                <Link
-                  to={`/forum/membre/${profile.user_id}`}
-                  className="inline-block text-sm font-medium text-primary hover:underline"
-                  onClick={() => setOpen(false)}
-                >
-                  Voir le profil complet
-                </Link>
-              )}
             </div>
           ) : (
             <p className="py-6 text-center text-sm text-muted-foreground">Profil indisponible.</p>
