@@ -174,7 +174,7 @@ const Independants = () => {
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline">
-              <a href="https://crawlers.fr" target="_blank" rel="noopener">
+              <a href="https://crawlers.fr" target="_blank" rel="noopener nofollow">
                 Auditer la visibilité de mon site
               </a>
             </Button>
@@ -268,7 +268,7 @@ const Independants = () => {
                   <a
                     href="https://crawlers.fr"
                     target="_blank"
-                    rel="noopener"
+                    rel="noopener nofollow"
                     title="Crawlers.fr - SEO boosté à l'IA"
                   >
                     Découvrir Crawlers.fr

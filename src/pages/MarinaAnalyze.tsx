@@ -236,7 +236,7 @@ const MarinaAnalyze = () => {
               <a
                 href="https://crawlers.fr"
                 target="_blank"
-                rel="noopener noreferrer"
+                rel="noopener noreferrer nofollow"
                 className="text-primary hover:underline"
               >
                 Crawlers

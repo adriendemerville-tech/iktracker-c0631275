@@ -177,7 +177,7 @@ export default function AuthorPage({ articles = [] }: { articles?: AuthorArticle
                     <a
                       href="https://dictadevi.io"
                       target="_blank"
-                      rel="noopener"
+                      rel="noopener nofollow"
                       title="DictaDevi - plateforme IA bâtiment et rénovation"
                       className="font-medium text-primary hover:underline"
                     >
@@ -191,7 +191,7 @@ export default function AuthorPage({ articles = [] }: { articles?: AuthorArticle
                     <a
                       href="https://crawlers.fr"
                       target="_blank"
-                      rel="noopener"
+                      rel="noopener nofollow"
                       title="Crawlers.fr - SEO boosté à l'IA"
                       className="font-medium text-primary hover:underline"
                     >

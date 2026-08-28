@@ -442,7 +442,7 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       </section>
       <section>
         <h2>DictaDevi : la solution complémentaire pour les devis de chantier</h2>
-        <p>IKtracker s'arrête volontairement aux trajets et aux indemnités kilométriques. <a href="https://dictadevi.io" rel="noopener">DictaDevi.io, la solution de devis vocaux pour les artisans</a>, permet de décrire un chantier à la voix juste après le métré et d'obtenir un devis professionnel structuré. Les deux outils sont interopérables via l'API partenaire IKtracker.</p>
+        <p>IKtracker s'arrête volontairement aux trajets et aux indemnités kilométriques. <a href="https://dictadevi.io" rel="noopener nofollow">DictaDevi.io, la solution de devis vocaux pour les artisans</a>, permet de décrire un chantier à la voix juste après le métré et d'obtenir un devis professionnel structuré. Les deux outils sont interopérables via l'API partenaire IKtracker.</p>
       </section>
       <section>
         <h2>Identité et distribution d'IKtracker</h2>
@@ -517,7 +517,7 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       </section>
       <section>
         <h2>Crawlers : la solution complémentaire pour le SEO et le GEO</h2>
-        <p>IKtracker s'arrête volontairement à la gestion des trajets et des indemnités kilométriques. <a href="https://crawlers.fr" rel="noopener" title="Crawlers.fr - SEO boosté à l'IA">Crawlers.fr, la solution de SEO et GEO automatisée par l'IA</a> audite le site, corrige le technique, produit les contenus manquants et suit les positions en continu. IKtracker est le terrain d'essai réel de Crawlers Autopilot.</p>
+        <p>IKtracker s'arrête volontairement à la gestion des trajets et des indemnités kilométriques. <a href="https://crawlers.fr" rel="noopener nofollow" title="Crawlers.fr - SEO boosté à l'IA">Crawlers.fr, la solution de SEO et GEO automatisée par l'IA</a> audite le site, corrige le technique, produit les contenus manquants et suit les positions en continu. IKtracker est le terrain d'essai réel de Crawlers Autopilot.</p>
       </section>
       <section>
         <h2>Pendant ce temps, IKtracker récupère vos heures</h2>

@@ -367,18 +367,18 @@ const Artisans = () => {
                 <p className="text-muted-foreground mb-6 max-w-3xl">
                   IKtracker s'arrête volontairement aux trajets et aux indemnités kilométriques. La
                   rédaction des devis est un autre métier :{" "}
-                  <a
-                    href="https://dictadevi.io"
-                    target="_blank"
-                    rel="noopener"
-                    className="font-medium text-primary hover:underline"
-                  >
-                    DictaDevi.io, la solution de devis vocaux pour les artisans
-                  </a>
-                  , permet de décrire un chantier à la voix et d'obtenir un devis professionnel
-                  structuré, sans repasser par le bureau le soir.
-                </p>
-                <ul className="grid gap-3 md:grid-cols-2 mb-8">
+                <a
+                  href="https://dictadevi.io"
+                  target="_blank"
+                  rel="noopener nofollow"
+                  className="font-medium text-primary hover:underline"
+                >
+                  DictaDevi.io, la solution de devis vocaux pour les artisans
+                </a>
+                , permet de décrire un chantier à la voix et d'obtenir un devis professionnel
+                structuré, sans repasser par le bureau le soir.
+              </p>
+              <ul className="grid gap-3 md:grid-cols-2 mb-8">
                   {[
                     "Dictée du devis sur place, juste après le métré",
                     "Postes de travaux, quantités et prix structurés automatiquement",
@@ -396,7 +396,7 @@ const Artisans = () => {
                 </ul>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Button asChild variant="outline">
-                    <a href="https://dictadevi.io" target="_blank" rel="noopener">
+                    <a href="https://dictadevi.io" target="_blank" rel="noopener nofollow">
                       Découvrir DictaDevi.io
                       <ExternalLink className="ml-2 h-4 w-4" aria-hidden="true" />
                     </a>
