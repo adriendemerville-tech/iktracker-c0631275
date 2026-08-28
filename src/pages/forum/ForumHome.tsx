@@ -78,39 +78,43 @@ export default function ForumHome({ data }: { data: ForumHomeData }) {
       <MarketingNav user={user ? { email: user.email ?? "" } : null} loading={loading} />
 
       <main id="main-content" tabIndex={-1} className="container mx-auto px-4 pb-16 pt-24 md:pt-28">
-        <header className="mb-8 max-w-3xl">
-          <h1 className="text-3xl font-bold md:text-4xl">
-            Forum IKtracker : entraide des indépendants
-          </h1>
-          <p className="mt-3 text-muted-foreground">
-            Posez vos questions sur le barème kilométrique, l'URSSAF, les frais réels, le choix du
-            véhicule ou la facturation électronique. Les réponses viennent d'indépendants qui
-            roulent tous les jours — infirmiers libéraux, artisans, commerciaux, consultants.
-          </p>
+        <header className="mb-8">
+          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div className="max-w-3xl">
+              <h1 className="text-3xl font-bold md:text-4xl">
+                Forum IKtracker : entraide des indépendants
+              </h1>
+              <p className="mt-3 text-muted-foreground">
+                Posez vos questions sur le barème kilométrique, l'URSSAF, les frais réels, le choix du
+                véhicule ou la facturation électronique. Les réponses viennent d'indépendants qui
+                roulent tous les jours — infirmiers libéraux, artisans, commerciaux, consultants.
+              </p>
+            </div>
 
-          <dl className="mt-5 flex flex-wrap gap-4 text-sm">
-            <div className="flex items-center gap-2">
-              <MessageSquare className="h-4 w-4 text-primary" aria-hidden="true" />
-              <dt className="sr-only">Discussions</dt>
-              <dd>
-                <strong>{data.stats.discussions}</strong> discussions
-              </dd>
-            </div>
-            <div className="flex items-center gap-2">
-              <Flame className="h-4 w-4 text-primary" aria-hidden="true" />
-              <dt className="sr-only">Réponses</dt>
-              <dd>
-                <strong>{data.stats.replies}</strong> réponses
-              </dd>
-            </div>
-            <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-primary" aria-hidden="true" />
-              <dt className="sr-only">Membres</dt>
-              <dd>
-                <strong>{data.stats.members}</strong> membres
-              </dd>
-            </div>
-          </dl>
+            <dl className="flex flex-wrap gap-x-5 gap-y-2 text-sm md:justify-end md:pt-2">
+              <div className="flex items-center gap-2">
+                <MessageSquare className="h-4 w-4 text-primary" aria-hidden="true" />
+                <dt className="sr-only">Discussions</dt>
+                <dd>
+                  <strong>{data.stats.discussions}</strong> discussions
+                </dd>
+              </div>
+              <div className="flex items-center gap-2">
+                <Flame className="h-4 w-4 text-primary" aria-hidden="true" />
+                <dt className="sr-only">Réponses</dt>
+                <dd>
+                  <strong>{data.stats.replies}</strong> réponses
+                </dd>
+              </div>
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-primary" aria-hidden="true" />
+                <dt className="sr-only">Membres</dt>
+                <dd>
+                  <strong>{data.stats.members}</strong> membres
+                </dd>
+              </div>
+            </dl>
+          </div>
         </header>
 
         <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
