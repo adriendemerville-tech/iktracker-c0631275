@@ -102,6 +102,7 @@ export const DesktopSidebar = ({
   const navigate = useNavigate();
   const { handleLogout } = useAppAuth();
   const [expanded, setExpanded] = useState(false);
+  const { unreadCount: forumUnread } = useForumNotifications();
   const [showVehicleSheet, setShowVehicleSheet] = useState(false);
   const [showCalendarSheet, setShowCalendarSheet] = useState(false);
   const [showFeedbackSheet, setShowFeedbackSheet] = useState(false);
