@@ -1,6 +1,13 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 4.6.3 — 28 août 2026
+> Version 4.6.5 — 28 août 2026
+
+**Notes v4.6.5 (surveys, forum & trajets, 28 août 2026)**
+- **Surveys** : nouveau type de bloc `cta` (« Bouton / lien ») avec champs `text` (message affiché) + `label` (ancre) + `url` (destination). Un bloc `info`/`cta` porteur d'un bouton d'action masque la navigation « Suivant ». Aperçu admin disponible (`SurveyPreview`). Règle d'exposition confirmée : un utilisateur ayant répondu, atteint le plafond d'impressions, ou **fermé deux fois** la survey ne la revoit plus.
+- **Forum** : onglet dédié dans `/admin` (modération des discussions/réponses, statistiques de visites `/forum`, thèmes, bascule d'indexation SEO par discussion). Unicité insensible à la casse des surnoms dans `upsertForumProfile`. Colonnes `city` et `vehicle` sur `public.forum_profiles`, affichées dans la fiche contributeur.
+- **Programmation des discussions** : `forum_discussions.publish_at` + `public.forum_publish_due_discussions()` appelée par le cron horaire `forum-bot-tick-hourly` (9 discussions initiales dépubliées puis étalées sur deux semaines).
+- **Analytics** : `public.purge_old_marketing_analytics()` conserve 730 jours (les graphes /admin remontent au lancement de janvier 2026).
+- **Trajets** : bascule aller-retour éditable depuis `TripViewSheet` (recalcul distance + IK côté serveur).
 
 **Notes v4.6.3 (fallback forum sur OpenRouter, 28 août 2026)**
 - La génération de texte des bots forum (`src/lib/forum/bot-generation.server.ts`) conserve Mistral via Wavespeed comme modèle principal, mais son fallback passe de la passerelle Lovable AI à **OpenRouter** (`OPENROUTER_API_KEY`). Modèle de fallback : `google/gemini-2.5-flash`. Headers `HTTP-Referer` et `X-Title` positionnés pour le classement OpenRouter.
