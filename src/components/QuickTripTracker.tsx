@@ -8,6 +8,9 @@ import { calculateDrivingDistance } from "@/lib/distance";
 import type { Trip, Vehicle, Location as TripLocation } from "@/types/trip";
 
 const STORAGE_KEY = "iktracker_quick_trip";
+/** Arrêt long : immobile (<100 m) pendant 7 minutes → le trajet se termine et s'enregistre seul. */
+const STOP_RADIUS_M = 100;
+const STOP_DURATION_MS = 7 * 60 * 1000;
 
 interface QuickPoint {
   lat: number;
