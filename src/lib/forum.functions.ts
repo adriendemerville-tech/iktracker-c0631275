@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { buildDiscussionSlug, buildMetaDescription, slugifyWord } from "@/lib/forum/constants";
+import { buildDiscussionSlug, buildMetaDescription, personaLabel, slugifyWord } from "@/lib/forum/constants";
 
 const PseudoSchema = z
   .string()
