@@ -237,6 +237,49 @@ export const createReply = createServerFn({ method: "POST" })
       console.error("createReply", error);
       return { ok: false as const, error: "Impossible de publier la réponse." };
     }
+
+    // Alertes e-mail aux destinataires (auteur du sujet + auteur de la réponse parente).
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: notifs } = await supabaseAdmin
+        .from("forum_notifications")
+        .select("user_id, title, slug, excerpt")
+        .eq("reply_id", row.id);
+
+      if (notifs?.length) {
+        const { data: actor } = await supabaseAdmin
+          .from("forum_profiles")
+          .select("pseudo, pseudo_enabled")
+          .eq("user_id", userId)
+          .maybeSingle();
+        const actorName =
+          actor && actor.pseudo_enabled !== false ? actor.pseudo : "Un membre du forum";
+
+        await Promise.all(
+          notifs.map(async (n) => {
+            const { data: u } = await supabaseAdmin.auth.admin.getUserById(n.user_id);
+            const email = u?.user?.email;
+            if (!email) return;
+            await supabaseAdmin.functions.invoke("send-transactional-email", {
+              body: {
+                templateName: "forum-reply",
+                recipientEmail: email,
+                idempotencyKey: `forum-reply-${row.id}-${n.user_id}`,
+                templateData: {
+                  discussionTitle: n.title,
+                  discussionUrl: `https://iktracker.fr/forum/${n.slug}#reponse-${row.id}`,
+                  actorName,
+                  excerpt: n.excerpt ?? "",
+                },
+              },
+            });
+          }),
+        );
+      }
+    } catch (mailError) {
+      console.error("createReply notification email", mailError);
+    }
+
     return { ok: true as const, id: row.id };
   });
 
