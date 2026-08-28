@@ -201,6 +201,15 @@ export const DesktopSidebar = ({
     },
 
     {
+      icon: MessagesSquare,
+      label: "Forum",
+      onClick: () => navigate("/forum"),
+      active: false,
+      tutorialId: "forum",
+      isRecovery: false,
+    },
+
+    {
       icon: MessageSquare,
       label: "Aide & Avis",
       onClick: () => setShowFeedbackSheet(true),
