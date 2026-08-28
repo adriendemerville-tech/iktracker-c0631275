@@ -542,7 +542,7 @@ const Landing = ({ initialUserCount }: LandingProps) => {
         </section>
 
         {/* Features Grid - Icons only */}
-        <section className="py-12 md:py-24 px-4 section-contained">
+        <section className="py-10 md:py-16 px-4 section-contained">
           <div className="container mx-auto">
             <div className="text-center mb-8 md:mb-16">
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold">{c.features_title}</h2>
@@ -727,7 +727,7 @@ const Landing = ({ initialUserCount }: LandingProps) => {
 
 
         {/* Expertise Fiscale Section - SEO Content */}
-        <section className="py-16 md:py-24 section-contained" aria-labelledby="expertise-heading">
+        <section className="py-12 md:py-16 section-contained" aria-labelledby="expertise-heading">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
               <div className="text-center mb-12">
