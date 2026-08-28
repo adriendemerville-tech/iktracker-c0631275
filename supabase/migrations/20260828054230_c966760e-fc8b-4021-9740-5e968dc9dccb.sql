@@ -1,0 +1,1 @@
+ALTER TABLE public.forum_profiles ADD COLUMN IF NOT EXISTS pseudo_enabled boolean NOT NULL DEFAULT true;

@@ -1077,6 +1077,7 @@ export type Database = {
           persona: string | null
           points: number
           pseudo: string
+          pseudo_enabled: boolean
           replies_count: number
           updated_at: string
           upvotes_received: number
@@ -1093,6 +1094,7 @@ export type Database = {
           persona?: string | null
           points?: number
           pseudo: string
+          pseudo_enabled?: boolean
           replies_count?: number
           updated_at?: string
           upvotes_received?: number
@@ -1109,6 +1111,7 @@ export type Database = {
           persona?: string | null
           points?: number
           pseudo?: string
+          pseudo_enabled?: boolean
           replies_count?: number
           updated_at?: string
           upvotes_received?: number
