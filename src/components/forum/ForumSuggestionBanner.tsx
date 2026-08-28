@@ -44,6 +44,8 @@ export function ForumSuggestionBanner() {
           </p>
           <Link
             to={`/forum/${suggestion.slug}` as string}
+            target="_blank"
+            rel="noopener noreferrer"
             className="block truncate text-sm font-semibold text-primary hover:underline"
           >
             {suggestion.title}
