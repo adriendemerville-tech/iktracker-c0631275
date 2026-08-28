@@ -28,6 +28,7 @@ type Discussion = {
   title: string;
   slug: string;
   category_slug: string;
+  author_id: string | null;
   status: string;
   seo_indexable: boolean;
   is_pinned: boolean;
@@ -62,7 +63,7 @@ export function AdminForum() {
       const { data, error } = await supabase
         .from("forum_discussions")
         .select(
-          "id, title, slug, category_slug, status, seo_indexable, is_pinned, is_locked, is_bot, reply_count, vote_score, view_count, created_at",
+          "id, title, slug, category_slug, author_id, status, seo_indexable, is_pinned, is_locked, is_bot, reply_count, vote_score, view_count, created_at",
         )
         .order("created_at", { ascending: false })
         .limit(300);
