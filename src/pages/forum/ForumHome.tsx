@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Car, MapPin } from "lucide-react";
 import { Link } from "@/lib/router-compat";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { EnhancedMarketingFooter } from "@/components/marketing/EnhancedMarketingFooter";
