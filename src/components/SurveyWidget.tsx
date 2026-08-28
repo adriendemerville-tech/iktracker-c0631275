@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 interface ContentBlock {
   id: string;
-  type: "poll" | "rating" | "text_question" | "screenshot" | "share" | "info";
+  type: "poll" | "rating" | "text_question" | "screenshot" | "share" | "info" | "cta";
   config: Record<string, unknown>;
 }
 
@@ -368,6 +368,7 @@ export function SurveyWidget() {
       : `${block.id}_${rawAnswer?.match(/__free_(\d+)__/)?.[1] ?? ""}`;
   const hasAnswer =
     block.type === "info" ||
+    block.type === "cta" ||
     block.type === "screenshot" ||
     block.type === "share" ||
     (rawAnswer !== undefined &&
@@ -435,6 +436,9 @@ export function SurveyWidget() {
               />
             )}
             {block.type === "info" && (
+              <InfoBlock block={block} onButtonClick={handleInfoButtonClick} />
+            )}
+            {block.type === "cta" && (
               <InfoBlock block={block} onButtonClick={handleInfoButtonClick} />
             )}
           </div>
