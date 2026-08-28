@@ -14,8 +14,12 @@ import type {
   ForumDiscussionListItem,
   ForumTopContributor,
 } from "@/lib/forum/queries";
-import { MessageSquare, Users, Flame, LifeBuoy, GraduationCap, ArrowRight } from "lucide-react";
+import { MessageSquare, Users, Flame, LifeBuoy, GraduationCap, ArrowRight, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
+import { updateForumPseudo } from "@/lib/forum.functions";
 
 export interface ForumHomeData {
   categories: ForumCategory[];
@@ -27,9 +31,40 @@ export interface ForumHomeData {
 }
 
 export default function ForumHome({ data }: { data: ForumHomeData }) {
-  const { profile, user, loading } = useForumProfile();
+  const { profile, user, loading, refresh } = useForumProfile();
   const { event, dismiss } = useLevelUpEvents(Boolean(user));
   const [tab, setTab] = useState<"recent" | "popular">("recent");
+  const [editingPseudo, setEditingPseudo] = useState(false);
+  const [pseudoDraft, setPseudoDraft] = useState("");
+  const [pseudoEnabled, setPseudoEnabled] = useState(true);
+  const [savingPseudo, setSavingPseudo] = useState(false);
+
+  const startEditPseudo = () => {
+    setPseudoDraft(profile?.pseudo ?? "");
+    setPseudoEnabled(profile?.pseudo_enabled !== false);
+    setEditingPseudo(true);
+  };
+
+  const savePseudo = async () => {
+    if (savingPseudo) return;
+    setSavingPseudo(true);
+    try {
+      const res = await updateForumPseudo({
+        data: { pseudo: pseudoDraft, pseudo_enabled: pseudoEnabled },
+      });
+      if (!res.ok) {
+        toast.error(res.error);
+        return;
+      }
+      toast.success("Surnom enregistré");
+      setEditingPseudo(false);
+      await refresh();
+    } catch {
+      toast.error("Impossible d'enregistrer le surnom.");
+    } finally {
+      setSavingPseudo(false);
+    }
+  };
 
   const composerState = useMemo<"anonymous" | "profile-missing" | "ready">(() => {
     if (!user) return "anonymous";
@@ -164,8 +199,39 @@ export default function ForumHome({ data }: { data: ForumHomeData }) {
                     {profile.points} points · {profile.discussions_count} discussions ·{" "}
                     {profile.replies_count} réponses
                   </p>
+                  {editingPseudo ? (
+                    <div className="mt-3 space-y-2.5">
+                      <Input
+                        value={pseudoDraft}
+                        onChange={(e) => setPseudoDraft(e.target.value)}
+                        placeholder="Ton surnom"
+                        maxLength={30}
+                        className="h-9 text-sm"
+                      />
+                      <label className="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
+                        <Checkbox
+                          checked={pseudoEnabled}
+                          onCheckedChange={(v) => setPseudoEnabled(v === true)}
+                        />
+                        Afficher mon surnom publiquement
+                      </label>
+                      <div className="flex gap-2">
+                        <Button size="sm" className="flex-1" onClick={savePseudo} disabled={savingPseudo}>
+                          {savingPseudo ? "Enregistrement…" : "Enregistrer"}
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => setEditingPseudo(false)}>
+                          Annuler
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <Button variant="outline" size="sm" className="mt-3 w-full" onClick={startEditPseudo}>
+                      <Pencil className="mr-1.5 h-3.5 w-3.5" />
+                      Modifier mon surnom
+                    </Button>
+                  )}
                   <Link to="/app/forum/profil">
-                    <Button variant="outline" size="sm" className="mt-3 w-full">
+                    <Button variant="outline" size="sm" className="mt-2 w-full">
                       Modifier ma fiche
                     </Button>
                   </Link>
