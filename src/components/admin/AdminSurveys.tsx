@@ -500,6 +500,24 @@ export function AdminSurveys() {
                   }
                 />
               </div>
+              <div>
+                <Label>Taille de police</Label>
+                <Select
+                  value={form.font_size}
+                  onValueChange={(v) =>
+                    setForm((f) => ({ ...f, font_size: v as "small" | "standard" | "large" }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="small">Petit</SelectItem>
+                    <SelectItem value="standard">Standard</SelectItem>
+                    <SelectItem value="large">Grand</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
