@@ -36,7 +36,8 @@
         "Géolocalisation GPS pour suivi kilométrique",
         "Synchronisation calendrier professionnel",
         "PWA et applications web progressives",
-        "Comptabilité des travailleurs non-salariés"
+        "Comptabilité des travailleurs non-salariés",
+        "Forum communautaire des professionnels itinérants"
       ]
     },
 
@@ -305,6 +306,7 @@
         "https://iktracker.fr/installer",
         "https://iktracker.fr/api-docs",
         "https://iktracker.fr/blog",
+        "https://iktracker.fr/forum",
         "https://iktracker.fr/comparatif-izika",
         "https://iktracker.fr/comparatif-driversnote",
         "https://iktracker.fr/contact",
