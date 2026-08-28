@@ -406,11 +406,32 @@ export function SurveyWidget() {
     (block.type === "info" || block.type === "cta") &&
     !!(block.config.buttonLabel && block.config.buttonUrl);
 
+  const longestText = Math.max(
+    ...survey.blocks.map(
+      (b) =>
+        `${(b.config.text as string) || ""}${(b.config.title as string) || ""}${(b.config.question as string) || ""}`
+          .length
+    ),
+    0
+  );
+  const sizeClass =
+    longestText > 700
+      ? "w-[min(94vw,40rem)] h-[min(85vh,34rem)]"
+      : longestText > 350
+        ? "w-[min(92vw,32rem)] h-[min(80vh,30rem)]"
+        : "w-80 h-[420px]";
+
   return (
     <>
       <div className="fixed inset-0 z-50 bg-black/50" onClick={handleDismiss} />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
-        <div className="w-80 h-[420px] bg-card border border-border rounded-xl shadow-2xl animate-fade-in overflow-hidden pointer-events-auto flex flex-col">
+        <div
+          className={cn(
+            sizeClass,
+            "bg-card border border-border rounded-xl shadow-2xl animate-fade-in overflow-hidden pointer-events-auto flex flex-col"
+          )}
+        >
+
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted shrink-0">
             <span className="text-xs font-semibold text-foreground truncate">{survey.title}</span>
