@@ -25,6 +25,7 @@ export default function ForumProfilePage() {
   const [pseudo, setPseudo] = useState("");
   const [bio, setBio] = useState("");
   const [persona, setPersona] = useState("autre");
+  const [city, setCity] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -34,6 +35,7 @@ export default function ForumProfilePage() {
       setPseudo(profile.pseudo);
       setBio(profile.bio ?? "");
       setPersona(profile.persona ?? "autre");
+      setCity((profile as { city?: string | null }).city ?? "");
       setAvatarUrl(profile.avatar_url);
     } else if (user && !loading) {
       const fallback = (user.email ?? "membre").split("@")[0];
@@ -81,6 +83,7 @@ export default function ForumProfilePage() {
           pseudo: pseudo.trim(),
           bio: bio.trim() || null,
           persona,
+          city: city.trim() || null,
           avatar_url: avatarUrl,
         },
       });
@@ -161,6 +164,19 @@ export default function ForumProfilePage() {
               ))}
             </SelectContent>
           </Select>
+        </div>
+
+        <div>
+          <label htmlFor="city" className="mb-1 block text-xs font-medium">
+            Ville (facultatif)
+          </label>
+          <Input
+            id="city"
+            value={city}
+            maxLength={60}
+            onChange={(e) => setCity(e.target.value)}
+            placeholder="Ex : Nantes"
+          />
         </div>
 
         <div>
