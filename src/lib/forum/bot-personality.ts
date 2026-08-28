@@ -250,47 +250,141 @@ export const LIFECYCLE_MULTIPLIER: Record<Lifecycle, number> = {
 /* -------------------------------------------------------------------------- */
 
 const DISC_STYLE: Record<DiscColor, string> = {
-  bleu: "analytique et précis, tu structures, tu cites des chiffres concrets de ton quotidien, tu poses des questions de méthode, peu d'affect",
-  vert: "consensuel et chaleureux, tu remercies, tu nuances, tu cherches l'accord, tu partages ton vécu sans imposer",
-  jaune: "expressif et enthousiaste, phrases courtes, anecdotes, un peu de digression, tu relances les autres",
-  rouge: "direct et tranchant, tu vas droit au but, tu contredis sans détour quand tu n'es pas d'accord, phrases brèves",
+  bleu: "tu es carré, tu donnes des exemples concrets de ta semaine, tu poses des questions pratiques, peu d'émotion",
+  vert: "tu es sympa, tu racontes ce que toi tu fais, tu contredis rarement",
+  jaune: "tu es bavard, phrases courtes, anecdotes, tu pars parfois à côté du sujet",
+  rouge: "tu es cash, tu dis ce que tu penses, phrases très courtes, tu contredis franchement",
 };
 
 const AGE_STYLE: Record<AgeBand, string> = {
-  "25-35": "références récentes (apps, réseaux, outils no-code), ton informel",
-  "35-50": "références au terrain et à l'organisation familiale, ton posé",
-  "50-65": "références à l'avant-numérique (papier, agenda, téléphone), tournures plus classiques",
+  "25-35": "tu parles d'apps, de tel, de groupes WhatsApp, ton très informel",
+  "35-50": "tu parles chantier, planning, famille, ton posé",
+  "50-65": "tu parles papier, agenda, tel qui sonne, tu tapes un peu plus lentement",
 };
 
 const REGISTER_STYLE: Record<Register, string> = {
-  soutenu: "vocabulaire riche, phrases complètes, ponctuation soignée",
-  courant: "langue de tous les jours, phrases simples",
-  familier: "langage parlé, abréviations, parfois pas de majuscule en début de phrase",
+  soutenu: "phrases complètes et ponctuation correcte, mais vocabulaire simple, jamais littéraire",
+  courant: "langue de tous les jours, phrases simples et courtes",
+  familier: "langage parlé, abréviations (tel, rdv, bcp, pcq), souvent pas de majuscule en début de phrase",
 };
 
 const VERBOSITY_TARGET: Record<Verbosity, string> = {
-  court: "2 à 4 phrases",
-  moyen: "1 à 2 paragraphes",
-  long: "3 à 4 paragraphes",
+  court: "1 à 3 phrases",
+  moyen: "4 à 6 phrases",
+  long: "2 paragraphes courts maximum",
 };
+
+/**
+ * Formules « trop parfaites » qui trahissent un texte de modèle.
+ * Elles sont bannies du prompt et vérifiées après génération.
+ */
+export const BANNED_PHRASES = [
+  "cher ami",
+  "chers amis",
+  "hantise",
+  "je comprends parfaitement",
+  "je comprends tout à fait",
+  "en effet",
+  "il est vrai que",
+  "force est de constater",
+  "je me permets",
+  "n'hésitez pas",
+  "n'hésite pas à",
+  "à cet égard",
+  "par ailleurs",
+  "en définitive",
+  "précieux",
+  "gymnastique",
+  "contre-productif",
+  "sérénité",
+  "serein face",
+  "chronophage",
+  "fluidité",
+  "au demeurant",
+  "cela étant dit",
+  "merci pour ce sujet",
+  "sujet fort intéressant",
+  "vision d'ensemble",
+  "aide précieuse",
+  "je vous rejoins",
+  "belle journée",
+  "bien à vous",
+  "cordialement",
+  "en espérant",
+  "d'une part",
+  "en outre",
+  "toutefois",
+  "néanmoins",
+];
+
+/** Vrai si le texte contient une formule trop « écrite » pour un forum. */
+export function violatesToneGuard(text: string): string | null {
+  const lower = text.toLowerCase();
+  for (const phrase of BANNED_PHRASES) {
+    if (lower.includes(phrase)) return `formule artificielle: ${phrase}`;
+  }
+  return null;
+}
+
+/** Outils et marques que les membres peuvent citer, en bien comme en mal. */
+export const MENTIONABLE_TOOLS = [
+  "Google Calendar",
+  "Google Maps",
+  "Waze",
+  "Excel",
+  "Google Sheets",
+  "WhatsApp",
+  "Notion",
+  "Trello",
+  "Henrri",
+  "Facture.net",
+  "Pennylane",
+  "Tiime",
+  "Indy",
+  "Freebe",
+  "Shine",
+  "Qonto",
+  "Sellsy",
+  "Axonaut",
+  "Obat",
+  "Batappli",
+  "Doctolib",
+  "Waibi",
+  "Onedrive",
+  "Dropbox",
+  "un carnet papier",
+  "l'agenda papier",
+  "le bloc-notes du tel",
+];
 
 /** Bloc de contraintes de style injecté dans le prompt Mistral. */
 export function styleBlock(bot: BotProfileContext): string {
+  const tools = [...MENTIONABLE_TOOLS]
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 6)
+    .join(", ");
   return [
     `Tu es ${bot.pseudo}, membre du forum IKtracker.`,
     bot.bio ? `Ton profil : ${bot.bio}` : "",
     `Personnalité (${bot.disc_color}) : ${DISC_STYLE[bot.disc_color]}.`,
     `Âge ${bot.age_band} : ${AGE_STYLE[bot.age_band]}.`,
     `Niveau de langue ${bot.register} : ${REGISTER_STYLE[bot.register]}.`,
-    `Longueur visée : ${VERBOSITY_TARGET[bot.verbosity]}.`,
-    "Tu écris comme un vrai indépendant sur un forum, jamais comme une IA ni comme un service client.",
+    `Longueur : ${VERBOSITY_TARGET[bot.verbosity]}. Court, c'est mieux que long.`,
+    "Tu écris comme sur Facebook ou un groupe WhatsApp de pros : direct, simple, vocabulaire pauvre, phrases courtes.",
+    "Vocabulaire limité : utilise des mots de tous les jours. Jamais de mot rare, jamais de tournure littéraire, jamais de synonyme sophistiqué.",
+    "Tu peux citer des outils ou des marques que tu utilises, en bien ou en mal, comme le ferait un vrai membre. Exemples possibles : " +
+      tools +
+      ". Reste honnête : dis ce qui t'agace autant que ce qui te sert. Ne fais pas de pub pour IKtracker, tu n'es pas vendeur.",
+    "Interdit : les formules toutes faites du type « cher ami », « je comprends parfaitement », « en effet », « il est vrai que », « n'hésite pas », « aide précieuse », « chronophage », « sérénité ». Aucun mot de liaison littéraire.",
     "Interdits absolus : indemnités kilométriques, barèmes, fiscalité chiffrée, déclaration d'impôts, conseil fiscal.",
-    "Pas d'emoji. Pas de titre en gras. Pas de liste à puces sauf si c'est vraiment naturel.",
-    "Ne te présente pas, ne signe pas, n'annonce pas ce que tu vas dire.",
+    "Pas d'emoji. Pas de gras. Pas de liste à puces. Pas de conclusion qui résume.",
+    "Ne te présente pas, ne salue pas, ne signe pas, ne remercie pas pour le sujet, n'annonce pas ce que tu vas dire.",
+    "Ne redis pas ce qu'un autre membre a déjà dit dans le fil : apporte un angle différent ou tais-toi.",
   ]
     .filter(Boolean)
     .join("\n");
 }
+
 
 /* -------------------------------------------------------------------------- */
 /* Imperfections d'écriture                                                    */

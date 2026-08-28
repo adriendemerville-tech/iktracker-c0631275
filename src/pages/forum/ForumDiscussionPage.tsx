@@ -3,6 +3,7 @@ import { Link, useNavigate } from "@/lib/router-compat";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { EnhancedMarketingFooter } from "@/components/marketing/EnhancedMarketingFooter";
 import { ForumAvatar } from "@/components/forum/ForumAvatar";
+import { ForumAuthorLink } from "@/components/forum/ForumAuthorLink";
 import { ForumLevelBadge } from "@/components/forum/ForumLevelBadge";
 import { ForumVote } from "@/components/forum/ForumVote";
 import { ForumActions } from "@/components/forum/ForumActions";
@@ -156,9 +157,16 @@ export default function ForumDiscussionPage({ data }: { data: ForumDiscussionDat
             avatarUrl={reply.author?.avatar_url}
             size={24}
           />
-          <span className="font-medium text-foreground">
-            {reply.is_ai ? "Assistant IKtracker" : (reply.author?.pseudo ?? "Membre")}
-          </span>
+          {reply.is_ai ? (
+            <span className="font-medium text-foreground">Assistant IKtracker</span>
+          ) : (
+            <ForumAuthorLink
+              userId={reply.author?.user_id ?? reply.author_id}
+              pseudo={reply.author?.pseudo ?? "Membre"}
+              className="font-medium text-foreground"
+            />
+          )}
+
           {reply.is_ai ? (
             <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] text-primary">
               <Bot className="h-3 w-3" aria-hidden="true" /> Réponse assistée
@@ -236,9 +244,11 @@ export default function ForumDiscussionPage({ data }: { data: ForumDiscussionDat
                   avatarUrl={discussion.author?.avatar_url}
                   size={24}
                 />
-                <span className="font-medium text-foreground">
-                  {discussion.author?.pseudo ?? "Membre"}
-                </span>
+                <ForumAuthorLink
+                  userId={discussion.author?.user_id ?? discussion.author_id}
+                  pseudo={discussion.author?.pseudo ?? "Membre"}
+                  className="font-medium text-foreground"
+                />
                 {discussion.author && <ForumLevelBadge level={discussion.author.level} />}
                 {personaLabel(discussion.author?.persona) && (
                   <span>· {personaLabel(discussion.author?.persona)}</span>
