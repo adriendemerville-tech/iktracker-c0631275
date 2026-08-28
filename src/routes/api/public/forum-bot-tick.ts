@@ -422,6 +422,11 @@ export const Route = createFileRoute("/api/public/forum-bot-tick")({
 
         const results: Array<Record<string, unknown>> = [];
 
+        // --- Publication des discussions programmées arrivées à échéance ---
+        const { data: publishedDue } = await admin.rpc("forum_publish_due_discussions");
+        if (publishedDue) results.push({ kind: "scheduled_publish", count: publishedDue });
+
+
         // --- Discussions : 2 par semaine, sur créneaux tirés au sort ---
         const weekKey = isoWeekKey(now);
         const slots = weeklyDiscussionSlots(weekKey);
