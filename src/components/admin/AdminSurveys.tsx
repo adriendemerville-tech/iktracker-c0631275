@@ -65,6 +65,7 @@ import {
 } from "./surveys/survey-types";
 import { ContentBlockEditor, VariantEditor } from "./surveys/SurveyEditors";
 import { SurveyResponsesPanel, SurveyAggregatedStats } from "./surveys/SurveyStats";
+import { SurveyPreview } from "./surveys/SurveyPreview";
 
 // ---- Main component ----
 
