@@ -35,6 +35,7 @@ import { AdminTourMode } from "@/components/admin/AdminTourMode";
 import { AdminApiPartners } from "@/components/admin/AdminApiPartners";
 import { AdminWavespeed } from "@/components/admin/AdminWavespeed";
 import { AdminLinkedIn } from "@/components/admin/AdminLinkedIn";
+import { AdminForum } from "@/components/admin/AdminForum";
 import { AdminContentFreshness } from "@/components/admin/AdminContentFreshness";
 import { AdminGitHubActions } from "@/components/admin/AdminGitHubActions";
 import { PERSONA_OPTIONS } from "@/components/PersonaPicker";
@@ -71,6 +72,7 @@ import {
   Key,
   Sparkles,
   Github,
+  MessagesSquare,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -694,6 +696,10 @@ const Admin = () => {
               >
                 <Key className="w-4 h-4" />
                 <span className="hidden sm:inline">API</span>
+              </TabsTrigger>
+              <TabsTrigger value="forum" className="flex items-center gap-1 text-xs sm:text-sm">
+                <MessagesSquare className="w-4 h-4" />
+                <span className="hidden sm:inline">Forum</span>
               </TabsTrigger>
               {adminRole !== "viewer" && (
                 <TabsTrigger value="surveys" className="flex items-center gap-1 text-xs sm:text-sm">
@@ -1320,6 +1326,10 @@ const Admin = () => {
             </TabsContent>
 
             {/* Surveys Tab */}
+            <TabsContent value="forum">
+              <AdminForum />
+            </TabsContent>
+
             <TabsContent value="surveys">
               <AdminSurveys />
             </TabsContent>
