@@ -139,6 +139,15 @@ export const upsertForumProfile = createServerFn({ method: "POST" })
       vehicle: data.vehicle ?? null,
     };
 
+    const { data: taken } = await context.supabase
+      .from("forum_profiles")
+      .select("user_id")
+      .ilike("pseudo", data.pseudo)
+      .neq("user_id", context.userId)
+      .maybeSingle();
+    if (taken) {
+      return { ok: false as const, error: "Ce pseudo est déjà utilisé." };
+    }
 
     const { data: row, error } = await context.supabase
       .from("forum_profiles")
@@ -167,6 +176,17 @@ export const updateForumPseudo = createServerFn({ method: "POST" })
   .inputValidator((data) => PseudoUpdateSchema.parse(data))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+
+    // Unicité du surnom (insensible à la casse), hors soi-même
+    const { data: taken } = await supabase
+      .from("forum_profiles")
+      .select("user_id")
+      .ilike("pseudo", data.pseudo)
+      .neq("user_id", userId)
+      .maybeSingle();
+    if (taken) {
+      return { ok: false as const, error: "Ce pseudo est déjà utilisé." };
+    }
 
     const { data: existing } = await supabase
       .from("forum_profiles")
