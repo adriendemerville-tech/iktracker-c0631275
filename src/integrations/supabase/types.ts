@@ -1242,6 +1242,7 @@ export type Database = {
           updated_at: string
           upvotes_received: number
           user_id: string
+          vehicle: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -1260,6 +1261,7 @@ export type Database = {
           updated_at?: string
           upvotes_received?: number
           user_id: string
+          vehicle?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -1278,6 +1280,7 @@ export type Database = {
           updated_at?: string
           upvotes_received?: number
           user_id?: string
+          vehicle?: string | null
         }
         Relationships: []
       }
