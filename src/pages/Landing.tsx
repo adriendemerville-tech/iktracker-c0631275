@@ -665,9 +665,6 @@ const Landing = ({ initialUserCount }: LandingProps) => {
           </div>
         </section>
 
-        {/* Crawlers Partner Banner */}
-        <CrawlersBanner />
-
         {/* Calendar Sync Demo */}
         <section className="py-16 md:py-24 bg-muted/30 section-contained">
           <div className="container mx-auto px-4">
