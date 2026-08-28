@@ -5,13 +5,19 @@ import Landing from "@/pages/Landing";
 
 interface SmartLandingProps {
   initialUserCount?: number;
+  initialTripCount?: number;
+  initialTotalKm?: number;
 }
 
 // Les points d'entrée publics ("/", "/auth", "/signup") doivent rendre du vrai HTML
 // en SSR : les crawlers n'exécutent pas de JS. On rend donc toujours la page
 // publique côté serveur, la redirection des utilisateurs connectés a lieu après
 // hydratation. Chaque page a son propre module pour ne pas mutualiser les chunks.
-export const SmartLanding = ({ initialUserCount }: SmartLandingProps) => {
+export const SmartLanding = ({
+  initialUserCount,
+  initialTripCount,
+  initialTotalKm,
+}: SmartLandingProps) => {
   const { user, loading } = useAuth();
   const location = useLocation();
   const hydrated = useHydrated();
@@ -21,7 +27,13 @@ export const SmartLanding = ({ initialUserCount }: SmartLandingProps) => {
     return <Navigate to="/app" replace />;
   }
 
-  return <Landing initialUserCount={initialUserCount} />;
+  return (
+    <Landing
+      initialUserCount={initialUserCount}
+      initialTripCount={initialTripCount}
+      initialTotalKm={initialTotalKm}
+    />
+  );
 };
 
 export default SmartLanding;
