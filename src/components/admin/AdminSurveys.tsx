@@ -162,6 +162,7 @@ export function AdminSurveys() {
             target_user_count: form.target_user_count,
             target_min_days_since_signup: form.target_min_days_since_signup,
             target_max_days_since_signup: form.target_max_days_since_signup,
+            font_size: form.font_size,
             updated_at: new Date().toISOString(),
           } as any)
           .eq("id", editingSurvey.id);
@@ -311,6 +312,7 @@ export function AdminSurveys() {
       target_user_count: null,
       target_min_days_since_signup: null,
       target_max_days_since_signup: null,
+      font_size: "standard",
     });
     setEditingVariants([]);
   }
@@ -329,6 +331,7 @@ export function AdminSurveys() {
       target_user_count: survey.target_user_count,
       target_min_days_since_signup: (survey as any).target_min_days_since_signup ?? null,
       target_max_days_since_signup: (survey as any).target_max_days_since_signup ?? null,
+      font_size: ((survey as any).font_size as "small" | "standard" | "large") || "standard",
     });
 
     const { data } = await supabase
