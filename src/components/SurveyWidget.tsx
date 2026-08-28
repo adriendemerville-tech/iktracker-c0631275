@@ -634,23 +634,25 @@ export function TextBlock({
 export function InfoBlock({
   block,
   onButtonClick,
+  pushButtonToBottom = false,
 }: {
   block: ContentBlock;
   onButtonClick: (url: string) => void;
+  pushButtonToBottom?: boolean;
 }) {
   const title = (block.config.title as string) || "";
   const text = (block.config.text as string) || "";
   const buttonLabel = (block.config.buttonLabel as string) || "";
   const buttonUrl = (block.config.buttonUrl as string) || "";
   return (
-    <div className="space-y-2">
+    <div className={cn("space-y-2", pushButtonToBottom && "flex flex-col flex-1 min-h-0")}>
       {title && <p className="text-sm font-semibold text-foreground">{title}</p>}
       {text && <p className="text-xs text-muted-foreground whitespace-pre-wrap">{text}</p>}
       {buttonLabel && buttonUrl && (
         <Button
           size="sm"
-          variant="outline"
-          className="w-full text-xs"
+          variant={block.type === "cta" ? "default" : "outline"}
+          className={cn("w-full text-xs", pushButtonToBottom && "mt-auto")}
           onClick={() => onButtonClick(buttonUrl)}
         >
           {buttonLabel}
