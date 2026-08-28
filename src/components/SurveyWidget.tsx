@@ -428,6 +428,7 @@ export function SurveyWidget() {
       <div className="fixed inset-0 z-50 bg-black/50" onClick={handleDismiss} />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
         <div
+          data-survey-size={survey.font_size || "standard"}
           className={cn(
             sizeClass,
             "bg-card border border-border rounded-xl shadow-2xl animate-fade-in overflow-hidden pointer-events-auto flex flex-col"
