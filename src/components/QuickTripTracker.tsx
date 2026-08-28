@@ -69,6 +69,10 @@ export const QuickTripTracker = ({ vehicles, onSave }: QuickTripTrackerProps) =>
   const [vehicleId, setVehicleId] = useState<string | null>(null);
   const [purpose, setPurpose] = useState("");
   const [busy, setBusy] = useState(false);
+  const vehicleRef = useRef<string | null>(null);
+  const purposeRef = useRef("");
+  vehicleRef.current = vehicleId;
+  purposeRef.current = purpose;
 
   // Reprise après fermeture de l'app / rechargement
   useEffect(() => {
