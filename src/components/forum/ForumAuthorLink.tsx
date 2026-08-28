@@ -54,7 +54,7 @@ export function ForumAuthorLink({ userId, pseudo, className }: ForumAuthorLinkPr
         )
         .eq("user_id", userId)
         .maybeSingle();
-      if (data) setProfile(data as ProfileSummary);
+      if (data) setProfile(data as unknown as ProfileSummary);
     } finally {
       setLoading(false);
     }
