@@ -273,7 +273,6 @@ export default function ForumHome({ data }: { data: ForumHomeData }) {
                           </span>
                         </span>
                         <ForumLevelBadge level={m.level} />
-                      </Link>
                     </li>
                   ))}
                 </ul>
