@@ -606,7 +606,7 @@ export function RatingBlock({
   );
 }
 
-function TextBlock({
+export function TextBlock({
   block,
   value,
   onChange,
