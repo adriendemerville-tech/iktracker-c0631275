@@ -40,7 +40,7 @@ export default function ForumHome({ data }: { data: ForumHomeData }) {
       <main id="main-content" tabIndex={-1} className="container mx-auto px-4 pb-16 pt-24 md:pt-28">
         <header className="mb-8 max-w-3xl">
           <h1 className="text-3xl font-bold md:text-4xl">
-            Forum IKtracker : entraide des indépendants sur les frais kilométriques
+            Forum IKtracker : entraide des indépendants
           </h1>
           <p className="mt-3 text-muted-foreground">
             Posez vos questions sur le barème kilométrique, l'URSSAF, les frais réels, le choix du
@@ -144,9 +144,52 @@ export default function ForumHome({ data }: { data: ForumHomeData }) {
           </div>
 
           <aside className="space-y-4">
-            {profile && (
-              <section className="rounded-xl border border-border bg-card p-4">
-                <h2 className="mb-3 text-sm font-semibold">Votre fiche</h2>
+            <section className="rounded-xl border border-border bg-card p-4">
+              <h2 className="mb-3 text-sm font-semibold">Mon profil</h2>
+              {profile ? (
+                <>
+                  <div className="flex items-center gap-3">
+                    <ForumAvatar pseudo={profile.pseudo} avatarUrl={profile.avatar_url} size={44} />
+                    <div>
+                      <p className="text-sm font-medium">{profile.pseudo}</p>
+                      <ForumLevelBadge level={profile.level} />
+                    </div>
+                  </div>
+                  <p className="mt-3 text-xs text-muted-foreground">
+                    {profile.points} points · {profile.discussions_count} discussions ·{" "}
+                    {profile.replies_count} réponses
+                  </p>
+                  <Link to="/app/forum/profil">
+                    <Button variant="outline" size="sm" className="mt-3 w-full">
+                      Modifier ma fiche
+                    </Button>
+                  </Link>
+                </>
+              ) : user ? (
+                <>
+                  <p className="text-xs text-muted-foreground">
+                    Créez votre fiche membre (surnom, métier, photo) pour publier et voter sur le
+                    forum.
+                  </p>
+                  <Link to="/app/forum/profil">
+                    <Button variant="outline" size="sm" className="mt-3 w-full">
+                      Créer ma fiche
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <p className="text-xs text-muted-foreground">
+                    Connectez-vous pour publier, voter et gagner des niveaux sur le forum.
+                  </p>
+                  <Link to="/auth">
+                    <Button variant="outline" size="sm" className="mt-3 w-full">
+                      Connexion
+                    </Button>
+                  </Link>
+                </>
+              )}
+            </section>
                 <div className="flex items-center gap-3">
                   <ForumAvatar pseudo={profile.pseudo} avatarUrl={profile.avatar_url} size={44} />
                   <div>
