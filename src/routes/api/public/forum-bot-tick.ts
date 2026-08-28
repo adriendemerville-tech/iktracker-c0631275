@@ -281,14 +281,8 @@ async function createBotReply(admin: Admin, bots: BotProfileContext[], now: Date
   if (last && last.author_id === bot.user_id) {
     return { status: "skipped", reason: "le membre vient déjà de répondre" };
   }
-  if (!list.length && discussion.author_id === bot.user_id) {
-    return { status: "skipped", reason: "le membre est l'auteur du fil" };
-  }
-  if (last && (last.is_bot === true || botIds.has(last.author_id as string))) {
-    const humanAfter = false;
-    if (!humanAfter && Math.random() < 0.85) {
-      return { status: "skipped", reason: "dernier message déjà écrit par un membre animé" };
-    }
+  if (last && (last.is_bot === true || botIds.has(last.author_id as string)) && Math.random() < 0.85) {
+    return { status: "skipped", reason: "dernier message déjà écrit par un membre animé" };
   }
   if (list.some((r) => r.author_id === bot.user_id) && Math.random() < 0.9) {
     return { status: "skipped", reason: "le membre a déjà répondu" };
