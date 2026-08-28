@@ -173,7 +173,7 @@ export function AdminForum() {
 
   const updateDiscussion = useMutation({
     mutationFn: async ({ id, patch }: { id: string; patch: Partial<Discussion> }) => {
-      const { error } = await supabase.from("forum_discussions").update(patch as Record<string, unknown>).eq("id", id);
+      const { error } = await supabase.from("forum_discussions").update(patch as unknown as never).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
