@@ -64,7 +64,7 @@ async function loadBots(admin: Admin): Promise<BotProfileContext[]> {
   const ids = bots.map((b: any) => b.user_id as string);
   const { data: profiles } = await admin
     .from("forum_profiles")
-    .select("user_id, pseudo, persona, bio")
+    .select("user_id, pseudo, persona, bio, vehicle")
     .in("user_id", ids);
   const byId = new Map<string, any>((profiles ?? []).map((p: any) => [p.user_id as string, p]));
   return bots
@@ -76,6 +76,7 @@ async function loadBots(admin: Admin): Promise<BotProfileContext[]> {
         pseudo: p.pseudo as string,
         persona: (p.persona ?? null) as string | null,
         bio: (p.bio ?? null) as string | null,
+        vehicle: (p.vehicle ?? null) as string | null,
       } as BotProfileContext;
     })
     .filter(Boolean) as BotProfileContext[];
@@ -117,11 +118,18 @@ async function createBotDiscussion(admin: Admin, bots: BotProfileContext[], now:
   );
   if (!bot) return { status: "skipped", reason: "aucun membre disponible" };
 
-  const category = categories[Math.floor(Math.random() * categories.length)] as any;
+  // La rubrique Véhicules est surreprésentée (2 chances sur N+1) car sujet fédérateur.
+  const vehicules = categories.find((c: any) => c.slug === "vehicules");
+  const pool = vehicules ? [...categories, vehicules] : categories;
+  const category = pool[Math.floor(Math.random() * pool.length)] as any;
+  const topicHint =
+    category.slug === "vehicules"
+      ? `Sujet voiture uniquement, tiré de ton quotidien : quel véhicule choisir pour ton activité, hésitation thermique/hybride/électrique, un problème mécanique ou électronique sur un modèle précis (cite la marque et le modèle), entretien, assurance, revente ou achat d'occasion, autonomie, bornes de recharge, coût d'usage. Tu peux parler de TA voiture (${bot.vehicle ?? "ton véhicule actuel"}) ou de celle que tu envisages.`
+      : `Sujet libre, tiré de ton quotidien professionnel : organisation, tournées, clients, outils, véhicule, paperasse, équilibre de vie, galères de terrain.`;
   const system = `${styleBlock(bot)}
 
 Tu ouvres une nouvelle discussion sur le forum, dans la rubrique "${category.label}".
-Sujet libre, tiré de ton quotidien professionnel : organisation, tournées, clients, outils, véhicule, paperasse, équilibre de vie, galères de terrain.
+${topicHint}
 Réponds UNIQUEMENT au format:
 TITRE: <titre de 40 à 110 caractères, sans point final, formulé comme un vrai membre>
 CORPS: <ton message>`;
