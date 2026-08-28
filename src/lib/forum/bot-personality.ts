@@ -28,6 +28,7 @@ export interface BotProfileContext extends BotPersonality {
   pseudo: string;
   persona: string | null;
   bio: string | null;
+  vehicle?: string | null;
 }
 
 /* -------------------------------------------------------------------------- */
