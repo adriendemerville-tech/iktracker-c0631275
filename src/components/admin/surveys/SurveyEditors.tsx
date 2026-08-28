@@ -266,26 +266,39 @@ export function ContentBlockEditor({
         )}
 
         {block.type === "cta" && (
-          <div className="grid grid-cols-2 gap-2">
+          <div className="space-y-3">
             <div>
-              <Label className="text-xs">Ancre du bouton</Label>
-              <Input
-                value={(block.config.buttonLabel as string) || ""}
+              <Label className="text-xs">Texte</Label>
+              <Textarea
+                value={(block.config.text as string) || ""}
                 onChange={(e) =>
-                  onChange({ ...block, config: { ...block.config, buttonLabel: e.target.value } })
+                  onChange({ ...block, config: { ...block.config, text: e.target.value } })
                 }
-                placeholder="Forum"
+                placeholder="Votre message..."
+                rows={3}
               />
             </div>
-            <div>
-              <Label className="text-xs">Page de destination</Label>
-              <Input
-                value={(block.config.buttonUrl as string) || ""}
-                onChange={(e) =>
-                  onChange({ ...block, config: { ...block.config, buttonUrl: e.target.value } })
-                }
-                placeholder="https://iktracker.fr/forum/"
-              />
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label className="text-xs">Ancre du bouton</Label>
+                <Input
+                  value={(block.config.buttonLabel as string) || ""}
+                  onChange={(e) =>
+                    onChange({ ...block, config: { ...block.config, buttonLabel: e.target.value } })
+                  }
+                  placeholder="Forum"
+                />
+              </div>
+              <div>
+                <Label className="text-xs">Page de destination</Label>
+                <Input
+                  value={(block.config.buttonUrl as string) || ""}
+                  onChange={(e) =>
+                    onChange({ ...block, config: { ...block.config, buttonUrl: e.target.value } })
+                  }
+                  placeholder="https://iktracker.fr/forum/"
+                />
+              </div>
             </div>
           </div>
         )}

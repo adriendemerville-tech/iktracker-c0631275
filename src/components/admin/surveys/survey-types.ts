@@ -106,7 +106,10 @@ export function defaultContentBlock(type: ContentBlock["type"]): ContentBlock {
     case "info":
       return { ...base, config: { title: "", text: "", buttonLabel: "", buttonUrl: "" } };
     case "cta":
-      return { ...base, config: { buttonLabel: "Forum", buttonUrl: "https://iktracker.fr/forum/" } };
+      return {
+        ...base,
+        config: { text: "", buttonLabel: "Forum", buttonUrl: "https://iktracker.fr/forum/" },
+      };
     default:
       return base;
   }
