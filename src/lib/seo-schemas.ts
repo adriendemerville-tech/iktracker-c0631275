@@ -72,6 +72,7 @@ export const IKTRACKER_FEATURES = [
   "API partenaires et serveur MCP pour assistants IA (trajets, véhicules, cumul annuel)",
   "Programme d'affiliation pour experts-comptables et prescripteurs",
   "Forum communautaire des professionnels itinérants : catégories thématiques, votes, profils contributeurs et notifications de réponses par email",
+  "Sélection profession au signup pour personnalisation : libéral, commercial, artisan, expert-comptable, salarié",
   "Aucune publicité, aucune revente de données, aucun abonnement, aucune carte bancaire requise",
 ];
 
