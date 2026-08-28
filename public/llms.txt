@@ -8,14 +8,22 @@
 - [Inscription gratuite](/signup): Créer un compte en quelques secondes.
 - [Indemnités kilométriques 2026](/indemnites-kilometriques): Page de référence — définition, barème DGFiP, calcul, majoration 20% électrique, justificatifs, simulateur et méthode IKtracker (Mode Tournée, trajets récurrents, calendrier, rapports automatiques).
 - [Barème kilométrique 2026](/bareme-ik-2026): Tableau officiel et simulateur IK.
-
+- [Fonctionnalités](/fonctionnalites): Panorama complet des outils IKtracker (trajet en direct, Mode Tournée, calendrier, exports).
 - [Mode Tournée GPS](/mode-tournee): Détection automatique des arrêts par géolocalisation.
 - [Synchronisation calendrier](/calendrier): Conversion Google/Outlook en trajets pro.
 - [Frais réels vs abattement 10%](/frais-reels): Comparateur fiscal interactif.
+- [Note de frais kilométrique](/note-de-frais-kilometrique): Modèle et méthode de note de frais opposable.
+- [Indemnité kilométrique vélo](/indemnite-kilometrique-velo): Forfait mobilités durables et barème vélo.
+- [Indemnité grand déplacement 2026](/indemnite-grand-deplacement-2026): Barèmes repas et hébergement URSSAF.
 - [Lexique IK](/lexique): Dictionnaire des termes fiscaux liés aux indemnités kilométriques.
 - [Comparatif Izika](/comparatif-izika): IKtracker vs Izika.
 - [Comparatif Driver's Note](/comparatif-driversnote): IKtracker vs Driversnote.
+- [Meilleure application IK](/meilleure-application-indemnites-kilometriques): Comparatif des applications de suivi kilométrique.
 - [Espace expert-comptable](/expert-comptable): Ressources pour cabinets et prescripteurs.
+- [Artisans du BTP](/artisans): Frais kilométriques et trajets de chantier.
+- [Indépendants](/independants): Suivi des déplacements pour professions libérales et freelances.
+- [Logiciel de devis artisan](/logiciel-devis-artisan): Guide des outils de devis pour artisans itinérants.
+- [Acquisition de clients](/acquisition-de-clients): Ressources visibilité et prospection pour indépendants.
 - [Tarifs](/tarifs): 0€ — gratuit à vie, sans publicité.
 - [Installation PWA](/installer): Installer IKtracker sur iPhone et Android.
 - [Forum communautaire](/forum): Discussions entre professionnels itinérants — justificatifs et contrôles URSSAF, choix de véhicule, passage à l'électrique, organisation des tournées, outils et comptabilité.
