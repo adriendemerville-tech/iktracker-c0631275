@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { extractCityFromAddress, geocodeAddress } from "@/lib/geocoding";
 import { AddressAutocompleteInput } from "./AddressAutocompleteInput";
+import { Switch } from "@/components/ui/switch";
 import { AddressSuggestion } from "@/hooks/useAddressAutocomplete";
 
 import { useGoogleMaps } from "@/hooks/useGoogleMaps";
