@@ -43,6 +43,7 @@ export const IKTRACKER_FEATURES = [
   "Application automatique de la majoration de 20% pour véhicules 100% électriques",
   "Barème tiered officiel : tranches 0-5000 km, 5001-20000 km, >20000 km",
   "Mode Tournée : enregistrement GPS multi-arrêts avec détection automatique des stops (intervalle 10s, seuil 2min/100m)",
+  "Trajet en direct : démarrage/arrêt en un geste avec détection d'immobilité (7 min) et enregistrement automatique de l'adresse d'arrivée",
   "Reprise automatique de tournée après fermeture accidentelle de l'application",
   "Finalisation intelligente : auto-clôture d'une tournée oubliée avec création d'un trajet à vérifier",
   "Synchronisation Google Calendar et Outlook Calendar (4 syncs/jour, fallback adresse maison)",
