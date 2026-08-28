@@ -50,7 +50,20 @@ const staticPages = [
   { url: "/terms", priority: "0.5", changefreq: "yearly" },
 ];
 
-const today = new Date().toISOString().split("T")[0];
+// Dernières modifications réelles, lues depuis src/lib/page-dates.ts
+// (jamais dérivées de la date du build).
+const STATIC_PAGE_LASTMOD = (() => {
+  try {
+    const src = fs.readFileSync(path.join(__dirname, "..", "src", "lib", "page-dates.ts"), "utf-8");
+    const block = src.split("STATIC_PAGE_LASTMOD: Record<string, string> = {")[1].split("};")[0];
+    const map = {};
+    for (const m of block.matchAll(/"([^"]+)":\s*"(\d{4}-\d{2}-\d{2})"/g)) map[m[1]] = m[2];
+    return map;
+  } catch (e) {
+    console.warn("\u26a0\ufe0f  STATIC_PAGE_LASTMOD illisible, sitemap sans lastmod statiques.");
+    return {};
+  }
+})();
 
 async function fetchBlogPosts() {
   if (!SUPABASE_URL || !SUPABASE_KEY) {
@@ -90,7 +103,7 @@ function buildXml(posts) {
   const staticEntries = staticPages
     .map(
       (p) => `  <url>
-    <loc>${BASE_URL}${p.url}</loc>${p.lastmod ? `\n    <lastmod>${p.lastmod}</lastmod>` : ""}
+    <loc>${BASE_URL}${p.url}</loc>${p.lastmod || STATIC_PAGE_LASTMOD[p.url] ? `\n    <lastmod>${p.lastmod || STATIC_PAGE_LASTMOD[p.url]}</lastmod>` : ""}
     <changefreq>${p.changefreq}</changefreq>
     <priority>${p.priority}</priority>
   </url>`,
@@ -103,10 +116,9 @@ function buildXml(posts) {
         ? new Date(post.updated_at).toISOString().split("T")[0]
         : post.published_at
           ? new Date(post.published_at).toISOString().split("T")[0]
-          : today;
+          : null;
       return `  <url>
-    <loc>${BASE_URL}/blog/${post.slug}</loc>
-    <lastmod>${lastmod}</lastmod>
+    <loc>${BASE_URL}/blog/${post.slug}</loc>${lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : ""}
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>`;
