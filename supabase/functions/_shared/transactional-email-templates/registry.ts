@@ -12,4 +12,5 @@ export interface TemplateEntry {
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   "accountant-report": accountantReport,
+  "forum-reply": forumReply,
 };
