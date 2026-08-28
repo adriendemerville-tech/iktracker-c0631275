@@ -1037,6 +1037,7 @@ export type Database = {
           is_pinned: boolean
           last_activity_at: string
           meta_description: string | null
+          publish_at: string | null
           reply_count: number
           seo_indexable: boolean
           slug: string
@@ -1059,6 +1060,7 @@ export type Database = {
           is_pinned?: boolean
           last_activity_at?: string
           meta_description?: string | null
+          publish_at?: string | null
           reply_count?: number
           seo_indexable?: boolean
           slug: string
@@ -1081,6 +1083,7 @@ export type Database = {
           is_pinned?: boolean
           last_activity_at?: string
           meta_description?: string | null
+          publish_at?: string | null
           reply_count?: number
           seo_indexable?: boolean
           slug?: string
@@ -3056,6 +3059,7 @@ export type Database = {
         Returns: number
       }
       forum_level_for: { Args: { _points: number }; Returns: string }
+      forum_publish_due_discussions: { Args: never; Returns: number }
       forum_recalc_profile: { Args: { _user_id: string }; Returns: undefined }
       get_ab_test_results: { Args: { days_back?: number }; Returns: Json }
       get_admin_stats: {
