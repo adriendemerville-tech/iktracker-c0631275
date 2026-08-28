@@ -433,11 +433,13 @@ export function SurveyWidget() {
         >
 
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted shrink-0">
-            <span className="text-sm font-semibold text-foreground truncate">{survey.title}</span>
+          <div className="relative flex items-center justify-center px-4 py-3 border-b border-border bg-muted shrink-0">
+            <span className="text-sm font-semibold text-foreground text-center truncate px-6">
+              {survey.title}
+            </span>
             <button
               onClick={handleDismiss}
-              className="text-muted-foreground hover:text-foreground transition-colors outline-none focus:outline-none"
+              className="absolute right-4 text-muted-foreground hover:text-foreground transition-colors outline-none focus:outline-none"
             >
               <X className="w-4 h-4" />
             </button>
