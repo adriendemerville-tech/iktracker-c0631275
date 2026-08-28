@@ -1065,6 +1065,63 @@ export type Database = {
         }
         Relationships: []
       }
+      forum_notifications: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          discussion_id: string
+          excerpt: string | null
+          id: string
+          kind: string
+          read_at: string | null
+          reply_id: string | null
+          slug: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          discussion_id: string
+          excerpt?: string | null
+          id?: string
+          kind?: string
+          read_at?: string | null
+          reply_id?: string | null
+          slug: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          discussion_id?: string
+          excerpt?: string | null
+          id?: string
+          kind?: string
+          read_at?: string | null
+          reply_id?: string | null
+          slug?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forum_notifications_discussion_id_fkey"
+            columns: ["discussion_id"]
+            isOneToOne: false
+            referencedRelation: "forum_discussions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "forum_notifications_reply_id_fkey"
+            columns: ["reply_id"]
+            isOneToOne: false
+            referencedRelation: "forum_replies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       forum_profiles: {
         Row: {
           avatar_url: string | null
