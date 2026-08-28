@@ -206,6 +206,7 @@ export function AdminSurveys() {
             target_user_count: form.target_user_count,
             target_min_days_since_signup: form.target_min_days_since_signup,
             target_max_days_since_signup: form.target_max_days_since_signup,
+            font_size: form.font_size,
           } as any)
           .select()
           .single();
