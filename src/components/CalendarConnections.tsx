@@ -301,12 +301,25 @@ export function CalendarConnections({ onTripsUpdated }: { onTripsUpdated?: () =>
         }),
       );
 
-      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/google-calendar-auth?action=authorize&state=${state}`;
-      console.log("Google OAuth - Calling:", apiUrl);
+      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/google-calendar-auth?action=authorize&state=${encodeURIComponent(state)}`;
+
+      // L'edge function exige un JWT utilisateur (user_id dérivé du token)
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
+      if (!accessToken) {
+        toast.error("Session expirée, reconnectez-vous puis réessayez.");
+        setConnectingGoogle(false);
+        return;
+      }
 
       // Get auth URL from edge function
-      const response = await fetch(apiUrl, { method: "GET" });
-      console.log("Google OAuth - Response status:", response.status);
+      const response = await fetch(apiUrl, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string,
+        },
+      });
 
       if (!response.ok) {
         const errorText = await response.text();
