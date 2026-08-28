@@ -273,6 +273,27 @@ export function AdminSurveys() {
 
   // ---- Helpers ----
 
+  async function openPreview(survey: Survey) {
+    const { data } = await supabase
+      .from("survey_variants")
+      .select("*")
+      .eq("survey_id", survey.id)
+      .order("created_at");
+
+    const variants = (data || []).map((v) => ({
+      ...v,
+      content_blocks: (v.content_blocks || []) as unknown as ContentBlock[],
+    })) as SurveyVariant[];
+
+    if (variants.length === 0) {
+      toast({ title: "Aucune variante", description: "Ajoutez au moins une variante pour prévisualiser." });
+      return;
+    }
+
+    setPreviewVariantIndex(0);
+    setPreviewSurvey({ ...survey, variants } as any);
+  }
+
   function resetForm() {
     setEditingSurvey(null);
     setIsCreating(false);
