@@ -35,6 +35,7 @@ export interface Survey {
   target_min_days_since_signup: number | null;
   target_max_days_since_signup: number | null;
   created_by: string | null;
+  font_size?: "small" | "standard" | "large" | null;
 }
 
 export interface SurveyStats {
