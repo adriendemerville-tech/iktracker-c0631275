@@ -255,12 +255,11 @@ export default function ForumHome({ data }: { data: ForumHomeData }) {
               {data.topContributors && data.topContributors.length > 0 ? (
                 <ul className="space-y-2.5">
                   {data.topContributors.slice(0, 8).map((m, i) => (
-                    <li key={m.user_id}>
-                      <Link
-                        to={`/forum/membre/${m.pseudo}`}
-                        className="flex items-center gap-2.5 rounded-lg px-1 py-1 hover:bg-muted/60"
-                      >
-                        <span
+                    <li
+                      key={m.user_id}
+                      className="flex items-center gap-2.5 rounded-lg px-1 py-1"
+                    >
+                      <span
                           className="w-4 text-center text-xs font-semibold text-muted-foreground"
                           aria-hidden="true"
                         >
