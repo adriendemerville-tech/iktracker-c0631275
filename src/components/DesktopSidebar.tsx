@@ -527,7 +527,7 @@ export const DesktopSidebar = ({
                 <a
                   href="https://crawlers.fr"
                   target="_blank"
-                  rel="noopener noreferrer"
+                  rel="noopener noreferrer nofollow"
                   className="block rounded-md bg-background/60 px-3 py-2 hover:bg-background transition-colors group"
                 >
                   <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
@@ -540,7 +540,7 @@ export const DesktopSidebar = ({
                 <a
                   href="https://dictadevi.io"
                   target="_blank"
-                  rel="noopener noreferrer"
+                  rel="noopener noreferrer nofollow"
                   className="block rounded-md bg-background/60 px-3 py-2 hover:bg-background transition-colors group"
                 >
                   <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">

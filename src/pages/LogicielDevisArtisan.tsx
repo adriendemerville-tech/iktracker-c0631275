@@ -123,7 +123,7 @@ const LogicielDevisArtisan = () => {
                 <a
                   href="https://dictadevi.io"
                   target="_blank"
-                  rel="noopener"
+                  rel="noopener nofollow"
                   title="DictaDevi - devis vocal IA pour le bâtiment"
                 >
                   Découvrir le devis vocal DictaDevi
@@ -235,7 +235,7 @@ const LogicielDevisArtisan = () => {
                   <a
                     href="https://dictadevi.io"
                     target="_blank"
-                    rel="noopener"
+                    rel="noopener nofollow"
                     title="DictaDevi - devis vocal IA pour artisans"
                   >
                     Découvrir DictaDevi
@@ -307,29 +307,29 @@ const LogicielDevisArtisan = () => {
                 </h2>
                 <p className="text-muted-foreground mb-6 max-w-3xl">
                   Un devis rapide ne sert à rien si la demande n'arrive jamais.{" "}
-                  <a
-                    href="https://crawlers.fr"
-                    target="_blank"
-                    rel="noopener"
-                    title="Crawlers.fr - SEO boosté à l'IA"
-                    className="font-medium text-primary hover:underline"
-                  >
-                    Crawlers.fr, la solution de SEO et GEO automatisée par l'IA
-                  </a>{" "}
-                  audite le site de l'entreprise, corrige le technique, produit les contenus
-                  manquants et suit les positions. IKtracker en est le terrain d'essai réel.
-                </p>
-                <Button asChild variant="outline">
-                  <a
-                    href="https://crawlers.fr"
-                    target="_blank"
-                    rel="noopener"
-                    title="Crawlers.fr - SEO boosté à l'IA"
-                  >
-                    Découvrir Crawlers.fr
-                    <ExternalLink className="ml-2 h-4 w-4" aria-hidden="true" />
-                  </a>
-                </Button>
+                <a
+                  href="https://crawlers.fr"
+                  target="_blank"
+                  rel="noopener nofollow"
+                  title="Crawlers.fr - SEO boosté à l'IA"
+                  className="font-medium text-primary hover:underline"
+                >
+                  Crawlers.fr, la solution de SEO et GEO automatisée par l'IA
+                </a>{" "}
+                audite le site de l'entreprise, corrige le technique, produit les contenus
+                manquants et suit les positions. IKtracker en est le terrain d'essai réel.
+              </p>
+              <Button asChild variant="outline">
+                <a
+                  href="https://crawlers.fr"
+                  target="_blank"
+                  rel="noopener nofollow"
+                  title="Crawlers.fr - SEO boosté à l'IA"
+                >
+                  Découvrir Crawlers.fr
+                  <ExternalLink className="ml-2 h-4 w-4" aria-hidden="true" />
+                </a>
+              </Button>
               </CardContent>
             </Card>
           </section>

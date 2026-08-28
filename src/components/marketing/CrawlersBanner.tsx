@@ -30,7 +30,7 @@ function CrawlersBannerComponent() {
         <a
           href="https://crawlers.fr"
           target="_blank"
-          rel="noopener"
+          rel="noopener nofollow"
           className="group block"
           onClick={trackClick}
         >
