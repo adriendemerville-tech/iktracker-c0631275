@@ -5,6 +5,9 @@
 **Notes v4.6.3 (fallback forum sur OpenRouter, 28 août 2026)**
 - La génération de texte des bots forum (`src/lib/forum/bot-generation.server.ts`) conserve Mistral via Wavespeed comme modèle principal, mais son fallback passe de la passerelle Lovable AI à **OpenRouter** (`OPENROUTER_API_KEY`). Modèle de fallback : `google/gemini-2.5-flash`. Headers `HTTP-Referer` et `X-Title` positionnés pour le classement OpenRouter.
 
+**Notes v4.6.4 (véhicule sur la fiche contributeur forum, 28 août 2026)**
+- Nouvelle colonne `vehicle TEXT` sur `public.forum_profiles` : pré-remplie à la création de la fiche (`ensureForumProfile`) avec `make + model` (ou `name`) du premier véhicule de l'utilisateur, modifiable depuis « Modifier ma fiche ». Affichée (icône voiture) dans la modale de fiche contributeur `ForumAuthorLink` et la carte « Mon profil » du forum. Les 30 membres d'animation ont un véhicule cohérent avec leur persona.
+
 **Notes v4.6.2 (réinitialisation Google Sign-In, 26 août 2026)**
 - Le provider Google Sign-In a été désactivé puis réactivé via la configuration OAuth managée Lovable Cloud afin de remplacer toute configuration personnalisée résiduelle responsable de `redirect_uri_mismatch`. Les écrans `/auth` et `/signup` utilisent le broker managé `lovable.auth.signInWithOAuth` avec `redirect_uri: window.location.origin`.
 
