@@ -192,7 +192,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
     onOpenChange(false);
   };
 
-  const fiscalPowerOptions = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+  const fiscalPowerOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
   const isPlateEmpty = !licensePlate || licensePlate.length === 0;
   const currentCv = parseInt(fiscalPower);
   const showUpdatePastToggle =
