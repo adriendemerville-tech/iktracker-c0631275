@@ -3203,6 +3203,13 @@ export type Database = {
           persona: string
         }[]
       }
+      get_public_trip_stats: {
+        Args: never
+        Returns: {
+          total_distance: number
+          trip_count: number
+        }[]
+      }
       get_public_user_count: { Args: never; Returns: number }
       get_recent_signups: {
         Args: { limit_count?: number }
