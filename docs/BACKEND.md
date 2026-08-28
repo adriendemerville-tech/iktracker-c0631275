@@ -1523,3 +1523,14 @@ Le score de priorité est la somme des poids, plafonnée à 100.
 - Trigger `trg_forum_notify_on_reply` (fonction `public.forum_notify_on_reply`, SECURITY DEFINER, EXECUTE révoqué pour anon/authenticated) : à chaque insertion dans `forum_replies`, crée une notification pour l'auteur de la discussion et, le cas échéant, pour l'auteur de la réponse parente (jamais pour soi-même).
 - Email : le server function `createReply` (`src/lib/forum.functions.ts`) lit les notifications créées et invoque l'edge function `send-transactional-email` avec le template `forum-reply` (`supabase/functions/_shared/transactional-email-templates/forum-reply.tsx`).
 - UI : badge « Forum » dans la sidebar desktop, cloche `ForumNotificationsBell` dans le header mobile de `/app`.
+
+### Animation communautaire du forum (membres synthétiques)
+
+- Table `public.forum_bot_profiles` : personnalité stable de chaque compte d'animation (`user_id`, `disc_color`, `age_band`, `register`, `typo_rate`, `verbosity`, `active_hours`, `active_days`, `activity_weight`, `lifecycle`, `memory`, `last_discussion_at`, `last_reply_at`, `is_active`). Lecture réservée aux admins, écriture `service_role`.
+- Table `public.forum_bot_runs` : journal de chaque passage (`kind` = discussion/reply, `status` = ok/skipped/rejected/error, `reason`, `model`, `output`, `target_id`). Sert aussi de compteur du quota hebdomadaire (2 discussions/semaine).
+- Colonnes `is_bot` sur `forum_discussions` et `forum_replies`.
+- Route SSR `src/routes/api/public/forum-bot-tick.ts` : orchestrateur, authentifié par `x-cron-secret` (`CRON_SECRET`) ou bearer admin. Choisit un membre pondéré (cycle de vie, heures d'activité, affinité de persona), génère le texte, applique les garde-fous puis insère la discussion ou la réponse avec un horodatage décalé aléatoirement.
+- Cron `forum-bot-tick-hourly` (`17 * * * *`) → `/api/public/forum-bot-tick`. Deux créneaux de publication par semaine tirés de façon déterministe à partir de la clé ISO de la semaine.
+- Génération de texte : `src/lib/forum/bot-generation.server.ts` appelle Mistral via le proxy Wavespeed (`WAVESPEED_API_KEY`) et bascule sur la passerelle Lovable AI (`LOVABLE_API_KEY`) si le modèle est indisponible.
+- Garde-fous SEO (`src/lib/forum/bot-personality.ts`, testés par `bot-personality.test.ts`) : aucun contenu sur les indemnités kilométriques, barèmes ou fiscalité chiffrée, détection de doublons de titres (Jaccard ≥ 0,5), `seo_indexable = false` à la création.
+- `public.forum_notify_on_reply` ignore désormais les destinataires absents de `auth.users` : les comptes d'animation ne déclenchent ni notification ni e-mail.
