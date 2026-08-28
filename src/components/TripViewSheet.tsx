@@ -689,12 +689,28 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle, updateTrip }:
                   </p>
                 </div>
               </div>
-              {displayTrip.roundTrip && (
-                <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
-                  <ArrowRight className="w-3 h-3" />
-                  <ArrowRight className="w-3 h-3 rotate-180" />
-                  Aller-retour inclus
-                </p>
+              {isTour ? (
+                displayTrip.roundTrip && (
+                  <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+                    <ArrowRight className="w-3 h-3" />
+                    <ArrowRight className="w-3 h-3 rotate-180" />
+                    Aller-retour inclus
+                  </p>
+                )
+              ) : (
+                <div className="mt-3 flex items-center justify-between gap-3 border-t border-border/50 pt-3">
+                  <span className="text-xs text-muted-foreground flex items-center gap-1">
+                    <ArrowRight className="w-3 h-3" />
+                    <ArrowRight className="w-3 h-3 rotate-180" />
+                    Aller-retour
+                  </span>
+                  <Switch
+                    checked={!!displayTrip.roundTrip}
+                    disabled={isRecalc}
+                    onCheckedChange={handleToggleRoundTrip}
+                    aria-label="Aller-retour"
+                  />
+                </div>
               )}
             </div>
 
