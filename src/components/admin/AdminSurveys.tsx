@@ -76,6 +76,8 @@ export function AdminSurveys() {
   const [editingVariants, setEditingVariants] = useState<SurveyVariant[]>([]);
   const [isCreating, setIsCreating] = useState(false);
   const [expandedSurveyId, setExpandedSurveyId] = useState<string | null>(null);
+  const [previewSurvey, setPreviewSurvey] = useState<Survey | null>(null);
+  const [previewVariantIndex, setPreviewVariantIndex] = useState(0);
 
   // Form state for new/edit
   const [form, setForm] = useState({
