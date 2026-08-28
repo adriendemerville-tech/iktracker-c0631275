@@ -9,7 +9,11 @@ import { ForumLevelBadge } from "@/components/forum/ForumLevelBadge";
 import { ForumAvatar } from "@/components/forum/ForumAvatar";
 import { useForumProfile } from "@/hooks/useForumProfile";
 import { useLevelUpEvents } from "@/hooks/useLevelUpEvents";
-import type { ForumCategory, ForumDiscussionListItem } from "@/lib/forum/queries";
+import type {
+  ForumCategory,
+  ForumDiscussionListItem,
+  ForumTopContributor,
+} from "@/lib/forum/queries";
 import { MessageSquare, Users, Flame, LifeBuoy, GraduationCap, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -18,6 +22,7 @@ export interface ForumHomeData {
   recent: ForumDiscussionListItem[];
   popular: ForumDiscussionListItem[];
   stats: { discussions: number; replies: number; members: number; active_7d: number };
+  topContributors?: ForumTopContributor[];
   activeCategory?: string | null;
 }
 
