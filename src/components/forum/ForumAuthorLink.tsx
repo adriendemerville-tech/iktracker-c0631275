@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MapPin } from "lucide-react";
+import { Car, MapPin } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ForumAvatar } from "@/components/forum/ForumAvatar";
 import { ForumLevelBadge } from "@/components/forum/ForumLevelBadge";
@@ -13,6 +13,7 @@ interface ProfileSummary {
   level: string;
   persona: string | null;
   city: string | null;
+  vehicle: string | null;
   bio: string | null;
   points: number;
   discussions_count: number;
@@ -49,11 +50,11 @@ export function ForumAuthorLink({ userId, pseudo, className }: ForumAuthorLinkPr
       const { data } = await supabase
         .from("forum_profiles")
         .select(
-          "user_id, pseudo, avatar_url, level, persona, city, bio, points, discussions_count, replies_count, upvotes_received, member_since, pseudo_enabled",
+          "user_id, pseudo, avatar_url, level, persona, city, vehicle, bio, points, discussions_count, replies_count, upvotes_received, member_since, pseudo_enabled",
         )
         .eq("user_id", userId)
         .maybeSingle();
-      if (data) setProfile(data as ProfileSummary);
+      if (data) setProfile(data as unknown as ProfileSummary);
     } finally {
       setLoading(false);
     }
@@ -97,6 +98,12 @@ export function ForumAuthorLink({ userId, pseudo, className }: ForumAuthorLinkPr
                       <span className="inline-flex items-center gap-1">
                         <MapPin className="h-3 w-3" aria-hidden="true" />
                         {profile.city}
+                      </span>
+                    )}
+                    {profile.vehicle && !anonymous && (
+                      <span className="inline-flex items-center gap-1">
+                        <Car className="h-3 w-3" aria-hidden="true" />
+                        {profile.vehicle}
                       </span>
                     )}
                   </div>

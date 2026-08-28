@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Car, MapPin } from "lucide-react";
 import { Link } from "@/lib/router-compat";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { EnhancedMarketingFooter } from "@/components/marketing/EnhancedMarketingFooter";
@@ -203,6 +204,22 @@ export default function ForumHome({ data }: { data: ForumHomeData }) {
                     {profile.points} points · {profile.discussions_count} discussions ·{" "}
                     {profile.replies_count} réponses
                   </p>
+                  {(profile.city || profile.vehicle) && (
+                    <p className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                      {profile.city && (
+                        <span className="inline-flex items-center gap-1">
+                          <MapPin className="h-3 w-3" aria-hidden="true" />
+                          {profile.city}
+                        </span>
+                      )}
+                      {profile.vehicle && (
+                        <span className="inline-flex items-center gap-1">
+                          <Car className="h-3 w-3" aria-hidden="true" />
+                          {profile.vehicle}
+                        </span>
+                      )}
+                    </p>
+                  )}
                   {editingPseudo ? (
                     <div className="mt-3 space-y-2.5">
                       <Input
