@@ -402,24 +402,28 @@ export function SurveyWidget() {
     setDismissed(true);
   };
 
+  const hasActionButton =
+    (block.type === "info" || block.type === "cta") &&
+    !!(block.config.buttonLabel && block.config.buttonUrl);
+
   return (
     <>
       <div className="fixed inset-0 z-50 bg-black/50" onClick={handleDismiss} />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
-        <div className="w-80 bg-card border border-border rounded-xl shadow-2xl animate-fade-in overflow-hidden pointer-events-auto">
+        <div className="w-80 h-[420px] bg-card border border-border rounded-xl shadow-2xl animate-fade-in overflow-hidden pointer-events-auto flex flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted shrink-0">
             <span className="text-xs font-semibold text-foreground truncate">{survey.title}</span>
             <button
               onClick={handleDismiss}
-              className="text-muted-foreground hover:text-foreground transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors outline-none focus:outline-none"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
 
           {/* Content */}
-          <div className="p-4 space-y-3">
+          <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3">
             {block.type === "poll" && (
               <PollBlock
                 block={block}
@@ -446,30 +450,40 @@ export function SurveyWidget() {
               />
             )}
             {block.type === "info" && (
-              <InfoBlock block={block} onButtonClick={handleInfoButtonClick} />
+              <InfoBlock
+                block={block}
+                onButtonClick={handleInfoButtonClick}
+                pushButtonToBottom={hasActionButton}
+              />
             )}
             {block.type === "cta" && (
-              <InfoBlock block={block} onButtonClick={handleInfoButtonClick} />
+              <InfoBlock
+                block={block}
+                onButtonClick={handleInfoButtonClick}
+                pushButtonToBottom={hasActionButton}
+              />
             )}
           </div>
 
           {/* Footer */}
-          <div className="px-4 pb-3 flex items-center justify-between">
-            {survey.blocks.length > 1 && (
-              <span className="text-[10px] text-muted-foreground">
-                {currentBlockIndex + 1}/{survey.blocks.length}
-              </span>
-            )}
-            <Button
-              size="sm"
-              disabled={!hasAnswer}
-              onClick={handleNext}
-              className="ml-auto text-xs gap-1"
-            >
-              {isLast ? "Envoyer" : "Suivant"}
-              {isLast ? <Send className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
-            </Button>
-          </div>
+          {!hasActionButton && (
+            <div className="px-4 pb-3 shrink-0 flex items-center justify-between">
+              {survey.blocks.length > 1 && (
+                <span className="text-[10px] text-muted-foreground">
+                  {currentBlockIndex + 1}/{survey.blocks.length}
+                </span>
+              )}
+              <Button
+                size="sm"
+                disabled={!hasAnswer}
+                onClick={handleNext}
+                className="ml-auto text-xs gap-1"
+              >
+                {isLast ? "Envoyer" : "Suivant"}
+                {isLast ? <Send className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </>
