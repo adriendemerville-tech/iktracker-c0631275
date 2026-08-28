@@ -566,7 +566,7 @@ export function PollBlock({
   );
 }
 
-function RatingBlock({
+export function RatingBlock({
   block,
   value,
   hovered,
