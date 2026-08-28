@@ -10,12 +10,16 @@ const PseudoSchema = z
   .max(30, "Le pseudo doit faire au plus 30 caractères")
   .regex(/^[\p{L}\p{N} _.-]+$/u, "Caractères non autorisés dans le pseudo");
 
+const PROFILE_SELECT =
+  "user_id, pseudo, avatar_url, bio, persona, city, vehicle, level, points, discussions_count, replies_count, upvotes_received, member_since, pseudo_enabled";
+
 const ProfileSchema = z.object({
   pseudo: PseudoSchema,
   bio: z.string().trim().max(400).optional().nullable(),
   persona: z.string().trim().max(60).optional().nullable(),
   avatar_url: z.string().trim().max(500).optional().nullable(),
   city: z.string().trim().max(80).optional().nullable(),
+  vehicle: z.string().trim().max(80).optional().nullable(),
 });
 
 
@@ -57,9 +61,7 @@ export const ensureForumProfile = createServerFn({ method: "POST" })
 
     const { data: existing } = await supabase
       .from("forum_profiles")
-      .select(
-        "user_id, pseudo, avatar_url, bio, persona, city, level, points, discussions_count, replies_count, upvotes_received, member_since, pseudo_enabled",
-      )
+      .select(PROFILE_SELECT)
       .eq("user_id", userId)
       .maybeSingle();
     if (existing) return { ok: true as const, profile: existing, created: false };
@@ -80,6 +82,18 @@ export const ensureForumProfile = createServerFn({ method: "POST" })
     const persona = prefs?.persona ?? null;
     const job = personaLabel(persona) ?? "Indépendant";
 
+    const { data: firstVehicle } = await supabase
+      .from("vehicles")
+      .select("make, model, name")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    const vehicle =
+      ([firstVehicle?.make, firstVehicle?.model].filter(Boolean).join(" ").trim() ||
+        firstVehicle?.name ||
+        null) as string | null;
+
     const cleanBase =
       rawName.replace(/[^\p{L}\p{N} _.-]/gu, "").trim().slice(0, 24) || "Membre";
     const avatarSeed = encodeURIComponent(userId.slice(0, 12));
@@ -88,6 +102,7 @@ export const ensureForumProfile = createServerFn({ method: "POST" })
       pseudo: cleanBase.length >= 3 ? cleanBase : `Membre ${cleanBase}`,
       pseudo_enabled: true,
       persona,
+      vehicle,
       bio: `${job} sur IKtracker. Je suis les sujets déplacements, véhicules et gestion du quotidien.`,
       avatar_url: `https://api.dicebear.com/7.x/thumbs/svg?seed=${avatarSeed}`,
     };
@@ -98,9 +113,7 @@ export const ensureForumProfile = createServerFn({ method: "POST" })
       const { data: row, error } = await supabase
         .from("forum_profiles")
         .insert({ ...payload, pseudo })
-        .select(
-          "user_id, pseudo, avatar_url, bio, persona, city, level, points, discussions_count, replies_count, upvotes_received, member_since, pseudo_enabled",
-        )
+        .select(PROFILE_SELECT)
         .single();
       if (!error && row) return { ok: true as const, profile: row, created: true };
       if (error && error.code !== "23505") {
@@ -123,6 +136,7 @@ export const upsertForumProfile = createServerFn({ method: "POST" })
       persona: data.persona ?? null,
       avatar_url: data.avatar_url ?? null,
       city: data.city ?? null,
+      vehicle: data.vehicle ?? null,
     };
 
 
