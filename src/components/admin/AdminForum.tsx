@@ -28,6 +28,7 @@ type Discussion = {
   title: string;
   slug: string;
   category_slug: string;
+  author_id: string | null;
   status: string;
   seo_indexable: boolean;
   is_pinned: boolean;
@@ -62,7 +63,7 @@ export function AdminForum() {
       const { data, error } = await supabase
         .from("forum_discussions")
         .select(
-          "id, title, slug, category_slug, status, seo_indexable, is_pinned, is_locked, is_bot, reply_count, vote_score, view_count, created_at",
+          "id, title, slug, category_slug, author_id, status, seo_indexable, is_pinned, is_locked, is_bot, reply_count, vote_score, view_count, created_at",
         )
         .order("created_at", { ascending: false })
         .limit(300);
@@ -224,12 +225,43 @@ export function AdminForum() {
 
   const totalReplies = (repliesQuery.data ?? []).length;
 
+  const botIds = useMemo(
+    () => new Set((botsQuery.data ?? []).map((b) => b.user_id)),
+    [botsQuery.data],
+  );
+  const botMeta = useMemo(
+    () => new Map((botsQuery.data ?? []).map((b) => [b.user_id, b])),
+    [botsQuery.data],
+  );
+  const viewsByAuthor = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const d of discussions) {
+      if (!d.author_id) continue;
+      m.set(d.author_id, (m.get(d.author_id) ?? 0) + (d.view_count ?? 0));
+    }
+    return m;
+  }, [discussions]);
+
+  const contributors = useMemo(() => {
+    const rows = (profilesQuery.data ?? []).map((p) => ({
+      ...p,
+      isBot: botIds.has(p.user_id),
+      bot: botMeta.get(p.user_id),
+      views: viewsByAuthor.get(p.user_id) ?? 0,
+      contributions: (p.discussions_count ?? 0) + (p.replies_count ?? 0),
+    }));
+    const q = search.trim().toLowerCase();
+    return rows
+      .filter((r) => (q ? (r.pseudo ?? "").toLowerCase().includes(q) : true))
+      .sort((a, b) => b.contributions - a.contributions || b.views - a.views);
+  }, [profilesQuery.data, botIds, botMeta, viewsByAuthor, search]);
+
   return (
     <div className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <StatCard label="Discussions" value={discussions.length} icon={<MessageSquare className="w-4 h-4" />} />
         <StatCard label="Réponses (200 dern.)" value={totalReplies} icon={<MessageSquare className="w-4 h-4" />} />
-        <StatCard label="Contributeurs" value={profilesQuery.data ?? 0} icon={<Users className="w-4 h-4" />} />
+        <StatCard label="Contributeurs" value={(profilesQuery.data ?? []).length} icon={<Users className="w-4 h-4" />} />
         <StatCard label="Vues /forum 7j" value={visitStats.views7} icon={<Eye className="w-4 h-4" />} />
         <StatCard
           label="Signalements en attente"
@@ -241,10 +273,98 @@ export function AdminForum() {
       <Tabs defaultValue="moderation">
         <TabsList>
           <TabsTrigger value="moderation">Modération</TabsTrigger>
+          <TabsTrigger value="contributors">Contributeurs</TabsTrigger>
           <TabsTrigger value="visits">Visites</TabsTrigger>
           <TabsTrigger value="themes">Thèmes</TabsTrigger>
           <TabsTrigger value="indexation">Indexation</TabsTrigger>
         </TabsList>
+
+        {/* Contributeurs */}
+        <TabsContent value="contributors" className="space-y-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between gap-3">
+              <div>
+                <CardTitle className="text-base">Contributeurs & bots</CardTitle>
+                <CardDescription>
+                  {contributors.filter((c) => !c.isBot).length} humains ·{" "}
+                  {contributors.filter((c) => c.isBot).length} bots · vues cumulées de leurs discussions
+                </CardDescription>
+              </div>
+              <div className="relative w-56">
+                <Search className="absolute left-2 top-2.5 w-4 h-4 text-muted-foreground" />
+                <Input
+                  className="pl-8"
+                  placeholder="Rechercher un pseudo…"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
+            </CardHeader>
+            <CardContent className="overflow-x-auto">
+              {profilesQuery.isLoading ? (
+                <Skeleton className="h-40 w-full" />
+              ) : (
+                <table className="w-full text-sm">
+                  <thead className="text-muted-foreground text-xs">
+                    <tr className="border-b">
+                      <th className="text-left py-2">Membre</th>
+                      <th className="text-left py-2">Type</th>
+                      <th className="text-left py-2">Niveau</th>
+                      <th className="text-right py-2">Discussions</th>
+                      <th className="text-right py-2">Réponses</th>
+                      <th className="text-right py-2">Contributions</th>
+                      <th className="text-right py-2">Vues</th>
+                      <th className="text-right py-2">Votes reçus</th>
+                      <th className="text-right py-2">Points</th>
+                      <th className="text-right py-2">Inscrit</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {contributors.map((c) => (
+                      <tr key={c.user_id} className="border-b last:border-0">
+                        <td className="py-2">
+                          <div className="font-medium">{c.pseudo || "—"}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {[c.persona, c.city].filter(Boolean).join(" · ") || "—"}
+                          </div>
+                        </td>
+                        <td className="py-2">
+                          {c.isBot ? (
+                            <Badge variant="secondary">
+                              Bot{c.bot?.is_active === false ? " (inactif)" : ""}
+                            </Badge>
+                          ) : c.is_moderator ? (
+                            <Badge>Modérateur</Badge>
+                          ) : (
+                            <Badge variant="outline">Membre</Badge>
+                          )}
+                        </td>
+                        <td className="py-2 text-xs">{c.level ?? "—"}</td>
+                        <td className="py-2 text-right">{c.discussions_count ?? 0}</td>
+                        <td className="py-2 text-right">{c.replies_count ?? 0}</td>
+                        <td className="py-2 text-right font-medium">{c.contributions}</td>
+                        <td className="py-2 text-right">{c.views}</td>
+                        <td className="py-2 text-right">{c.upvotes_received ?? 0}</td>
+                        <td className="py-2 text-right">{c.points ?? 0}</td>
+                        <td className="py-2 text-right text-xs text-muted-foreground">
+                          {c.member_since ? fmtDate(c.member_since) : "—"}
+                        </td>
+                      </tr>
+                    ))}
+                    {contributors.length === 0 && (
+                      <tr>
+                        <td colSpan={10} className="py-6 text-center text-muted-foreground">
+                          Aucun contributeur
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
 
         {/* Modération */}
         <TabsContent value="moderation" className="space-y-4">
