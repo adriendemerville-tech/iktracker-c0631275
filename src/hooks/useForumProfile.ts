@@ -10,6 +10,8 @@ export type ForumProfile = {
   avatar_url: string | null;
   bio: string | null;
   persona: string | null;
+  city: string | null;
+  vehicle: string | null;
   level: string;
   points: number;
   discussions_count: number;
@@ -35,19 +37,19 @@ export function useForumProfile() {
     const { data } = await supabase
       .from("forum_profiles")
       .select(
-        "user_id, pseudo, avatar_url, bio, persona, level, points, discussions_count, replies_count, upvotes_received, member_since, pseudo_enabled",
+        "user_id, pseudo, avatar_url, bio, persona, city, vehicle, level, points, discussions_count, replies_count, upvotes_received, member_since, pseudo_enabled",
       )
       .eq("user_id", user.id)
       .maybeSingle();
     if (data) {
-      setProfile(data as ForumProfile);
+      setProfile(data as unknown as ForumProfile);
       setLoading(false);
       return;
     }
     // Fiche contributeur créée automatiquement à la première visite du forum.
     try {
       const res = await ensureForumProfile();
-      setProfile(res.ok ? (res.profile as ForumProfile) : null);
+      setProfile(res.ok ? (res.profile as unknown as ForumProfile) : null);
     } catch {
       setProfile(null);
     }
