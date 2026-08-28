@@ -9,7 +9,11 @@ import { ForumLevelBadge } from "@/components/forum/ForumLevelBadge";
 import { ForumAvatar } from "@/components/forum/ForumAvatar";
 import { useForumProfile } from "@/hooks/useForumProfile";
 import { useLevelUpEvents } from "@/hooks/useLevelUpEvents";
-import type { ForumCategory, ForumDiscussionListItem } from "@/lib/forum/queries";
+import type {
+  ForumCategory,
+  ForumDiscussionListItem,
+  ForumTopContributor,
+} from "@/lib/forum/queries";
 import { MessageSquare, Users, Flame, LifeBuoy, GraduationCap, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -18,6 +22,7 @@ export interface ForumHomeData {
   recent: ForumDiscussionListItem[];
   popular: ForumDiscussionListItem[];
   stats: { discussions: number; replies: number; members: number; active_7d: number };
+  topContributors?: ForumTopContributor[];
   activeCategory?: string | null;
 }
 
@@ -243,6 +248,39 @@ export default function ForumHome({ data }: { data: ForumHomeData }) {
                   </li>
                 )}
               </ul>
+            </section>
+
+            <section className="rounded-xl border border-border bg-card p-4">
+              <h2 className="mb-3 text-sm font-semibold">Membres les plus actifs</h2>
+              {data.topContributors && data.topContributors.length > 0 ? (
+                <ul className="space-y-2.5">
+                  {data.topContributors.slice(0, 8).map((m, i) => (
+                    <li
+                      key={m.user_id}
+                      className="flex items-center gap-2.5 rounded-lg px-1 py-1"
+                    >
+                      <span
+                          className="w-4 text-center text-xs font-semibold text-muted-foreground"
+                          aria-hidden="true"
+                        >
+                          {i + 1}
+                        </span>
+                        <ForumAvatar pseudo={m.pseudo} avatarUrl={m.avatar_url} size={28} />
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm font-medium">{m.pseudo}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {m.contributions} contribution{m.contributions > 1 ? "s" : ""}
+                          </span>
+                        </span>
+                        <ForumLevelBadge level={m.level} />
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  Le classement apparaîtra dès les premières contributions.
+                </p>
+              )}
             </section>
           </aside>
         </div>

@@ -1,6 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import ForumHome from "@/pages/forum/ForumHome";
-import { fetchCategories, fetchDiscussions, fetchForumStats } from "@/lib/forum/queries";
+import {
+  fetchCategories,
+  fetchDiscussions,
+  fetchForumStats,
+  fetchTopContributors,
+} from "@/lib/forum/queries";
 import { buildForumBreadcrumb, buildForumCollectionSchema } from "@/lib/forum/schemas";
 
 const TITLE = "Forum indemnités kilométriques : entraide des indépendants | IKtracker";
@@ -10,13 +15,14 @@ const URL = "https://iktracker.fr/forum";
 
 export const Route = createFileRoute("/forum/")({
   loader: async () => {
-    const [categories, recent, popular, stats] = await Promise.all([
+    const [categories, recent, popular, stats, topContributors] = await Promise.all([
       fetchCategories(),
       fetchDiscussions({ sort: "recent", limit: 20 }),
       fetchDiscussions({ sort: "popular", limit: 20 }),
       fetchForumStats(),
+      fetchTopContributors(8),
     ]);
-    return { categories, recent, popular, stats };
+    return { categories, recent, popular, stats, topContributors };
   },
   head: ({ loaderData }) => {
     const items = (loaderData?.recent ?? []).map((d) => ({ slug: d.slug, title: d.title }));

@@ -154,6 +154,34 @@ export async function fetchDiscussionBySlug(slug: string) {
   };
 }
 
+export type ForumTopContributor = {
+  user_id: string;
+  pseudo: string;
+  avatar_url: string | null;
+  level: string;
+  contributions: number;
+};
+
+/** Les membres les plus actifs : contributions = discussions + réponses. */
+export async function fetchTopContributors(limit = 8): Promise<ForumTopContributor[]> {
+  const supabase = await getSupabase();
+  const { data } = await supabase
+    .from("forum_profiles")
+    .select("user_id, pseudo, avatar_url, level, discussions_count, replies_count")
+    .order("discussions_count", { ascending: false })
+    .order("replies_count", { ascending: false })
+    .limit(limit);
+  return ((data ?? []) as any[])
+    .map((p) => ({
+      user_id: p.user_id,
+      pseudo: p.pseudo,
+      avatar_url: p.avatar_url,
+      level: p.level,
+      contributions: (p.discussions_count ?? 0) + (p.replies_count ?? 0),
+    }))
+    .sort((a, b) => b.contributions - a.contributions);
+}
+
 export async function fetchForumStats() {
   const supabase = await getSupabase();
   const { data } = await (supabase.rpc as any)("get_forum_stats");
