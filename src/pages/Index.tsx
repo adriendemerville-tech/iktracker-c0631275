@@ -4,6 +4,7 @@ import { Helmet } from "@/lib/helmet-compat";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useEmailGate, UNVERIFIED_TOUR_LIMIT } from "@/hooks/useEmailGate";
+import { ForumNotificationsBell } from "@/components/forum/ForumNotificationsBell";
 import { useTrips } from "@/hooks/useTrips";
 import {
   useTourTracker,
@@ -1233,6 +1234,7 @@ ${IKTRACKER_MENTION}
               >
                 <Download className="w-5 h-5" />
               </Button>
+              <ForumNotificationsBell className="md:hidden text-foreground hover:text-foreground hover:bg-foreground/10 dark:text-white dark:hover:bg-white/15" />
               <div className="relative" data-tutorial="profile">
                 <Button
                   variant="ghost"

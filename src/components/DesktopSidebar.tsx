@@ -46,7 +46,9 @@ import {
   ChevronRight,
   ChevronLeft,
   FolderArchive,
+  MessagesSquare,
 } from "lucide-react";
+import { useForumNotifications } from "@/hooks/useForumNotifications";
 import { QRCodeSVG } from "qrcode.react";
 import founderImage from "@/assets/founder-adrien-optimized.webp";
 import { Vehicle } from "@/types/trip";
@@ -100,6 +102,7 @@ export const DesktopSidebar = ({
   const navigate = useNavigate();
   const { handleLogout } = useAppAuth();
   const [expanded, setExpanded] = useState(false);
+  const { unreadCount: forumUnread } = useForumNotifications();
   const [showVehicleSheet, setShowVehicleSheet] = useState(false);
   const [showCalendarSheet, setShowCalendarSheet] = useState(false);
   const [showFeedbackSheet, setShowFeedbackSheet] = useState(false);
@@ -198,6 +201,15 @@ export const DesktopSidebar = ({
     },
 
     {
+      icon: MessagesSquare,
+      label: "Forum",
+      onClick: () => navigate("/forum"),
+      active: false,
+      tutorialId: "forum",
+      isRecovery: false,
+    },
+
+    {
       icon: MessageSquare,
       label: "Aide & Avis",
       onClick: () => setShowFeedbackSheet(true),
@@ -253,7 +265,7 @@ export const DesktopSidebar = ({
             <Button
               key={item.label}
               variant="ghost"
-              className={`${expanded ? "w-full justify-start gap-3 px-3" : "w-12 justify-center"} h-11 rounded-xl transition-all duration-200 ${
+              className={`relative ${expanded ? "w-full justify-start gap-3 px-3" : "w-12 justify-center"} h-11 rounded-xl transition-all duration-200 ${
                 item.isRecovery
                   ? "hover:bg-wizard-amber/10 group"
                   : item.active
@@ -261,19 +273,30 @@ export const DesktopSidebar = ({
                     : "hover:bg-accent"
               }`}
               onClick={item.onClick}
-              title={item.label}
+              title={
+                item.label === "Forum" && forumUnread > 0
+                  ? `Forum (${forumUnread} nouvelle${forumUnread > 1 ? "s" : ""} réponse${forumUnread > 1 ? "s" : ""})`
+                  : item.label
+              }
               aria-label={item.label}
               data-tutorial={item.tutorialId}
             >
-              <item.icon
-                className={`w-5 h-5 flex-shrink-0 transition-colors ${
-                  item.isRecovery
-                    ? "text-wizard-amber group-hover:scale-110 transition-transform"
-                    : item.active
-                      ? "text-primary"
-                      : "text-muted-foreground"
-                }`}
-              />
+              <span className="relative flex-shrink-0">
+                <item.icon
+                  className={`w-5 h-5 transition-colors ${
+                    item.isRecovery
+                      ? "text-wizard-amber group-hover:scale-110 transition-transform"
+                      : item.active
+                        ? "text-primary"
+                        : "text-muted-foreground"
+                  }`}
+                />
+                {item.label === "Forum" && forumUnread > 0 && (
+                  <span className="absolute -top-1.5 -right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-semibold leading-none text-destructive-foreground">
+                    {forumUnread > 9 ? "9+" : forumUnread}
+                  </span>
+                )}
+              </span>
               {expanded && (
                 <span
                   className={`text-base truncate ${
