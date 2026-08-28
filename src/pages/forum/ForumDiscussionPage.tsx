@@ -156,9 +156,16 @@ export default function ForumDiscussionPage({ data }: { data: ForumDiscussionDat
             avatarUrl={reply.author?.avatar_url}
             size={24}
           />
-          <span className="font-medium text-foreground">
-            {reply.is_ai ? "Assistant IKtracker" : (reply.author?.pseudo ?? "Membre")}
-          </span>
+          {reply.is_ai ? (
+            <span className="font-medium text-foreground">Assistant IKtracker</span>
+          ) : (
+            <ForumAuthorLink
+              userId={reply.author?.user_id ?? reply.author_id}
+              pseudo={reply.author?.pseudo ?? "Membre"}
+              className="font-medium text-foreground"
+            />
+          )}
+
           {reply.is_ai ? (
             <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] text-primary">
               <Bot className="h-3 w-3" aria-hidden="true" /> Réponse assistée
