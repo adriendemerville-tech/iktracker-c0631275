@@ -478,7 +478,7 @@ export function SurveyWidget() {
 
 // ---- Sub-components ----
 
-function PollBlock({
+export function PollBlock({
   block,
   value,
   onChange,
@@ -566,7 +566,7 @@ function PollBlock({
   );
 }
 
-function RatingBlock({
+export function RatingBlock({
   block,
   value,
   hovered,
@@ -606,7 +606,7 @@ function RatingBlock({
   );
 }
 
-function TextBlock({
+export function TextBlock({
   block,
   value,
   onChange,
@@ -631,7 +631,7 @@ function TextBlock({
   );
 }
 
-function InfoBlock({
+export function InfoBlock({
   block,
   onButtonClick,
 }: {

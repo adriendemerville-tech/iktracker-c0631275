@@ -19,6 +19,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { PERSONA_OPTIONS } from "@/components/PersonaPicker";
 import {
@@ -59,6 +65,7 @@ import {
 } from "./surveys/survey-types";
 import { ContentBlockEditor, VariantEditor } from "./surveys/SurveyEditors";
 import { SurveyResponsesPanel, SurveyAggregatedStats } from "./surveys/SurveyStats";
+import { SurveyPreview } from "./surveys/SurveyPreview";
 
 // ---- Main component ----
 
@@ -69,6 +76,9 @@ export function AdminSurveys() {
   const [editingVariants, setEditingVariants] = useState<SurveyVariant[]>([]);
   const [isCreating, setIsCreating] = useState(false);
   const [expandedSurveyId, setExpandedSurveyId] = useState<string | null>(null);
+  const [previewSurvey, setPreviewSurvey] = useState<Survey | null>(null);
+  const [previewVariants, setPreviewVariants] = useState<SurveyVariant[]>([]);
+  const [previewVariantIndex, setPreviewVariantIndex] = useState(0);
 
   // Form state for new/edit
   const [form, setForm] = useState({
@@ -263,6 +273,28 @@ export function AdminSurveys() {
   });
 
   // ---- Helpers ----
+
+  async function openPreview(survey: Survey) {
+    const { data } = await supabase
+      .from("survey_variants")
+      .select("*")
+      .eq("survey_id", survey.id)
+      .order("created_at");
+
+    const variants = (data || []).map((v) => ({
+      ...v,
+      content_blocks: (v.content_blocks || []) as unknown as ContentBlock[],
+    })) as SurveyVariant[];
+
+    if (variants.length === 0) {
+      toast({ title: "Aucune variante", description: "Ajoutez au moins une variante pour prévisualiser." });
+      return;
+    }
+
+    setPreviewVariants(variants);
+    setPreviewVariantIndex(0);
+    setPreviewSurvey(survey);
+  }
 
   function resetForm() {
     setEditingSurvey(null);
@@ -735,6 +767,15 @@ export function AdminSurveys() {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8"
+                          title="Aperçu"
+                          onClick={() => openPreview(survey)}
+                        >
+                          <Eye className="w-4 h-4 text-primary" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
                           title="Modifier"
                           onClick={() => startEditing(survey)}
                         >
@@ -803,6 +844,49 @@ export function AdminSurveys() {
           </div>
         </ScrollArea>
       )}
+
+      <Dialog
+        open={!!previewSurvey}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPreviewSurvey(null);
+            setPreviewVariants([]);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-base">Aperçu du survey</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center justify-center py-4">
+            {previewSurvey && previewVariants[previewVariantIndex] && (
+              <SurveyPreview
+                survey={previewSurvey}
+                variant={previewVariants[previewVariantIndex]}
+                onClose={() => {
+                  setPreviewSurvey(null);
+                  setPreviewVariants([]);
+                }}
+              />
+            )}
+          </div>
+          {previewVariants.length > 1 && (
+            <div className="flex justify-center gap-2 mt-2">
+              {previewVariants.map((v, i) => (
+                <Button
+                  key={v.id}
+                  size="sm"
+                  variant={previewVariantIndex === i ? "default" : "outline"}
+                  onClick={() => setPreviewVariantIndex(i)}
+                  className="text-xs"
+                >
+                  {v.name}
+                </Button>
+              ))}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
