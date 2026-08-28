@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { MapPin } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ForumAvatar } from "@/components/forum/ForumAvatar";
 import { ForumLevelBadge } from "@/components/forum/ForumLevelBadge";
@@ -11,6 +12,7 @@ interface ProfileSummary {
   avatar_url: string | null;
   level: string;
   persona: string | null;
+  city: string | null;
   bio: string | null;
   points: number;
   discussions_count: number;
@@ -47,7 +49,7 @@ export function ForumAuthorLink({ userId, pseudo, className }: ForumAuthorLinkPr
       const { data } = await supabase
         .from("forum_profiles")
         .select(
-          "user_id, pseudo, avatar_url, level, persona, bio, points, discussions_count, replies_count, upvotes_received, member_since, pseudo_enabled",
+          "user_id, pseudo, avatar_url, level, persona, city, bio, points, discussions_count, replies_count, upvotes_received, member_since, pseudo_enabled",
         )
         .eq("user_id", userId)
         .maybeSingle();
@@ -91,6 +93,12 @@ export function ForumAuthorLink({ userId, pseudo, className }: ForumAuthorLinkPr
                   <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                     <ForumLevelBadge level={profile.level} />
                     {personaLabel(profile.persona) && <span>{personaLabel(profile.persona)}</span>}
+                    {profile.city && !anonymous && (
+                      <span className="inline-flex items-center gap-1">
+                        <MapPin className="h-3 w-3" aria-hidden="true" />
+                        {profile.city}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
