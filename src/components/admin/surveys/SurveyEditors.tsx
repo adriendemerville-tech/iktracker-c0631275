@@ -16,6 +16,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { Plus, Trash2, Eye, ChevronDown, ChevronUp, ListChecks } from "lucide-react";
+import { EmojiInput, EmojiTextarea } from "./EmojiField";
 import {
   type ContentBlock,
   type SurveyVariant,
@@ -56,7 +57,7 @@ export function ContentBlockEditor({
           <>
             <div>
               <Label className="text-xs">Question</Label>
-              <Input
+              <EmojiInput
                 value={(block.config.question as string) || ""}
                 onChange={(e) =>
                   onChange({ ...block, config: { ...block.config, question: e.target.value } })
@@ -144,7 +145,7 @@ export function ContentBlockEditor({
         {block.type === "rating" && (
           <div>
             <Label className="text-xs">Question</Label>
-            <Input
+            <EmojiInput
               value={(block.config.question as string) || ""}
               onChange={(e) =>
                 onChange({ ...block, config: { ...block.config, question: e.target.value } })
@@ -157,7 +158,7 @@ export function ContentBlockEditor({
           <>
             <div>
               <Label className="text-xs">Question</Label>
-              <Input
+              <EmojiInput
                 value={(block.config.question as string) || ""}
                 onChange={(e) =>
                   onChange({ ...block, config: { ...block.config, question: e.target.value } })
@@ -179,7 +180,7 @@ export function ContentBlockEditor({
         {block.type === "screenshot" && (
           <div>
             <Label className="text-xs">Message d'invitation</Label>
-            <Textarea
+            <EmojiTextarea
               value={(block.config.prompt as string) || ""}
               onChange={(e) =>
                 onChange({ ...block, config: { ...block.config, prompt: e.target.value } })
@@ -192,7 +193,7 @@ export function ContentBlockEditor({
           <>
             <div>
               <Label className="text-xs">Message pré-rempli</Label>
-              <Textarea
+              <EmojiTextarea
                 value={(block.config.message as string) || ""}
                 onChange={(e) =>
                   onChange({ ...block, config: { ...block.config, message: e.target.value } })
@@ -221,7 +222,7 @@ export function ContentBlockEditor({
           <>
             <div>
               <Label className="text-xs">Titre (optionnel)</Label>
-              <Input
+              <EmojiInput
                 value={(block.config.title as string) || ""}
                 onChange={(e) =>
                   onChange({ ...block, config: { ...block.config, title: e.target.value } })
@@ -231,7 +232,7 @@ export function ContentBlockEditor({
             </div>
             <div>
               <Label className="text-xs">Texte</Label>
-              <Textarea
+              <EmojiTextarea
                 value={(block.config.text as string) || ""}
                 onChange={(e) =>
                   onChange({ ...block, config: { ...block.config, text: e.target.value } })
@@ -269,7 +270,7 @@ export function ContentBlockEditor({
           <div className="space-y-3">
             <div>
               <Label className="text-xs">Texte</Label>
-              <Textarea
+              <EmojiTextarea
                 value={(block.config.text as string) || ""}
                 onChange={(e) =>
                   onChange({ ...block, config: { ...block.config, text: e.target.value } })
