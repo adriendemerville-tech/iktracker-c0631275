@@ -1326,6 +1326,10 @@ const Admin = () => {
             </TabsContent>
 
             {/* Surveys Tab */}
+            <TabsContent value="forum">
+              <AdminForum />
+            </TabsContent>
+
             <TabsContent value="surveys">
               <AdminSurveys />
             </TabsContent>
