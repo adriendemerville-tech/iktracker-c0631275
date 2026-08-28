@@ -222,11 +222,11 @@ export function weeklyDiscussionSlots(weekKey: string): Slot[] {
   const days = [1, 2, 3, 4, 5, 6];
   const first = days[seed % days.length]!;
   const rest = days.filter((d) => Math.abs(d - first) >= 2);
-  const second = rest[(seed >> 8) % rest.length] ?? ((first % 6) + 1);
+  const second = rest[(seed >>> 8) % rest.length] ?? ((first % 6) + 1);
   const hours = [7, 8, 9, 11, 13, 17, 18, 20, 21];
   return [
-    { day: first, hour: hours[(seed >> 4) % hours.length]! },
-    { day: second, hour: hours[(seed >> 12) % hours.length]! },
+    { day: first, hour: hours[(seed >>> 4) % hours.length]! },
+    { day: second, hour: hours[(seed >>> 12) % hours.length]! },
   ].sort((a, b) => a.day - b.day || a.hour - b.hour);
 }
 
