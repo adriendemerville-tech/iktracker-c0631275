@@ -416,10 +416,10 @@ export function SurveyWidget() {
   );
   const sizeClass =
     longestText > 700
-      ? "w-[min(94vw,40rem)] h-[min(85vh,34rem)]"
+      ? "w-[min(94vw,40rem)] max-h-[min(85vh,34rem)]"
       : longestText > 350
-        ? "w-[min(92vw,32rem)] h-[min(80vh,30rem)]"
-        : "w-80 h-[420px]";
+        ? "w-[min(92vw,32rem)] max-h-[min(80vh,30rem)]"
+        : "w-80 max-h-[420px]";
 
   return (
     <>
