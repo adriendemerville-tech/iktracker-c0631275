@@ -16,6 +16,7 @@ export type ForumAuthor = {
   persona: string | null;
   points: number;
   pseudo_enabled?: boolean;
+  is_moderator?: boolean;
 };
 
 /** Masque le surnom quand le membre l'a désactivé. */
@@ -52,7 +53,7 @@ async function attachAuthors<T extends { author_id: string }>(rows: T[]) {
   const ids = Array.from(new Set(rows.map((r) => r.author_id)));
   const { data } = await supabase
     .from("forum_profiles")
-    .select("user_id, pseudo, avatar_url, level, persona, points, pseudo_enabled")
+    .select("user_id, pseudo, avatar_url, level, persona, points, pseudo_enabled, is_moderator")
     .in("user_id", ids);
   const map = new Map((data ?? []).map((p) => [p.user_id, maskAuthor(p as ForumAuthor)]));
   return rows.map((r) => ({ ...r, author: map.get(r.author_id) ?? null }));
@@ -143,7 +144,7 @@ export async function fetchDiscussionBySlug(slug: string) {
   );
   const { data: profiles } = await supabase
     .from("forum_profiles")
-    .select("user_id, pseudo, avatar_url, level, persona, points, pseudo_enabled")
+    .select("user_id, pseudo, avatar_url, level, persona, points, pseudo_enabled, is_moderator")
     .in("user_id", authorIds);
   const map = new Map((profiles ?? []).map((p) => [p.user_id, maskAuthor(p as ForumAuthor)]));
 
@@ -169,6 +170,7 @@ export type ForumTopContributor = {
   avatar_url: string | null;
   level: string;
   contributions: number;
+  is_moderator: boolean;
 };
 
 /** Les membres les plus actifs : contributions = discussions + réponses. */
@@ -176,7 +178,7 @@ export async function fetchTopContributors(limit = 8): Promise<ForumTopContribut
   const supabase = await getSupabase();
   const { data } = await supabase
     .from("forum_profiles")
-    .select("user_id, pseudo, avatar_url, level, discussions_count, replies_count, pseudo_enabled")
+    .select("user_id, pseudo, avatar_url, level, discussions_count, replies_count, pseudo_enabled, is_moderator")
     .order("discussions_count", { ascending: false })
     .order("replies_count", { ascending: false })
     .limit(limit);
@@ -186,6 +188,7 @@ export async function fetchTopContributors(limit = 8): Promise<ForumTopContribut
       pseudo: p.pseudo_enabled === false ? "Membre anonyme" : p.pseudo,
       avatar_url: p.pseudo_enabled === false ? null : p.avatar_url,
       level: p.level,
+      is_moderator: p.is_moderator === true,
       contributions: (p.discussions_count ?? 0) + (p.replies_count ?? 0),
     }))
     .sort((a, b) => b.contributions - a.contributions);

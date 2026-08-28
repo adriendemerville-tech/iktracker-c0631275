@@ -1,0 +1,1 @@
+ALTER TABLE public.forum_profiles ADD COLUMN IF NOT EXISTS is_moderator boolean NOT NULL DEFAULT false;

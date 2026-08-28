@@ -87,7 +87,7 @@ export function DiscussionCard({
               <span className="font-medium text-foreground">
                 {discussion.author?.pseudo ?? "Membre"}
               </span>
-              {discussion.author && <ForumLevelBadge level={discussion.author.level} />}
+              {discussion.author && <ForumLevelBadge level={discussion.author.level} moderator={discussion.author.is_moderator} />}
               {personaLabel(discussion.author?.persona) && (
                 <span className="hidden sm:inline">· {personaLabel(discussion.author?.persona)}</span>
               )}
