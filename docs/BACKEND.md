@@ -158,7 +158,7 @@ Utilisateur → Cloudflare DNS (proxied)
 |---|---|---|
 | `affiliate_codes` | Codes d'affiliation | ✅ admin |
 | `affiliate_uses` | Utilisations de codes | ✅ admin |
-| `surveys` | Sondages in-app | ✅ admin |
+| `surveys` | Sondages in-app (dont `font_size`: small/standard/large pour la taille de police du widget) | ✅ admin |
 | `survey_variants` | Variantes A/B des sondages | ✅ admin |
 | `survey_responses` | Réponses aux sondages | ✅ user_id |
 | `survey_impressions` | Impressions des sondages | ✅ user_id |
