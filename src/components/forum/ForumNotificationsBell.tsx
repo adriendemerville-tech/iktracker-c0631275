@@ -7,8 +7,11 @@ import { useForumNotifications } from "@/hooks/useForumNotifications";
 
 /** Cloche de notifications des réponses reçues sur le forum. */
 export function ForumNotificationsBell({ className }: { className?: string }) {
-  const { items, unreadCount, markAllRead, markRead } = useForumNotifications();
+  const { items, unreadCount, markAllRead, markRead, hasUser } = useForumNotifications();
   const navigate = useNavigate();
+
+  // Rien à afficher pour les visiteurs non connectés.
+  if (!hasUser) return null;
 
   return (
     <Popover>

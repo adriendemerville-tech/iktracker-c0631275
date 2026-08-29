@@ -1548,7 +1548,9 @@ Le score de priorité est la somme des poids, plafonnée à 100.
 - Table `public.forum_notifications` : `user_id`, `actor_id`, `discussion_id`, `reply_id`, `kind`, `title`, `slug`, `excerpt`, `read_at`. RLS : lecture / mise à jour / suppression limitées au propriétaire (`auth.uid() = user_id`). GRANT `SELECT, UPDATE, DELETE` à `authenticated`, `ALL` à `service_role`.
 - Trigger `trg_forum_notify_on_reply` (fonction `public.forum_notify_on_reply`, SECURITY DEFINER, EXECUTE révoqué pour anon/authenticated) : à chaque insertion dans `forum_replies`, crée une notification pour l'auteur de la discussion et, le cas échéant, pour l'auteur de la réponse parente (jamais pour soi-même).
 - Email : le server function `createReply` (`src/lib/forum.functions.ts`) lit les notifications créées et invoque l'edge function `send-transactional-email` avec le template `forum-reply` (`supabase/functions/_shared/transactional-email-templates/forum-reply.tsx`).
-- UI : badge « Forum » dans la sidebar desktop, cloche `ForumNotificationsBell` dans le header mobile de `/app`.
+- UI : badge « Forum » dans la sidebar desktop, cloche `ForumNotificationsBell` dans le header de `/app` (mobile + desktop) et dans `MarketingNav` (donc sur `/forum` et toutes les pages publiques). Le composant ne rend rien pour un visiteur non connecté.
+- Correctifs 29/08/2026 : triggers `trg_forum_notify_on_discussion` et `trg_forum_notify_on_reply` passés en `AFTER INSERT OR UPDATE OF status` (une publication différée depuis un brouillon / la modération notifie désormais), garde anti-doublon sur `reply_id`, et détection des mentions en Unicode (`@([\w\-\.]{2,40})`) pour les pseudos accentués.
+- Temps réel : `public.forum_notifications` ajoutée à la publication `supabase_realtime` (`REPLICA IDENTITY FULL`). Le hook `useForumNotifications` s'abonne aux INSERT filtrés par `user_id` et calcule le nombre de non-lues via un `count: 'exact'` serveur (plus de plafond à 20).
 
 ### Animation communautaire du forum (membres synthétiques)
 
