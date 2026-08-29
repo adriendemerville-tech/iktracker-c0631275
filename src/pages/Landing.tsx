@@ -643,7 +643,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
                 <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
                   <div className="order-2 lg:order-1">
                     <Suspense fallback={<PhonePlaceholder />}>
-                      <AnimatedPhoneMockup />
+                      {demoTab === "mobile" ? <AnimatedPhoneMockup /> : <PhonePlaceholder />}
                     </Suspense>
                   </div>
                   <div className="space-y-4 order-1 lg:order-2">
@@ -694,7 +694,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
                     </Link>
                   </div>
                   <Suspense fallback={<PhonePlaceholder />}>
-                    <TourModeMockup />
+                    {demoTab === "tour" ? <TourModeMockup /> : <PhonePlaceholder />}
                   </Suspense>
                 </div>
               </TabsContent>
@@ -703,7 +703,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
                 <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
                   <div className="order-2 lg:order-1">
                     <Suspense fallback={<CalendarPlaceholder />}>
-                      <CalendarSyncDemo />
+                      {demoTab === "calendar" ? <CalendarSyncDemo /> : <CalendarPlaceholder />}
                     </Suspense>
                   </div>
                   <div className="space-y-4 order-1 lg:order-2">
@@ -755,7 +755,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
                   </div>
                   <div ref={pdfRef}>
                     <Suspense fallback={<LazyPlaceholder height={420} />}>
-                      <PdfReportMockup />
+                      {demoTab === "pdf" ? <PdfReportMockup /> : <LazyPlaceholder height={420} />}
                     </Suspense>
                   </div>
                 </div>
