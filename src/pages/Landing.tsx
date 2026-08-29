@@ -15,6 +15,9 @@ import { useMarketingTracker } from "@/hooks/useMarketingTracker";
 import { Counter } from "@/components/Counter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PdfReportMockup } from "@/components/marketing/PdfReportMockup";
+// Import statique volontaire : contenu texte indexable, doit être dans le HTML SSR de "/".
+import { TestimonialsCarousel } from "@/components/marketing/TestimonialsCarousel";
+
 
 import {
   ArrowRight,
