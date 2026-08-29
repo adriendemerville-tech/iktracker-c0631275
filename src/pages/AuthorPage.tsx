@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { EnhancedMarketingFooter } from "@/components/marketing/EnhancedMarketingFooter";
 import { supabase } from "@/integrations/supabase/client";
-const founderPhoto = "/founder-adrien.jpg";
+const founderPhoto = "/founder-adrien.webp";
 
 type LinkedInProfile = {
   name?: string;
