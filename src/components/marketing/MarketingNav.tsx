@@ -20,7 +20,6 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
     { label: "Fonctionnalités", href: "/fonctionnalites" },
     { label: "Barème 2026", href: "/bareme-ik-2026", isNew: true },
     { label: "Forum", href: "/forum", isNew: true },
-    { label: "Blog", href: "/blog" },
   ];
 
   const links = primaryLinks;
