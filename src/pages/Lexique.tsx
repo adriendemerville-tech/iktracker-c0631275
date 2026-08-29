@@ -516,7 +516,6 @@ export default function Lexique() {
         <div class="brand-logo">IK</div>
         <div class="brand-info">
           <h1>IKtracker</h1>
-          {PAGE_LASTMOD ? <LastUpdated date={PAGE_LASTMOD} className="mt-2 mb-4" /> : null}
           <p>Outil professionnel de suivi des indemnités kilométriques</p>
         </div>
       </div>
