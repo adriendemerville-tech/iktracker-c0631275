@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useLocation } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
-import { Menu, X, LayoutDashboard, LogIn, ChevronDown } from "lucide-react";
+import { Menu, X, LayoutDashboard, LogIn } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
