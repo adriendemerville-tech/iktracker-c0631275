@@ -98,11 +98,10 @@ const MarketingPWANotification = lazy(() =>
     default: m.MarketingPWANotification,
   })),
 );
-const TestimonialsCarousel = lazy(() =>
-  import("@/components/marketing/TestimonialsCarousel").then((m) => ({
-    default: m.TestimonialsCarousel,
-  })),
-);
+// Import statique volontaire : les témoignages sont du contenu texte indexable,
+// ils doivent figurer dans le HTML SSR de "/".
+import { TestimonialsCarousel } from "@/components/marketing/TestimonialsCarousel";
+
 // Footer marketing : import statique volontaire — il porte le maillage interne
 // (pages orphelines incluses) et doit être présent dans le HTML SSR de "/".
 
