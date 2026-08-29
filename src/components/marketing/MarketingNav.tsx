@@ -1,13 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useLocation } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
-import { Menu, X, LayoutDashboard, LogIn, ChevronDown } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Menu, X, LayoutDashboard, LogIn } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
 
@@ -21,24 +15,15 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
 
-  // Nav allégée : entrées principales rendues en dur (crawlables en SSR),
-  // le reste regroupé sous "Ressources". Barème + Blog restent hors dropdown
-  // volontairement : ce sont les deux hubs de maillage interne.
+  // Nav allégée : entrées principales rendues en dur (crawlables en SSR).
   const primaryLinks = [
     { label: "Fonctionnalités", href: "/fonctionnalites" },
     { label: "Barème 2026", href: "/bareme-ik-2026", isNew: true },
     { label: "Forum", href: "/forum", isNew: true },
     { label: "Blog", href: "/blog" },
-    { label: "Tarifs", href: "/tarifs" },
   ];
 
-  const secondaryLinks: { label: string; href: string; isNew?: boolean }[] = [
-    { label: "Pourquoi IKtracker ?", href: "/meilleure-application-indemnites-kilometriques" },
-    { label: "Mode Tournée", href: "/mode-tournee" },
-    { label: "Calendrier", href: "/calendrier" },
-  ];
-
-  const links = [...primaryLinks, ...secondaryLinks];
+  const links = primaryLinks;
 
   const isActive = (href: string) => location.pathname === href;
 
@@ -138,23 +123,6 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
                   </Link>
                 </li>
               ))}
-              <li role="none">
-                <DropdownMenu>
-                  <DropdownMenuTrigger className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors focus-visible-ring rounded-md px-2 py-1">
-                    Ressources
-                    <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-64">
-                    {secondaryLinks.map((link) => (
-                      <DropdownMenuItem key={link.href} asChild>
-                        <Link to={link.href} className="cursor-pointer">
-                          {link.label}
-                        </Link>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </li>
             </ul>
 
             {/* CTA Buttons */}
