@@ -40,19 +40,32 @@ interface LandingProps {
   initialTotalKm?: number;
 }
 
-// Lazy load AuthForm - not needed for initial LCP
-const AuthForm = lazy(() => import("@/components/AuthForm").then((m) => ({ default: m.AuthForm })));
+// Lazy load AuthForm — chunk préchargé dès l'évaluation du module (parallèle à l'hydratation)
+// pour minimiser la durée d'affichage du skeleton.
+const authFormChunk = import("@/components/AuthForm").then((m) => ({ default: m.AuthForm }));
+const AuthForm = lazy(() => authFormChunk);
 
-// Auth form loading placeholder
+// Auth form loading placeholder — reproduit la structure exacte du formulaire réel
+// (titre, sous-titre, 2 boutons OAuth, séparateur, 2 champs, CTA, lien de bascule)
+// pour éviter tout décalage de layout au remplacement.
 const AuthFormSkeleton = memo(() => (
-  <div className="bg-card/80 backdrop-blur-xs border border-border rounded-2xl p-8 min-h-[486px] md:min-h-[502px]">
-    <Skeleton className="h-8 w-32 mx-auto mb-2" />
-    <Skeleton className="h-4 w-48 mx-auto mb-6" />
+  <div
+    aria-hidden="true"
+    className="bg-card/80 backdrop-blur-xs border border-border rounded-2xl p-8 min-h-[486px] md:min-h-[502px] flex flex-col"
+  >
+    <Skeleton className="h-7 w-40 mx-auto mb-2" />
+    <Skeleton className="h-4 w-56 mx-auto mb-6" />
+    <Skeleton className="h-12 w-full mb-3 rounded-lg" />
     <Skeleton className="h-12 w-full mb-4 rounded-lg" />
-    <Skeleton className="h-4 w-8 mx-auto mb-4" />
-    <Skeleton className="h-10 w-full mb-3" />
-    <Skeleton className="h-10 w-full mb-4" />
+    <div className="flex items-center gap-3 my-2">
+      <Skeleton className="h-px flex-1" />
+      <Skeleton className="h-3 w-6" />
+      <Skeleton className="h-px flex-1" />
+    </div>
+    <Skeleton className="h-11 w-full mb-3 mt-2 rounded-md" />
+    <Skeleton className="h-11 w-full mb-4 rounded-md" />
     <Skeleton className="h-12 w-full rounded-lg" />
+    <Skeleton className="h-4 w-52 mx-auto mt-5" />
   </div>
 ));
 
