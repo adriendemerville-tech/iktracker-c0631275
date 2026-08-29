@@ -1036,9 +1036,12 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
         </section>
       </main>
 
-      <DeferUntilVisible>
+      {/* Pas de defer ici : le strip porte les liens partenaires dofollow, il doit
+          être monté dès l'hydratation pour rester visible des pré-rendus bots. */}
+      <Suspense fallback={null}>
         <PartnerStrip page="/" />
-      </DeferUntilVisible>
+      </Suspense>
+
 
       <BodyEndInjections />
       <EnhancedMarketingFooter />
