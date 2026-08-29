@@ -284,7 +284,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
                     Ne pas réduire sans re-mesurer les deux variantes. */}
                 <h1
                   id="hero-heading"
-                  className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight mb-6 min-h-[10rem] sm:min-h-[11.5rem] md:min-h-[13.5rem] lg:min-h-[29rem] xl:min-h-[20rem]"
+                  className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-[3.25rem] font-extrabold text-foreground leading-tight mb-6 min-h-[10rem] sm:min-h-[11.5rem] md:min-h-[13.5rem] lg:min-h-[16rem] xl:min-h-[14rem]"
                 >
 
                   {heroTitle}
