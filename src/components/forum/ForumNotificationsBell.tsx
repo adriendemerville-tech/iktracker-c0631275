@@ -62,7 +62,11 @@ export function ForumNotificationsBell({ className }: { className?: string }) {
                 }`}
               >
                 <p className="text-sm font-medium leading-tight">
-                  Nouvelle réponse : {n.title}
+                  {n.kind === "mention"
+                    ? `Vous avez été mentionné : ${n.title}`
+                    : n.kind === "reply_to_reply"
+                      ? `Réponse à votre message : ${n.title}`
+                      : `Nouvelle réponse à votre sujet : ${n.title}`}
                 </p>
                 {n.excerpt && (
                   <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{n.excerpt}</p>
