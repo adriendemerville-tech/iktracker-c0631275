@@ -4,9 +4,9 @@ import { getRegisteredUserCount } from "@/lib/user-count.functions";
 import { getPublicTripStats } from "@/lib/trip-stats.functions";
 import { HOME_JSON_LD_SCRIPTS } from "@/lib/home-schemas";
 
-const TITLE = "Indemnités kilométriques 2026 : barème officiel, calcul et relevés";
+const TITLE = "IKtracker — Calcul indemnités kilométriques 2026 | Barème officiel";
 const DESCRIPTION =
-  "Calcul des indemnités kilométriques au barème officiel 2026 : suivi GPS des tournées, trajets créés depuis l'agenda, +20 % électrique, relevés PDF comptables. Gratuit à vie.";
+  "Calculez vos indemnités kilométriques 2026 avec le barème officiel URSSAF. Suivi GPS, agenda, électrique +20%, relevés PDF. Gratuit à vie.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
