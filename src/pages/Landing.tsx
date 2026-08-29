@@ -510,10 +510,9 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
           </div>
         </section>
 
-        {/* Testimonials */}
-        <Suspense fallback={<LazyPlaceholder height={280} />}>
-          <TestimonialsCarousel />
-        </Suspense>
+        {/* Testimonials — rendu SSR (contenu texte indexable) */}
+        <TestimonialsCarousel />
+
 
         {/* Statistics Section - Independent Workers */}
         <section className="py-12 md:py-16 px-4 section-contained">
