@@ -17,3 +17,12 @@ Principaux leviers identifiés (identiques sur les deux pages) :
 3. TBT élevé sur `/` (1 410 ms) : hydratation lourde de la home.
 
 CLS déjà maîtrisé (≤ 0,011).
+
+## Après optimisation — 2026-08-29 (Lighthouse 12, mobile simulé, iktracker.fr)
+
+| Page | Perf | TTFB | FCP | LCP | TBT | CLS |
+|---|---|---|---|---|---|---|
+| / | 63 (était 52) | 262 ms (était 1550) | 2251 ms | 3430 ms (était 3900) | 1509 ms (était 1410) | 0.033 |
+| /indemnites-kilometriques | 72 (était 74) | 159 ms (était 1000) | 2583 ms | 4219 ms (était 3300, bruit mesure) | 316 ms (était 600) | 0.000 |
+
+Leviers restants : TBT/JS inutilisé (framer-motion dans chunk home), LCP home.
