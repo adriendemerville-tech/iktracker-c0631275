@@ -389,7 +389,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
               {/* Right: Auth form or Phone mockup - Reserved space with fixed dimensions to prevent CLS */}
               <div
                 id="auth-section"
-                className="animate-scale-in min-h-[486px] md:min-h-[502px] min-w-[320px] lg:min-w-[400px] lg:-mt-52"
+                className="animate-scale-in min-h-[486px] md:min-h-[502px] min-w-[320px] lg:min-w-[400px] lg:-mt-24"
               >
                 {user ? (
                   <div className="bg-card/80 backdrop-blur-xs border border-border rounded-2xl p-8 text-center">
