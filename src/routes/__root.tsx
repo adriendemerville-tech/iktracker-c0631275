@@ -181,6 +181,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "target", content: "France" },
     ],
     links: [
+      // Preload haute priorité de la feuille applicative : elle est le seul
+      // maillon bloquant de la chaîne critique (document -> CSS). Le preload
+      // la sort de la file d'attente basse priorité du parseur.
+      { rel: "preload", as: "style", href: appCss, fetchPriority: "high" },
       { rel: "stylesheet", href: appCss },
       // Preconnects
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
