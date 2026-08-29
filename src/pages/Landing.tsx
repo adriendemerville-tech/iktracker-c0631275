@@ -283,6 +283,8 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
         >
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
           <div className="container mx-auto relative z-10">
+            {/* items-start + self-start : le haut de la card d'inscription reste
+                aligné avec le badge « 100% Gratuit » à tous les breakpoints lg+ */}
             <div className="grid lg:grid-cols-2 gap-12 items-start">
               {/* Left: Text content - NO animation on LCP elements for instant render */}
               <div className="text-center lg:text-left">
@@ -402,7 +404,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
               {/* Right: Auth form or Phone mockup - Reserved space with fixed dimensions to prevent CLS */}
               <div
                 id="auth-section"
-                className="animate-scale-in min-h-[486px] md:min-h-[502px] min-w-[320px] lg:min-w-[400px] "
+                className="animate-fade-in self-start min-h-[486px] md:min-h-[502px] min-w-[320px] lg:min-w-[400px] "
               >
                 {user ? (
                   <div className="bg-card/80 backdrop-blur-xs border border-border rounded-2xl p-8 text-center">
