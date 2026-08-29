@@ -1,7 +1,7 @@
 import { lazy, Suspense, memo } from "react";
 import { Link } from "@/lib/router-compat";
 import { DEVIS_ARTISAN_FAQ } from "@/lib/logiciel-devis-artisan-schema";
-import heroDevisArtisan from "@/assets/hero-devis-artisan.jpg";
+import heroDevisArtisan from "@/assets/hero-devis-artisan.webp";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { LastUpdated } from "@/components/LastUpdated";
