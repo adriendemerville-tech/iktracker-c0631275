@@ -278,7 +278,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
       <main id="main-content" tabIndex={-1} className="outline-hidden">
         {/* Hero Section */}
         <section
-          className="pt-24 pb-16 md:pt-28 md:pb-20 px-4 relative overflow-hidden contain-layout"
+          className="pt-24 pb-16 md:pt-28 md:pb-20 px-4 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] relative overflow-hidden contain-layout"
           aria-labelledby="hero-heading"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />

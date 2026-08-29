@@ -118,7 +118,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1.0" },
+      // viewport-fit=cover : nécessaire pour que env(safe-area-inset-*) soit
+      // pris en compte sur iPhone à encoche (notch / Dynamic Island)
+      {
+        name: "viewport",
+        content:
+          "width=device-width, initial-scale=1.0, viewport-fit=cover",
+      },
       { title: SITE_TITLE },
       { name: "title", content: SITE_TITLE },
       { name: "description", content: SITE_DESCRIPTION },
