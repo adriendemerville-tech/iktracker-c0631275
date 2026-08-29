@@ -441,7 +441,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
         {/* Simulateur IK 2026 - Lead magnet */}
         <section
           className="py-12 md:py-16 px-4 bg-muted/30 section-contained"
-          aria-labelledby="simulateur-landing"
+          aria-label="Simulateur d'indemnités kilométriques 2026"
         >
           <div className="container mx-auto max-w-4xl">
             <DeferUntilVisible fallback={<LazyPlaceholder height={420} />}>
