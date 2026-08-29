@@ -81,8 +81,17 @@ function Stars({ count }: { count: number }) {
 
 function TestimonialsCarouselComponent() {
   const [current, setCurrent] = useState(0);
-  const visibleCount = typeof window !== "undefined" && window.innerWidth >= 768 ? 3 : 1;
+  // SSR : on rend toujours la variante 3 colonnes, le passage à 1 colonne se fait
+  // après hydratation pour éviter tout mismatch (le composant est désormais rendu côté serveur).
+  const [visibleCount, setVisibleCount] = useState(3);
+  useEffect(() => {
+    const update = () => setVisibleCount(window.innerWidth >= 768 ? 3 : 1);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
   const maxIndex = testimonials.length - visibleCount;
+
 
   useEffect(() => {
     const timer = setInterval(() => {
