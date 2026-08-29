@@ -1561,3 +1561,9 @@ Le score de priorité est la somme des poids, plafonnée à 100.
 - Appelée à chaque passage de `/api/public/forum-bot-tick` (cron horaire) avant la génération de contenu.
 - Rétention analytics : `public.purge_old_marketing_analytics()` conserve désormais 730 jours (au lieu de 90).
 
+
+### Notification e-mail des réponses admin (août 2026)
+
+- Nouveau template transactionnel `admin-reply` (`supabase/functions/_shared/transactional-email-templates/admin-reply.tsx`), enregistré dans `registry.ts` et déployé avec `send-transactional-email`.
+- Déclenchement : `src/pages/Admin.tsx` (`respondMutation`) invoque `send-transactional-email` avec `recipientEmail` = e-mail du feedback, `templateData = { firstName, excerpt, conversationUrl }`. Échec e-mail non bloquant pour la mise à jour de `feedback.response`.
+- Côté utilisateur : bannière desktop `src/components/AdminReplyBanner.tsx` (affichée dans `/app`, masquable via `localStorage.ik_admin_reply_banner_dismissed`) et page de discussion `/app/messages` (`src/pages/Messages.tsx`) qui marque les réponses comme lues et permet de répondre via un nouvel enregistrement `feedback`.
