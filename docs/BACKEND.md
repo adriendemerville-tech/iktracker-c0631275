@@ -1,6 +1,11 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 4.6.6 — 28 août 2026
+> Version 4.6.7 — 29 août 2026
+
+**Notes v4.6.7 (Worker déployé & bots IA, 29 août 2026)**
+- **`iktracker-bot-router` redéployé en production via `wrangler deploy`** : la liste des user-agents servis en pré-rendu SSR est complétée (`perplexity-user`, `mistralai-user` et autres agents IA manquants) — tous les robots IA majeurs reçoivent désormais le HTML pré-rendu. Vérifié par headers de réponse après déploiement.
+- **Réponse admin → e-mail automatique** : toute réponse depuis `/admin` (Avis) déclenche l'envoi d'un e-mail à l'utilisateur (template `admin-reply`) en plus de la notification in-app ; la réponse reste consultable dans la page conversation `/app/messages` côté front.
+
 
 **Notes v4.6.6 (compteurs homepage, 28 août 2026)**
 - **Compteurs publics de la homepage** : nouvelle fonction SQL `public.get_public_trip_stats()` retournant le nombre de trajets validés (`status='validated'`, `deleted_at IS NULL`) et la somme des distances en km. Exposée publiquement (`EXECUTE` pour `anon`, `authenticated`, `service_role`) en `SECURITY DEFINER` pour la preuve sociale SSR. Consommée par `src/lib/trip-stats.functions.ts` et le hook `src/hooks/useLiveTripStats.ts` (rafraîchissement toutes les 60 s, retour d'onglet). La home affiche désormais trois compteurs : inscrits, trajets enregistrés, kilomètres suivis.
@@ -1364,6 +1369,8 @@ Serveur MCP OAuth 2.1 exposant les données IKtracker à ChatGPT / Claude / Curs
 - **Manifest** : `.lovable/mcp/manifest.json` — régénéré à chaque modification via `app_mcp_server--extract_mcp_manifest`.
 
 ## Changelog
+
+- **4.6.7** (29 août 2026) — Worker `iktracker-bot-router` redéployé en production (user-agents IA complétés : `perplexity-user`, `mistralai-user`, etc.) ; e-mail automatique `admin-reply` à l'utilisateur sur réponse depuis /admin.
 
 - **4.5** (23 août 2026) — GEO : qualité des réponses non-200 et politique robots explicite :
   1. **Vrai 404 bots** — le fallback de `meta-renderer` servait une page générique en **HTTP 200** pour tout chemin inconnu (soft 404 massif pour Googlebot/GPTBot/PerplexityBot). Il renvoie désormais un **HTTP 404** + `noindex, nofollow` (`PageMeta.noindex`), propagé tel quel par le Worker `iktracker-bot-router`. Côté SSR applicatif, `/blog/$slug` lève `notFound()` (404) au lieu d'un 200 « article introuvable ». Fonction redéployée.

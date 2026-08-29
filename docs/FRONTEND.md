@@ -1,6 +1,17 @@
 # IKTracker — Documentation Technique Frontend
 
-> Version 3.3 — 24 août 2026 (Découpage du bundle : client Supabase et chrome applicatif en chunks asynchrones)
+> Version 3.4 — 29 août 2026 (Refonte du hero homepage, hiérarchie CTA, réponses admin visibles)
+
+**Notes v3.4 (29 août 2026)**
+- **Hero homepage resserré** (`src/pages/Landing.tsx`) : H1 réduit (`lg:text-[2.5rem]`) pour tenir « indemnités kilométriques » sur une ligne, alignement de grille `items-start`, card d'inscription remontée (sans marge négative excessive — un `lg:-mt-52` combiné à l'`overflow-hidden` de la section tronquait la moitié haute de la card ; la marge a été retirée après vérification Playwright).
+- **Hiérarchie CTA** : un seul bouton principal (inscription) ; « Guide d'installation », « Mode Tournée » rétrogradés en liens texte discrets. Navigation marketing épurée (`MarketingNav.tsx`) : retrait de « Tarifs », « Ressources » et « Blog » du header — entrées conservées au footer.
+- **Page condensée** : les quatre démos produit fusionnées en une section à onglets, bloc « qui roule le plus » supprimé ; bandeau Crawlers retiré de la home. 12 micro-titres H3 convertis en paragraphes stylés (ratio titres/texte assaini, 1 H1 / H2 conservés pour les sections).
+- **Compteurs de preuve sociale** : trois cartes (inscrits avec offset +1000, trajets, kilomètres) alimentées par `useLiveTripStats` (RPC `get_public_trip_stats`, rafraîchi toutes les 60 s) et `get_public_user_count`.
+- **Réponses admin visibles par l'utilisateur** : page `/app/messages` (`src/pages/Messages.tsx`, vue conversation avec réponse) et bannière `AdminReplyBanner.tsx` en haut de l'app — cliquable (→ discussion), masquable, affichée à la connexion suivante sur desktop.
+- **Surveys** : réglage `font_size` (petit/standard/grand) côté admin, appliqué par échelle CSS (`src/styles.css`) ; bouton emoji (`EmojiField.tsx`) dans l'éditeur ; boutons CTA à largeur proportionnelle à l'ancre ; pictos différenciés (œil = aperçu uniquement).
+- **Forum admin** : onglet « Contributeurs » (humains et bots) avec discussions vues, contributions et votes par membre.
+- **SEO home** : title `IKtracker — Calcul indemnités kilométriques 2026 | Barème officiel` + meta description enrichie (`src/routes/index.tsx`).
+
 
 **Notes v3.2 (performance — lot CLS + prérequis LCP)**
 - **CLS home : 0,139 → 0,003 (mesuré Playwright @1280px, variantes A et B).** Trois causes racines corrigées :
@@ -692,6 +703,7 @@ src/
 
 ## Changelog
 
+- **3.4** (29 août 2026) — Hero homepage resserré et hiérarchie CTA, nav épurée (Tarifs/Ressources/Blog au footer), sections condensées, compteurs de preuve sociale, page `/app/messages` + bannière de réponse admin, surveys (taille de police, emojis), onglet Contributeurs du forum admin, title/meta home optimisés.
 - **2.8** (28 août 2026) — Blocs CTA + aperçu + largeur adaptative des surveys, onglet Forum dans /admin, toggle aller-retour dans la fiche trajet, layout du relevé comptable.
 - **2.7** (20 août 2026) — Flux Atom `/feed.xml` (SSR, 50 articles, client admin) + lien RSS au footer ; `src/lib/page-dates.ts` comme source unique des dates éditoriales (JSON-LD + `<LastUpdated />`) ; audit accessibilité des 47 `<img>` (alts descriptifs, décoratives en `alt=""`, `<figure>`/`<figcaption>`) ; nouvelle landing `/logiciel-devis-artisan` avec hero LCP optimisé ; liens dofollow DictaDevi/Crawlers dans la bio auteur.
 - **2.6** (20 août 2026) — JSON-LD rendus en SSR via le wrapper `Helmet` de `helmet-compat` ; balise `<main>` ajoutée sur `/artisans` et `/logiciel-devis-artisan` ; suite de tests SSR des données structurées (`src/test/ssr-structured-data.test.ts`).
