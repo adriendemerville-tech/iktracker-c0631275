@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, LayoutDashboard, LogIn } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
+import { ForumNotificationsBell } from "@/components/forum/ForumNotificationsBell";
 
 interface MarketingNavProps {
   user?: { email?: string } | null;
