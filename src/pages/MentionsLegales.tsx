@@ -61,7 +61,6 @@ const MentionsLegales = () => {
           <h1 className="text-xl font-semibold" id="page-heading">
             Mentions Légales
           </h1>
-          {PAGE_LASTMOD ? <LastUpdated date={PAGE_LASTMOD} className="mt-2 mb-4" /> : null}
         </nav>
       </header>
 
@@ -72,6 +71,7 @@ const MentionsLegales = () => {
         aria-labelledby="page-heading"
       >
         <Breadcrumb items={[{ label: "Mentions légales" }]} />
+        {PAGE_LASTMOD ? <LastUpdated date={PAGE_LASTMOD} className="mb-4" /> : null}
         <article className="prose prose-sm dark:prose-invert max-w-none space-y-6">
           <section aria-labelledby="ml-editeur">
             <h2 id="ml-editeur" className="text-lg font-semibold text-foreground">

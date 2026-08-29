@@ -73,7 +73,6 @@ const Rgpd = () => {
           <h1 className="text-xl font-semibold" id="page-heading">
             RGPD — Protection des données
           </h1>
-          {PAGE_LASTMOD ? <LastUpdated date={PAGE_LASTMOD} className="mt-2 mb-4" /> : null}
         </nav>
       </header>
 
@@ -84,6 +83,7 @@ const Rgpd = () => {
         aria-labelledby="page-heading"
       >
         <Breadcrumb items={[{ label: "RGPD" }]} />
+        {PAGE_LASTMOD ? <LastUpdated date={PAGE_LASTMOD} className="mb-4" /> : null}
 
         <div className="mb-8">
           <p className="text-muted-foreground">

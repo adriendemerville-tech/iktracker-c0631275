@@ -127,7 +127,6 @@ const Contact = () => {
           <h1 className="text-xl font-semibold" id="page-heading">
             Contact
           </h1>
-          {PAGE_LASTMOD ? <LastUpdated date={PAGE_LASTMOD} className="mt-2 mb-4" /> : null}
         </nav>
       </header>
 
@@ -138,6 +137,7 @@ const Contact = () => {
         aria-labelledby="page-heading"
       >
         <Breadcrumb items={[{ label: "Contact" }]} />
+        {PAGE_LASTMOD ? <LastUpdated date={PAGE_LASTMOD} className="mb-4" /> : null}
 
         {/* Intro */}
         <p className="text-muted-foreground leading-relaxed mb-6">

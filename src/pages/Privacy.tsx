@@ -78,7 +78,6 @@ const Privacy = () => {
           <h1 className="text-xl font-semibold" id="page-heading">
             Politique de confidentialité
           </h1>
-          {PAGE_LASTMOD ? <LastUpdated date={PAGE_LASTMOD} className="mt-2 mb-4" /> : null}
         </nav>
       </header>
 
@@ -89,6 +88,7 @@ const Privacy = () => {
         aria-labelledby="page-heading"
       >
         <Breadcrumb items={[{ label: "Confidentialité" }]} />
+        {PAGE_LASTMOD ? <LastUpdated date={PAGE_LASTMOD} className="mb-4" /> : null}
         <article className="prose prose-sm dark:prose-invert max-w-none space-y-6">
           <section aria-labelledby="section-intro">
             <h2 id="section-intro" className="text-lg font-semibold text-foreground">

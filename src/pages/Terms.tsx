@@ -78,7 +78,6 @@ const Terms = () => {
           <h1 className="text-xl font-semibold" id="page-heading">
             Conditions Générales de Vente et d'Utilisation
           </h1>
-          {PAGE_LASTMOD ? <LastUpdated date={PAGE_LASTMOD} className="mt-2 mb-4" /> : null}
         </nav>
       </header>
 
@@ -89,6 +88,7 @@ const Terms = () => {
         aria-labelledby="page-heading"
       >
         <Breadcrumb items={[{ label: "CGVU" }]} />
+        {PAGE_LASTMOD ? <LastUpdated date={PAGE_LASTMOD} className="mb-4" /> : null}
         <article className="prose prose-sm dark:prose-invert max-w-none space-y-6">
           {/* ── PARTIE I : CONDITIONS GÉNÉRALES D'UTILISATION ── */}
           <div className="bg-muted/30 rounded-xl p-4 mb-2">
