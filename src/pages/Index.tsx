@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEmailGate, UNVERIFIED_TOUR_LIMIT } from "@/hooks/useEmailGate";
 import { ForumNotificationsBell } from "@/components/forum/ForumNotificationsBell";
 import { ForumSuggestionBanner } from "@/components/forum/ForumSuggestionBanner";
+import { AdminReplyBanner } from "@/components/AdminReplyBanner";
 import { useTrips } from "@/hooks/useTrips";
 import {
   useTourTracker,
