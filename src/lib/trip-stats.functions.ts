@@ -7,10 +7,12 @@ import { createServerFn } from "@tanstack/react-start";
  */
 export const getPublicTripStats = createServerFn({ method: "GET" }).handler(
   async () => {
-    const { cachedStat } = await import("@/lib/public-stats-cache.server");
+    const { cachedStat, withDeadline } = await import("@/lib/public-stats-cache.server");
 
     try {
-      return await cachedStat("public-trip-stats", async () => {
+      // Cold start : on ne bloque jamais le TTFB plus de 400 ms sur la DB.
+      return await withDeadline(
+        cachedStat("public-trip-stats", async () => {
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { data, error } = await (supabaseAdmin.rpc as any)("get_public_trip_stats");
         if (error) throw error;
@@ -20,7 +22,10 @@ export const getPublicTripStats = createServerFn({ method: "GET" }).handler(
           tripCount: Number(row?.trip_count ?? 0),
           totalKm: Math.round(Number(row?.total_distance ?? 0)),
         };
-      });
+        }),
+        400,
+        { tripCount: 0, totalKm: 0 },
+      );
     } catch (err) {
       console.error("Failed to fetch public trip stats:", err);
       return { tripCount: 0, totalKm: 0 };

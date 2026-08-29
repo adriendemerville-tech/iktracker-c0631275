@@ -105,6 +105,8 @@ const MarketingPWANotification = lazy(() =>
 // Footer marketing : import statique volontaire — il porte le maillage interne
 // (pages orphelines incluses) et doit être présent dans le HTML SSR de "/".
 
+import { DeferUntilVisible } from "@/components/marketing/DeferUntilVisible";
+
 const PartnerStrip = lazy(() =>
   import("@/components/marketing/PartnerStrip").then((m) => ({ default: m.PartnerStrip })),
 );
@@ -442,13 +444,13 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
           aria-labelledby="simulateur-landing"
         >
           <div className="container mx-auto max-w-4xl">
-            <Suspense fallback={<LazyPlaceholder height={420} />}>
+            <DeferUntilVisible fallback={<LazyPlaceholder height={420} />}>
               <IKSimulator idSuffix="-landing" trackerPage="landing" />
-            </Suspense>
+            </DeferUntilVisible>
             <div className="mt-6">
-              <Suspense fallback={null}>
+              <DeferUntilVisible>
                 <PartnerCard page="/" placement="under_simulator" />
-              </Suspense>
+              </DeferUntilVisible>
             </div>
           </div>
         </section>
@@ -889,7 +891,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
                 Ou scannez pour installer sur mobile
               </p>
               <div className="bg-white p-2 rounded-lg shadow-md">
-                <Suspense
+                <DeferUntilVisible
                   fallback={
                     <div className="w-[100px] h-[100px] bg-gray-200 animate-pulse rounded" />
                   }
@@ -900,7 +902,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
                     level="M"
                     includeMargin={false}
                   />
-                </Suspense>
+                </DeferUntilVisible>
               </div>
             </div>
           </div>
@@ -1034,9 +1036,12 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
         </section>
       </main>
 
+      {/* Pas de defer ici : le strip porte les liens partenaires dofollow, il doit
+          être monté dès l'hydratation pour rester visible des pré-rendus bots. */}
       <Suspense fallback={null}>
         <PartnerStrip page="/" />
       </Suspense>
+
 
       <BodyEndInjections />
       <EnhancedMarketingFooter />
