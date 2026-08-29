@@ -1236,7 +1236,7 @@ ${IKTRACKER_MENTION}
               >
                 <Download className="w-5 h-5" />
               </Button>
-              <ForumNotificationsBell className="md:hidden text-foreground hover:text-foreground hover:bg-foreground/10 dark:text-white dark:hover:bg-white/15" />
+              <ForumNotificationsBell className="text-foreground hover:text-foreground hover:bg-foreground/10 dark:text-white dark:hover:bg-white/15" />
               <div className="relative" data-tutorial="profile">
                 <Button
                   variant="ghost"
