@@ -623,7 +623,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
               </p>
             </div>
 
-            <Tabs defaultValue="mobile" className="max-w-5xl mx-auto">
+            <Tabs value={demoTab} onValueChange={setDemoTab} className="max-w-5xl mx-auto">
               <TabsList className="mx-auto flex flex-wrap justify-center h-auto gap-1 mb-8">
                 <TabsTrigger value="mobile" className="gap-2">
                   <Smartphone className="h-4 w-4" /> Mobile
