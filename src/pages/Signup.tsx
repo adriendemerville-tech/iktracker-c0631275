@@ -477,9 +477,9 @@ const Signup = () => {
           <div className="bg-slate-900/80 backdrop-blur-xl rounded-2xl md:rounded-3xl shadow-2xl border border-slate-800/50 overflow-hidden animate-scale-in">
             <div className="grid md:grid-cols-2">
               {/* Left Panel - Branding */}
-              <div className="hidden md:flex flex-col justify-between p-10 lg:p-12 bg-gradient-to-br from-blue-900/30 via-slate-800/50 to-slate-900/50 border-r border-slate-800/50">
+<div className="hidden md:flex flex-col justify-between p-8 lg:p-10 bg-gradient-to-br from-blue-900/30 via-slate-800/50 to-slate-900/50 border-r border-slate-800/50">
                 <div>
-                  <div className="flex items-center gap-3 mb-8">
+                  <div className="flex items-center gap-3 mb-6">
                     <img
                       src="/logo-iktracker-250.webp"
                       alt="IKtracker"
@@ -501,7 +501,7 @@ const Signup = () => {
                     </span>
                   </h2>
 
-                  <p className="text-slate-400 text-base leading-relaxed mb-8">
+                  <p className="text-slate-400 text-base leading-relaxed mb-6">
                     Créez votre compte en quelques secondes et commencez à suivre vos trajets
                     professionnels.
                   </p>
@@ -547,9 +547,9 @@ const Signup = () => {
               </div>
 
               {/* Right Panel - Signup Form */}
-              <div className="p-8 md:p-10 lg:p-12">
+<div className="p-6 md:p-8 lg:p-10">
                 {/* Mobile Logo */}
-                <div className="flex items-center gap-3 mb-8 md:hidden">
+                <div className="flex items-center gap-3 mb-6 md:hidden">
                   <img
                     src="/logo-iktracker-250.webp"
                     alt="IKtracker"
@@ -562,8 +562,8 @@ const Signup = () => {
                   <span className="text-xl font-semibold text-white">IKtracker</span>
                 </div>
 
-                <div className="mb-8">
-                  <h1 className="text-2xl font-bold text-white mb-2">Créer un compte</h1>
+                <div className="mb-6">
+                  <h1 className="text-2xl font-bold text-white mb-1.5">Créer un compte</h1>
                   <p className="text-slate-400">100% gratuit • Aucune carte requise</p>
                 </div>
 
@@ -649,7 +649,7 @@ const Signup = () => {
                 </p>
 
                 {/* Divider */}
-                <div className="relative my-6">
+                <div className="relative my-4">
                   <div className="absolute inset-0 flex items-center">
                     <span className="w-full border-t border-slate-700" />
                   </div>
@@ -730,7 +730,7 @@ const Signup = () => {
                 </form>
 
                 {/* Login link */}
-                <p className="mt-6 text-center text-slate-400 text-sm">
+                <p className="mt-4 text-center text-slate-400 text-sm">
                   Déjà un compte ?{" "}
                   <Link to="/auth" className="text-blue-400 hover:text-blue-300 font-medium">
                     Connectez-vous
