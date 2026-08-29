@@ -22,21 +22,21 @@ const BodyEndInjections = () => {
     whenInteractive(() => {
       if (controller.signal.aborted) return;
       fetch(
-      "https://tutlimtasnjabdfhpewu.supabase.co/functions/v1/iktracker-actions?action=get-injections&location=body_end",
-      { signal: controller.signal },
-    )
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (!data) return;
-        const injections = data?.injections || data?.result?.data?.data || data?.result?.data;
-        if (!Array.isArray(injections) || !injections.length) return;
-        setHtml(
-          injections
-            .filter((i: Injection) => i.is_active)
-            .map((i: Injection) => i.content)
-            .join(""),
-        );
-      })
+        "https://tutlimtasnjabdfhpewu.supabase.co/functions/v1/iktracker-actions?action=get-injections&location=body_end",
+        { signal: controller.signal },
+      )
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data) => {
+          if (!data) return;
+          const injections = data?.injections || data?.result?.data?.data || data?.result?.data;
+          if (!Array.isArray(injections) || !injections.length) return;
+          setHtml(
+            injections
+              .filter((i: Injection) => i.is_active)
+              .map((i: Injection) => i.content)
+              .join(""),
+          );
+        })
         .catch(() => {
           // Swallow: blocked by client, offline, CORS, etc. Non-critical.
         });

@@ -45,5 +45,7 @@ export const DeferUntilVisible = ({
     return () => observer.disconnect();
   }, [rootMargin]);
 
-  return <div ref={ref}>{visible ? <Suspense fallback={fallback}>{children}</Suspense> : fallback}</div>;
+  return (
+    <div ref={ref}>{visible ? <Suspense fallback={fallback}>{children}</Suspense> : fallback}</div>
+  );
 };

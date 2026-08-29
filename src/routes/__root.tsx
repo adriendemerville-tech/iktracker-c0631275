@@ -122,8 +122,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       // pris en compte sur iPhone à encoche (notch / Dynamic Island)
       {
         name: "viewport",
-        content:
-          "width=device-width, initial-scale=1.0, viewport-fit=cover",
+        content: "width=device-width, initial-scale=1.0, viewport-fit=cover",
       },
       { title: SITE_TITLE },
       { name: "title", content: SITE_TITLE },
@@ -203,6 +202,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         as: "font",
         type: "font/woff2",
         crossOrigin: "anonymous",
+        // Priorité explicite : la police du H1 (contenu LCP mobile) passe devant
+        // les autres sous-ressources dans la file de téléchargement.
+        fetchPriority: "high",
       },
       {
         rel: "preload",
@@ -210,6 +212,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         as: "font",
         type: "font/woff2",
         crossOrigin: "anonymous",
+        // Priorité explicite : la police du H1 (contenu LCP mobile) passe devant
+        // les autres sous-ressources dans la file de téléchargement.
+        fetchPriority: "high",
       },
       // Fonts stylesheet
       {
