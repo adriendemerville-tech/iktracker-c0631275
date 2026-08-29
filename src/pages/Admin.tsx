@@ -493,6 +493,8 @@ const Admin = () => {
       feedbackId: feedbackToRespond.id,
       response: responseText.trim(),
       existingResponse: feedbackToRespond.response || null,
+      userEmail: feedbackToRespond.user_email,
+      userFirstName: feedbackToRespond.user_first_name,
     });
   };
 
