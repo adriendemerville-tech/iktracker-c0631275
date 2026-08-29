@@ -1,53 +1,68 @@
 /**
- * Transform Supabase Storage image URLs to WebP format with optimization
- * Uses Supabase Image Transformation API for better performance
+ * Transform Supabase Storage image URLs through the Storage Image
+ * Transformation endpoint (`/render/image/`), which resizes, compresses and
+ * serves WebP automatically when the browser sends `Accept: image/webp`.
+ *
+ * Works for any Supabase project (blog covers can come from an external CMS
+ * bucket), and returns the original URL untouched for non-Supabase sources.
  */
 
 interface ImageTransformOptions {
   width?: number;
   height?: number;
   quality?: number;
-  format?: "webp" | "avif" | "origin";
   resize?: "cover" | "contain" | "fill";
 }
 
-/**
- * Convert a Supabase Storage URL to an optimized WebP version
- * Uses the render/image endpoint for transformation when available
- * @param url Original image URL from Supabase Storage
- * @param options Transformation options
- * @returns Transformed URL with WebP format
- */
-export function getOptimizedImageUrl(
-  url: string | null | undefined,
-  _options: ImageTransformOptions = {},
-): string | null {
-  if (!url) return null;
+const DEFAULT_QUALITY = 72;
 
-  // Return URL as-is - image transformation requires Supabase Pro plan
-  // Images are already converted to WebP on upload via convertToWebP()
-  return url;
+/** True when the URL points at a public Supabase Storage object. */
+export function isTransformableUrl(url: string): boolean {
+  return url.includes("/storage/v1/object/public/");
 }
 
 /**
- * Get srcset for responsive images with WebP optimization
+ * Convert a Supabase Storage URL to a resized / compressed variant.
+ * Returns the original URL when transformation is not applicable.
+ */
+export function getOptimizedImageUrl(
+  url: string | null | undefined,
+  options: ImageTransformOptions = {},
+): string | null {
+  if (!url) return null;
+  if (!isTransformableUrl(url)) return url;
+
+  const base = url.split("?")[0].replace("/object/public/", "/render/image/public/");
+  const params = new URLSearchParams();
+  if (options.width) params.set("width", String(options.width));
+  if (options.height) params.set("height", String(options.height));
+  params.set("quality", String(options.quality ?? DEFAULT_QUALITY));
+  params.set("resize", options.resize ?? "cover");
+
+  return `${base}?${params.toString()}`;
+}
+
+/**
+ * Build a responsive `srcset` (width descriptors) for a storage image.
  */
 export function getResponsiveSrcSet(
   url: string | null | undefined,
-  _widths: number[] = [400, 800, 1200],
+  widths: number[] = [400, 800, 1200],
+  options: Omit<ImageTransformOptions, "width"> = {},
 ): string | null {
-  // Image transformation requires Supabase Pro plan
-  // Return null to skip srcset - browser will use original image
-  if (!url) return null;
-  return null;
+  if (!url || !isTransformableUrl(url)) return null;
+
+  return widths
+    .map((w) => `${getOptimizedImageUrl(url, { ...options, width: w })} ${w}w`)
+    .join(", ");
 }
 
 /**
  * Presets for common image sizes
  */
 export const imagePresets = {
-  thumbnail: { width: 400, height: 250, quality: 75 },
-  card: { width: 800, height: 500, quality: 80 },
-  featured: { width: 1200, height: 750, quality: 85 },
-  full: { width: 1920, quality: 90 },
+  thumbnail: { width: 400, quality: 70 },
+  card: { width: 600, quality: 72 },
+  featured: { width: 1000, quality: 75 },
+  full: { width: 1600, quality: 80 },
 } as const;
