@@ -58,6 +58,7 @@ import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppArchiveRouteImport } from './routes/app/archive'
+import { Route as AppMessagesRouteImport } from './routes/app/messages'
 import { Route as AppMestrajetsRouteImport } from './routes/app/mestrajets'
 import { Route as AppProfileRouteImport } from './routes/app/profile'
 import { Route as AppRecoveryRouteImport } from './routes/app/recovery'
@@ -334,6 +335,11 @@ const AppArchiveRoute = AppArchiveRouteImport.update({
   path: '/app/archive',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppMessagesRoute = AppMessagesRouteImport.update({
+  id: '/app/messages',
+  path: '/app/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppMestrajetsRoute = AppMestrajetsRouteImport.update({
   id: '/app/mestrajets',
   path: '/app/mestrajets',
@@ -519,6 +525,7 @@ export interface FileRoutesByFullPath {
   '/theme-onboarding': typeof ThemeOnboardingRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/app/archive': typeof AppArchiveRoute
+  '/app/messages': typeof AppMessagesRoute
   '/app/mestrajets': typeof AppMestrajetsRoute
   '/app/profile': typeof AppProfileRoute
   '/app/recovery': typeof AppRecoveryRoute
@@ -597,6 +604,7 @@ export interface FileRoutesByTo {
   '/theme-onboarding': typeof ThemeOnboardingRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/app/archive': typeof AppArchiveRoute
+  '/app/messages': typeof AppMessagesRoute
   '/app/mestrajets': typeof AppMestrajetsRoute
   '/app/profile': typeof AppProfileRoute
   '/app/recovery': typeof AppRecoveryRoute
@@ -676,6 +684,7 @@ export interface FileRoutesById {
   '/theme-onboarding': typeof ThemeOnboardingRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/app/archive': typeof AppArchiveRoute
+  '/app/messages': typeof AppMessagesRoute
   '/app/mestrajets': typeof AppMestrajetsRoute
   '/app/profile': typeof AppProfileRoute
   '/app/recovery': typeof AppRecoveryRoute
@@ -756,6 +765,7 @@ export interface FileRouteTypes {
     | '/theme-onboarding'
     | '/unsubscribe'
     | '/app/archive'
+    | '/app/messages'
     | '/app/mestrajets'
     | '/app/profile'
     | '/app/recovery'
@@ -834,6 +844,7 @@ export interface FileRouteTypes {
     | '/theme-onboarding'
     | '/unsubscribe'
     | '/app/archive'
+    | '/app/messages'
     | '/app/mestrajets'
     | '/app/profile'
     | '/app/recovery'
@@ -912,6 +923,7 @@ export interface FileRouteTypes {
     | '/theme-onboarding'
     | '/unsubscribe'
     | '/app/archive'
+    | '/app/messages'
     | '/app/mestrajets'
     | '/app/profile'
     | '/app/recovery'
@@ -991,6 +1003,7 @@ export interface RootRouteChildren {
   ThemeOnboardingRoute: typeof ThemeOnboardingRoute
   UnsubscribeRoute: typeof UnsubscribeRoute
   AppArchiveRoute: typeof AppArchiveRoute
+  AppMessagesRoute: typeof AppMessagesRoute
   AppMestrajetsRoute: typeof AppMestrajetsRoute
   AppProfileRoute: typeof AppProfileRoute
   AppRecoveryRoute: typeof AppRecoveryRoute
@@ -1367,6 +1380,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppArchiveRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/messages': {
+      id: '/app/messages'
+      path: '/app/messages'
+      fullPath: '/app/messages'
+      preLoaderRoute: typeof AppMessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app/mestrajets': {
       id: '/app/mestrajets'
       path: '/app/mestrajets'
@@ -1608,6 +1628,7 @@ const rootRouteChildren: RootRouteChildren = {
   ThemeOnboardingRoute: ThemeOnboardingRoute,
   UnsubscribeRoute: UnsubscribeRoute,
   AppArchiveRoute: AppArchiveRoute,
+  AppMessagesRoute: AppMessagesRoute,
   AppMestrajetsRoute: AppMestrajetsRoute,
   AppProfileRoute: AppProfileRoute,
   AppRecoveryRoute: AppRecoveryRoute,
