@@ -76,3 +76,31 @@ export function withDeadline<T>(promise: Promise<T>, ms: number, fallback: T): P
   });
 }
 
+/**
+ * Budget max accordé à la DB sur le chemin critique du rendu serveur.
+ * Au-delà, on rend immédiatement avec la dernière valeur connue (ou le repli)
+ * et le refresh se termine en tâche de fond pour la requête suivante.
+ */
+export const STAT_DEADLINE_MS = 120;
+
+/**
+ * Dernière valeur connue, conservée même après expiration du TTL, pour que le
+ * repli d'un rendu "deadline dépassée" ne soit jamais un zéro visible.
+ */
+export function lastKnown<T>(key: string, fallback: T): T {
+  const entry = store.get(key) as CacheEntry<T> | undefined;
+  return entry && entry.value !== undefined ? entry.value : fallback;
+}
+
+/**
+ * Démarre le remplissage du cache sans bloquer la réponse courante.
+ * À appeler depuis un handler (jamais au scope module : I/O interdite dans le
+ * global scope du worker).
+ */
+export function warmStat<T>(key: string, loader: () => Promise<T>): void {
+  const entry = store.get(key);
+  if (entry && entry.expiresAt > Date.now()) return;
+  void cachedStat(key, loader).catch(() => {});
+}
+
+
