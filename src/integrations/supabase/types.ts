@@ -3065,6 +3065,17 @@ export type Database = {
         Returns: number
       }
       forum_level_for: { Args: { _points: number }; Returns: string }
+      forum_notify_mentions: {
+        Args: {
+          p_actor: string
+          p_body: string
+          p_discussion_id: string
+          p_reply_id: string
+          p_slug: string
+          p_title: string
+        }
+        Returns: undefined
+      }
       forum_publish_due_discussions: { Args: never; Returns: number }
       forum_recalc_profile: { Args: { _user_id: string }; Returns: undefined }
       get_ab_test_results: { Args: { days_back?: number }; Returns: Json }
