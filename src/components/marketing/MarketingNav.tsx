@@ -2,12 +2,6 @@ import { useState, useEffect, useCallback } from "react";
 import { Link, useLocation } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
 import { Menu, X, LayoutDashboard, LogIn } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
 
