@@ -204,6 +204,10 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
   });
 
   const [user, setUser] = useState<User | null>(null);
+  // Onglet démo contrôlé : tous les TabsContent sont forceMount (texte présent dans
+  // le HTML SSR pour les bots), seuls les mockups lourds de l'onglet actif sont montés.
+  const [demoTab, setDemoTab] = useState("mobile");
+
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { ref: pdfRef, isVisible: pdfVisible } = useScrollAnimation({ threshold: 0.2 });
