@@ -714,6 +714,8 @@ export default function Lexique() {
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6">
               Lexique des indemnités kilométriques
             </h1>
+            {PAGE_LASTMOD ? <LastUpdated date={PAGE_LASTMOD} className="mb-4" /> : null}
+
 
             <h2 className="text-xl md:text-2xl text-primary font-semibold mb-6">
               France • Indemnités kilométriques • 2026
