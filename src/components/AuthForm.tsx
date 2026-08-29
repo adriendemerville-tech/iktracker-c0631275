@@ -234,13 +234,13 @@ export const AuthForm = ({
       >
         {!compact && (
           <div className="text-center mb-6">
-            <h3 className="text-xl font-bold text-foreground mb-1">
+            <p className="text-xl font-bold text-foreground mb-1">
               {mode === "login"
                 ? "Connexion"
                 : mode === "signup"
                   ? "Créer un compte"
                   : "Mot de passe oublié"}
-            </h3>
+            </p>
             <p className="text-sm text-muted-foreground">
               {mode === "login"
                 ? "Accédez à votre tableau de bord"
