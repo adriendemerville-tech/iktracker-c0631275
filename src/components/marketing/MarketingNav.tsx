@@ -127,6 +127,9 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
 
             {/* CTA Buttons */}
             <div className="flex items-center gap-2 sm:gap-3">
+              {/* Notifications forum (masquée si non connecté) */}
+              <ForumNotificationsBell />
+
               {/* Mobile menu button */}
               <Button
                 variant="ghost"
