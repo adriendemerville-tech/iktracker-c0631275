@@ -1,6 +1,11 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 4.6.6 — 28 août 2026
+> Version 4.6.7 — 29 août 2026
+
+**Notes v4.6.7 (Worker déployé & bots IA, 29 août 2026)**
+- **`iktracker-bot-router` redéployé en production via `wrangler deploy`** : la liste des user-agents servis en pré-rendu SSR est complétée (`perplexity-user`, `mistralai-user` et autres agents IA manquants) — tous les robots IA majeurs reçoivent désormais le HTML pré-rendu. Vérifié par headers de réponse après déploiement.
+- **Réponse admin → e-mail automatique** : toute réponse depuis `/admin` (Avis) déclenche l'envoi d'un e-mail à l'utilisateur (template `admin-reply`) en plus de la notification in-app ; la réponse reste consultable dans la page conversation `/app/messages` côté front.
+
 
 **Notes v4.6.6 (compteurs homepage, 28 août 2026)**
 - **Compteurs publics de la homepage** : nouvelle fonction SQL `public.get_public_trip_stats()` retournant le nombre de trajets validés (`status='validated'`, `deleted_at IS NULL`) et la somme des distances en km. Exposée publiquement (`EXECUTE` pour `anon`, `authenticated`, `service_role`) en `SECURITY DEFINER` pour la preuve sociale SSR. Consommée par `src/lib/trip-stats.functions.ts` et le hook `src/hooks/useLiveTripStats.ts` (rafraîchissement toutes les 60 s, retour d'onglet). La home affiche désormais trois compteurs : inscrits, trajets enregistrés, kilomètres suivis.
