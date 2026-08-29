@@ -129,23 +129,6 @@ export function MarketingNav({ user, loading }: MarketingNavProps) {
                   </Link>
                 </li>
               ))}
-              <li role="none">
-                <DropdownMenu>
-                  <DropdownMenuTrigger className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors focus-visible-ring rounded-md px-2 py-1">
-                    Ressources
-                    <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-64">
-                    {secondaryLinks.map((link) => (
-                      <DropdownMenuItem key={link.href} asChild>
-                        <Link to={link.href} className="cursor-pointer">
-                          {link.label}
-                        </Link>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </li>
             </ul>
 
             {/* CTA Buttons */}
