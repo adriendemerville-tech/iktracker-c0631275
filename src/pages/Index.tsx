@@ -1282,6 +1282,9 @@ ${IKTRACKER_MENTION}
           {/* Trajet en direct — mobile uniquement, en tête de la home */}
           {isMobile && !isTourActive && <QuickTripTracker vehicles={vehicles} onSave={addTrip} />}
 
+          {/* Réponse admin non lue — desktop uniquement */}
+          <AdminReplyBanner />
+
           {/* Suggestion forum — desktop uniquement, une fois par session */}
           <ForumSuggestionBanner />
 
