@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, ImgHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
+import { getOptimizedImageUrl, getResponsiveSrcSet } from "@/lib/image-transform";
 
 interface OptimizedImageProps extends ImgHTMLAttributes<HTMLImageElement> {
   src: string;
@@ -15,35 +16,6 @@ interface OptimizedImageProps extends ImgHTMLAttributes<HTMLImageElement> {
   responsive?: boolean;
 }
 
-// Generate responsive srcset for Supabase storage images
-function generateSrcSet(src: string): string | undefined {
-  // Only apply to Supabase storage URLs
-  if (!src.includes("supabase.co/storage")) {
-    return undefined;
-  }
-
-  // Define breakpoints for responsive images
-  const widths = [320, 480, 640, 768, 1024, 1280];
-
-  // For Supabase, we can use image transformation via URL params
-  // Format: /render/image/public/{bucket}/{path}?width=X&quality=Y
-  const srcSet = widths
-    .map((w) => {
-      // Check if it's a direct object URL or render URL
-      if (src.includes("/object/public/")) {
-        // Convert to render URL for transformation
-        const renderUrl = src.replace("/object/public/", "/render/image/public/");
-        const separator = renderUrl.includes("?") ? "&" : "?";
-        return `${renderUrl}${separator}width=${w}&quality=75 ${w}w`;
-      }
-      return `${src} ${w}w`;
-    })
-    .join(", ");
-
-  return srcSet;
-}
-
-// Generate sizes attribute for responsive images
 function generateSizes(): string {
   return "(max-width: 480px) 100vw, (max-width: 768px) 90vw, (max-width: 1024px) 80vw, 720px";
 }
@@ -94,15 +66,13 @@ export function OptimizedImage({
       ? { aspectRatio: `${width}/${height}` }
       : undefined;
 
-  // Generate optimized src for initial load (smaller for mobile)
-  const optimizedSrc =
-    src.includes("supabase.co/storage") && src.includes("/object/public/")
-      ? src.replace("/object/public/", "/render/image/public/") +
-        (src.includes("?") ? "&" : "?") +
-        "width=720&quality=75"
-      : src;
+  // Resized + compressed variant (WebP is negotiated via Accept headers)
+  const optimizedSrc = getOptimizedImageUrl(src, { width: width ?? 800 }) ?? src;
 
-  const srcSet = responsive ? generateSrcSet(src) : undefined;
+  const srcSet =
+    responsive
+      ? (getResponsiveSrcSet(src, [320, 480, 640, 768, 1024, 1280]) ?? undefined)
+      : undefined;
   const sizes = responsive && srcSet ? generateSizes() : undefined;
 
   return (
