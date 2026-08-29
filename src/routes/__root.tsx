@@ -181,6 +181,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "target", content: "France" },
     ],
     links: [
+      // Preload haute priorité de la feuille applicative : elle est le seul
+      // maillon bloquant de la chaîne critique (document -> CSS). Le preload
+      // la sort de la file d'attente basse priorité du parseur.
+      { rel: "preload", as: "style", href: appCss, fetchPriority: "high" },
       { rel: "stylesheet", href: appCss },
       // Preconnects
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -221,7 +225,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         // wght 800 inclus pour Plus Jakarta Sans (H1 en font-extrabold) : même
         // fichier variable, aucun téléchargement supplémentaire.
-        href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=Urbanist:wght@400;500;600;700;800&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=Urbanist:wght@500;600;700;800&display=swap",
         // Chargée sans bloquer le premier rendu (LCP) : `media=print` est basculé
         // sur `all` par le script inline dès que la feuille est disponible.
         media: "print",
