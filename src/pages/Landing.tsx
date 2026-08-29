@@ -270,7 +270,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
         >
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
           <div className="container mx-auto relative z-10">
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="grid lg:grid-cols-2 gap-12 items-start">
               {/* Left: Text content - NO animation on LCP elements for instant render */}
               <div className="text-center lg:text-left">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6 animate-fade-in">
@@ -389,7 +389,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
               {/* Right: Auth form or Phone mockup - Reserved space with fixed dimensions to prevent CLS */}
               <div
                 id="auth-section"
-                className="animate-scale-in min-h-[486px] md:min-h-[502px] min-w-[320px] lg:min-w-[400px] lg:-mt-8"
+                className="animate-scale-in min-h-[486px] md:min-h-[502px] min-w-[320px] lg:min-w-[400px] lg:-mt-52"
               >
                 {user ? (
                   <div className="bg-card/80 backdrop-blur-xs border border-border rounded-2xl p-8 text-center">
