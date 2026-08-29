@@ -366,10 +366,14 @@ const Admin = () => {
       feedbackId,
       response,
       existingResponse,
+      userEmail,
+      userFirstName,
     }: {
       feedbackId: string;
       response: string;
       existingResponse: string | null;
+      userEmail?: string;
+      userFirstName?: string;
     }) => {
       const signedResponse = `${response}\n\n${getRandomClosing()},\nAdrien.`;
       const fullResponse = existingResponse
@@ -386,6 +390,26 @@ const Admin = () => {
         .eq("id", feedbackId);
 
       if (error) throw error;
+
+      // Notification e-mail (non bloquante)
+      if (userEmail) {
+        try {
+          await supabase.functions.invoke("send-transactional-email", {
+            body: {
+              templateName: "admin-reply",
+              recipientEmail: userEmail,
+              idempotencyKey: `admin-reply-${feedbackId}-${Date.now()}`,
+              templateData: {
+                firstName: userFirstName || "",
+                excerpt: response.trim().slice(0, 400),
+                conversationUrl: "https://iktracker.fr/app/messages",
+              },
+            },
+          });
+        } catch (e) {
+          console.error("Email notification failed", e);
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-feedbacks"] });
