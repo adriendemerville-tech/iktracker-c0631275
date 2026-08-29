@@ -1370,6 +1370,8 @@ Serveur MCP OAuth 2.1 exposant les données IKtracker à ChatGPT / Claude / Curs
 
 ## Changelog
 
+- **4.6.7** (29 août 2026) — Worker `iktracker-bot-router` redéployé en production (user-agents IA complétés : `perplexity-user`, `mistralai-user`, etc.) ; e-mail automatique `admin-reply` à l'utilisateur sur réponse depuis /admin.
+
 - **4.5** (23 août 2026) — GEO : qualité des réponses non-200 et politique robots explicite :
   1. **Vrai 404 bots** — le fallback de `meta-renderer` servait une page générique en **HTTP 200** pour tout chemin inconnu (soft 404 massif pour Googlebot/GPTBot/PerplexityBot). Il renvoie désormais un **HTTP 404** + `noindex, nofollow` (`PageMeta.noindex`), propagé tel quel par le Worker `iktracker-bot-router`. Côté SSR applicatif, `/blog/$slug` lève `notFound()` (404) au lieu d'un 200 « article introuvable ». Fonction redéployée.
   2. **robots.txt restructuré** — conformité RFC 9309 : un agent matchant un bloc nominatif ignore le bloc `User-agent: *`, donc GPTBot & co. échappaient aux `Disallow` des routes privées. Les Disallow sont désormais répétés dans chaque bloc. Bloc IA élargi : ClaudeBot, OAI-SearchBot, Claude-User, Claude-SearchBot, Perplexity-User, Applebot-Extended, Meta-ExternalAgent, Meta-ExternalFetcher, MistralAI-User.
