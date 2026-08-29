@@ -11,7 +11,7 @@ interface UseLiveTripStatsOptions {
 export function useLiveTripStats({
   initialTripCount,
   initialTotalKm,
-  refetchInterval = 60_000,
+  refetchInterval = 10 * 60_000,
 }: UseLiveTripStatsOptions) {
   const fetchStats = useServerFn(getPublicTripStats);
 
@@ -19,9 +19,9 @@ export function useLiveTripStats({
     queryKey: ["public-trip-stats"],
     queryFn: async () => fetchStats(),
     initialData: { tripCount: initialTripCount ?? 0, totalKm: initialTotalKm ?? 0 },
-    staleTime: 30_000,
+    staleTime: 10 * 60_000,
     refetchInterval,
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: false,
     refetchOnReconnect: true,
   });
 

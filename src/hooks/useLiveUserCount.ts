@@ -9,7 +9,7 @@ interface UseLiveUserCountOptions {
 
 export function useLiveUserCount({
   initialCount,
-  refetchInterval = 60_000,
+  refetchInterval = 10 * 60_000,
 }: UseLiveUserCountOptions) {
   const fetchCount = useServerFn(getRegisteredUserCount);
 
@@ -20,9 +20,9 @@ export function useLiveUserCount({
       return result.count;
     },
     initialData: initialCount,
-    staleTime: 30_000,
+    staleTime: 10 * 60_000,
     refetchInterval,
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: false,
     refetchOnReconnect: true,
   });
 
