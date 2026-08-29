@@ -225,7 +225,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         // wght 800 inclus pour Plus Jakarta Sans (H1 en font-extrabold) : même
         // fichier variable, aucun téléchargement supplémentaire.
-        href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=Urbanist:wght@400;500;600;700;800&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=Urbanist:wght@500;600;700;800&display=swap",
         // Chargée sans bloquer le premier rendu (LCP) : `media=print` est basculé
         // sur `all` par le script inline dès que la feuille est disponible.
         media: "print",
