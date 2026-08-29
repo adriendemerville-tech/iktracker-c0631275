@@ -1,3 +1,5 @@
+import { LastUpdated } from "@/components/LastUpdated";
+import { getStaticLastModified } from "@/lib/page-dates";
 import { useEffect, lazy, Suspense } from "react";
 import { Helmet } from "@/lib/helmet-compat";
 import { Link } from "@/lib/router-compat";
@@ -18,6 +20,8 @@ import {
   Shield,
   Smartphone,
 } from "lucide-react";
+
+const PAGE_LASTMOD = getStaticLastModified("/calendrier");
 
 // Lazy load heavy demo components
 const CalendarSyncDemo = lazy(() =>
@@ -234,6 +238,7 @@ export default function Calendrier() {
                 >
                   Votre calendrier génère vos <span className="text-gradient">trajets</span>
                 </h1>
+                {PAGE_LASTMOD ? <LastUpdated date={PAGE_LASTMOD} className="mt-2 mb-4" /> : null}
 
                 <p className="text-lg md:text-xl text-muted-foreground mb-8 min-h-[6rem] sm:min-h-[5rem] md:min-h-[4.5rem]">
                   Connectez librement Google Calendar ou Outlook. Chaque rendez-vous avec une

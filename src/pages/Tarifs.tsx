@@ -1,3 +1,5 @@
+import { LastUpdated } from "@/components/LastUpdated";
+import { getStaticLastModified } from "@/lib/page-dates";
 import { Helmet } from "@/lib/helmet-compat";
 import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
 import { Link } from "@/lib/router-compat";
@@ -7,6 +9,8 @@ import { EnhancedMarketingFooter } from "@/components/marketing/EnhancedMarketin
 import { PartnerStrip } from "@/components/marketing/PartnerStrip";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
+
+const PAGE_LASTMOD = getStaticLastModified("/tarifs");
 
 const FREE_IN_30_LANGUAGES = [
   "Gratuit.",
@@ -131,6 +135,7 @@ export default function Tarifs() {
           <h1 className="text-3xl md:text-5xl font-bold text-foreground leading-tight">
             Combien coûte IKtracker&nbsp;?
           </h1>
+          {PAGE_LASTMOD ? <LastUpdated date={PAGE_LASTMOD} className="mt-2 mb-4" /> : null}
         </section>
 
         {/* Big answer */}

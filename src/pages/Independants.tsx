@@ -1,3 +1,5 @@
+import { LastUpdated } from "@/components/LastUpdated";
+import { getStaticLastModified } from "@/lib/page-dates";
 import { lazy, Suspense, memo } from "react";
 import { ORGANIZATION_ID } from "@/lib/seo-schemas";
 import { Link } from "@/lib/router-compat";
@@ -27,6 +29,8 @@ import {
   FileText,
   Calculator,
 } from "lucide-react";
+
+const PAGE_LASTMOD = getStaticLastModified("/independants");
 
 const EnhancedMarketingFooter = lazy(() =>
   import("@/components/marketing/EnhancedMarketingFooter").then((m) => ({
@@ -160,6 +164,7 @@ const Independants = () => {
           <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">
             Être trouvé, puis facturé : la visibilité comme canal d'acquisition
           </h1>
+          {PAGE_LASTMOD ? <LastUpdated date={PAGE_LASTMOD} className="mt-2 mb-4" /> : null}
           <p className="text-lg text-muted-foreground mb-8 max-w-2xl">
             Un indépendant ne manque presque jamais de compétences : il manque de contacts entrants.
             Deux chantiers règlent l'essentiel — rendre le site visible sur Google et dans les

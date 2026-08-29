@@ -1,9 +1,13 @@
+import { LastUpdated } from "@/components/LastUpdated";
+import { getStaticLastModified } from "@/lib/page-dates";
 import { Helmet } from "@/lib/helmet-compat";
 import { ArrowLeft, Mail, Shield, FileText, User, Clock, Server, Cookie, Lock } from "lucide-react";
 import { useNavigate, Link } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
 import founderImage from "@/assets/founder-adrien-optimized.webp";
 import { Breadcrumb } from "@/components/Breadcrumb";
+
+const PAGE_LASTMOD = getStaticLastModified("/rgpd");
 
 const Rgpd = () => {
   const navigate = useNavigate();
@@ -69,6 +73,7 @@ const Rgpd = () => {
           <h1 className="text-xl font-semibold" id="page-heading">
             RGPD — Protection des données
           </h1>
+          {PAGE_LASTMOD ? <LastUpdated date={PAGE_LASTMOD} className="mt-2 mb-4" /> : null}
         </nav>
       </header>
 

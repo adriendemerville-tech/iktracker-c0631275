@@ -1,9 +1,13 @@
+import { LastUpdated } from "@/components/LastUpdated";
+import { getStaticLastModified } from "@/lib/page-dates";
 import { Helmet } from "@/lib/helmet-compat";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate, Link } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
 import founderImage from "@/assets/founder-adrien-optimized.webp";
 import { Breadcrumb } from "@/components/Breadcrumb";
+
+const PAGE_LASTMOD = getStaticLastModified("/terms");
 
 const Terms = () => {
   const navigate = useNavigate();
@@ -74,6 +78,7 @@ const Terms = () => {
           <h1 className="text-xl font-semibold" id="page-heading">
             Conditions Générales de Vente et d'Utilisation
           </h1>
+          {PAGE_LASTMOD ? <LastUpdated date={PAGE_LASTMOD} className="mt-2 mb-4" /> : null}
         </nav>
       </header>
 

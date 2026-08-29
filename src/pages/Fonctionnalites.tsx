@@ -1,3 +1,5 @@
+import { LastUpdated } from "@/components/LastUpdated";
+import { getStaticLastModified } from "@/lib/page-dates";
 import { Helmet } from "@/lib/helmet-compat";
 import { RelatedLinks } from "@/components/marketing/RelatedLinks";
 import { Link } from "@/lib/router-compat";
@@ -27,6 +29,8 @@ import {
   Users,
   Zap,
 } from "lucide-react";
+
+const PAGE_LASTMOD = getStaticLastModified("/fonctionnalites");
 
 const featureGroups = [
   {
@@ -227,6 +231,7 @@ export default function Fonctionnalites() {
           <h1 className="text-3xl md:text-5xl font-bold text-foreground leading-tight tracking-tight">
             Toutes les fonctionnalités d'IKtracker
           </h1>
+          {PAGE_LASTMOD ? <LastUpdated date={PAGE_LASTMOD} className="mt-2 mb-4" /> : null}
           <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
             Un outil complet, gratuit et conçu pour les professionnels itinérants.
             <strong className="text-foreground"> Aucune fonctionnalité payante à débloquer.</strong>

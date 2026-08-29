@@ -1,3 +1,5 @@
+import { LastUpdated } from "@/components/LastUpdated";
+import { getStaticLastModified } from "@/lib/page-dates";
 import { Helmet } from "@/lib/helmet-compat";
 import { ORGANIZATION_ID } from "@/lib/seo-schemas";
 import { ArrowLeft, Mail, MessageSquare, Send } from "lucide-react";
@@ -12,6 +14,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import founderImage from "@/assets/founder-adrien-optimized.webp";
 import { Breadcrumb } from "@/components/Breadcrumb";
+
+const PAGE_LASTMOD = getStaticLastModified("/contact");
 
 const Contact = () => {
   const navigate = useNavigate();
@@ -123,6 +127,7 @@ const Contact = () => {
           <h1 className="text-xl font-semibold" id="page-heading">
             Contact
           </h1>
+          {PAGE_LASTMOD ? <LastUpdated date={PAGE_LASTMOD} className="mt-2 mb-4" /> : null}
         </nav>
       </header>
 

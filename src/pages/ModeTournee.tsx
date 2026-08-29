@@ -1,3 +1,5 @@
+import { LastUpdated } from "@/components/LastUpdated";
+import { getStaticLastModified } from "@/lib/page-dates";
 import { useEffect, lazy, Suspense, memo } from "react";
 import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
 import { Helmet } from "@/lib/helmet-compat";
@@ -21,6 +23,8 @@ import {
   ShieldCheck,
   Smartphone,
 } from "lucide-react";
+
+const PAGE_LASTMOD = getStaticLastModified("/mode-tournee");
 
 // Lazy load heavy demo components
 const TourModeDemo = lazy(() =>
@@ -269,6 +273,7 @@ export default function ModeTournee() {
                 >
                   Le <span className="text-gradient">Mode Tournée</span> pour les pros itinérants
                 </h1>
+                {PAGE_LASTMOD ? <LastUpdated date={PAGE_LASTMOD} className="mt-2 mb-4" /> : null}
 
                 <p className="text-lg md:text-xl text-muted-foreground mb-8 min-h-[6rem] sm:min-h-[5rem] md:min-h-[4.5rem]">
                   Enchaînez 10 clients dans la journée ? Enregistrez gratuitement tous vos arrêts

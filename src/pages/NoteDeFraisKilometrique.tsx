@@ -1,3 +1,5 @@
+import { LastUpdated } from "@/components/LastUpdated";
+import { getStaticLastModified } from "@/lib/page-dates";
 import { Helmet } from "@/lib/helmet-compat";
 import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
 import { Link } from "@/lib/router-compat";
@@ -7,6 +9,8 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, FileText, ListChecks, ShieldCheck, FileDown } from "lucide-react";
+
+const PAGE_LASTMOD = getStaticLastModified("/note-de-frais-kilometrique");
 
 const faqs = [
   {
@@ -113,6 +117,7 @@ export default function NoteDeFraisKilometrique() {
             <br />
             <span className="text-primary">2025 - 2026</span>
           </h1>
+          {PAGE_LASTMOD ? <LastUpdated date={PAGE_LASTMOD} className="mt-2 mb-4" /> : null}
           <p className="mt-6 text-lg text-muted-foreground leading-relaxed min-h-[7rem] sm:min-h-[5.5rem] md:min-h-[5rem]">
             Le modèle conforme URSSAF, le calcul automatique selon le barème officiel, et l'export
             PDF ou Excel prêt à transmettre à votre employeur ou expert-comptable.

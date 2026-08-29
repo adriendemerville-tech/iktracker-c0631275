@@ -1,3 +1,5 @@
+import { LastUpdated } from "@/components/LastUpdated";
+import { getStaticLastModified } from "@/lib/page-dates";
 import type { JSX } from "react";
 import { ORGANIZATION_ID } from "@/lib/seo-schemas";
 import { Helmet } from "@/lib/helmet-compat";
@@ -20,6 +22,8 @@ import {
   categoryLabels,
   categoryColors,
 } from "@/data/lexique-terms";
+
+const PAGE_LASTMOD = getStaticLastModified("/lexique");
 
 export default function Lexique() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -512,6 +516,7 @@ export default function Lexique() {
         <div class="brand-logo">IK</div>
         <div class="brand-info">
           <h1>IKtracker</h1>
+          {PAGE_LASTMOD ? <LastUpdated date={PAGE_LASTMOD} className="mt-2 mb-4" /> : null}
           <p>Outil professionnel de suivi des indemnités kilométriques</p>
         </div>
       </div>
