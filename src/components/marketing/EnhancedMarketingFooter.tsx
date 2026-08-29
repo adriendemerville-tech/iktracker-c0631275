@@ -202,9 +202,9 @@ export function EnhancedMarketingFooter() {
 
             {/* Product Links */}
             <nav aria-labelledby="footer-product-heading">
-              <h3 id="footer-product-heading" className="font-semibold text-foreground mb-4">
+              <p id="footer-product-heading" className="font-semibold text-foreground mb-4">
                 Produit
-              </h3>
+              </p>
               <ul className="space-y-3" role="list">
                 {productLinks.map((link) => (
                   <li key={link.href}>
@@ -222,9 +222,9 @@ export function EnhancedMarketingFooter() {
 
             {/* Resources Links */}
             <nav aria-labelledby="footer-resources-heading">
-              <h3 id="footer-resources-heading" className="font-semibold text-foreground mb-4">
+              <p id="footer-resources-heading" className="font-semibold text-foreground mb-4">
                 Ressources
-              </h3>
+              </p>
               <ul className="space-y-3" role="list">
                 {resourceLinks.map((link) => (
                   <li key={link.href}>
@@ -242,9 +242,9 @@ export function EnhancedMarketingFooter() {
 
             {/* Professions - GEO/SEO */}
             <nav aria-labelledby="footer-professions-heading">
-              <h3 id="footer-professions-heading" className="font-semibold text-foreground mb-4">
+              <p id="footer-professions-heading" className="font-semibold text-foreground mb-4">
                 Métiers
-              </h3>
+              </p>
               <ul className="space-y-3" role="list">
                 {professionLinks.map((item) => (
                   <li key={item.href}>
@@ -262,9 +262,9 @@ export function EnhancedMarketingFooter() {
 
             {/* Legal & Contact */}
             <nav aria-labelledby="footer-legal-heading">
-              <h3 id="footer-legal-heading" className="font-semibold text-foreground mb-4">
+              <p id="footer-legal-heading" className="font-semibold text-foreground mb-4">
                 Légal
-              </h3>
+              </p>
               <ul className="space-y-3" role="list">
                 {legalLinks.map((link) => (
                   <li key={link.href}>

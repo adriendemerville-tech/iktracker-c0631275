@@ -587,7 +587,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
                   <div className="inline-flex items-center justify-center w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-primary/10 text-primary mb-3 md:mb-4 group-hover:scale-110 transition-transform">
                     <feature.icon className="h-5 w-5 md:h-7 md:w-7" />
                   </div>
-                  <h3 className="font-semibold text-sm md:text-base">{feature.title}</h3>
+                  <p className="font-semibold text-sm md:text-base">{feature.title}</p>
                 </div>
               ))}
             </div>
@@ -630,7 +630,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
                     </Suspense>
                   </div>
                   <div className="space-y-4 order-1 lg:order-2">
-                    <h3 className="text-xl md:text-2xl font-bold">{c.mobile_title}</h3>
+                    <p className="text-xl md:text-2xl font-bold">{c.mobile_title}</p>
                     <p className="text-muted-foreground">{c.mobile_subtitle}</p>
                     <ul className="space-y-2">
                       {["Fonctionne hors-ligne", "Notifications rappels", "GPS temps réel"].map(
@@ -656,7 +656,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
               <TabsContent value="tour">
                 <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
                   <div className="space-y-4">
-                    <h3 className="text-xl md:text-2xl font-bold">{c.tour_title}</h3>
+                    <p className="text-xl md:text-2xl font-bold">{c.tour_title}</p>
                     <p className="text-muted-foreground">{c.tour_subtitle}</p>
                     <ul className="space-y-2">
                       {["GPS en temps réel", "Arrêts illimités", "Calcul automatique"].map(
@@ -690,7 +690,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
                     </Suspense>
                   </div>
                   <div className="space-y-4 order-1 lg:order-2">
-                    <h3 className="text-xl md:text-2xl font-bold">{c.calendar_title}</h3>
+                    <p className="text-xl md:text-2xl font-bold">{c.calendar_title}</p>
                     <p className="text-muted-foreground">{c.calendar_subtitle}</p>
                     <ul className="space-y-2">
                       {["Google Calendar", "Microsoft Outlook", "Import en un clic"].map(
@@ -716,7 +716,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
               <TabsContent value="pdf">
                 <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
                   <div className="space-y-4">
-                    <h3 className="text-xl md:text-2xl font-bold">{c.pdf_title}</h3>
+                    <p className="text-xl md:text-2xl font-bold">{c.pdf_title}</p>
                     <p className="text-muted-foreground">{c.pdf_subtitle}</p>
                     <ul className="space-y-2">
                       {["Format PDF ou Excel", "Barème fiscal 2026", "Envoi direct par email"].map(
