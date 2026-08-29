@@ -639,7 +639,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="mobile">
+              <TabsContent value="mobile" forceMount>
                 <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
                   <div className="order-2 lg:order-1">
                     <Suspense fallback={<PhonePlaceholder />}>
@@ -670,7 +670,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
                 </div>
               </TabsContent>
 
-              <TabsContent value="tour">
+              <TabsContent value="tour" forceMount>
                 <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
                   <div className="space-y-4">
                     <p className="text-xl md:text-2xl font-bold">{c.tour_title}</p>
@@ -699,7 +699,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
                 </div>
               </TabsContent>
 
-              <TabsContent value="calendar">
+              <TabsContent value="calendar" forceMount>
                 <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
                   <div className="order-2 lg:order-1">
                     <Suspense fallback={<CalendarPlaceholder />}>
@@ -730,7 +730,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
                 </div>
               </TabsContent>
 
-              <TabsContent value="pdf">
+              <TabsContent value="pdf" forceMount>
                 <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
                   <div className="space-y-4">
                     <p className="text-xl md:text-2xl font-bold">{c.pdf_title}</p>
