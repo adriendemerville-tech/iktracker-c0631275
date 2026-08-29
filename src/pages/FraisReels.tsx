@@ -1,3 +1,5 @@
+import { LastUpdated } from "@/components/LastUpdated";
+import { getStaticLastModified } from "@/lib/page-dates";
 import { useState, useMemo } from "react";
 import { RelatedLinks } from "@/components/marketing/RelatedLinks";
 import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
@@ -33,6 +35,8 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+const PAGE_LASTMOD = getStaticLastModified("/frais-reels");
 
 // Barème kilométrique 2026 (véhicules thermiques)
 const BAREME_2026 = {
@@ -283,6 +287,7 @@ export default function FraisReels() {
                   Calculez la meilleure option en 2026
                 </span>
               </h1>
+              {PAGE_LASTMOD ? <LastUpdated date={PAGE_LASTMOD} className="mt-2 mb-4" /> : null}
 
               <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto min-h-[6rem] sm:min-h-[5rem] md:min-h-[4.5rem]">
                 Comparez gratuitement les deux méthodes de déduction fiscale pour vos frais

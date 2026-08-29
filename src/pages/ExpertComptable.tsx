@@ -1,3 +1,5 @@
+import { LastUpdated } from "@/components/LastUpdated";
+import { getStaticLastModified } from "@/lib/page-dates";
 import { lazy, Suspense, memo, useCallback, useEffect, useState, useRef } from "react";
 import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
 import { Helmet } from "@/lib/helmet-compat";
@@ -25,6 +27,8 @@ const MarketingNav = lazy(() =>
   import("@/components/marketing/MarketingNav").then((m) => ({ default: m.MarketingNav })),
 );
 import { Breadcrumb } from "@/components/Breadcrumb";
+
+const PAGE_LASTMOD = getStaticLastModified("/expert-comptable");
 
 // Lazy load heavy demo components with lower priority
 const AppCarousel = lazy(() =>
@@ -221,6 +225,7 @@ const ExpertComptable = () => {
                 <br />
                 <span className="text-primary">déclarations IK</span>
               </h1>
+              {PAGE_LASTMOD ? <LastUpdated date={PAGE_LASTMOD} className="mt-2 mb-4" /> : null}
               <p className="text-xl text-muted-foreground min-h-[5rem] md:min-h-[3.5rem]">
                 Exports standardisés. Calcul automatique. Gain de temps garanti.
               </p>

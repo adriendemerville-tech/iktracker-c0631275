@@ -1,7 +1,11 @@
+import { LastUpdated } from "@/components/LastUpdated";
+import { getStaticLastModified } from "@/lib/page-dates";
 import { Helmet } from "@/lib/helmet-compat";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { EnhancedMarketingFooter } from "@/components/marketing/EnhancedMarketingFooter";
 import { Breadcrumb } from "@/components/Breadcrumb";
+
+const PAGE_LASTMOD = getStaticLastModified("/api-docs");
 
 const baseUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/partner-api`;
 
@@ -48,6 +52,7 @@ export default function ApiDocs() {
         <Breadcrumb items={[{ label: "API Partenaires" }]} />
         <header className="space-y-3">
           <h1 className="text-4xl font-bold">API Partenaires IKtracker</h1>
+          {PAGE_LASTMOD ? <LastUpdated date={PAGE_LASTMOD} className="mt-2 mb-4" /> : null}
           <p className="text-lg text-muted-foreground">
             Intégrez IKtracker dans votre plateforme : calcul d'indemnités, gestion des trajets, SSO
             et webhooks. Gratuit, sans limite imposée.

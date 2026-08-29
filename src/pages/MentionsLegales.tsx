@@ -1,9 +1,13 @@
+import { LastUpdated } from "@/components/LastUpdated";
+import { getStaticLastModified } from "@/lib/page-dates";
 import { Helmet } from "@/lib/helmet-compat";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate, Link } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
 import founderImage from "@/assets/founder-adrien-optimized.webp";
 import { Breadcrumb } from "@/components/Breadcrumb";
+
+const PAGE_LASTMOD = getStaticLastModified("/mentions-legales");
 
 const MentionsLegales = () => {
   const navigate = useNavigate();
@@ -67,6 +71,7 @@ const MentionsLegales = () => {
         aria-labelledby="page-heading"
       >
         <Breadcrumb items={[{ label: "Mentions légales" }]} />
+        {PAGE_LASTMOD ? <LastUpdated date={PAGE_LASTMOD} className="mb-4" /> : null}
         <article className="prose prose-sm dark:prose-invert max-w-none space-y-6">
           <section aria-labelledby="ml-editeur">
             <h2 id="ml-editeur" className="text-lg font-semibold text-foreground">

@@ -73,3 +73,12 @@ export const STATIC_PAGE_LASTMOD: Record<string, string> = {
   "/rgpd": "2026-08-23",
   "/terms": "2026-08-23",
 };
+
+/**
+ * Date de dernière mise à jour d'une URL statique, utilisable pour l'affichage
+ * visible « Mis à jour le … » sur les pages publiques qui n'ont pas de couple
+ * published/modified éditorial. Renvoie undefined si l'URL n'est pas suivie.
+ */
+export function getStaticLastModified(path: string): string | undefined {
+  return STATIC_PAGE_LASTMOD[path];
+}

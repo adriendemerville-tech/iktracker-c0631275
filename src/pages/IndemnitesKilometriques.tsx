@@ -1,3 +1,5 @@
+import { LastUpdated } from "@/components/LastUpdated";
+import { getStaticLastModified } from "@/lib/page-dates";
 import { lazy, Suspense } from "react";
 import { Helmet } from "@/lib/helmet-compat";
 import { Link } from "@/lib/router-compat";
@@ -33,6 +35,8 @@ import {
   Repeat,
   Mail,
 } from "lucide-react";
+
+const PAGE_LASTMOD = getStaticLastModified("/indemnites-kilometriques");
 
 const PAGE_URL = "https://iktracker.fr/indemnites-kilometriques";
 const PAGE_UPDATED = "2026-08-27";
@@ -206,6 +210,7 @@ export default function IndemnitesKilometriques() {
           <h1 className="text-3xl md:text-5xl font-bold text-foreground leading-tight tracking-tight">
             Indemnités kilométriques <span className="text-primary">2026</span>
           </h1>
+          {PAGE_LASTMOD ? <LastUpdated date={PAGE_LASTMOD} className="mt-2 mb-4" /> : null}
           <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
             Définition, barème officiel DGFiP par puissance fiscale, méthode de calcul, majoration
             de 20 % pour les véhicules électriques et justificatifs exigés en cas de contrôle.
