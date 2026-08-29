@@ -15,6 +15,9 @@ import { useMarketingTracker } from "@/hooks/useMarketingTracker";
 import { Counter } from "@/components/Counter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PdfReportMockup } from "@/components/marketing/PdfReportMockup";
+// Import statique volontaire : contenu texte indexable, doit être dans le HTML SSR de "/".
+import { TestimonialsCarousel } from "@/components/marketing/TestimonialsCarousel";
+
 
 import {
   ArrowRight,
@@ -98,11 +101,7 @@ const MarketingPWANotification = lazy(() =>
     default: m.MarketingPWANotification,
   })),
 );
-const TestimonialsCarousel = lazy(() =>
-  import("@/components/marketing/TestimonialsCarousel").then((m) => ({
-    default: m.TestimonialsCarousel,
-  })),
-);
+
 // Footer marketing : import statique volontaire — il porte le maillage interne
 // (pages orphelines incluses) et doit être présent dans le HTML SSR de "/".
 
@@ -205,6 +204,10 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
   });
 
   const [user, setUser] = useState<User | null>(null);
+  // Onglet démo contrôlé : tous les TabsContent sont forceMount (texte présent dans
+  // le HTML SSR pour les bots), seuls les mockups lourds de l'onglet actif sont montés.
+  const [demoTab, setDemoTab] = useState("mobile");
+
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { ref: pdfRef, isVisible: pdfVisible } = useScrollAnimation({ threshold: 0.2 });
@@ -510,10 +513,9 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
           </div>
         </section>
 
-        {/* Testimonials */}
-        <Suspense fallback={<LazyPlaceholder height={280} />}>
-          <TestimonialsCarousel />
-        </Suspense>
+        {/* Testimonials — rendu SSR (contenu texte indexable) */}
+        <TestimonialsCarousel />
+
 
         {/* Statistics Section - Independent Workers */}
         <section className="py-12 md:py-16 px-4 section-contained">
@@ -621,7 +623,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
               </p>
             </div>
 
-            <Tabs defaultValue="mobile" className="max-w-5xl mx-auto">
+            <Tabs value={demoTab} onValueChange={setDemoTab} className="max-w-5xl mx-auto">
               <TabsList className="mx-auto flex flex-wrap justify-center h-auto gap-1 mb-8">
                 <TabsTrigger value="mobile" className="gap-2">
                   <Smartphone className="h-4 w-4" /> Mobile
@@ -637,11 +639,11 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="mobile">
+              <TabsContent value="mobile" forceMount>
                 <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
                   <div className="order-2 lg:order-1">
                     <Suspense fallback={<PhonePlaceholder />}>
-                      <AnimatedPhoneMockup />
+                      {demoTab === "mobile" ? <AnimatedPhoneMockup /> : <PhonePlaceholder />}
                     </Suspense>
                   </div>
                   <div className="space-y-4 order-1 lg:order-2">
@@ -668,7 +670,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
                 </div>
               </TabsContent>
 
-              <TabsContent value="tour">
+              <TabsContent value="tour" forceMount>
                 <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
                   <div className="space-y-4">
                     <p className="text-xl md:text-2xl font-bold">{c.tour_title}</p>
@@ -692,16 +694,16 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
                     </Link>
                   </div>
                   <Suspense fallback={<PhonePlaceholder />}>
-                    <TourModeMockup />
+                    {demoTab === "tour" ? <TourModeMockup /> : <PhonePlaceholder />}
                   </Suspense>
                 </div>
               </TabsContent>
 
-              <TabsContent value="calendar">
+              <TabsContent value="calendar" forceMount>
                 <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
                   <div className="order-2 lg:order-1">
                     <Suspense fallback={<CalendarPlaceholder />}>
-                      <CalendarSyncDemo />
+                      {demoTab === "calendar" ? <CalendarSyncDemo /> : <CalendarPlaceholder />}
                     </Suspense>
                   </div>
                   <div className="space-y-4 order-1 lg:order-2">
@@ -728,7 +730,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
                 </div>
               </TabsContent>
 
-              <TabsContent value="pdf">
+              <TabsContent value="pdf" forceMount>
                 <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
                   <div className="space-y-4">
                     <p className="text-xl md:text-2xl font-bold">{c.pdf_title}</p>
@@ -753,7 +755,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
                   </div>
                   <div ref={pdfRef}>
                     <Suspense fallback={<LazyPlaceholder height={420} />}>
-                      <PdfReportMockup />
+                      {demoTab === "pdf" ? <PdfReportMockup /> : <LazyPlaceholder height={420} />}
                     </Suspense>
                   </div>
                 </div>
