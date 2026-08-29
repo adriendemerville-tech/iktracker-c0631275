@@ -703,6 +703,7 @@ src/
 
 ## Changelog
 
+- **3.4** (29 août 2026) — Hero homepage resserré et hiérarchie CTA, nav épurée (Tarifs/Ressources/Blog au footer), sections condensées, compteurs de preuve sociale, page `/app/messages` + bannière de réponse admin, surveys (taille de police, emojis), onglet Contributeurs du forum admin, title/meta home optimisés.
 - **2.8** (28 août 2026) — Blocs CTA + aperçu + largeur adaptative des surveys, onglet Forum dans /admin, toggle aller-retour dans la fiche trajet, layout du relevé comptable.
 - **2.7** (20 août 2026) — Flux Atom `/feed.xml` (SSR, 50 articles, client admin) + lien RSS au footer ; `src/lib/page-dates.ts` comme source unique des dates éditoriales (JSON-LD + `<LastUpdated />`) ; audit accessibilité des 47 `<img>` (alts descriptifs, décoratives en `alt=""`, `<figure>`/`<figcaption>`) ; nouvelle landing `/logiciel-devis-artisan` avec hero LCP optimisé ; liens dofollow DictaDevi/Crawlers dans la bio auteur.
 - **2.6** (20 août 2026) — JSON-LD rendus en SSR via le wrapper `Helmet` de `helmet-compat` ; balise `<main>` ajoutée sur `/artisans` et `/logiciel-devis-artisan` ; suite de tests SSR des données structurées (`src/test/ssr-structured-data.test.ts`).
