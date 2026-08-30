@@ -205,6 +205,29 @@ const BaremeIK2026 = () => {
                   officiel applicable. Utilisez gratuitement notre simulateur et calculez vos{" "}
                   <strong>indemnités kilométriques</strong>.
                 </p>
+
+                <DirectAnswer question="Combien vaut le kilomètre en 2026 et comment lire le barème fiscal officiel ?">
+                  <p>
+                    Le barème 2026 est publié par la DGFiP et s'applique à la déclaration de
+                    revenus : le montant déductible se lit en croisant la puissance fiscale du
+                    véhicule (de 3 CV et moins à 7 CV et plus) avec la tranche de kilométrage
+                    annuel — jusqu'à 5 000 km, de 5 001 à 20 000 km, puis au-delà de 20 000 km —
+                    chaque tranche combinant un tarif au kilomètre et, pour la tranche
+                    intermédiaire, une part forfaitaire.
+                  </p>
+                  <p>
+                    Ce barème couvre le carburant, l'entretien, l'assurance, les pneumatiques et la
+                    dépréciation du véhicule ; seuls les péages, parkings et intérêts d'emprunt
+                    s'ajoutent, et une majoration de 20 % s'applique aux véhicules 100 %
+                    électriques.
+                  </p>
+                  <p>
+                    Il concerne en France les salariés aux frais réels comme les indépendants, et
+                    ne peut être utilisé que pour un véhicule dont on est propriétaire ou
+                    locataire, à raison des trajets professionnels réellement effectués et
+                    justifiés.
+                  </p>
+                </DirectAnswer>
               </div>
 
               {/* Table of contents */}
