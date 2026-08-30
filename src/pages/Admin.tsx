@@ -1328,7 +1328,6 @@ const Admin = () => {
                   <AdminPartners />
                 </TabsContent>
               </Tabs>
-          </Suspense>
             </TabsContent>
 
             {/* Monitoring Tab */}
@@ -1400,6 +1399,7 @@ const Admin = () => {
               </TabsContent>
             )}
           </Tabs>
+          </Suspense>
         </main>
 
         {/* User KPI Sheet */}
