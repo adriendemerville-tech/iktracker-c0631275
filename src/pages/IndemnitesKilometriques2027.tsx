@@ -146,6 +146,26 @@ export default function IndemnitesKilometriques2027() {
               </Button>
             </Link>
           </div>
+
+          <DirectAnswer question="Le barème kilométrique 2027 est-il publié, et quel barème appliquer en attendant ?">
+            <p>
+              Non : au moment de la mise à jour de cette page, le barème kilométrique 2027 n'a pas
+              encore été publié par la DGFiP. Il paraît traditionnellement par arrêté au Journal
+              officiel entre mars et avril, pour la déclaration de revenus de l'année précédente,
+              et s'applique rétroactivement à tous les trajets effectués depuis le 1er janvier
+              2027.
+            </p>
+            <p>
+              En attendant, tout déplacement professionnel réalisé en 2026 se calcule au barème
+              2026 en vigueur : kilomètres × tarif selon la puissance fiscale et la tranche
+              annuelle, avec une majoration de 20 % pour les véhicules 100 % électriques.
+            </p>
+            <p>
+              La bonne pratique est donc d'enregistrer les trajets au fil de l'eau plutôt que
+              d'attendre la publication : IKtracker conserve le détail par trajet et recalcule
+              automatiquement l'historique dès que le barème 2027 est officiel.
+            </p>
+          </DirectAnswer>
         </section>
 
         {/* Statut du barème */}
