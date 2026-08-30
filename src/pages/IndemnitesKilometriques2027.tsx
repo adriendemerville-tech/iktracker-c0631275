@@ -1,4 +1,5 @@
 import { LastUpdated } from "@/components/LastUpdated";
+import { DirectAnswer } from "@/components/DirectAnswer";
 import { getPageDates } from "@/lib/page-dates";
 import { Helmet } from "@/lib/helmet-compat";
 import { Link } from "@/lib/router-compat";

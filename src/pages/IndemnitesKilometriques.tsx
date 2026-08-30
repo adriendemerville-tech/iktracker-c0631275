@@ -1,4 +1,5 @@
 import { LastUpdated } from "@/components/LastUpdated";
+import { DirectAnswer } from "@/components/DirectAnswer";
 import { getStaticLastModified } from "@/lib/page-dates";
 import { lazy, Suspense } from "react";
 import { Helmet } from "@/lib/helmet-compat";
