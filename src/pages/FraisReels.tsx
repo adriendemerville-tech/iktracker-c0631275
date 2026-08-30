@@ -294,6 +294,26 @@ export default function FraisReels() {
                 Comparez gratuitement les deux méthodes de déduction fiscale pour vos frais
                 kilométriques et optimisez votre déclaration d'impôts en quelques clics.
               </p>
+
+              <DirectAnswer question="Frais réels ou abattement de 10 % : à partir de quel montant faut-il basculer ?">
+                <p>
+                  L'abattement forfaitaire de 10 % est appliqué automatiquement par
+                  l'administration fiscale sur les salaires ; opter pour les frais réels n'a
+                  d'intérêt que si le total des dépenses professionnelles justifiées — indemnités
+                  kilométriques en tête, plus péages, parkings, repas et formation — dépasse ce
+                  montant.
+                </p>
+                <p>
+                  Le point de bascule se situe donc au niveau du salaire net imposable multiplié
+                  par 0,10 : concrètement, un actif qui parcourt plusieurs milliers de kilomètres
+                  professionnels par an y gagne presque toujours, un salarié sédentaire rarement.
+                </p>
+                <p>
+                  L'option se coche chaque année lors de la déclaration de revenus, se décide
+                  déclarant par déclarant, et impose de conserver trois ans le détail de chaque
+                  trajet en cas de contrôle.
+                </p>
+              </DirectAnswer>
               <p className="text-sm text-muted-foreground mt-4">
                 Retrouvez toutes les informations sur la déclaration des frais professionnels sur{" "}
                 <a
