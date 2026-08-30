@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef, lazy, Suspense } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Helmet } from "@/lib/helmet-compat";
 import { useNavigate, useSearchParams } from "@/lib/router-compat";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -70,25 +70,27 @@ import {
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
+import { lazyRetry } from "@/lib/lazy-retry";
+import { LazyBoundary } from "@/components/LazyBoundary";
 // Panneaux admin chargés à la demande (recharts & co hors du bundle initial/SSR)
-const AdminStats = lazy(() => import("@/components/AdminStats").then((m) => ({ default: m.AdminStats })));
-const AdminCosts = lazy(() => import("@/components/admin/AdminCosts").then((m) => ({ default: m.AdminCosts })));
-const AdminAffiliation = lazy(() => import("@/components/admin/AdminAffiliation").then((m) => ({ default: m.AdminAffiliation })));
-const AdminPartners = lazy(() => import("@/components/admin/AdminPartners").then((m) => ({ default: m.AdminPartners })));
-const AdminDocumentation = lazy(() => import("@/components/admin/AdminDocumentation").then((m) => ({ default: m.AdminDocumentation })));
-const AdminMonitoring = lazy(() => import("@/components/admin/AdminMonitoring").then((m) => ({ default: m.AdminMonitoring })));
-const AdminBotTest = lazy(() => import("@/components/admin/AdminBotTest").then((m) => ({ default: m.AdminBotTest })));
-const AdminAutopilot = lazy(() => import("@/components/admin/AdminAutopilot").then((m) => ({ default: m.AdminAutopilot })));
-const UserKPISheet = lazy(() => import("@/components/admin/UserKPISheet").then((m) => ({ default: m.UserKPISheet })));
-const AdminSurveys = lazy(() => import("@/components/admin/AdminSurveys").then((m) => ({ default: m.AdminSurveys })));
-const AdminTourRecovery = lazy(() => import("@/components/admin/AdminTourRecovery").then((m) => ({ default: m.AdminTourRecovery })));
-const AdminTourMode = lazy(() => import("@/components/admin/AdminTourMode").then((m) => ({ default: m.AdminTourMode })));
-const AdminApiPartners = lazy(() => import("@/components/admin/AdminApiPartners").then((m) => ({ default: m.AdminApiPartners })));
-const AdminWavespeed = lazy(() => import("@/components/admin/AdminWavespeed").then((m) => ({ default: m.AdminWavespeed })));
-const AdminLinkedIn = lazy(() => import("@/components/admin/AdminLinkedIn").then((m) => ({ default: m.AdminLinkedIn })));
-const AdminForum = lazy(() => import("@/components/admin/AdminForum").then((m) => ({ default: m.AdminForum })));
-const AdminContentFreshness = lazy(() => import("@/components/admin/AdminContentFreshness").then((m) => ({ default: m.AdminContentFreshness })));
-const AdminGitHubActions = lazy(() => import("@/components/admin/AdminGitHubActions").then((m) => ({ default: m.AdminGitHubActions })));
+const AdminStats = lazyRetry(() => import("@/components/AdminStats").then((m) => ({ default: m.AdminStats })), "AdminStats");
+const AdminCosts = lazyRetry(() => import("@/components/admin/AdminCosts").then((m) => ({ default: m.AdminCosts })), "AdminCosts");
+const AdminAffiliation = lazyRetry(() => import("@/components/admin/AdminAffiliation").then((m) => ({ default: m.AdminAffiliation })), "AdminAffiliation");
+const AdminPartners = lazyRetry(() => import("@/components/admin/AdminPartners").then((m) => ({ default: m.AdminPartners })), "AdminPartners");
+const AdminDocumentation = lazyRetry(() => import("@/components/admin/AdminDocumentation").then((m) => ({ default: m.AdminDocumentation })), "AdminDocumentation");
+const AdminMonitoring = lazyRetry(() => import("@/components/admin/AdminMonitoring").then((m) => ({ default: m.AdminMonitoring })), "AdminMonitoring");
+const AdminBotTest = lazyRetry(() => import("@/components/admin/AdminBotTest").then((m) => ({ default: m.AdminBotTest })), "AdminBotTest");
+const AdminAutopilot = lazyRetry(() => import("@/components/admin/AdminAutopilot").then((m) => ({ default: m.AdminAutopilot })), "AdminAutopilot");
+const UserKPISheet = lazyRetry(() => import("@/components/admin/UserKPISheet").then((m) => ({ default: m.UserKPISheet })), "UserKPISheet");
+const AdminSurveys = lazyRetry(() => import("@/components/admin/AdminSurveys").then((m) => ({ default: m.AdminSurveys })), "AdminSurveys");
+const AdminTourRecovery = lazyRetry(() => import("@/components/admin/AdminTourRecovery").then((m) => ({ default: m.AdminTourRecovery })), "AdminTourRecovery");
+const AdminTourMode = lazyRetry(() => import("@/components/admin/AdminTourMode").then((m) => ({ default: m.AdminTourMode })), "AdminTourMode");
+const AdminApiPartners = lazyRetry(() => import("@/components/admin/AdminApiPartners").then((m) => ({ default: m.AdminApiPartners })), "AdminApiPartners");
+const AdminWavespeed = lazyRetry(() => import("@/components/admin/AdminWavespeed").then((m) => ({ default: m.AdminWavespeed })), "AdminWavespeed");
+const AdminLinkedIn = lazyRetry(() => import("@/components/admin/AdminLinkedIn").then((m) => ({ default: m.AdminLinkedIn })), "AdminLinkedIn");
+const AdminForum = lazyRetry(() => import("@/components/admin/AdminForum").then((m) => ({ default: m.AdminForum })), "AdminForum");
+const AdminContentFreshness = lazyRetry(() => import("@/components/admin/AdminContentFreshness").then((m) => ({ default: m.AdminContentFreshness })), "AdminContentFreshness");
+const AdminGitHubActions = lazyRetry(() => import("@/components/admin/AdminGitHubActions").then((m) => ({ default: m.AdminGitHubActions })), "AdminGitHubActions");
 
 interface DeviceInfo {
   platform: string;
@@ -693,7 +695,7 @@ const Admin = () => {
         </header>
 
         <main className="max-w-[1600px] mx-auto p-4">
-          <Suspense fallback={<div className="p-6"><Skeleton className="h-64 w-full" /></div>}>
+          <LazyBoundary label="Panneau admin" fallback={<div className="p-6"><Skeleton className="h-64 w-full" /></div>}>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="inline-flex h-auto min-h-10 w-full flex-nowrap items-center justify-start gap-1 overflow-x-auto mb-4 [&>*]:min-w-fit [&>*]:shrink-0">
               <TabsTrigger value="stats" className="flex items-center gap-1 text-xs sm:text-sm">
@@ -1399,13 +1401,13 @@ const Admin = () => {
               </TabsContent>
             )}
           </Tabs>
-          </Suspense>
+          </LazyBoundary>
         </main>
 
         {/* User KPI Sheet */}
-        <Suspense fallback={null}>
+        <LazyBoundary fallback={null}>
           <UserKPISheet user={selectedUser} open={userSheetOpen} onOpenChange={setUserSheetOpen} />
-        </Suspense>
+        </LazyBoundary>
 
         <AlertDialog
           open={!!convoToDelete}

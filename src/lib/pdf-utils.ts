@@ -1,4 +1,5 @@
 // PDF and ZIP utilities - loaded on demand to reduce initial bundle size
+import { importWithRetry } from "./lazy-retry";
 
 let zipPromise: Promise<any> | null = null;
 let html2pdfPromise: Promise<any> | null = null;
@@ -6,7 +7,10 @@ let html2pdfPromise: Promise<any> | null = null;
 // Preload ZIP library
 export function preloadZip() {
   if (!zipPromise) {
-    zipPromise = import("jszip").then((m) => m.default);
+    zipPromise = importWithRetry(() => import("jszip"), "jszip").then((m) => m.default).catch((e) => {
+      zipPromise = null;
+      throw e;
+    });
   }
   return zipPromise;
 }
@@ -18,7 +22,12 @@ export async function loadZip() {
 // Load html2pdf library for converting HTML to PDF
 async function loadHtml2Pdf() {
   if (!html2pdfPromise) {
-    html2pdfPromise = import("html2pdf.js").then((m) => m.default);
+    html2pdfPromise = importWithRetry(() => import("html2pdf.js"), "html2pdf")
+      .then((m) => m.default)
+      .catch((e) => {
+        html2pdfPromise = null;
+        throw e;
+      });
   }
   return html2pdfPromise;
 }
