@@ -1,4 +1,5 @@
 import { LastUpdated } from "@/components/LastUpdated";
+import { DirectAnswer } from "@/components/DirectAnswer";
 import { getStaticLastModified } from "@/lib/page-dates";
 import { lazy, Suspense } from "react";
 import { Helmet } from "@/lib/helmet-compat";
@@ -229,6 +230,26 @@ export default function IndemnitesKilometriques() {
             </Link>
           </div>
 
+          <DirectAnswer question="Comment sont calculées les indemnités kilométriques en 2026 et qui peut les déduire ?">
+            <p>
+              L'indemnité kilométrique est le remboursement forfaitaire des frais engagés avec un
+              véhicule personnel pour un déplacement professionnel : elle est calculée en
+              multipliant les kilomètres parcourus par le tarif du barème officiel publié chaque
+              année par la DGFiP, tarif qui dépend de la puissance fiscale du véhicule et de la
+              tranche de kilométrage annuel (0-5 000 km, 5 001-20 000 km, au-delà de 20 000 km).
+            </p>
+            <p>
+              Elle concerne en France les salariés qui optent pour les frais réels, les
+              indépendants, artisans, professions libérales et gérants, avec une majoration de 20 %
+              pour les véhicules 100 % électriques ; le trajet domicile-travail est retenu dans la
+              limite de 40 km aller.
+            </p>
+            <p>
+              En cas de contrôle, seul le détail par trajet fait foi — date, motif professionnel,
+              adresses de départ et d'arrivée, distance et puissance fiscale — à conserver trois
+              ans, ce qu'IKtracker enregistre automatiquement et gratuitement.
+            </p>
+          </DirectAnswer>
         </section>
 
         {/* Définition */}
