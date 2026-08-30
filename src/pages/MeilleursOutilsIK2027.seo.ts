@@ -16,7 +16,8 @@ export const PAGE_DATE = getPageDates("/meilleurs-outils-indemnites-kilometrique
 export const PAGE_TITLE =
   "Meilleurs outils d'indemnités kilométriques 2027 : classement";
 export const PAGE_DESCRIPTION =
-  "Classement 2027 des outils de suivi des indemnités kilométriques : Expensya, IKtracker, N2F, Lucca, Jenji, Mooncard, Rydoo, Concur, Izika, Driversnote, MileIQ.";
+  "Classement 2027 des outils d'indemnités kilométriques : Expensya, IKtracker, N2F, Lucca, Jenji, Mooncard, Izika, Mileo, Kilevo, Kilom, Easik, Driversnote, MileIQ.";
+
 
 /** Colonnes du tableau comparatif, dans l'ordre d'affichage. */
 export const COLONNES = [
