@@ -7,6 +7,7 @@
 - [Accueil](/): Outil gratuit d'automatisation des indemnités kilométriques.
 - [Inscription gratuite](/signup): Créer un compte en quelques secondes.
 - [Indemnités kilométriques 2026](/indemnites-kilometriques): Page de référence — définition, barème DGFiP, calcul, majoration 20% électrique, justificatifs, simulateur et méthode IKtracker (Mode Tournée, trajets récurrents, calendrier, rapports automatiques).
+- [Indemnités kilométriques 2027](/indemnites-kilometriques-2027): Suivi du barème 2027 — publication DGFiP attendue au printemps, barème 2026 en vigueur en attendant, bascule automatique au 1er janvier.
 - [Barème kilométrique 2026](/bareme-ik-2026): Tableau officiel et simulateur IK.
 - [Fonctionnalités](/fonctionnalites): Panorama complet des outils IKtracker (trajet en direct, Mode Tournée, calendrier, exports).
 - [Mode Tournée GPS](/mode-tournee): Détection automatique des arrêts par géolocalisation.

@@ -51,6 +51,7 @@ export const STATIC_PAGE_LASTMOD: Record<string, string> = {
   "/installer": "2026-08-16",
   "/bareme-ik-2026": "2026-08-23",
   "/indemnites-kilometriques": "2026-08-27",
+  "/indemnites-kilometriques-2027": "2026-08-30",
   "/frais-reels": "2026-08-19",
   "/note-de-frais-kilometrique": "2026-08-19",
   "/indemnite-kilometrique-velo": "2026-08-23",
