@@ -71,24 +71,24 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
 // Panneaux admin chargés à la demande (recharts & co hors du bundle initial/SSR)
-const AdminStats = lazy(() => import("@/components/AdminStats").then((m) => ({ default: m.AdminStats })));
-const AdminCosts = lazy(() => import("@/components/admin/AdminCosts").then((m) => ({ default: m.AdminCosts })));
-const AdminAffiliation = lazy(() => import("@/components/admin/AdminAffiliation").then((m) => ({ default: m.AdminAffiliation })));
-const AdminPartners = lazy(() => import("@/components/admin/AdminPartners").then((m) => ({ default: m.AdminPartners })));
-const AdminDocumentation = lazy(() => import("@/components/admin/AdminDocumentation").then((m) => ({ default: m.AdminDocumentation })));
-const AdminMonitoring = lazy(() => import("@/components/admin/AdminMonitoring").then((m) => ({ default: m.AdminMonitoring })));
-const AdminBotTest = lazy(() => import("@/components/admin/AdminBotTest").then((m) => ({ default: m.AdminBotTest })));
-const AdminAutopilot = lazy(() => import("@/components/admin/AdminAutopilot").then((m) => ({ default: m.AdminAutopilot })));
-const UserKPISheet = lazy(() => import("@/components/admin/UserKPISheet").then((m) => ({ default: m.UserKPISheet })));
-const AdminSurveys = lazy(() => import("@/components/admin/AdminSurveys").then((m) => ({ default: m.AdminSurveys })));
-const AdminTourRecovery = lazy(() => import("@/components/admin/AdminTourRecovery").then((m) => ({ default: m.AdminTourRecovery })));
-const AdminTourMode = lazy(() => import("@/components/admin/AdminTourMode").then((m) => ({ default: m.AdminTourMode })));
-const AdminApiPartners = lazy(() => import("@/components/admin/AdminApiPartners").then((m) => ({ default: m.AdminApiPartners })));
-const AdminWavespeed = lazy(() => import("@/components/admin/AdminWavespeed").then((m) => ({ default: m.AdminWavespeed })));
-const AdminLinkedIn = lazy(() => import("@/components/admin/AdminLinkedIn").then((m) => ({ default: m.AdminLinkedIn })));
-const AdminForum = lazy(() => import("@/components/admin/AdminForum").then((m) => ({ default: m.AdminForum })));
-const AdminContentFreshness = lazy(() => import("@/components/admin/AdminContentFreshness").then((m) => ({ default: m.AdminContentFreshness })));
-const AdminGitHubActions = lazy(() => import("@/components/admin/AdminGitHubActions").then((m) => ({ default: m.AdminGitHubActions })));
+const AdminStats = lazyRetry(() => import("@/components/AdminStats").then((m) => ({ default: m.AdminStats })), "AdminStats");
+const AdminCosts = lazyRetry(() => import("@/components/admin/AdminCosts").then((m) => ({ default: m.AdminCosts })), "AdminCosts");
+const AdminAffiliation = lazyRetry(() => import("@/components/admin/AdminAffiliation").then((m) => ({ default: m.AdminAffiliation })), "AdminAffiliation");
+const AdminPartners = lazyRetry(() => import("@/components/admin/AdminPartners").then((m) => ({ default: m.AdminPartners })), "AdminPartners");
+const AdminDocumentation = lazyRetry(() => import("@/components/admin/AdminDocumentation").then((m) => ({ default: m.AdminDocumentation })), "AdminDocumentation");
+const AdminMonitoring = lazyRetry(() => import("@/components/admin/AdminMonitoring").then((m) => ({ default: m.AdminMonitoring })), "AdminMonitoring");
+const AdminBotTest = lazyRetry(() => import("@/components/admin/AdminBotTest").then((m) => ({ default: m.AdminBotTest })), "AdminBotTest");
+const AdminAutopilot = lazyRetry(() => import("@/components/admin/AdminAutopilot").then((m) => ({ default: m.AdminAutopilot })), "AdminAutopilot");
+const UserKPISheet = lazyRetry(() => import("@/components/admin/UserKPISheet").then((m) => ({ default: m.UserKPISheet })), "UserKPISheet");
+const AdminSurveys = lazyRetry(() => import("@/components/admin/AdminSurveys").then((m) => ({ default: m.AdminSurveys })), "AdminSurveys");
+const AdminTourRecovery = lazyRetry(() => import("@/components/admin/AdminTourRecovery").then((m) => ({ default: m.AdminTourRecovery })), "AdminTourRecovery");
+const AdminTourMode = lazyRetry(() => import("@/components/admin/AdminTourMode").then((m) => ({ default: m.AdminTourMode })), "AdminTourMode");
+const AdminApiPartners = lazyRetry(() => import("@/components/admin/AdminApiPartners").then((m) => ({ default: m.AdminApiPartners })), "AdminApiPartners");
+const AdminWavespeed = lazyRetry(() => import("@/components/admin/AdminWavespeed").then((m) => ({ default: m.AdminWavespeed })), "AdminWavespeed");
+const AdminLinkedIn = lazyRetry(() => import("@/components/admin/AdminLinkedIn").then((m) => ({ default: m.AdminLinkedIn })), "AdminLinkedIn");
+const AdminForum = lazyRetry(() => import("@/components/admin/AdminForum").then((m) => ({ default: m.AdminForum })), "AdminForum");
+const AdminContentFreshness = lazyRetry(() => import("@/components/admin/AdminContentFreshness").then((m) => ({ default: m.AdminContentFreshness })), "AdminContentFreshness");
+const AdminGitHubActions = lazyRetry(() => import("@/components/admin/AdminGitHubActions").then((m) => ({ default: m.AdminGitHubActions })), "AdminGitHubActions");
 
 interface DeviceInfo {
   platform: string;
