@@ -419,7 +419,7 @@ export const OUTILS: Outil[] = [
     },
   },
   {
-    rang: 11,
+    rang: 15,
     nom: "MileIQ",
     url: "https://mileiq.com",
     pays: "États-Unis",
@@ -445,7 +445,7 @@ export const OUTILS: Outil[] = [
     },
   },
   {
-    rang: 12,
+    rang: 16,
     nom: "TripLog",
     url: "https://triplogmileage.com",
     pays: "États-Unis",
@@ -471,7 +471,7 @@ export const OUTILS: Outil[] = [
     },
   },
   {
-    rang: 13,
+    rang: 17,
     nom: "Everlance",
     url: "https://www.everlance.com",
     pays: "États-Unis",
