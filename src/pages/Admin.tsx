@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef, Suspense } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Helmet } from "@/lib/helmet-compat";
 import { useNavigate, useSearchParams } from "@/lib/router-compat";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -1401,7 +1401,7 @@ const Admin = () => {
               </TabsContent>
             )}
           </Tabs>
-          </Suspense>
+          </LazyBoundary>
         </main>
 
         {/* User KPI Sheet */}
