@@ -113,7 +113,7 @@ export default function IndemnitesKilometriques2027() {
         <div className="container mx-auto px-4 pt-6">
           <Breadcrumb
             items={[
-              { label: "Indemnités kilométriques", to: "/indemnites-kilometriques" },
+              { label: "Indemnités kilométriques", href: "/indemnites-kilometriques" },
               { label: "Barème 2027" },
             ]}
           />
