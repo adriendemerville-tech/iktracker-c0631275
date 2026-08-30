@@ -1,7 +1,7 @@
 // Lazy-loaded chart wrapper - ensures recharts is NOT in the initial bundle
 // Only loads when a chart component is actually rendered
 
-import { Suspense, ComponentType } from "react";
+import type { ComponentType } from "react";
 import { lazyRetry, importWithRetry } from "@/lib/lazy-retry";
 import { LazyBoundary } from "@/components/LazyBoundary";
 import { Skeleton } from "@/components/ui/skeleton";
