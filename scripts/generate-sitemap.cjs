@@ -21,6 +21,7 @@ const staticPages = [
   { url: "/installer", priority: "0.6", changefreq: "monthly" },
   { url: "/bareme-ik-2026", priority: "0.9", changefreq: "monthly" },
   { url: "/indemnites-kilometriques", priority: "1.0", changefreq: "monthly" },
+  { url: "/indemnites-kilometriques-2027", priority: "0.8", changefreq: "monthly" },
   { url: "/frais-reels", priority: "0.8", changefreq: "monthly" },
   { url: "/note-de-frais-kilometrique", priority: "0.8", changefreq: "monthly" },
   { url: "/indemnite-kilometrique-velo", priority: "0.8", changefreq: "monthly" },
@@ -30,6 +31,11 @@ const staticPages = [
   { url: "/lexique", priority: "0.8", changefreq: "monthly" },
   { url: "/comparatif-izika", priority: "0.8", changefreq: "monthly" },
   { url: "/comparatif-driversnote", priority: "0.8", changefreq: "monthly" },
+  {
+    url: "/meilleurs-outils-indemnites-kilometriques-2027",
+    priority: "0.9",
+    changefreq: "monthly",
+  },
   {
     url: "/meilleure-application-indemnites-kilometriques",
     priority: "1.0",

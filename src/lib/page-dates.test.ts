@@ -16,11 +16,14 @@ const PAGE_SOURCES: Record<PageDatesKey, string> = {
   "/logiciel-devis-artisan": "src/pages/LogicielDevisArtisan.tsx",
   "/comparatif-izika": "src/pages/ComparatifIzika.tsx",
   "/comparatif-driversnote": "src/pages/ComparatifDriversNote.tsx",
+  "/indemnites-kilometriques-2027": "src/pages/IndemnitesKilometriques2027.tsx",
+  "/meilleurs-outils-indemnites-kilometriques-2027": "src/pages/MeilleursOutilsIK2027.tsx",
 };
 
 /** Modules de schémas JSON-LD extraits hors du composant (rendu SSR via head()). */
 const SCHEMA_SOURCES: Partial<Record<PageDatesKey, string>> = {
   "/logiciel-devis-artisan": "src/lib/logiciel-devis-artisan-schema.ts",
+  "/meilleurs-outils-indemnites-kilometriques-2027": "src/pages/MeilleursOutilsIK2027.seo.ts",
 };
 
 const keys = Object.keys(PAGE_DATES) as PageDatesKey[];

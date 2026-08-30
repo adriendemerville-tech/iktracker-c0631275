@@ -73,6 +73,10 @@ export function EnhancedMarketingFooter() {
     { label: "Barème IK 2026", href: "/bareme-ik-2026" },
     { label: "IKtracker vs Izika", href: "/comparatif-izika" },
     { label: "IKtracker vs Drivers Note", href: "/comparatif-driversnote" },
+    {
+      label: "Classement des outils IK 2027",
+      href: "/meilleurs-outils-indemnites-kilometriques-2027",
+    },
     { label: "Suivi de mes trajets", href: "/mes-trajets" },
   ];
 

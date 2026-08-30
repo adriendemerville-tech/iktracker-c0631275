@@ -23,7 +23,7 @@ import {
   FileDown,
 } from "lucide-react";
 
-const PAGE_DATES = getPageDates("/indemnites-kilometriques-2027");
+const PAGE_DATE = getPageDates("/indemnites-kilometriques-2027");
 const PAGE_URL = "https://iktracker.fr/indemnites-kilometriques-2027";
 
 const faqs = [
@@ -90,8 +90,8 @@ export default function IndemnitesKilometriques2027() {
             inLanguage: "fr-FR",
             url: PAGE_URL,
             mainEntityOfPage: PAGE_URL,
-            datePublished: PAGE_DATES.published,
-            dateModified: PAGE_DATES.modified,
+            datePublished: PAGE_DATE.published,
+            dateModified: PAGE_DATE.modified,
             author: FOUNDER_PERSON,
             publisher: { "@type": "Organization", "@id": ORGANIZATION_ID, name: "IKtracker" },
             about: [
@@ -123,7 +123,7 @@ export default function IndemnitesKilometriques2027() {
           <h1 className="text-3xl md:text-5xl font-bold text-foreground leading-tight tracking-tight">
             Indemnités kilométriques <span className="text-primary">2027</span>
           </h1>
-          <LastUpdated date={PAGE_DATES.modified} className="mt-2 mb-4" />
+          <LastUpdated date={PAGE_DATE.modified} className="mt-2 mb-4" />
           <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
             Le barème kilométrique 2027 n'est pas encore publié par la DGFiP. Cette page le
             suivra dès sa parution officielle.{" "}

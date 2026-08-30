@@ -35,6 +35,11 @@ const staticPages: SitemapEntry[] = [
   { path: "/lexique", priority: "0.8", changefreq: "monthly" },
   { path: "/comparatif-izika", priority: "0.8", changefreq: "monthly" },
   { path: "/comparatif-driversnote", priority: "0.8", changefreq: "monthly" },
+  {
+    path: "/meilleurs-outils-indemnites-kilometriques-2027",
+    priority: "0.9",
+    changefreq: "monthly",
+  },
   { path: "/api-docs", priority: "0.5", changefreq: "monthly" },
   { path: "/fonctionnalites", priority: "0.9", changefreq: "monthly" },
   { path: "/artisans", priority: "0.8", changefreq: "monthly" },
