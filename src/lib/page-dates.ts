@@ -22,6 +22,10 @@ export const PAGE_DATES = {
   "/indemnites-kilometriques-2027": { published: "2026-08-30", modified: "2026-08-30" },
   "/comparatif-izika": { published: "2026-02-03", modified: "2026-02-03" },
   "/comparatif-driversnote": { published: "2026-02-03", modified: "2026-02-03" },
+  "/meilleurs-outils-indemnites-kilometriques-2027": {
+    published: "2026-08-30",
+    modified: "2026-08-30",
+  },
 } as const satisfies Record<string, PageDates>;
 
 export type PageDatesKey = keyof typeof PAGE_DATES;
@@ -62,6 +66,7 @@ export const STATIC_PAGE_LASTMOD: Record<string, string> = {
   "/lexique": "2026-08-23",
   "/comparatif-izika": "2026-08-23",
   "/comparatif-driversnote": "2026-08-23",
+  "/meilleurs-outils-indemnites-kilometriques-2027": "2026-08-30",
   "/api-docs": "2026-08-16",
   "/fonctionnalites": "2026-08-19",
   "/artisans": "2026-08-23",
