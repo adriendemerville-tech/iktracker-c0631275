@@ -206,11 +206,13 @@ export default function MeilleursOutilsIK2027() {
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
             Comparatif de {OUTILS.length} solutions utilisées en France pour suivre, calculer et
             justifier les indemnités kilométriques : Expensya, IKtracker, N2F, Cleemy Notes de frais
-            (Lucca), Jenji, Mooncard, Rydoo, SAP Concur, Izika, Driversnote, MileIQ, TripLog et
-            Everlance. Chaque outil est évalué sur le suivi des trajets, l'application du barème
-            URSSAF, le suivi GPS des tournées, l'export comptable et le prix, avec un renvoi vers la
-            source officielle pour chaque fonctionnalité annoncée.
+            (Lucca), Jenji, Mooncard, Rydoo, SAP Concur, Izika, Mileo, Kilevo, Kilom, Easik,
+            Driversnote, MileIQ, TripLog et Everlance. Chaque outil est évalué sur le suivi des
+            trajets, l'application du barème URSSAF, le suivi GPS des tournées, l'export comptable
+            et le prix, avec un renvoi vers la source officielle pour chaque fonctionnalité
+            annoncée.
           </p>
+
           <div className="mt-4">
             <LastUpdated date={PAGE_DATE.modified} />
           </div>
