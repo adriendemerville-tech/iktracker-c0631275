@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, lazy, Suspense } from "react";
 import { Helmet } from "@/lib/helmet-compat";
 import { useNavigate, useSearchParams } from "@/lib/router-compat";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -20,25 +20,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
-import { AdminStats } from "@/components/AdminStats";
-import { AdminCosts } from "@/components/admin/AdminCosts";
-import { AdminAffiliation } from "@/components/admin/AdminAffiliation";
-import { AdminPartners } from "@/components/admin/AdminPartners";
-import { AdminDocumentation } from "@/components/admin/AdminDocumentation";
-import { AdminMonitoring } from "@/components/admin/AdminMonitoring";
-import { AdminBotTest } from "@/components/admin/AdminBotTest";
-import { AdminAutopilot } from "@/components/admin/AdminAutopilot";
-import { UserKPISheet } from "@/components/admin/UserKPISheet";
-import { AdminSurveys } from "@/components/admin/AdminSurveys";
-import { AdminTourRecovery } from "@/components/admin/AdminTourRecovery";
-import { AdminTourMode } from "@/components/admin/AdminTourMode";
-import { AdminApiPartners } from "@/components/admin/AdminApiPartners";
-import { AdminWavespeed } from "@/components/admin/AdminWavespeed";
-import { AdminLinkedIn } from "@/components/admin/AdminLinkedIn";
-import { AdminForum } from "@/components/admin/AdminForum";
-import { AdminContentFreshness } from "@/components/admin/AdminContentFreshness";
-import { AdminGitHubActions } from "@/components/admin/AdminGitHubActions";
 import { PERSONA_OPTIONS } from "@/components/PersonaPicker";
+
 import {
   ArrowLeft,
   MessageSquare,
@@ -86,6 +69,26 @@ import {
 } from "@/components/ui/alert-dialog";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+
+// Panneaux admin chargés à la demande (recharts & co hors du bundle initial/SSR)
+const AdminStats = lazy(() => import("@/components/AdminStats").then((m) => ({ default: m.AdminStats })));
+const AdminCosts = lazy(() => import("@/components/admin/AdminCosts").then((m) => ({ default: m.AdminCosts })));
+const AdminAffiliation = lazy(() => import("@/components/admin/AdminAffiliation").then((m) => ({ default: m.AdminAffiliation })));
+const AdminPartners = lazy(() => import("@/components/admin/AdminPartners").then((m) => ({ default: m.AdminPartners })));
+const AdminDocumentation = lazy(() => import("@/components/admin/AdminDocumentation").then((m) => ({ default: m.AdminDocumentation })));
+const AdminMonitoring = lazy(() => import("@/components/admin/AdminMonitoring").then((m) => ({ default: m.AdminMonitoring })));
+const AdminBotTest = lazy(() => import("@/components/admin/AdminBotTest").then((m) => ({ default: m.AdminBotTest })));
+const AdminAutopilot = lazy(() => import("@/components/admin/AdminAutopilot").then((m) => ({ default: m.AdminAutopilot })));
+const UserKPISheet = lazy(() => import("@/components/admin/UserKPISheet").then((m) => ({ default: m.UserKPISheet })));
+const AdminSurveys = lazy(() => import("@/components/admin/AdminSurveys").then((m) => ({ default: m.AdminSurveys })));
+const AdminTourRecovery = lazy(() => import("@/components/admin/AdminTourRecovery").then((m) => ({ default: m.AdminTourRecovery })));
+const AdminTourMode = lazy(() => import("@/components/admin/AdminTourMode").then((m) => ({ default: m.AdminTourMode })));
+const AdminApiPartners = lazy(() => import("@/components/admin/AdminApiPartners").then((m) => ({ default: m.AdminApiPartners })));
+const AdminWavespeed = lazy(() => import("@/components/admin/AdminWavespeed").then((m) => ({ default: m.AdminWavespeed })));
+const AdminLinkedIn = lazy(() => import("@/components/admin/AdminLinkedIn").then((m) => ({ default: m.AdminLinkedIn })));
+const AdminForum = lazy(() => import("@/components/admin/AdminForum").then((m) => ({ default: m.AdminForum })));
+const AdminContentFreshness = lazy(() => import("@/components/admin/AdminContentFreshness").then((m) => ({ default: m.AdminContentFreshness })));
+const AdminGitHubActions = lazy(() => import("@/components/admin/AdminGitHubActions").then((m) => ({ default: m.AdminGitHubActions })));
 
 interface DeviceInfo {
   platform: string;
@@ -690,6 +693,7 @@ const Admin = () => {
         </header>
 
         <main className="max-w-[1600px] mx-auto p-4">
+          <Suspense fallback={<div className="p-6"><Skeleton className="h-64 w-full" /></div>}>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="inline-flex h-auto min-h-10 w-full flex-nowrap items-center justify-start gap-1 overflow-x-auto mb-4 [&>*]:min-w-fit [&>*]:shrink-0">
               <TabsTrigger value="stats" className="flex items-center gap-1 text-xs sm:text-sm">
@@ -1395,10 +1399,13 @@ const Admin = () => {
               </TabsContent>
             )}
           </Tabs>
+          </Suspense>
         </main>
 
         {/* User KPI Sheet */}
-        <UserKPISheet user={selectedUser} open={userSheetOpen} onOpenChange={setUserSheetOpen} />
+        <Suspense fallback={null}>
+          <UserKPISheet user={selectedUser} open={userSheetOpen} onOpenChange={setUserSheetOpen} />
+        </Suspense>
 
         <AlertDialog
           open={!!convoToDelete}
