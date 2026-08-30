@@ -22,7 +22,6 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { PERSONA_OPTIONS } from "@/components/PersonaPicker";
 
-import { PERSONA_OPTIONS } from "@/components/PersonaPicker";
 import {
   ArrowLeft,
   MessageSquare,
