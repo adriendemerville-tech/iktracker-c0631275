@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, lazy, Suspense } from "react";
 import { Helmet } from "@/lib/helmet-compat";
 import { useNavigate, useSearchParams } from "@/lib/router-compat";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -693,6 +693,7 @@ const Admin = () => {
         </header>
 
         <main className="max-w-[1600px] mx-auto p-4">
+          <Suspense fallback={<div className="p-6"><Skeleton className="h-64 w-full" /></div>}>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="inline-flex h-auto min-h-10 w-full flex-nowrap items-center justify-start gap-1 overflow-x-auto mb-4 [&>*]:min-w-fit [&>*]:shrink-0">
               <TabsTrigger value="stats" className="flex items-center gap-1 text-xs sm:text-sm">
@@ -1327,6 +1328,7 @@ const Admin = () => {
                   <AdminPartners />
                 </TabsContent>
               </Tabs>
+          </Suspense>
             </TabsContent>
 
             {/* Monitoring Tab */}
@@ -1401,7 +1403,9 @@ const Admin = () => {
         </main>
 
         {/* User KPI Sheet */}
-        <UserKPISheet user={selectedUser} open={userSheetOpen} onOpenChange={setUserSheetOpen} />
+        <Suspense fallback={null}>
+          <UserKPISheet user={selectedUser} open={userSheetOpen} onOpenChange={setUserSheetOpen} />
+        </Suspense>
 
         <AlertDialog
           open={!!convoToDelete}
