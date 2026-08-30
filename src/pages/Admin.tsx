@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef, lazy, Suspense } from "react";
+import { useState, useEffect, useMemo, useRef, Suspense } from "react";
 import { Helmet } from "@/lib/helmet-compat";
 import { useNavigate, useSearchParams } from "@/lib/router-compat";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -70,6 +70,8 @@ import {
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
+import { lazyRetry } from "@/lib/lazy-retry";
+import { LazyBoundary } from "@/components/LazyBoundary";
 // Panneaux admin chargés à la demande (recharts & co hors du bundle initial/SSR)
 const AdminStats = lazyRetry(() => import("@/components/AdminStats").then((m) => ({ default: m.AdminStats })), "AdminStats");
 const AdminCosts = lazyRetry(() => import("@/components/admin/AdminCosts").then((m) => ({ default: m.AdminCosts })), "AdminCosts");
