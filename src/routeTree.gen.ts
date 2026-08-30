@@ -37,6 +37,7 @@ import { Route as LexiqueRouteImport } from './routes/lexique'
 import { Route as LogicielDevisArtisanRouteImport } from './routes/logiciel-devis-artisan'
 import { Route as MarinaRouteImport } from './routes/marina'
 import { Route as MeilleureApplicationIndemnitesKilometriquesRouteImport } from './routes/meilleure-application-indemnites-kilometriques'
+import { Route as MeilleursOutilsIndemnitesKilometriques2027RouteImport } from './routes/meilleurs-outils-indemnites-kilometriques-2027'
 import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
 import { Route as MesTrajetsRouteImport } from './routes/mes-trajets'
 import { Route as MestrajetsRouteImport } from './routes/mestrajets'
@@ -230,6 +231,12 @@ const MeilleureApplicationIndemnitesKilometriquesRoute =
   MeilleureApplicationIndemnitesKilometriquesRouteImport.update({
     id: '/meilleure-application-indemnites-kilometriques',
     path: '/meilleure-application-indemnites-kilometriques',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const MeilleursOutilsIndemnitesKilometriques2027Route =
+  MeilleursOutilsIndemnitesKilometriques2027RouteImport.update({
+    id: '/meilleurs-outils-indemnites-kilometriques-2027',
+    path: '/meilleurs-outils-indemnites-kilometriques-2027',
     getParentRoute: () => rootRouteImport,
   } as any)
 const MentionsLegalesRoute = MentionsLegalesRouteImport.update({
@@ -513,6 +520,7 @@ export interface FileRoutesByFullPath {
   '/logiciel-devis-artisan': typeof LogicielDevisArtisanRoute
   '/marina': typeof MarinaRoute
   '/meilleure-application-indemnites-kilometriques': typeof MeilleureApplicationIndemnitesKilometriquesRoute
+  '/meilleurs-outils-indemnites-kilometriques-2027': typeof MeilleursOutilsIndemnitesKilometriques2027Route
   '/mentions-legales': typeof MentionsLegalesRoute
   '/mes-trajets': typeof MesTrajetsRoute
   '/mestrajets': typeof MestrajetsRoute
@@ -593,6 +601,7 @@ export interface FileRoutesByTo {
   '/logiciel-devis-artisan': typeof LogicielDevisArtisanRoute
   '/marina': typeof MarinaRoute
   '/meilleure-application-indemnites-kilometriques': typeof MeilleureApplicationIndemnitesKilometriquesRoute
+  '/meilleurs-outils-indemnites-kilometriques-2027': typeof MeilleursOutilsIndemnitesKilometriques2027Route
   '/mentions-legales': typeof MentionsLegalesRoute
   '/mes-trajets': typeof MesTrajetsRoute
   '/mestrajets': typeof MestrajetsRoute
@@ -674,6 +683,7 @@ export interface FileRoutesById {
   '/logiciel-devis-artisan': typeof LogicielDevisArtisanRoute
   '/marina': typeof MarinaRoute
   '/meilleure-application-indemnites-kilometriques': typeof MeilleureApplicationIndemnitesKilometriquesRoute
+  '/meilleurs-outils-indemnites-kilometriques-2027': typeof MeilleursOutilsIndemnitesKilometriques2027Route
   '/mentions-legales': typeof MentionsLegalesRoute
   '/mes-trajets': typeof MesTrajetsRoute
   '/mestrajets': typeof MestrajetsRoute
@@ -756,6 +766,7 @@ export interface FileRouteTypes {
     | '/logiciel-devis-artisan'
     | '/marina'
     | '/meilleure-application-indemnites-kilometriques'
+    | '/meilleurs-outils-indemnites-kilometriques-2027'
     | '/mentions-legales'
     | '/mes-trajets'
     | '/mestrajets'
@@ -836,6 +847,7 @@ export interface FileRouteTypes {
     | '/logiciel-devis-artisan'
     | '/marina'
     | '/meilleure-application-indemnites-kilometriques'
+    | '/meilleurs-outils-indemnites-kilometriques-2027'
     | '/mentions-legales'
     | '/mes-trajets'
     | '/mestrajets'
@@ -916,6 +928,7 @@ export interface FileRouteTypes {
     | '/logiciel-devis-artisan'
     | '/marina'
     | '/meilleure-application-indemnites-kilometriques'
+    | '/meilleurs-outils-indemnites-kilometriques-2027'
     | '/mentions-legales'
     | '/mes-trajets'
     | '/mestrajets'
@@ -997,6 +1010,7 @@ export interface RootRouteChildren {
   LogicielDevisArtisanRoute: typeof LogicielDevisArtisanRoute
   MarinaRoute: typeof MarinaRoute
   MeilleureApplicationIndemnitesKilometriquesRoute: typeof MeilleureApplicationIndemnitesKilometriquesRoute
+  MeilleursOutilsIndemnitesKilometriques2027Route: typeof MeilleursOutilsIndemnitesKilometriques2027Route
   MentionsLegalesRoute: typeof MentionsLegalesRoute
   MesTrajetsRoute: typeof MesTrajetsRoute
   MestrajetsRoute: typeof MestrajetsRoute
@@ -1245,6 +1259,13 @@ declare module '@tanstack/react-router' {
       path: '/meilleure-application-indemnites-kilometriques'
       fullPath: '/meilleure-application-indemnites-kilometriques'
       preLoaderRoute: typeof MeilleureApplicationIndemnitesKilometriquesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/meilleurs-outils-indemnites-kilometriques-2027': {
+      id: '/meilleurs-outils-indemnites-kilometriques-2027'
+      path: '/meilleurs-outils-indemnites-kilometriques-2027'
+      fullPath: '/meilleurs-outils-indemnites-kilometriques-2027'
+      preLoaderRoute: typeof MeilleursOutilsIndemnitesKilometriques2027RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mentions-legales': {
@@ -1630,6 +1651,8 @@ const rootRouteChildren: RootRouteChildren = {
   MarinaRoute: MarinaRoute,
   MeilleureApplicationIndemnitesKilometriquesRoute:
     MeilleureApplicationIndemnitesKilometriquesRoute,
+  MeilleursOutilsIndemnitesKilometriques2027Route:
+    MeilleursOutilsIndemnitesKilometriques2027Route,
   MentionsLegalesRoute: MentionsLegalesRoute,
   MesTrajetsRoute: MesTrajetsRoute,
   MestrajetsRoute: MestrajetsRoute,
