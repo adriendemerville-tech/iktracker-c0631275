@@ -269,6 +269,18 @@ const Admin = () => {
   });
 
   // Fetch user roles - refresh every 15 minutes
+  const { data: contributorCount = 0 } = useQuery({
+    queryKey: ["admin-forum-contributors-count"],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("forum_profiles")
+        .select("id", { count: "exact", head: true });
+      if (error) return 0;
+      return count ?? 0;
+    },
+    staleTime: 60_000,
+  });
+
   const { data: userRoles = [], isLoading: rolesLoading } = useQuery({
     queryKey: ["admin-user-roles"],
     queryFn: async () => {
@@ -643,6 +655,10 @@ const Admin = () => {
                   <p className="text-xs opacity-80">
                     {adminRole === "admin" ? "Créateur" : "Viewer"}
                   </p>
+                </div>
+                <div className="bg-primary-foreground/10 rounded-xl px-3 py-1.5 min-w-[4.5rem]">
+                  <p className="text-xl font-bold leading-none">{contributorCount}</p>
+                  <p className="text-xs opacity-80">Contributeurs</p>
                 </div>
               </div>
 
