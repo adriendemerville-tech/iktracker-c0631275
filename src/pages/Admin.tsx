@@ -20,24 +20,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
-import { AdminStats } from "@/components/AdminStats";
-import { AdminCosts } from "@/components/admin/AdminCosts";
-import { AdminAffiliation } from "@/components/admin/AdminAffiliation";
-import { AdminPartners } from "@/components/admin/AdminPartners";
-import { AdminDocumentation } from "@/components/admin/AdminDocumentation";
-import { AdminMonitoring } from "@/components/admin/AdminMonitoring";
-import { AdminBotTest } from "@/components/admin/AdminBotTest";
-import { AdminAutopilot } from "@/components/admin/AdminAutopilot";
-import { UserKPISheet } from "@/components/admin/UserKPISheet";
-import { AdminSurveys } from "@/components/admin/AdminSurveys";
-import { AdminTourRecovery } from "@/components/admin/AdminTourRecovery";
-import { AdminTourMode } from "@/components/admin/AdminTourMode";
-import { AdminApiPartners } from "@/components/admin/AdminApiPartners";
-import { AdminWavespeed } from "@/components/admin/AdminWavespeed";
-import { AdminLinkedIn } from "@/components/admin/AdminLinkedIn";
-import { AdminForum } from "@/components/admin/AdminForum";
-import { AdminContentFreshness } from "@/components/admin/AdminContentFreshness";
-import { AdminGitHubActions } from "@/components/admin/AdminGitHubActions";
+import { PERSONA_OPTIONS } from "@/components/PersonaPicker";
+
 import { PERSONA_OPTIONS } from "@/components/PersonaPicker";
 import {
   ArrowLeft,
