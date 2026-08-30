@@ -269,6 +269,18 @@ const Admin = () => {
   });
 
   // Fetch user roles - refresh every 15 minutes
+  const { data: contributorCount = 0 } = useQuery({
+    queryKey: ["admin-forum-contributors-count"],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("forum_profiles")
+        .select("id", { count: "exact", head: true });
+      if (error) return 0;
+      return count ?? 0;
+    },
+    staleTime: 60_000,
+  });
+
   const { data: userRoles = [], isLoading: rolesLoading } = useQuery({
     queryKey: ["admin-user-roles"],
     queryFn: async () => {
