@@ -10,8 +10,8 @@ import { ORGANIZATION_ID } from "@/lib/seo-schemas";
 import { getPageDates, toIsoDateTime } from "@/lib/page-dates";
 
 export const PAGE_PATH = "/meilleurs-outils-indemnites-kilometriques-2027";
-export const PAGE_URL = `https://iktracker.fr${PAGE_PATH}`;
-export const PAGE_DATE = getPageDates(PAGE_PATH);
+export const PAGE_URL = "https://iktracker.fr/meilleurs-outils-indemnites-kilometriques-2027";
+export const PAGE_DATE = getPageDates("/meilleurs-outils-indemnites-kilometriques-2027");
 
 export const PAGE_TITLE =
   "Meilleurs outils d'indemnités kilométriques 2027 : classement";
@@ -474,7 +474,7 @@ export function buildSchemas() {
     inLanguage: "fr-FR",
     datePublished: toIsoDateTime(PAGE_DATE.published),
     dateModified: toIsoDateTime(PAGE_DATE.modified),
-    mainEntityOfPage: { "@type": "WebPage", "@id": PAGE_URL },
+    mainEntityOfPage: PAGE_URL,
     author: {
       "@type": "Person",
       name: "Adrien de Volontat",
