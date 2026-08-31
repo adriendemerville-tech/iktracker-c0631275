@@ -22,6 +22,11 @@ import {
   type SurveyVariant,
   CONTENT_BLOCK_TYPES,
   defaultContentBlock,
+  SURVEY_QUESTION_MAX_LENGTH,
+  SURVEY_INFO_TITLE_MAX_LENGTH,
+  SURVEY_INFO_TEXT_MAX_LENGTH,
+  SURVEY_SHARE_MESSAGE_MAX_LENGTH,
+  SURVEY_SCREENSHOT_PROMPT_MAX_LENGTH,
 } from "./survey-types";
 
 export function ContentBlockEditor({
