@@ -255,9 +255,17 @@ export function ContentBlockEditor({
               <EmojiTextarea
                 value={(block.config.message as string) || ""}
                 onChange={(e) =>
-                  onChange({ ...block, config: { ...block.config, message: e.target.value } })
+                  onChange({
+                    ...block,
+                    config: { ...block.config, message: e.target.value.slice(0, SURVEY_SHARE_MESSAGE_MAX_LENGTH) },
+                  })
                 }
                 rows={2}
+                maxLength={SURVEY_SHARE_MESSAGE_MAX_LENGTH}
+              />
+              <CharCount
+                current={((block.config.message as string) || "").length}
+                max={SURVEY_SHARE_MESSAGE_MAX_LENGTH}
               />
             </div>
             <div className="flex gap-3">
