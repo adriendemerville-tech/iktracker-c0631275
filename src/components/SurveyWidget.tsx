@@ -480,6 +480,7 @@ export function SurveyWidget() {
                 block={block}
                 onButtonClick={handleInfoButtonClick}
                 pushButtonToBottom={hasActionButton}
+                showButton={!hasActionButton}
               />
             )}
             {block.type === "cta" && (
@@ -487,6 +488,7 @@ export function SurveyWidget() {
                 block={block}
                 onButtonClick={handleInfoButtonClick}
                 pushButtonToBottom={hasActionButton}
+                showButton={!hasActionButton}
               />
             )}
           </div>
