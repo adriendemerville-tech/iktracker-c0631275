@@ -62,8 +62,9 @@ import {
   PAGE_OPTIONS,
   generateId,
   defaultContentBlock,
+  SURVEY_TITLE_MAX_LENGTH,
 } from "./surveys/survey-types";
-import { ContentBlockEditor, VariantEditor } from "./surveys/SurveyEditors";
+import { ContentBlockEditor, VariantEditor, CharCount } from "./surveys/SurveyEditors";
 import { SurveyResponsesPanel, SurveyAggregatedStats } from "./surveys/SurveyStats";
 import { SurveyPreview } from "./surveys/SurveyPreview";
 
@@ -427,9 +428,13 @@ export function AdminSurveys() {
                 </Label>
                 <Input
                   value={form.title}
-                  onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, title: e.target.value.slice(0, SURVEY_TITLE_MAX_LENGTH) }))
+                  }
                   placeholder="Nom du survey"
+                  maxLength={SURVEY_TITLE_MAX_LENGTH}
                 />
+                <CharCount current={form.title.length} max={SURVEY_TITLE_MAX_LENGTH} />
               </div>
               <div>
                 <Label>Page cible</Label>

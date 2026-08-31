@@ -22,7 +22,26 @@ import {
   type SurveyVariant,
   CONTENT_BLOCK_TYPES,
   defaultContentBlock,
+  SURVEY_QUESTION_MAX_LENGTH,
+  SURVEY_INFO_TITLE_MAX_LENGTH,
+  SURVEY_INFO_TEXT_MAX_LENGTH,
+  SURVEY_SHARE_MESSAGE_MAX_LENGTH,
+  SURVEY_SCREENSHOT_PROMPT_MAX_LENGTH,
 } from "./survey-types";
+import { cn } from "@/lib/utils";
+
+export function CharCount({ current, max }: { current: number; max: number }) {
+  return (
+    <p
+      className={cn(
+        "text-[10px] text-right mt-0.5",
+        current > max ? "text-destructive font-medium" : "text-muted-foreground"
+      )}
+    >
+      {current}/{max}
+    </p>
+  );
+}
 
 export function ContentBlockEditor({
   block,
@@ -60,9 +79,17 @@ export function ContentBlockEditor({
               <EmojiInput
                 value={(block.config.question as string) || ""}
                 onChange={(e) =>
-                  onChange({ ...block, config: { ...block.config, question: e.target.value } })
+                  onChange({
+                    ...block,
+                    config: { ...block.config, question: e.target.value.slice(0, SURVEY_QUESTION_MAX_LENGTH) },
+                  })
                 }
                 placeholder="Votre question..."
+                maxLength={SURVEY_QUESTION_MAX_LENGTH}
+              />
+              <CharCount
+                current={((block.config.question as string) || "").length}
+                max={SURVEY_QUESTION_MAX_LENGTH}
               />
             </div>
             <div>
@@ -148,9 +175,17 @@ export function ContentBlockEditor({
             <EmojiInput
               value={(block.config.question as string) || ""}
               onChange={(e) =>
-                onChange({ ...block, config: { ...block.config, question: e.target.value } })
+                onChange({
+                  ...block,
+                  config: { ...block.config, question: e.target.value.slice(0, SURVEY_QUESTION_MAX_LENGTH) },
+                })
               }
               placeholder="Comment évaluez-vous... ?"
+              maxLength={SURVEY_QUESTION_MAX_LENGTH}
+            />
+            <CharCount
+              current={((block.config.question as string) || "").length}
+              max={SURVEY_QUESTION_MAX_LENGTH}
             />
           </div>
         )}
@@ -161,9 +196,17 @@ export function ContentBlockEditor({
               <EmojiInput
                 value={(block.config.question as string) || ""}
                 onChange={(e) =>
-                  onChange({ ...block, config: { ...block.config, question: e.target.value } })
+                  onChange({
+                    ...block,
+                    config: { ...block.config, question: e.target.value.slice(0, SURVEY_QUESTION_MAX_LENGTH) },
+                  })
                 }
                 placeholder="Votre question..."
+                maxLength={SURVEY_QUESTION_MAX_LENGTH}
+              />
+              <CharCount
+                current={((block.config.question as string) || "").length}
+                max={SURVEY_QUESTION_MAX_LENGTH}
               />
             </div>
             <div>
@@ -171,8 +214,16 @@ export function ContentBlockEditor({
               <Input
                 value={(block.config.placeholder as string) || ""}
                 onChange={(e) =>
-                  onChange({ ...block, config: { ...block.config, placeholder: e.target.value } })
+                  onChange({
+                    ...block,
+                    config: { ...block.config, placeholder: e.target.value.slice(0, SURVEY_QUESTION_MAX_LENGTH) },
+                  })
                 }
+                maxLength={SURVEY_QUESTION_MAX_LENGTH}
+              />
+              <CharCount
+                current={((block.config.placeholder as string) || "").length}
+                max={SURVEY_QUESTION_MAX_LENGTH}
               />
             </div>
           </>
@@ -183,9 +234,17 @@ export function ContentBlockEditor({
             <EmojiTextarea
               value={(block.config.prompt as string) || ""}
               onChange={(e) =>
-                onChange({ ...block, config: { ...block.config, prompt: e.target.value } })
+                onChange({
+                  ...block,
+                  config: { ...block.config, prompt: e.target.value.slice(0, SURVEY_SCREENSHOT_PROMPT_MAX_LENGTH) },
+                })
               }
               rows={2}
+              maxLength={SURVEY_SCREENSHOT_PROMPT_MAX_LENGTH}
+            />
+            <CharCount
+              current={((block.config.prompt as string) || "").length}
+              max={SURVEY_SCREENSHOT_PROMPT_MAX_LENGTH}
             />
           </div>
         )}
@@ -196,9 +255,17 @@ export function ContentBlockEditor({
               <EmojiTextarea
                 value={(block.config.message as string) || ""}
                 onChange={(e) =>
-                  onChange({ ...block, config: { ...block.config, message: e.target.value } })
+                  onChange({
+                    ...block,
+                    config: { ...block.config, message: e.target.value.slice(0, SURVEY_SHARE_MESSAGE_MAX_LENGTH) },
+                  })
                 }
                 rows={2}
+                maxLength={SURVEY_SHARE_MESSAGE_MAX_LENGTH}
+              />
+              <CharCount
+                current={((block.config.message as string) || "").length}
+                max={SURVEY_SHARE_MESSAGE_MAX_LENGTH}
               />
             </div>
             <div className="flex gap-3">
@@ -225,9 +292,17 @@ export function ContentBlockEditor({
               <EmojiInput
                 value={(block.config.title as string) || ""}
                 onChange={(e) =>
-                  onChange({ ...block, config: { ...block.config, title: e.target.value } })
+                  onChange({
+                    ...block,
+                    config: { ...block.config, title: e.target.value.slice(0, SURVEY_INFO_TITLE_MAX_LENGTH) },
+                  })
                 }
                 placeholder="Titre..."
+                maxLength={SURVEY_INFO_TITLE_MAX_LENGTH}
+              />
+              <CharCount
+                current={((block.config.title as string) || "").length}
+                max={SURVEY_INFO_TITLE_MAX_LENGTH}
               />
             </div>
             <div>
@@ -235,10 +310,18 @@ export function ContentBlockEditor({
               <EmojiTextarea
                 value={(block.config.text as string) || ""}
                 onChange={(e) =>
-                  onChange({ ...block, config: { ...block.config, text: e.target.value } })
+                  onChange({
+                    ...block,
+                    config: { ...block.config, text: e.target.value.slice(0, SURVEY_INFO_TEXT_MAX_LENGTH) },
+                  })
                 }
                 placeholder="Votre message..."
                 rows={3}
+                maxLength={SURVEY_INFO_TEXT_MAX_LENGTH}
+              />
+              <CharCount
+                current={((block.config.text as string) || "").length}
+                max={SURVEY_INFO_TEXT_MAX_LENGTH}
               />
             </div>
             <div className="grid grid-cols-2 gap-2">
@@ -273,10 +356,18 @@ export function ContentBlockEditor({
               <EmojiTextarea
                 value={(block.config.text as string) || ""}
                 onChange={(e) =>
-                  onChange({ ...block, config: { ...block.config, text: e.target.value } })
+                  onChange({
+                    ...block,
+                    config: { ...block.config, text: e.target.value.slice(0, SURVEY_INFO_TEXT_MAX_LENGTH) },
+                  })
                 }
                 placeholder="Votre message..."
                 rows={3}
+                maxLength={SURVEY_INFO_TEXT_MAX_LENGTH}
+              />
+              <CharCount
+                current={((block.config.text as string) || "").length}
+                max={SURVEY_INFO_TEXT_MAX_LENGTH}
               />
             </div>
             <div className="grid grid-cols-2 gap-2">

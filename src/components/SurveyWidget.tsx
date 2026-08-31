@@ -480,6 +480,7 @@ export function SurveyWidget() {
                 block={block}
                 onButtonClick={handleInfoButtonClick}
                 pushButtonToBottom={hasActionButton}
+                showButton={!hasActionButton}
               />
             )}
             {block.type === "cta" && (
@@ -487,29 +488,41 @@ export function SurveyWidget() {
                 block={block}
                 onButtonClick={handleInfoButtonClick}
                 pushButtonToBottom={hasActionButton}
+                showButton={!hasActionButton}
               />
             )}
           </div>
 
           {/* Footer */}
-          {!hasActionButton && (
-            <div className="px-4 pb-3 shrink-0 flex items-center justify-between">
-              {survey.blocks.length > 1 && (
-                <span className="text-xs text-muted-foreground">
-                  {currentBlockIndex + 1}/{survey.blocks.length}
-                </span>
-              )}
+          <div className="px-4 py-3 shrink-0 flex items-center justify-between border-t border-border bg-card">
+            {hasActionButton ? (
               <Button
                 size="sm"
-                disabled={!hasAnswer}
-                onClick={handleNext}
-                className="ml-auto text-sm gap-1"
+                variant={block.type === "cta" ? "default" : "outline"}
+                className="w-full text-sm"
+                onClick={() => handleInfoButtonClick((block.config.buttonUrl as string) || "")}
               >
-                {isLast ? "Envoyer" : "Suivant"}
-                {isLast ? <Send className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                {(block.config.buttonLabel as string) || "Continuer"}
               </Button>
-            </div>
-          )}
+            ) : (
+              <>
+                {survey.blocks.length > 1 && (
+                  <span className="text-xs text-muted-foreground">
+                    {currentBlockIndex + 1}/{survey.blocks.length}
+                  </span>
+                )}
+                <Button
+                  size="sm"
+                  disabled={!hasAnswer}
+                  onClick={handleNext}
+                  className="ml-auto text-sm gap-1"
+                >
+                  {isLast ? "Envoyer" : "Suivant"}
+                  {isLast ? <Send className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                </Button>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </>
@@ -675,10 +688,12 @@ export function InfoBlock({
   block,
   onButtonClick,
   pushButtonToBottom = false,
+  showButton = true,
 }: {
   block: ContentBlock;
   onButtonClick: (url: string) => void;
   pushButtonToBottom?: boolean;
+  showButton?: boolean;
 }) {
   const title = (block.config.title as string) || "";
   const text = (block.config.text as string) || "";
@@ -688,7 +703,7 @@ export function InfoBlock({
     <div className={cn("space-y-3", pushButtonToBottom && "flex flex-col flex-1 min-h-0")}>
       {title && <p className="text-base font-semibold text-foreground">{title}</p>}
       {text && <p className="text-sm text-muted-foreground whitespace-pre-wrap">{text}</p>}
-      {buttonLabel && buttonUrl && (
+      {showButton && buttonLabel && buttonUrl && (
         <div className={cn("flex justify-center", pushButtonToBottom && "mt-auto")}>
           <Button
             size="sm"

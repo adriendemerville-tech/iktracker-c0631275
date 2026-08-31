@@ -76,6 +76,15 @@ export const PAGE_OPTIONS = [
   "/mode-tournee",
 ];
 
+// ---- Character limits (mobile readability) ----
+
+export const SURVEY_TITLE_MAX_LENGTH = 80;
+export const SURVEY_INFO_TITLE_MAX_LENGTH = 70;
+export const SURVEY_INFO_TEXT_MAX_LENGTH = 600;
+export const SURVEY_QUESTION_MAX_LENGTH = 140;
+export const SURVEY_SHARE_MESSAGE_MAX_LENGTH = 160;
+export const SURVEY_SCREENSHOT_PROMPT_MAX_LENGTH = 160;
+
 // ---- Helpers ----
 
 export function generateId() {
