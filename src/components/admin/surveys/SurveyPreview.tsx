@@ -128,7 +128,12 @@ export function SurveyPreview({ survey, variant, onClose }: SurveyPreviewProps) 
           />
         )}
         {(block.type === "info" || block.type === "cta") && (
-          <InfoBlock block={block} onButtonClick={() => {}} pushButtonToBottom={hasActionButton} />
+          <InfoBlock
+            block={block}
+            onButtonClick={() => {}}
+            pushButtonToBottom={hasActionButton}
+            showButton={!hasActionButton}
+          />
         )}
         {block.type === "screenshot" && (
           <div className="space-y-3">
