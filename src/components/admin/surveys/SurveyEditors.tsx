@@ -79,9 +79,17 @@ export function ContentBlockEditor({
               <EmojiInput
                 value={(block.config.question as string) || ""}
                 onChange={(e) =>
-                  onChange({ ...block, config: { ...block.config, question: e.target.value } })
+                  onChange({
+                    ...block,
+                    config: { ...block.config, question: e.target.value.slice(0, SURVEY_QUESTION_MAX_LENGTH) },
+                  })
                 }
                 placeholder="Votre question..."
+                maxLength={SURVEY_QUESTION_MAX_LENGTH}
+              />
+              <CharCount
+                current={((block.config.question as string) || "").length}
+                max={SURVEY_QUESTION_MAX_LENGTH}
               />
             </div>
             <div>
