@@ -62,8 +62,9 @@ import {
   PAGE_OPTIONS,
   generateId,
   defaultContentBlock,
+  SURVEY_TITLE_MAX_LENGTH,
 } from "./surveys/survey-types";
-import { ContentBlockEditor, VariantEditor } from "./surveys/SurveyEditors";
+import { ContentBlockEditor, VariantEditor, CharCount } from "./surveys/SurveyEditors";
 import { SurveyResponsesPanel, SurveyAggregatedStats } from "./surveys/SurveyStats";
 import { SurveyPreview } from "./surveys/SurveyPreview";
 
