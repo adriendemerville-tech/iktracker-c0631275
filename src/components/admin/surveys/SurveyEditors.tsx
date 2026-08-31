@@ -292,9 +292,17 @@ export function ContentBlockEditor({
               <EmojiInput
                 value={(block.config.title as string) || ""}
                 onChange={(e) =>
-                  onChange({ ...block, config: { ...block.config, title: e.target.value } })
+                  onChange({
+                    ...block,
+                    config: { ...block.config, title: e.target.value.slice(0, SURVEY_INFO_TITLE_MAX_LENGTH) },
+                  })
                 }
                 placeholder="Titre..."
+                maxLength={SURVEY_INFO_TITLE_MAX_LENGTH}
+              />
+              <CharCount
+                current={((block.config.title as string) || "").length}
+                max={SURVEY_INFO_TITLE_MAX_LENGTH}
               />
             </div>
             <div>
@@ -302,10 +310,18 @@ export function ContentBlockEditor({
               <EmojiTextarea
                 value={(block.config.text as string) || ""}
                 onChange={(e) =>
-                  onChange({ ...block, config: { ...block.config, text: e.target.value } })
+                  onChange({
+                    ...block,
+                    config: { ...block.config, text: e.target.value.slice(0, SURVEY_INFO_TEXT_MAX_LENGTH) },
+                  })
                 }
                 placeholder="Votre message..."
                 rows={3}
+                maxLength={SURVEY_INFO_TEXT_MAX_LENGTH}
+              />
+              <CharCount
+                current={((block.config.text as string) || "").length}
+                max={SURVEY_INFO_TEXT_MAX_LENGTH}
               />
             </div>
             <div className="grid grid-cols-2 gap-2">
