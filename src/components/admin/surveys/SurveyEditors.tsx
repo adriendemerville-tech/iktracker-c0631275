@@ -28,6 +28,20 @@ import {
   SURVEY_SHARE_MESSAGE_MAX_LENGTH,
   SURVEY_SCREENSHOT_PROMPT_MAX_LENGTH,
 } from "./survey-types";
+import { cn } from "@/lib/utils";
+
+function CharCount({ current, max }: { current: number; max: number }) {
+  return (
+    <p
+      className={cn(
+        "text-[10px] text-right mt-0.5",
+        current > max ? "text-destructive font-medium" : "text-muted-foreground"
+      )}
+    >
+      {current}/{max}
+    </p>
+  );
+}
 
 export function ContentBlockEditor({
   block,
