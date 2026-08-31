@@ -30,7 +30,7 @@ import {
 } from "./survey-types";
 import { cn } from "@/lib/utils";
 
-function CharCount({ current, max }: { current: number; max: number }) {
+export function CharCount({ current, max }: { current: number; max: number }) {
   return (
     <p
       className={cn(
@@ -40,7 +40,7 @@ function CharCount({ current, max }: { current: number; max: number }) {
     >
       {current}/{max}
     </p>
-  );
+    );
 }
 
 export function ContentBlockEditor({
