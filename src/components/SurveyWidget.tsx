@@ -675,10 +675,12 @@ export function InfoBlock({
   block,
   onButtonClick,
   pushButtonToBottom = false,
+  showButton = true,
 }: {
   block: ContentBlock;
   onButtonClick: (url: string) => void;
   pushButtonToBottom?: boolean;
+  showButton?: boolean;
 }) {
   const title = (block.config.title as string) || "";
   const text = (block.config.text as string) || "";
@@ -688,7 +690,7 @@ export function InfoBlock({
     <div className={cn("space-y-3", pushButtonToBottom && "flex flex-col flex-1 min-h-0")}>
       {title && <p className="text-base font-semibold text-foreground">{title}</p>}
       {text && <p className="text-sm text-muted-foreground whitespace-pre-wrap">{text}</p>}
-      {buttonLabel && buttonUrl && (
+      {showButton && buttonLabel && buttonUrl && (
         <div className={cn("flex justify-center", pushButtonToBottom && "mt-auto")}>
           <Button
             size="sm"
