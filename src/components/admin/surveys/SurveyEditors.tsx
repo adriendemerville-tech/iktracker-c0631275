@@ -40,7 +40,7 @@ export function CharCount({ current, max }: { current: number; max: number }) {
     >
       {current}/{max}
     </p>
-    );
+  );
 }
 
 export function ContentBlockEditor({
