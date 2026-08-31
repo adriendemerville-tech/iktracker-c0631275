@@ -234,9 +234,17 @@ export function ContentBlockEditor({
             <EmojiTextarea
               value={(block.config.prompt as string) || ""}
               onChange={(e) =>
-                onChange({ ...block, config: { ...block.config, prompt: e.target.value } })
+                onChange({
+                  ...block,
+                  config: { ...block.config, prompt: e.target.value.slice(0, SURVEY_SCREENSHOT_PROMPT_MAX_LENGTH) },
+                })
               }
               rows={2}
+              maxLength={SURVEY_SCREENSHOT_PROMPT_MAX_LENGTH}
+            />
+            <CharCount
+              current={((block.config.prompt as string) || "").length}
+              max={SURVEY_SCREENSHOT_PROMPT_MAX_LENGTH}
             />
           </div>
         )}
