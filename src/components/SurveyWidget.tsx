@@ -178,6 +178,7 @@ export function SurveyWidget() {
 
       // Check impressions — skip surveys already completed, dismissed twice, or shown too many times
       for (const s of eligible) {
+        if (shownThisSession.includes(s.id)) continue;
         const { count: impressionCount } = await supabase
           .from("survey_impressions")
           .select("*", { count: "exact", head: true })
@@ -252,6 +253,14 @@ export function SurveyWidget() {
           variant_id: chosen.id,
           action: "shown",
         });
+        try {
+          sessionStorage.setItem(
+            "ik_surveys_shown",
+            JSON.stringify([...shownThisSession, s.id]),
+          );
+        } catch {
+          // sessionStorage indisponible : on ignore, le garde-fou DB reste actif
+        }
 
         setSurvey({
           id: s.id,
