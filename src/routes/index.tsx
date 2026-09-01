@@ -22,7 +22,20 @@ export const Route = createFileRoute("/")({
       { name: "twitter:description", content: DESCRIPTION },
       { name: "twitter:url", content: "https://iktracker.fr/" },
     ],
-    links: [{ rel: "canonical", href: "https://iktracker.fr/" }],
+    links: [
+      { rel: "canonical", href: "https://iktracker.fr/" },
+      {
+        rel: "preload",
+        as: "image",
+        href: "/logo-iktracker-250.webp",
+        type: "image/webp",
+        fetchPriority: "high",
+        imagesrcset: "/logo-iktracker-250.webp 1x, /logo-iktracker-250.webp 2x",
+        imagesizes: "36px",
+      },
+
+    ],
+
     scripts: HOME_JSON_LD_SCRIPTS,
   }),
   loader: async () => {
