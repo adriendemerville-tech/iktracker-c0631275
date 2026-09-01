@@ -135,9 +135,18 @@ export function SurveyWidget() {
 
   // Fetch eligible survey
   useEffect(() => {
-    if (!user || dismissed) return;
+    if (!user || dismissed || survey) return;
 
     const fetchSurvey = async () => {
+      // Garde-fou de session : ne jamais réafficher une survey déjà montrée
+      // dans cette session (évite le double affichage lors des navigations).
+      let shownThisSession: string[] = [];
+      try {
+        shownThisSession = JSON.parse(sessionStorage.getItem("ik_surveys_shown") || "[]");
+      } catch {
+        shownThisSession = [];
+      }
+
       // Get user persona
       const { data: prefs } = await supabase
         .from("user_preferences")
@@ -169,6 +178,7 @@ export function SurveyWidget() {
 
       // Check impressions — skip surveys already completed, dismissed twice, or shown too many times
       for (const s of eligible) {
+        if (shownThisSession.includes(s.id)) continue;
         const { count: impressionCount } = await supabase
           .from("survey_impressions")
           .select("*", { count: "exact", head: true })
@@ -243,6 +253,14 @@ export function SurveyWidget() {
           variant_id: chosen.id,
           action: "shown",
         });
+        try {
+          sessionStorage.setItem(
+            "ik_surveys_shown",
+            JSON.stringify([...shownThisSession, s.id]),
+          );
+        } catch {
+          // sessionStorage indisponible : on ignore, le garde-fou DB reste actif
+        }
 
         setSurvey({
           id: s.id,
@@ -258,7 +276,7 @@ export function SurveyWidget() {
     // Delay to not block initial render
     const timer = setTimeout(fetchSurvey, 3000);
     return () => clearTimeout(timer);
-  }, [user, location.pathname, dismissed]);
+  }, [user, location.pathname, dismissed, survey]);
 
   const handleDismiss = useCallback(async () => {
     if (survey && user) {
