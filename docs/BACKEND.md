@@ -1,6 +1,13 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 4.6.7 — 29 août 2026
+> Version 4.6.8 — 1er septembre 2026
+
+**Notes v4.6.8 (audit TTFB — Worker confirmé hors circuit en production, 1er septembre 2026)**
+- **Audit TTFB home** : `iktracker.fr/` mesuré à **1,0–2,7 s** (TTFB variable, cold starts de l'origine Lovable) contre ~**140 ms** pour le SSR en local. La cause N'EST PAS applicative.
+- **Confirmation définitive du contournement O2O** : `185.158.133.1` (enregistrement A apex) = `lovable-app-cd-1-4.p.l5e.io`, AS13335 Cloudflare — iktracker.fr est un **custom hostname Cloudflare-for-SaaS de Lovable**. Tant que ce montage est actif, la zone Cloudflare iktracker.fr est **entièrement court-circuitée** : `wrangler tail` montre **zéro invocation** du Worker malgré les routes actives, aucun header `X-Rendered-By`/`X-Cache` n'apparaît, y compris pour Googlebot. Un ping de diagnostic sur un hostname témoin prouve que le Worker déployé fonctionne (route test créée puis supprimée).
+- **Conséquence** : la note v4.6.7 (« bots IA servis en pré-rendu, vérifié par headers ») était **erronée** — la vérification avait dû porter sur un autre chemin. SEO non impacté : Googlebot reçoit le HTML SSR complet de TanStack Start (H1, JSON-LD, meta) directement depuis l'origine Lovable (~151 Ko).
+- **Correctif Worker prêt pour le jour où le Worker redevient dans le chemin** : la mise en cache edge du HTML anonyme ignorait toute réponse avec `Set-Cookie` ; or l'origine Lovable ajoute un `__cf_bm` (Bot Management Cloudflare côté hébergeur), ce qui désactivait le cache à 100 %. Le Worker ignore désormais `__cf_bm` pour la décision de cache et le retire de la réponse cachée. Ajout d'un endpoint de diagnostic (`x-worker-ping: 1` → `worker-alive`). Redéployé (`wrangler deploy`).
+- **Pour rétablir le Worker en production** : il faut que Lovable active l'Orange-to-Orange sur le custom hostname (côté fournisseur), ou repasser par un montage DNS où la zone iktracker.fr traite le trafic en premier. Sans cela, seul l'origine Lovable sert `iktracker.fr`.
 
 **Notes v4.6.7 (Worker déployé & bots IA, 29 août 2026)**
 - **`iktracker-bot-router` redéployé en production via `wrangler deploy`** : la liste des user-agents servis en pré-rendu SSR est complétée (`perplexity-user`, `mistralai-user` et autres agents IA manquants) — tous les robots IA majeurs reçoivent désormais le HTML pré-rendu. Vérifié par headers de réponse après déploiement.

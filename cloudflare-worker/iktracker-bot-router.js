@@ -209,6 +209,13 @@ export default {
     const ua = request.headers.get("user-agent") || "";
     const botDetected = isBot(ua);
 
+    // Marqueur de version (diagnostic) — prouve que le Worker tourne en prod.
+    if (request.headers.get("x-worker-ping") === "1") {
+      return new Response("worker-alive v2026-09-01-ttfb-fix", {
+        headers: { "X-Rendered-By": "cloudflare-worker" },
+      });
+    }
+
     // ── 1. www.iktracker.fr → 301 vers apex iktracker.fr (host canonique) ──
     // Élimine tout signal de duplication www/apex pour Google et les LLMs.
     if (hostname === "www.iktracker.fr") {
@@ -525,12 +532,24 @@ export default {
       }
       const originResponse = await fetchOrigin(request);
       const contentType = originResponse.headers.get("content-type") || "";
+      // L'origine passe par le Cloudflare de la plateforme hébergeante, qui
+      // ajoute un cookie __cf_bm (Bot Management) sur chaque réponse. Ce n'est
+      // PAS un cookie de session applicatif : sans cookie dans la requête,
+      // le HTML est identique pour tout visiteur anonyme. On l'ignore donc
+      // pour la décision de cache et on le retire de la réponse cachée.
+      const setCookies = originResponse.headers.getSetCookie
+        ? originResponse.headers.getSetCookie()
+        : (originResponse.headers.get("set-cookie") || "").split(/,(?=[^ ;]*=)/);
+      const sessionCookies = setCookies.filter(
+        (c) => c && !c.trimStart().startsWith("__cf_bm="),
+      );
       if (
         originResponse.status === 200 &&
         contentType.includes("text/html") &&
-        !originResponse.headers.get("set-cookie")
+        sessionCookies.length === 0
       ) {
         const headers = new Headers(originResponse.headers);
+        headers.delete("set-cookie");
         headers.set(
           "Cache-Control",
           "public, max-age=0, s-maxage=300, stale-while-revalidate=3600",
