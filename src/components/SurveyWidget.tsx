@@ -135,9 +135,18 @@ export function SurveyWidget() {
 
   // Fetch eligible survey
   useEffect(() => {
-    if (!user || dismissed) return;
+    if (!user || dismissed || survey) return;
 
     const fetchSurvey = async () => {
+      // Garde-fou de session : ne jamais réafficher une survey déjà montrée
+      // dans cette session (évite le double affichage lors des navigations).
+      let shownThisSession: string[] = [];
+      try {
+        shownThisSession = JSON.parse(sessionStorage.getItem("ik_surveys_shown") || "[]");
+      } catch {
+        shownThisSession = [];
+      }
+
       // Get user persona
       const { data: prefs } = await supabase
         .from("user_preferences")
