@@ -9,14 +9,11 @@
 import { ORGANIZATION_ID } from "@/lib/seo-schemas";
 import { getPageDates, toIsoDateTime } from "@/lib/page-dates";
 
-export const PAGE_PATH = "/meilleurs-outils-indemnites-kilometriques-2027";
-export const PAGE_URL = "https://iktracker.fr/meilleurs-outils-indemnites-kilometriques-2027";
-export const PAGE_DATE = getPageDates("/meilleurs-outils-indemnites-kilometriques-2027");
+import { PAGE_PATH, PAGE_URL, PAGE_TITLE, PAGE_DESCRIPTION } from "./MeilleursOutilsIK2027.meta";
 
-export const PAGE_TITLE =
-  "Meilleurs outils d'indemnités kilométriques 2027 : classement";
-export const PAGE_DESCRIPTION =
-  "Classement 2027 des outils d'indemnités kilométriques : Expensya, IKtracker, N2F, Lucca, Jenji, Mooncard, Izika, Mileo, Kilevo, Kilom, Easik, Driversnote, MileIQ.";
+export { PAGE_PATH, PAGE_URL, PAGE_TITLE, PAGE_DESCRIPTION };
+
+export const PAGE_DATE = getPageDates("/meilleurs-outils-indemnites-kilometriques-2027");
 
 
 /** Colonnes du tableau comparatif, dans l'ordre d'affichage. */

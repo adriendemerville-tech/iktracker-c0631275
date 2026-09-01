@@ -4,7 +4,7 @@ import {
   PAGE_DESCRIPTION,
   PAGE_TITLE,
   PAGE_URL,
-} from "@/pages/MeilleursOutilsIK2027.seo";
+} from "@/pages/MeilleursOutilsIK2027.meta";
 
 export const Route = createFileRoute("/meilleurs-outils-indemnites-kilometriques-2027")({
   head: () => ({
