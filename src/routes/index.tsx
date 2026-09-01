@@ -30,9 +30,10 @@ export const Route = createFileRoute("/")({
         href: "/logo-iktracker-250.webp",
         type: "image/webp",
         fetchPriority: "high",
-        imageSrcSet: "/logo-iktracker-250.webp 1x, /logo-iktracker-250.webp 2x",
-        imageSizes: "36px",
+        imagesrcset: "/logo-iktracker-250.webp 1x, /logo-iktracker-250.webp 2x",
+        imagesizes: "36px",
       },
+
     ],
 
     scripts: HOME_JSON_LD_SCRIPTS,
