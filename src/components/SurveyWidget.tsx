@@ -276,7 +276,7 @@ export function SurveyWidget() {
     // Delay to not block initial render
     const timer = setTimeout(fetchSurvey, 3000);
     return () => clearTimeout(timer);
-  }, [user, location.pathname, dismissed]);
+  }, [user, location.pathname, dismissed, survey]);
 
   const handleDismiss = useCallback(async () => {
     if (survey && user) {
