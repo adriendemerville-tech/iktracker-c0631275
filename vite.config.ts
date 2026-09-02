@@ -18,10 +18,6 @@ export default defineConfig({
     // par l'environnement de build (CI / plateforme). warmup pré-transforme les
     // modules les plus lourds en amont pour lisser le temps de build.
     cacheDir: "node_modules/.vite",
-    build: {
-      // Réutilise le cache de pré-bundling des deps entre dev et build.
-      rollupOptions: { cache: true },
-    },
     optimizeDeps: {
       // Garde les grosses deps pré-bundlées dans le cache persistant.
       include: ["react", "react-dom", "@tanstack/react-router"],
