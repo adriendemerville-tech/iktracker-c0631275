@@ -49,6 +49,7 @@ const staticPages = [
 
   { url: "/blog", priority: "0.8", changefreq: "weekly" },
   { url: "/blog/auteur/adrien-de-volontat", priority: "0.6", changefreq: "monthly" },
+  { url: "/forum", priority: "0.8", changefreq: "daily" },
   { url: "/mentions-legales", priority: "0.5", changefreq: "yearly" },
   { url: "/contact", priority: "0.6", changefreq: "monthly" },
   { url: "/privacy", priority: "0.5", changefreq: "yearly" },
