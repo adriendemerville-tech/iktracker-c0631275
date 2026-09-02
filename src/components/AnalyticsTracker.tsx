@@ -72,7 +72,8 @@ const onFirstInteraction = (cb: () => void, fallbackMs = 2500) => {
 export const AnalyticsTracker = () => {
   const location = useLocation();
 
-  // Initialisation différée : première interaction ou 6 s d'inactivité.
+  // Initialisation différée : première interaction, 2,5 s d'inactivité,
+  // ou forcée à la sortie de page (pagehide / onglet masqué).
   useEffect(() => {
     return onFirstInteraction(() => {
       loadTaapIt();
