@@ -106,44 +106,17 @@ export function DraggableMarketingCards({
   const isMobile = useIsMobile();
   const isDesktop = !isMobile;
 
+  const [savedOrder, setSavedOrder] = useLayoutPreference<string[]>(storageKey, []);
   const [orderedCards, setOrderedCards] = useState<MarketingCardData[]>(cards);
 
-  // Load saved order from localStorage on mount
+  // Apply saved order (from DB/local cache) whenever it or the cards change
   useEffect(() => {
-    const savedOrder = localStorage.getItem(storageKey);
-    if (savedOrder) {
-      try {
-        const orderIds = JSON.parse(savedOrder) as string[];
-        const reordered = orderIds
-          .map((id) => cards.find((c) => c.id === id))
-          .filter((c): c is MarketingCardData => c !== undefined);
-
-        // Add any new cards that weren't in saved order
-        const newCards = cards.filter((c) => !orderIds.includes(c.id));
-        setOrderedCards([...reordered, ...newCards]);
-      } catch {
-        setOrderedCards(cards);
-      }
-    } else {
-      setOrderedCards(cards);
-    }
-  }, [cards, storageKey]);
-
-  // Update cards when data changes but preserve order
-  useEffect(() => {
-    setOrderedCards((prev) => {
-      const newOrder = prev
-        .map((oldCard) => {
-          const updated = cards.find((c) => c.id === oldCard.id);
-          return updated || oldCard;
-        })
-        .filter((c) => cards.some((card) => card.id === c.id));
-
-      // Add any new cards
-      const newCards = cards.filter((c) => !prev.some((p) => p.id === c.id));
-      return [...newOrder, ...newCards];
-    });
-  }, [cards]);
+    const reordered = savedOrder
+      .map((id) => cards.find((c) => c.id === id))
+      .filter((c): c is MarketingCardData => c !== undefined);
+    const newCards = cards.filter((c) => !savedOrder.includes(c.id));
+    setOrderedCards([...reordered, ...newCards]);
+  }, [cards, savedOrder]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -160,18 +133,14 @@ export function DraggableMarketingCards({
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
-      setOrderedCards((items) => {
-        const oldIndex = items.findIndex((i) => i.id === active.id);
-        const newIndex = items.findIndex((i) => i.id === over.id);
-        const newOrder = arrayMove(items, oldIndex, newIndex);
-
-        // Save to localStorage
-        localStorage.setItem(storageKey, JSON.stringify(newOrder.map((c) => c.id)));
-
-        return newOrder;
-      });
+      const oldIndex = orderedCards.findIndex((i) => i.id === active.id);
+      const newIndex = orderedCards.findIndex((i) => i.id === over.id);
+      const newOrder = arrayMove(orderedCards, oldIndex, newIndex);
+      setOrderedCards(newOrder);
+      setSavedOrder(newOrder.map((c) => c.id));
     }
   };
+
 
   if (!isDesktop) {
     return (
