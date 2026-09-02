@@ -796,7 +796,39 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000,
   });
 
-  // Fetch recent signups - refresh every hour
+  // Croissance des inscriptions par mois depuis janvier (nouveaux inscrits / total)
+  const { data: signupGrowthByMonth = [], isLoading: signupGrowthLoading } = useQuery({
+    queryKey: ["admin-signup-growth-by-month"],
+    queryFn: async () => {
+      const { data, error } = await (supabase.rpc as CallableFunction)("get_signup_growth_by_month");
+      if (error) throw error;
+      return (
+        (data as { month: string; new_users: number; total_users: number; rate: number }[]) ?? []
+      ).map((row) => ({
+        month: new Intl.DateTimeFormat("fr-FR", { month: "short", timeZone: "UTC" }).format(
+          new Date(`${row.month}T00:00:00Z`),
+        ),
+        new_users: Number(row.new_users),
+        total_users: Number(row.total_users),
+        rate: Number(row.rate),
+      }));
+    },
+    refetchInterval: 15 * 60 * 1000,
+    staleTime: 60_000,
+  });
+
+  const latestCompleteMonthGrowth = useMemo(() => {
+    if (signupGrowthByMonth.length === 0) return null;
+    const now = new Date();
+    const currentMonthStart = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1),
+    ).toISOString().slice(0, 10);
+    const raw =
+      (signupGrowthByMonth[signupGrowthByMonth.length - 1]?.month &&
+        (signupGrowthByMonth.length > 1 ? signupGrowthByMonth[signupGrowthByMonth.length - 2] : signupGrowthByMonth[0]));
+    void currentMonthStart;
+    return raw ?? null;
+  }, [signupGrowthByMonth]);
   const { data: recentSignups = [], isLoading: signupsLoading } = useQuery({
     queryKey: ["admin-recent-signups"],
     queryFn: async () => {
