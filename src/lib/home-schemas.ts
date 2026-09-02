@@ -60,18 +60,13 @@ const SOFTWARE_APPLICATION_SCHEMA = buildSoftwareApplicationSchema({
 });
 
 /**
- * WebSite racine : déclare le forum communautaire comme partie du site pour que
- * les moteurs et agents IA découvrent et citent cet espace de discussion.
+ * Parties du site déclarées depuis la home (forum, blog). Le nœud WebSite
+ * lui-même est unique et vit dans `__root.tsx` (#website) : on ne le
+ * redéclare pas ici pour éviter deux entités WebSite sur la même page.
  */
-const WEBSITE_SCHEMA = {
+const SITE_PARTS_SCHEMA = {
   "@context": "https://schema.org",
-  "@type": "WebSite",
-  "@id": "https://iktracker.fr/#website",
-  url: "https://iktracker.fr/",
-  name: "IKtracker",
-  inLanguage: "fr-FR",
-  publisher: { "@id": "https://iktracker.fr/#organization" },
-  hasPart: [
+  "@graph": [
     {
       "@type": "CollectionPage",
       "@id": "https://iktracker.fr/forum#collection",
@@ -95,6 +90,7 @@ const WEBSITE_SCHEMA = {
       "@id": "https://iktracker.fr/blog#blog",
       url: "https://iktracker.fr/blog",
       name: "Blog IKtracker",
+      isPartOf: { "@id": "https://iktracker.fr/#website" },
     },
   ],
 };
@@ -102,7 +98,8 @@ const WEBSITE_SCHEMA = {
 /** Scripts JSON-LD prêts à être passés à `head().scripts` de la route "/". */
 export const HOME_JSON_LD_SCRIPTS = [
   { type: "application/ld+json", children: JSON.stringify(SOFTWARE_APPLICATION_SCHEMA) },
-  { type: "application/ld+json", children: JSON.stringify(WEBSITE_SCHEMA) },
+  { type: "application/ld+json", children: JSON.stringify(SITE_PARTS_SCHEMA) },
   { type: "application/ld+json", children: JSON.stringify(FAQ_PAGE_SCHEMA) },
 ];
+
 
