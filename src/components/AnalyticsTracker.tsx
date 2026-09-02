@@ -32,10 +32,12 @@ const loadTaapIt = () => {
   document.body.appendChild(s);
 };
 
-// Déclenche `cb` à la première interaction utilisateur, ou après `fallbackMs`
-// si l'utilisateur reste passif. Objectif : sortir GA/Taap du chemin critique
-// mobile (≈162 Kio de JS GTM hors du chargement initial).
-const onFirstInteraction = (cb: () => void, fallbackMs = 6000) => {
+// Déclenche `cb` à la première interaction utilisateur, après `fallbackMs`
+// si l'utilisateur reste passif, ou forcé à la sortie de page (pagehide /
+// onglet masqué) pour ne jamais perdre les visiteurs qui repartent tôt.
+// Objectif : sortir GA/Taap du chemin critique mobile (≈162 Kio de JS GTM
+// hors du chargement initial) sans sous-compter l'audience.
+const onFirstInteraction = (cb: () => void, fallbackMs = 2500) => {
   let done = false;
   const events: (keyof WindowEventMap)[] = [
     "pointerdown",
@@ -50,19 +52,28 @@ const onFirstInteraction = (cb: () => void, fallbackMs = 6000) => {
     cleanup();
     cb();
   };
+  const onPageHide = () => run();
+  const onVisibilityChange = () => {
+    if (document.visibilityState === "hidden") run();
+  };
   const cleanup = () => {
     events.forEach((e) => window.removeEventListener(e, run));
+    window.removeEventListener("pagehide", onPageHide);
+    document.removeEventListener("visibilitychange", onVisibilityChange);
     clearTimeout(timer);
   };
   const timer = setTimeout(run, fallbackMs);
   events.forEach((e) => window.addEventListener(e, run, { once: true, passive: true }));
+  window.addEventListener("pagehide", onPageHide);
+  document.addEventListener("visibilitychange", onVisibilityChange);
   return cleanup;
 };
 
 export const AnalyticsTracker = () => {
   const location = useLocation();
 
-  // Initialisation différée : première interaction ou 6 s d'inactivité.
+  // Initialisation différée : première interaction, 2,5 s d'inactivité,
+  // ou forcée à la sortie de page (pagehide / onglet masqué).
   useEffect(() => {
     return onFirstInteraction(() => {
       loadTaapIt();
