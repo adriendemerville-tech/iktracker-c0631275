@@ -377,10 +377,19 @@ export function AdminStats() {
       });
       if (error) throw error;
       const rawData = data as unknown as { day: string; count: number }[];
-      return fillMissingDays(rawData, ["count"], daysBack, period) as {
+      const filled = fillMissingDays(rawData, ["count"], daysBack, period) as {
         day: string;
         count: number;
       }[];
+
+      // 7-day rolling average to smooth daily noise and track acquisition rhythm
+      const windowSize = 7;
+      return filled.map((row, index) => {
+        const start = Math.max(0, index - windowSize + 1);
+        const window = filled.slice(start, index + 1);
+        const avg = window.reduce((sum, r) => sum + (r.count || 0), 0) / window.length;
+        return { ...row, rollingAvg: Number(avg.toFixed(2)) };
+      });
     },
     refetchInterval: 60 * 60 * 1000, // 1 hour
   });
