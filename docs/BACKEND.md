@@ -1,8 +1,14 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 4.6.11 — 2 septembre 2026
+> Version 4.6.12 — 2 septembre 2026
+
+**Notes v4.6.12 (dette : source de vérité sitemap & redirections blog, 2 septembre 2026)**
+- **Sitemap — une seule source** : le Worker `iktracker-bot-router` ne proxifie plus `/sitemap.xml` vers l'Edge Function `sitemap` (elle-même simple proxy). Il interroge directement la route SSR d'origine (`src/lib/sitemap.server.ts`), en-tête `X-Sitemap-Source: ssr-route`. L'Edge Function `sitemap` reste déployée temporairement pour rollback mais n'est plus appelée.
+- **Redirections blog — de 3 copies à 1 source** : `src/lib/blog-redirects.ts` ré-exporte désormais le fichier partagé des Edge Functions (source unique). Le Worker contient un bloc **généré** `BLOG_LEGACY_REDIRECTS` produit par `scripts/sync-blog-redirects.cjs` et vérifié par `scripts/validate-blog-redirects-sync.cjs`.
+- **Validateurs corrigés** : `validate-sitemap-sync.cjs` compare le prebuild statique à `src/lib/sitemap.server.ts` ; `/forum` ajouté au sitemap statique pour aligner les deux sources.
 
 **Notes v4.6.11 (courbe de croissance des inscriptions, 2 septembre 2026)**
+
 - **Nouvelle RPC `get_signup_growth_by_month()`** : retourne, pour chaque mois depuis janvier de l'année en cours, le nombre de nouveaux inscrits non-admin, le total cumulé à la fin du mois, et le taux mensuel (`new_users / total_users * 100`). Accès réservé aux admins (`has_role` check), calcul privilégié isolé dans le schéma privé comme `get_monthly_signup_stats()`. Consommée par le graphique « Croissance des inscriptions (% mensuel) » dans `/admin` → Stats → KPI Marketing.
 - **KPI déplacé** : la carte « Nvx inscrits / total » (v4.6.9/4.6.10) quitte le header bleu pour la section Stats → KPI Marketing, à côté du graphique mensuel.
 
