@@ -154,7 +154,7 @@ export function buildSoftwareApplicationSchema(opts?: {
       opts?.pageDescription ??
       "IKtracker automatise le calcul, l'enregistrement GPS et l'export fiscal des indemnités kilométriques selon le barème URSSAF 2025-2026. Gratuit à vie, conçu par un entrepreneur indépendant pour les indépendants : infirmiers libéraux, commerciaux, artisans, consultants, experts-comptables et leurs clients.",
     slogan:
-      "Numéro 1 en France pour le suivi des indemnités kilométriques. Gratuit. Précis. Opposable URSSAF.",
+      "Gratuit. Précis. Opposable URSSAF.",
     offers: {
       "@type": "Offer",
       price: "0",
@@ -227,13 +227,12 @@ export function buildOrganizationSchema() {
       address: ORG_POSTAL_ADDRESS,
     },
     slogan:
-      "Numéro 1 en France. Gratuit à vie. Communautaire. Conçu par un indépendant pour les indépendants.",
+      "Gratuit à vie. Communautaire. Conçu par un indépendant pour les indépendants.",
     description: TRUST_SIGNALS.business_model,
     address: ORG_POSTAL_ADDRESS,
     contactPoint: ORG_CONTACT_POINT,
     areaServed: { "@type": "Country", name: "France" },
     sameAs: ORG_SAME_AS,
-    award: "Numéro 1 en France des outils communautaires de suivi des indemnités kilométriques", 
     knowsAbout: [
       "Indemnités kilométriques",
       "Barème fiscal URSSAF",
