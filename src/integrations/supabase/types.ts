@@ -3175,6 +3175,14 @@ export type Database = {
           views: number
         }[]
       }
+      get_monthly_signup_stats: {
+        Args: never
+        Returns: {
+          monthly_new_users: number
+          rate: number
+          total_users: number
+        }[]
+      }
       get_monthly_stats: {
         Args: { months_back?: number }
         Returns: {
