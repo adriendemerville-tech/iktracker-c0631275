@@ -348,12 +348,11 @@ export default {
       return response;
     }
 
-    // ── 2a. /sitemap.xml → proxy vers Edge Function dynamique, fallback statique ──
+    // ── 2a. /sitemap.xml → route SSR de l'origine (source de vérité unique),
+    //        fallback fichier statique. Plus de proxy vers l'Edge Function.
     if (path === "/sitemap.xml") {
       try {
-        const sitemapRes = await fetch(SUPABASE_SITEMAP, {
-          headers: { "User-Agent": ua },
-        });
+        const sitemapRes = await fetchOrigin(request);
         if (sitemapRes.ok) {
           const xml = await sitemapRes.text();
           const response = new Response(xml, {
@@ -362,7 +361,7 @@ export default {
               "Content-Type": "application/xml; charset=utf-8",
               "Cache-Control": "public, max-age=300, s-maxage=300",
               "X-Rendered-By": "cloudflare-worker",
-              "X-Sitemap-Source": "edge-function",
+              "X-Sitemap-Source": "ssr-route",
             },
           });
           ctx.waitUntil(sendLog(request, response, botDetected));
@@ -371,6 +370,7 @@ export default {
       } catch (e) {
         // Fallback vers le fichier statique
       }
+
       // Fallback : servir le fichier statique depuis l'origin
       const fallbackRes = await fetchOrigin(request);
       if (fallbackRes.ok) {
