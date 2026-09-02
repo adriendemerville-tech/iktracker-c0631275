@@ -20,6 +20,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Move } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useLayoutPreference } from "@/hooks/useLayoutPreference";
 
 interface MarketingCardData {
   id: string;
