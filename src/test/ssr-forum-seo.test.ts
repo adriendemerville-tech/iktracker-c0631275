@@ -119,7 +119,12 @@ describe.skipIf(!serverUp)("SSR forum — contenu et métadonnées visibles des 
     if (discussion) {
       const html = await getHtml(new URL(discussion).pathname);
       const t = types(extractJsonLd(html));
-      expect(t).toContain("DiscussionForumPosting");
+      // Les discussions formulées en question émettent QAPage (plus adapté
+      // au rich result Google) ; les autres DiscussionForumPosting.
+      expect(
+        t.includes("DiscussionForumPosting") || t.includes("QAPage"),
+        `aucun schéma de discussion : ${t.join(", ")}`,
+      ).toBe(true);
       expect(metaContent(html, "og:type")).toBe("article");
       expect(metaContent(html, "robots")).toContain("index");
       expect(html).toContain('rel="canonical"');
