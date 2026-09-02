@@ -1,6 +1,10 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 4.6.8 — 1er septembre 2026
+> Version 4.6.9 — 2 septembre 2026
+
+**Notes v4.6.9 (KPI admin — taux de nouveaux inscrits mensuels, 2 septembre 2026)**
+- **Nouvelle RPC `get_monthly_signup_stats()`** : retourne le nombre total d'inscrits non-admin, le nombre de nouveaux inscrits du mois en cours, et le taux mensuel de nouveaux inscrits (`monthly_new_users / total_users * 100`). Fonction `SECURITY DEFINER` avec vérification du rôle admin via `public.has_role(auth.uid(), 'admin')`. Exécutable par `authenticated` et `service_role`.
+- **Header admin** : le KPI « Nvx inscrits / total » affiche le pourcentage courant dans le header bleu de `/admin`, à côté des compteurs existants (En attente, Répondus, Utilisateurs, Créateur/Viewer, Contributeurs).
 
 **Notes v4.6.8 (audit TTFB — Worker confirmé hors circuit en production, 1er septembre 2026)**
 - **Audit TTFB home** : `iktracker.fr/` mesuré à **1,0–2,7 s** (TTFB variable, cold starts de l'origine Lovable) contre ~**140 ms** pour le SSR en local. La cause N'EST PAS applicative.
@@ -253,6 +257,7 @@ Utilisateur → Cloudflare DNS (proxied)
 | `cleanup_old_phone_numbers()` | Anonymise les téléphones > 7 jours |
 | `update_updated_at_column()` | Trigger pour auto-update updated_at |
 | `get_public_user_count()` | Retourne le nombre total d'utilisateurs inscrits (`count(*) FROM auth.users`). Fonction publique (`SECURITY DEFINER`) sans PII, utilisée par le compteur de preuve sociale sur la page d'accueil. Exécutable par `anon`, `authenticated` et `service_role`. |
+| `get_monthly_signup_stats()` | Retourne `{ total_users, monthly_new_users, rate }` pour les inscrits non-admin. `rate` = pourcentage de nouveaux inscrits du mois en cours par rapport au total. Accès réservé aux admins (`has_role` check). Exécutable par `authenticated` et `service_role`. |
 
 ---
 

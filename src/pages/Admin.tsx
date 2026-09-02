@@ -286,6 +286,24 @@ const Admin = () => {
     staleTime: 60_000,
   });
 
+  // Monthly signup rate vs total users (admin header KPI)
+  const { data: monthlySignupStats } = useQuery({
+    queryKey: ["admin-monthly-signup-stats"],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("get_monthly_signup_stats");
+      if (error) throw error;
+      const row = (data as unknown as { total_users: number; monthly_new_users: number; rate: number }[])?.[0];
+      return {
+        total_users: row?.total_users ?? 0,
+        monthly_new_users: row?.monthly_new_users ?? 0,
+        rate: row?.rate ?? 0,
+      };
+    },
+    enabled: isAdmin,
+    refetchInterval: 15 * 60 * 1000, // 15 minutes
+    staleTime: 60_000,
+  });
+
   const { data: userRoles = [], isLoading: rolesLoading } = useQuery({
     queryKey: ["admin-user-roles"],
     queryFn: async () => {
@@ -664,6 +682,12 @@ const Admin = () => {
                 <div className="bg-primary-foreground/10 rounded-xl px-3 py-1.5 min-w-[4.5rem]">
                   <p className="text-xl font-bold leading-none">{contributorCount}</p>
                   <p className="text-xs opacity-80">Contributeurs</p>
+                </div>
+                <div className="bg-primary-foreground/10 rounded-xl px-3 py-1.5 min-w-[4.5rem]">
+                  <p className="text-xl font-bold leading-none">
+                    {monthlySignupStats ? `${monthlySignupStats.rate.toFixed(1).replace(".", ",")}%` : "—"}
+                  </p>
+                  <p className="text-xs opacity-80">Nvx inscrits / total</p>
                 </div>
               </div>
 
