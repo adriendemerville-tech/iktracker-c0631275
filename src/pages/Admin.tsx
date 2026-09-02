@@ -683,6 +683,12 @@ const Admin = () => {
                   <p className="text-xl font-bold leading-none">{contributorCount}</p>
                   <p className="text-xs opacity-80">Contributeurs</p>
                 </div>
+                <div className="bg-primary-foreground/10 rounded-xl px-3 py-1.5 min-w-[4.5rem]">
+                  <p className="text-xl font-bold leading-none">
+                    {monthlySignupStats ? `${monthlySignupStats.rate.toFixed(1).replace(".", ",")}%` : "—"}
+                  </p>
+                  <p className="text-xs opacity-80">Nvx inscrits / total</p>
+                </div>
               </div>
 
               <div className="flex items-center gap-2 ml-auto shrink-0">
