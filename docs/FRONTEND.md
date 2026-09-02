@@ -1,6 +1,13 @@
 # IKTracker — Documentation Technique Frontend
 
-> Version 3.4 — 29 août 2026 (Refonte du hero homepage, hiérarchie CTA, réponses admin visibles)
+> Version 3.5 — 2 septembre 2026 (Stats admin : croissance inscriptions, moyenne mobile, surveys mobiles, résilience lazy-loading)
+
+**Notes v3.5 (2 septembre 2026)**
+- **Croissance des inscriptions** (`src/components/AdminStats.tsx`) : nouveau graphique « Croissance des inscriptions (% mensuel) » dans Stats → KPI Marketing, alimenté par la RPC `get_signup_growth_by_month()` — taux mensuel nouveaux inscrits / total depuis janvier. La carte KPI « Nvx inscrits / total » (dernier mois complet) est déplacée du header bleu vers cette section.
+- **Moyenne mobile 7 jours** : le graphe « Nouveaux inscrits par jour » affiche une seconde courbe orange (moyenne glissante 7 jours, calculée côté client), incluse à l'export CSV.
+- **Surveys mobiles** : limites de caractères centralisées (titre/message) dans `survey-types.ts` avec compteur `CharCount` ; boutons d'action info/CTA rendus dans un footer sticky pleine largeur (`SurveyWidget.tsx` / `SurveyPreview.tsx`) pour rester visibles sur mobile. Déduplication d'affichage via `sessionStorage` (une survey déjà vue ne se ré-affiche plus au changement de route).
+- **Résilience lazy-loading** : `src/lib/lazy-retry.ts` (2 retries + 1 reload verrouillé par session) et `src/components/LazyBoundary.tsx` appliqués aux panels admin et libs lourdes (`recharts`, `html2pdf`, `jszip`) — évite les erreurs 500 en cas d'échec de chunk dynamique.
+- **SEO/GEO** : composant `DirectAnswer.tsx` (H3 question + réponse 2-3 phrases) avec JSON-LD `SpeakableSpecification` déployé sur les pages barème IK ; preload de l'image LCP (`/logo-iktracker-250.webp`, `fetchpriority="high"`) dans le `head()` de `/`.
 
 **Notes v3.4 (29 août 2026)**
 - **Hero homepage resserré** (`src/pages/Landing.tsx`) : H1 réduit (`lg:text-[2.5rem]`) pour tenir « indemnités kilométriques » sur une ligne, alignement de grille `items-start`, card d'inscription remontée (sans marge négative excessive — un `lg:-mt-52` combiné à l'`overflow-hidden` de la section tronquait la moitié haute de la card ; la marge a été retirée après vérification Playwright).
