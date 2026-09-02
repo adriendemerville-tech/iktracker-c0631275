@@ -1108,8 +1108,8 @@ export function AdminStats() {
       ["Visites simultanées", onlineUsers],
       [""],
       ["Nouveaux inscrits par jour"],
-      ["Date", "Nombre"],
-      ...registrations.map((r) => [r.day, r.count]),
+      ["Date", "Nombre", "Moyenne 7 jours"],
+      ...registrations.map((r) => [r.day, r.count, r.rollingAvg]),
     ];
 
     const csvContent = statsRows
