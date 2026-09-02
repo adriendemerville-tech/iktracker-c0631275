@@ -81,7 +81,10 @@ export function Counter({
   return (
     <div
       className={cn(
-        "flex flex-col items-center p-2 sm:p-5 rounded-xl transition-all duration-300",
+        // w-full + hauteur mini fixe : la carte ne se redimensionne pas pendant
+        // l'animation du chiffre (source principale de CLS sur mobile).
+        "w-full min-h-[84px] sm:min-h-[104px] justify-center",
+        "flex flex-col items-center p-2 sm:p-5 rounded-xl transition-colors duration-300",
         "bg-card/70 backdrop-blur-xl border border-border/60",
         "shadow-[0_8px_32px_rgba(0,0,0,0.08)]",
         variant === "accent" && "border-emerald-500/30 dark:border-emerald-500/20",
