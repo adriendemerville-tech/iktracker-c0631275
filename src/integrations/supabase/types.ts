@@ -3179,6 +3179,8 @@ export type Database = {
         Args: never
         Returns: {
           monthly_new_users: number
+          period_end: string
+          period_start: string
           rate: number
           total_users: number
         }[]

@@ -292,11 +292,18 @@ const Admin = () => {
     queryFn: async () => {
       const { data, error } = await supabase.rpc("get_monthly_signup_stats");
       if (error) throw error;
-      const row = (data as unknown as { total_users: number; monthly_new_users: number; rate: number }[])?.[0];
+      const row = (data as unknown as {
+        total_users: number;
+        monthly_new_users: number;
+        rate: number;
+        period_start: string;
+        period_end: string;
+      }[])?.[0];
       return {
         total_users: row?.total_users ?? 0,
         monthly_new_users: row?.monthly_new_users ?? 0,
         rate: row?.rate ?? 0,
+        period_start: row?.period_start ?? "",
       };
     },
     enabled: isAdmin,
@@ -687,7 +694,11 @@ const Admin = () => {
                   <p className="text-xl font-bold leading-none">
                     {monthlySignupStats ? `${monthlySignupStats.rate.toFixed(1).replace(".", ",")}%` : "—"}
                   </p>
-                  <p className="text-xs opacity-80">Nvx inscrits / total</p>
+                  <p className="text-xs opacity-80 whitespace-nowrap">
+                    {monthlySignupStats?.period_start
+                      ? `${new Intl.DateTimeFormat("fr-FR", { month: "short", timeZone: "UTC" }).format(new Date(`${monthlySignupStats.period_start}T00:00:00Z`))} : ${monthlySignupStats.monthly_new_users} / ${monthlySignupStats.total_users}`
+                      : "Dernier mois complet"}
+                  </p>
                 </div>
               </div>
 
