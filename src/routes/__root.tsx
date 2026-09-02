@@ -41,12 +41,14 @@ const organizationJsonLd = JSON.stringify(buildOrganizationSchema());
 const websiteJsonLd = JSON.stringify({
   "@context": "https://schema.org",
   "@type": "WebSite",
+  "@id": "https://iktracker.fr/#website",
   name: "IKtracker",
   alternateName: "IKtracker - Outil communautaire",
   url: "https://iktracker.fr",
   description:
     "Outil communautaire gratuit pour automatiser le calcul des indemnités kilométriques. Mode tournée GPS, synchronisation calendrier, export comptable.",
   inLanguage: "fr-FR",
+  publisher: { "@id": "https://iktracker.fr/#organization" },
   potentialAction: {
     "@type": "SearchAction",
     target: "https://iktracker.fr/?q={search_term_string}",
