@@ -1,6 +1,6 @@
 /**
  * Script de validation CI : vérifie que les URLs statiques sont identiques
- * entre la route SSR (src/routes/sitemap[.]xml.ts)
+ * entre la route SSR (src/lib/sitemap.server.ts)
  * et le script prebuild (scripts/generate-sitemap.cjs).
  *
  * Usage : node scripts/validate-sitemap-sync.cjs
@@ -28,7 +28,7 @@ function extractStaticPages(filePath) {
   return pages;
 }
 
-const edgeFunctionPath = path.join(__dirname, "..", "src", "routes", "sitemap[.]xml.ts");
+const edgeFunctionPath = path.join(__dirname, "..", "src", "lib", "sitemap.server.ts");
 const prebuildPath = path.join(__dirname, "generate-sitemap.cjs");
 
 if (!fs.existsSync(edgeFunctionPath)) {
