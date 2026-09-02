@@ -182,61 +182,40 @@ export function AdminStats() {
     return () => clearTimeout(timerId);
   }, [queryClient]);
 
-  // Section ordering for drag and drop
-  const [sectionOrder, setSectionOrder] = useState<string[]>(() => {
-    const saved = localStorage.getItem("admin-stats-section-order");
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved) as string[];
-        const known = parsed.filter((id) => DEFAULT_SECTION_ORDER.includes(id));
-        // Append any new sections added since the order was saved
-        const missing = DEFAULT_SECTION_ORDER.filter((id) => !known.includes(id));
-        return [...known, ...missing];
-      } catch {
-        return DEFAULT_SECTION_ORDER;
-      }
-    }
-    return DEFAULT_SECTION_ORDER;
-  });
+  // Section ordering for drag and drop (persisted in DB)
+  const [sectionOrder, setSectionOrder] = useLayoutPreference<string[]>(
+    "admin-stats-section-order",
+    DEFAULT_SECTION_ORDER,
+    useCallback((parsed: string[]) => {
+      const known = (parsed || []).filter((id) => DEFAULT_SECTION_ORDER.includes(id));
+      const missing = DEFAULT_SECTION_ORDER.filter((id) => !known.includes(id));
+      return [...known, ...missing];
+    }, []),
+  );
 
   // Marketing blocks ordering (charts + table)
-  const [marketingSectionOrder, setMarketingSectionOrder] = useState<string[]>(() => {
-    const saved = localStorage.getItem("admin-marketing-section-order");
-    if (saved) {
-      try {
-        const savedOrder = JSON.parse(saved) as string[];
-        const filtered = savedOrder.filter((id) => DEFAULT_MARKETING_SECTION_ORDER.includes(id));
-        const missing = DEFAULT_MARKETING_SECTION_ORDER.filter((id) => !filtered.includes(id));
-        return [...filtered, ...missing];
-      } catch {
-        return DEFAULT_MARKETING_SECTION_ORDER;
-      }
-    }
-    return DEFAULT_MARKETING_SECTION_ORDER;
-  });
+  const [marketingSectionOrder, setMarketingSectionOrder] = useLayoutPreference<string[]>(
+    "admin-marketing-section-order",
+    DEFAULT_MARKETING_SECTION_ORDER,
+    useCallback((parsed: string[]) => {
+      const known = (parsed || []).filter((id) => DEFAULT_MARKETING_SECTION_ORDER.includes(id));
+      const missing = DEFAULT_MARKETING_SECTION_ORDER.filter((id) => !known.includes(id));
+      return [...known, ...missing];
+    }, []),
+  );
 
   // Card widths (1=1/3, 2=2/3, 3=full) stored per section id
-  const [cardWidths, setCardWidths] = useState<Record<string, 1 | 2 | 3>>(() => {
-    const saved = localStorage.getItem("admin-card-widths");
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        return {};
-      }
-    }
-    return {};
-  });
+  const [cardWidths, setCardWidths] = useLayoutPreference<Record<string, 1 | 2 | 3>>(
+    "admin-card-widths",
+    {},
+  );
 
   const handleWidthChange = (id: string, width: 1 | 2 | 3) => {
-    setCardWidths((prev) => {
-      const next = { ...prev, [id]: width };
-      localStorage.setItem("admin-card-widths", JSON.stringify(next));
-      return next;
-    });
+    setCardWidths({ ...cardWidths, [id]: width });
   };
 
   const getCardWidth = (id: string): 1 | 2 | 3 => cardWidths[id] || 3;
+
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
