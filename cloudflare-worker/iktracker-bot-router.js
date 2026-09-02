@@ -16,7 +16,79 @@ const ORIGIN_HOST = "iktracker.lovable.app";
 
 const SUPABASE_META_RENDERER =
   "https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/meta-renderer";
-const SUPABASE_SITEMAP = "https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/sitemap";
+// >>> BLOG_REDIRECTS:GENERATED — ne pas éditer à la main
+const BLOG_LEGACY_REDIRECTS = {
+  "/blog/7-erreurs-courantes-d-indemnite-kilometrique-a-eviter-absolument-pour-neutralise": "/blog/7-erreurs-courantes-indemnite-kilometrique-a-eviter",
+  "/blog/7-etapes-du-calcul-indemnite-frais-kilometriques": "/indemnites-kilometriques",
+  "/blog/anticiper-2026-securiser-et-maximiser-ses-indemnites-kilometriques-face-au-durci": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/bareme-ik-2026-changements": "/bareme-ik-2026",
+  "/blog/bareme-indemnites-kilometriques-2026-iktracker": "/bareme-ik-2026",
+  "/blog/calcul-des-indemnites-kilometriques-2026-le-guide-complet-pour-un-suivi-conforme": "/indemnites-kilometriques",
+  "/blog/calcul-des-indemnites-kilometriques-2026-optimisez-vos-deplacements-professionne": "/indemnites-kilometriques",
+  "/blog/calcul-des-indemnites-kilometriques-le-guide-complet-pour-les-professionnels-mob": "/indemnites-kilometriques",
+  "/blog/calcul-des-indemnites-kilometriques-optimisez-vos-deplacements-pro-sans-risque-d": "/indemnites-kilometriques",
+  "/blog/calcul-des-indemnites-kilometriques-optimisez-vos-deplacements-professionnels": "/indemnites-kilometriques",
+  "/blog/calcul-des-indemnites-optimisez-vos-deplacements-pro-avec-un-suivi-kilometrique-": "/indemnites-kilometriques",
+  "/blog/calcul-des-indemnites-optimisez-vos-deplacements-pro-et-securisez-vos-remboursem": "/indemnites-kilometriques",
+  "/blog/calcul-des-indemnites-optimisez-vos-deplacements-pro-grace-aux-secrets-des-exper": "/indemnites-kilometriques",
+  "/blog/calculer-indemnites-kilometriques-2026-guide": "/indemnites-kilometriques",
+  "/blog/comment-calculer-frais-kilometriques-remboursement": "/indemnites-kilometriques",
+  "/blog/comment-optimiser-ses-frais-auto-sans-risque-guide-de-conformite-urssaf-et-autom": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/comment-optimiser-ses-frais-pro-auto-en-respectant-le-bareme-urssaf-sans-perdre-": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/comment-optimiser-ses-frais-pro-auto-en-s-alignant-sur-le-bareme-urssaf": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/comment-transformer-votre-suivi-kilometrique-2026-en-bouclier-anti-redressement-": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/dossier-ik-2026-l-art-de-blinder-son-suivi-kilometrique-contre-les-controles-urs": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/dossier-ik-2026-les-7-regles-d-or-d-un-suivi-kilometrique-conforme-anti-redresse": "/blog/controle-urssaf-liste-des-pieces-a-fournir",
+  "/blog/etapes-declaration-fiscale-kilometrage-guide": "/blog/declaration-2042-ou-reporter-ses-indemnites-kilometriques",
+  "/blog/etapes-rapport-kilometrique": "/indemnites-kilometriques",
+  "/blog/frais-auto-et-urssaf-optimiser-ses-remboursements-sans-risquer-le-redressement-f": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/frais-reels-ou-abattement-forfaitaire-simulation-2026": "/blog/frais-reels-ou-abattement-choisir",
+  "/blog/frais-reels-ou-forfait-guide-independants-2026": "/blog/frais-reels-ou-forfait-optimisation-impots-2026",
+  "/blog/frais-reels-ou-forfait-independants-impots-2026": "/blog/frais-reels-ou-forfait-optimisation-impots-2026",
+  "/blog/frais-reels-vs-forfait": "/blog/frais-reels-ou-forfait-optimisation-impots-2026",
+  "/blog/frais-reels-vs-forfait-guide-complet": "/blog/frais-reels-ou-forfait-optimisation-impots-2026",
+  "/blog/frais-reels-vs-forfait-guide-optimisation-impots": "/blog/seuil-rentabilite-frais-reels-kilometrage-annuel",
+  "/blog/iktracker-nouveautes-2026": "/blog/iktracker-2026-nouveautes-tendances",
+  "/blog/indemnite-kilometrique-2026-les-7-regles-d-or-d-un-suivi-conforme-face-aux-contr": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/indemnite-kilometrique-comment-eviter-le-redressement-urssaf-lors-d-un-controle": "/blog/7-erreurs-courantes-indemnite-kilometrique-a-eviter",
+  "/blog/indemnite-kilometrique-comment-eviter-un-redressement-urssaf-en-2026": "/blog/7-erreurs-courantes-indemnite-kilometrique-a-eviter",
+  "/blog/indemnite-kilometrique-comment-securiser-votre-suivi-et-eviter-un-redressement-u": "/blog/7-erreurs-courantes-indemnite-kilometrique-a-eviter",
+  "/blog/indemnite-kilometrique-desamorcez-les-7-erreurs-qui-declenchent-un-redressement-": "/blog/7-erreurs-courantes-indemnite-kilometrique-a-eviter",
+  "/blog/indemnite-kilometrique-eviter-le-controle-urssaf-en-securisant-vos-declarations": "/blog/7-erreurs-courantes-indemnite-kilometrique-a-eviter",
+  "/blog/indemnite-kilometrique-evitez-le-redressement-urssaf-en-maitrisant-les-7-regles-": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/indemnites-kilometriques-en-2026-comment-securiser-vos-remboursements-face-a-l-u": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/liste-des-erreurs-frequentes-allocation-kilometrique": "/blog/7-erreurs-courantes-indemnite-kilometrique-a-eviter",
+  "/blog/maximiser-ses-indemnites-kilometriques-le-guide-pour-une-conformite-sans-faille": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/meilleures-pratiques-suivi-kilometrique-professionnels": "/blog/7-erreurs-courantes-indemnite-kilometrique-a-eviter",
+  "/blog/optimisez-vos-deplacements-professionnels-le-guide-complet-pour-vos-indemnites-k": "/indemnites-kilometriques",
+  "/blog/precision-calcul-frais-kilometriques-2026": "/indemnites-kilometriques",
+  "/blog/regles-suivi-kilometrique-conforme-urssaf": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/securiser-et-maximiser-ses-indemnites-kilometriques-guide-complet-de-conformite-": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/securiser-ses-ik-2026-le-guide-de-conformite-absolue-pour-dejouer-les-controles-": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/securiser-ses-ik-en-2026-le-guide-ultime-anti-redressement-urssaf-pour-les-profe": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/securiser-ses-ik-face-a-l-urssaf-en-2026-guide-de-conformite-absolue-pour-eviter": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/securiser-ses-indemnites-2026-le-guide-ultime-du-suivi-kilometrique-conforme-ant": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/securiser-ses-indemnites-kilometriques-2026-conformite-urssaf-et-automatisation-": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/securiser-ses-indemnites-kilometriques-2026-le-guide-anti-redressement-urssaf-qu": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/securiser-ses-indemnites-kilometriques-en-2026-grace-a-une-methode-anti-redresse": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/securiser-ses-indemnites-kilometriques-en-2026-guide-de-conformite-anti-redresse": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/securiser-ses-indemnites-kilometriques-en-2026-guide-de-survie-anti-redressement": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/securiser-ses-indemnites-kilometriques-en-2026-l-arsenal-anti-redressement-urssa": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/securiser-ses-indemnites-kilometriques-en-2026-le-guide-de-conformite-ultime-pou": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/securiser-ses-indemnites-kilometriques-en-2026-le-guide-ultime-anti-redressement": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/securiser-ses-indemnites-kilometriques-en-eliminant-les-erreurs-de-saisie-manuel": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/securiser-ses-indemnites-kilometriques-face-a-l-urssaf-en-2026-la-methodologie-z": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/securiser-ses-indemnites-kilometriques-face-a-l-urssaf-en-eliminant-les-erreurs-": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/securiser-ses-indemnites-kilometriques-face-a-l-urssaf-guide-de-conformite-2026": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/securiser-ses-remboursements-en-evitant-les-pieges-de-conformite-urssaf-un-audit": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/securiser-ses-remboursements-en-evitant-les-pieges-de-l-urssaf-grace-a-un-audit-": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/securiser-ses-remboursements-kilometriques-en-2026-avec-l-automatisation-conform": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/suivi-kilometrique-2026-les-7-regles-d-or-pour-un-dossier-ik-conforme-et-anti-re": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/suivi-kilometrique-conforme-2026-le-dossier-ik-qui-elimine-tout-risque-de-redres": "/blog/controle-urssaf-frais-kilometriques-2026",
+  "/blog/suivi-kilometrique-les-7-astuces-des-professionnels-pour-eviter-un-redressement-": "/blog/7-erreurs-courantes-indemnite-kilometrique-a-eviter",
+};
+// <<< BLOG_REDIRECTS:GENERATED
+
 
 const BOT_PATTERNS = [
   "googlebot",
@@ -266,106 +338,8 @@ export default {
       "/install": "/installer",
       "/mestrajets": "/mes-trajets",
       "/experts-comptables": "/expert-comptable",
-
-      // ── Consolidation éditoriale du blog (août 2026) ──
-      // Cluster « frais réels vs forfait » → pilier unique
-      "/blog/frais-reels-vs-forfait": "/blog/frais-reels-ou-forfait-optimisation-impots-2026",
-      "/blog/frais-reels-vs-forfait-guide-complet":
-        "/blog/frais-reels-ou-forfait-optimisation-impots-2026",
-      "/blog/frais-reels-ou-forfait-guide-independants-2026":
-        "/blog/frais-reels-ou-forfait-optimisation-impots-2026",
-      "/blog/frais-reels-ou-forfait-independants-impots-2026":
-        "/blog/frais-reels-ou-forfait-optimisation-impots-2026",
-      "/blog/frais-reels-ou-abattement-forfaitaire-simulation-2026":
-        "/blog/frais-reels-ou-abattement-choisir",
-      // Réorientation : seuil de rentabilité
-      "/blog/frais-reels-vs-forfait-guide-optimisation-impots":
-        "/blog/seuil-rentabilite-frais-reels-kilometrage-annuel",
-
-      // Cluster « URSSAF / anti-redressement » → pilier contrôle URSSAF
-      "/blog/comment-optimiser-ses-frais-auto-sans-risque-guide-de-conformite-urssaf-et-autom":
-        "/blog/controle-urssaf-frais-kilometriques-2026",
-      "/blog/comment-optimiser-ses-frais-pro-auto-en-respectant-le-bareme-urssaf-sans-perdre-":
-        "/blog/controle-urssaf-frais-kilometriques-2026",
-      "/blog/comment-optimiser-ses-frais-pro-auto-en-s-alignant-sur-le-bareme-urssaf":
-        "/blog/controle-urssaf-frais-kilometriques-2026",
-      "/blog/frais-auto-et-urssaf-optimiser-ses-remboursements-sans-risquer-le-redressement-f":
-        "/blog/controle-urssaf-frais-kilometriques-2026",
-      "/blog/comment-transformer-votre-suivi-kilometrique-2026-en-bouclier-anti-redressement-":
-        "/blog/controle-urssaf-frais-kilometriques-2026",
-      "/blog/dossier-ik-2026-l-art-de-blinder-son-suivi-kilometrique-contre-les-controles-urs":
-        "/blog/controle-urssaf-frais-kilometriques-2026",
-      "/blog/regles-suivi-kilometrique-conforme-urssaf":
-        "/blog/controle-urssaf-frais-kilometriques-2026",
-      // Réorientation : liste des pièces
-      "/blog/dossier-ik-2026-les-7-regles-d-or-d-un-suivi-kilometrique-conforme-anti-redresse":
-        "/blog/controle-urssaf-liste-des-pieces-a-fournir",
-
-      // Cluster « calcul / étapes » → pilier des 7 étapes
-      "/blog/calculer-indemnites-kilometriques-2026-guide":
-        "/indemnites-kilometriques",
-      "/blog/comment-calculer-frais-kilometriques-remboursement":
-        "/indemnites-kilometriques",
-      "/blog/etapes-rapport-kilometrique": "/indemnites-kilometriques",
-      "/blog/precision-calcul-frais-kilometriques-2026":
-        "/indemnites-kilometriques",
-      // Réorientation : report en déclaration
-      "/blog/etapes-declaration-fiscale-kilometrage-guide":
-        "/blog/declaration-2042-ou-reporter-ses-indemnites-kilometriques",
-
-      // Cluster « barème 2026 » → page pilier marketing (ne pas cannibaliser)
-      "/blog/bareme-indemnites-kilometriques-2026-iktracker": "/bareme-ik-2026",
-      "/blog/bareme-ik-2026-changements": "/bareme-ik-2026",
-
-      // Doublons marque et erreurs
-      "/blog/iktracker-nouveautes-2026": "/blog/iktracker-2026-nouveautes-tendances",
-      "/blog/liste-des-erreurs-frequentes-allocation-kilometrique":
-        "/blog/7-erreurs-courantes-indemnite-kilometrique-a-eviter",
-          '/blog/anticiper-2026-securiser-et-maximiser-ses-indemnites-kilometriques-face-au-durci': '/blog/controle-urssaf-frais-kilometriques-2026',
-      '/blog/indemnites-kilometriques-en-2026-comment-securiser-vos-remboursements-face-a-l-u': '/blog/controle-urssaf-frais-kilometriques-2026',
-      '/blog/maximiser-ses-indemnites-kilometriques-le-guide-pour-une-conformite-sans-faille': '/blog/controle-urssaf-frais-kilometriques-2026',
-      '/blog/securiser-et-maximiser-ses-indemnites-kilometriques-guide-complet-de-conformite-': '/blog/controle-urssaf-frais-kilometriques-2026',
-      '/blog/securiser-ses-ik-2026-le-guide-de-conformite-absolue-pour-dejouer-les-controles-': '/blog/controle-urssaf-frais-kilometriques-2026',
-      '/blog/securiser-ses-ik-en-2026-le-guide-ultime-anti-redressement-urssaf-pour-les-profe': '/blog/controle-urssaf-frais-kilometriques-2026',
-      '/blog/securiser-ses-ik-face-a-l-urssaf-en-2026-guide-de-conformite-absolue-pour-eviter': '/blog/controle-urssaf-frais-kilometriques-2026',
-      '/blog/securiser-ses-indemnites-2026-le-guide-ultime-du-suivi-kilometrique-conforme-ant': '/blog/controle-urssaf-frais-kilometriques-2026',
-      '/blog/securiser-ses-indemnites-kilometriques-2026-conformite-urssaf-et-automatisation-': '/blog/controle-urssaf-frais-kilometriques-2026',
-      '/blog/securiser-ses-indemnites-kilometriques-2026-le-guide-anti-redressement-urssaf-qu': '/blog/controle-urssaf-frais-kilometriques-2026',
-      '/blog/securiser-ses-indemnites-kilometriques-en-2026-grace-a-une-methode-anti-redresse': '/blog/controle-urssaf-frais-kilometriques-2026',
-      '/blog/securiser-ses-indemnites-kilometriques-en-2026-guide-de-conformite-anti-redresse': '/blog/controle-urssaf-frais-kilometriques-2026',
-      '/blog/securiser-ses-indemnites-kilometriques-en-2026-guide-de-survie-anti-redressement': '/blog/controle-urssaf-frais-kilometriques-2026',
-      '/blog/securiser-ses-indemnites-kilometriques-en-2026-l-arsenal-anti-redressement-urssa': '/blog/controle-urssaf-frais-kilometriques-2026',
-      '/blog/securiser-ses-indemnites-kilometriques-en-2026-le-guide-de-conformite-ultime-pou': '/blog/controle-urssaf-frais-kilometriques-2026',
-      '/blog/securiser-ses-indemnites-kilometriques-en-2026-le-guide-ultime-anti-redressement': '/blog/controle-urssaf-frais-kilometriques-2026',
-      '/blog/securiser-ses-indemnites-kilometriques-en-eliminant-les-erreurs-de-saisie-manuel': '/blog/controle-urssaf-frais-kilometriques-2026',
-      '/blog/securiser-ses-indemnites-kilometriques-face-a-l-urssaf-en-2026-la-methodologie-z': '/blog/controle-urssaf-frais-kilometriques-2026',
-      '/blog/securiser-ses-indemnites-kilometriques-face-a-l-urssaf-en-eliminant-les-erreurs-': '/blog/controle-urssaf-frais-kilometriques-2026',
-      '/blog/securiser-ses-indemnites-kilometriques-face-a-l-urssaf-guide-de-conformite-2026': '/blog/controle-urssaf-frais-kilometriques-2026',
-      '/blog/securiser-ses-remboursements-en-evitant-les-pieges-de-conformite-urssaf-un-audit': '/blog/controle-urssaf-frais-kilometriques-2026',
-      '/blog/securiser-ses-remboursements-en-evitant-les-pieges-de-l-urssaf-grace-a-un-audit-': '/blog/controle-urssaf-frais-kilometriques-2026',
-      '/blog/securiser-ses-remboursements-kilometriques-en-2026-avec-l-automatisation-conform': '/blog/controle-urssaf-frais-kilometriques-2026',
-      '/blog/indemnite-kilometrique-2026-les-7-regles-d-or-d-un-suivi-conforme-face-aux-contr': '/blog/controle-urssaf-frais-kilometriques-2026',
-      '/blog/indemnite-kilometrique-evitez-le-redressement-urssaf-en-maitrisant-les-7-regles-': '/blog/controle-urssaf-frais-kilometriques-2026',
-      '/blog/suivi-kilometrique-2026-les-7-regles-d-or-pour-un-dossier-ik-conforme-et-anti-re': '/blog/controle-urssaf-frais-kilometriques-2026',
-      '/blog/suivi-kilometrique-conforme-2026-le-dossier-ik-qui-elimine-tout-risque-de-redres': '/blog/controle-urssaf-frais-kilometriques-2026',
-      '/blog/calcul-des-indemnites-kilometriques-2026-le-guide-complet-pour-un-suivi-conforme': '/indemnites-kilometriques',
-      '/blog/calcul-des-indemnites-kilometriques-2026-optimisez-vos-deplacements-professionne': '/indemnites-kilometriques',
-      '/blog/calcul-des-indemnites-kilometriques-le-guide-complet-pour-les-professionnels-mob': '/indemnites-kilometriques',
-      '/blog/calcul-des-indemnites-kilometriques-optimisez-vos-deplacements-pro-sans-risque-d': '/indemnites-kilometriques',
-      '/blog/calcul-des-indemnites-kilometriques-optimisez-vos-deplacements-professionnels': '/indemnites-kilometriques',
-      '/blog/calcul-des-indemnites-optimisez-vos-deplacements-pro-avec-un-suivi-kilometrique-': '/indemnites-kilometriques',
-      '/blog/calcul-des-indemnites-optimisez-vos-deplacements-pro-et-securisez-vos-remboursem': '/indemnites-kilometriques',
-      '/blog/calcul-des-indemnites-optimisez-vos-deplacements-pro-grace-aux-secrets-des-exper': '/indemnites-kilometriques',
-      '/blog/optimisez-vos-deplacements-professionnels-le-guide-complet-pour-vos-indemnites-k': '/indemnites-kilometriques',
-      '/blog/7-erreurs-courantes-d-indemnite-kilometrique-a-eviter-absolument-pour-neutralise': '/blog/7-erreurs-courantes-indemnite-kilometrique-a-eviter',
-      '/blog/indemnite-kilometrique-comment-eviter-le-redressement-urssaf-lors-d-un-controle': '/blog/7-erreurs-courantes-indemnite-kilometrique-a-eviter',
-      '/blog/indemnite-kilometrique-comment-eviter-un-redressement-urssaf-en-2026': '/blog/7-erreurs-courantes-indemnite-kilometrique-a-eviter',
-      '/blog/indemnite-kilometrique-comment-securiser-votre-suivi-et-eviter-un-redressement-u': '/blog/7-erreurs-courantes-indemnite-kilometrique-a-eviter',
-      '/blog/indemnite-kilometrique-desamorcez-les-7-erreurs-qui-declenchent-un-redressement-': '/blog/7-erreurs-courantes-indemnite-kilometrique-a-eviter',
-      '/blog/indemnite-kilometrique-eviter-le-controle-urssaf-en-securisant-vos-declarations': '/blog/7-erreurs-courantes-indemnite-kilometrique-a-eviter',
-      '/blog/meilleures-pratiques-suivi-kilometrique-professionnels': '/blog/7-erreurs-courantes-indemnite-kilometrique-a-eviter',
-      '/blog/suivi-kilometrique-les-7-astuces-des-professionnels-pour-eviter-un-redressement-': '/blog/7-erreurs-courantes-indemnite-kilometrique-a-eviter',
-};
+      ...BLOG_LEGACY_REDIRECTS,
+    };
     if (LEGACY_REDIRECTS[path]) {
       const redirectUrl = `https://iktracker.fr${LEGACY_REDIRECTS[path]}${url.search}`;
       const response = Response.redirect(redirectUrl, 301);
@@ -373,12 +347,11 @@ export default {
       return response;
     }
 
-    // ── 2a. /sitemap.xml → proxy vers Edge Function dynamique, fallback statique ──
+    // ── 2a. /sitemap.xml → route SSR de l'origine (source de vérité unique),
+    //        fallback fichier statique. Plus de proxy vers l'Edge Function.
     if (path === "/sitemap.xml") {
       try {
-        const sitemapRes = await fetch(SUPABASE_SITEMAP, {
-          headers: { "User-Agent": ua },
-        });
+        const sitemapRes = await fetchOrigin(request);
         if (sitemapRes.ok) {
           const xml = await sitemapRes.text();
           const response = new Response(xml, {
@@ -387,7 +360,7 @@ export default {
               "Content-Type": "application/xml; charset=utf-8",
               "Cache-Control": "public, max-age=300, s-maxage=300",
               "X-Rendered-By": "cloudflare-worker",
-              "X-Sitemap-Source": "edge-function",
+              "X-Sitemap-Source": "ssr-route",
             },
           });
           ctx.waitUntil(sendLog(request, response, botDetected));
@@ -396,20 +369,8 @@ export default {
       } catch (e) {
         // Fallback vers le fichier statique
       }
-      // Fallback : servir le fichier statique depuis l'origin
-      const fallbackRes = await fetchOrigin(request);
-      if (fallbackRes.ok) {
-        const response = new Response(fallbackRes.body, {
-          status: fallbackRes.status,
-          headers: {
-            ...Object.fromEntries(fallbackRes.headers.entries()),
-            "X-Rendered-By": "cloudflare-worker",
-            "X-Sitemap-Source": "static-fallback",
-          },
-        });
-        ctx.waitUntil(sendLog(request, response, botDetected));
-        return response;
-      }
+
+
       // Ultime fallback : retourner une 503 explicite
       const errResponse = new Response("Sitemap temporarily unavailable", {
         status: 503,
