@@ -377,10 +377,19 @@ export function AdminStats() {
       });
       if (error) throw error;
       const rawData = data as unknown as { day: string; count: number }[];
-      return fillMissingDays(rawData, ["count"], daysBack, period) as {
+      const filled = fillMissingDays(rawData, ["count"], daysBack, period) as {
         day: string;
         count: number;
       }[];
+
+      // 7-day rolling average to smooth daily noise and track acquisition rhythm
+      const windowSize = 7;
+      return filled.map((row, index) => {
+        const start = Math.max(0, index - windowSize + 1);
+        const window = filled.slice(start, index + 1);
+        const avg = window.reduce((sum, r) => sum + (r.count || 0), 0) / window.length;
+        return { ...row, rollingAvg: Number(avg.toFixed(2)) };
+      });
     },
     refetchInterval: 60 * 60 * 1000, // 1 hour
   });
@@ -1099,8 +1108,8 @@ export function AdminStats() {
       ["Visites simultanées", onlineUsers],
       [""],
       ["Nouveaux inscrits par jour"],
-      ["Date", "Nombre"],
-      ...registrations.map((r) => [r.day, r.count]),
+      ["Date", "Nombre", "Moyenne 7 jours"],
+      ...registrations.map((r) => [r.day, r.count, r.rollingAvg]),
     ];
 
     const csvContent = statsRows
@@ -2402,7 +2411,6 @@ export function AdminStats() {
                                 tick={{ fontSize: 11 }}
                                 tickLine={false}
                                 axisLine={false}
-                                allowDecimals={false}
                               />
                               <Tooltip
                                 contentStyle={{
@@ -2413,6 +2421,7 @@ export function AdminStats() {
                                 }}
                                 labelStyle={{ fontWeight: "bold" }}
                               />
+                              <Legend fontSize={11} />
                               <Line
                                 type="monotone"
                                 dataKey="count"
@@ -2421,6 +2430,15 @@ export function AdminStats() {
                                 strokeWidth={2}
                                 dot={{ fill: "hsl(var(--primary))", strokeWidth: 0, r: 3 }}
                                 activeDot={{ r: 5, stroke: "hsl(var(--primary))", strokeWidth: 2 }}
+                              />
+                              <Line
+                                type="monotone"
+                                dataKey="rollingAvg"
+                                name="Moyenne 7 jours"
+                                stroke="hsl(25, 95%, 53%)"
+                                strokeWidth={2}
+                                dot={false}
+                                activeDot={{ r: 5, stroke: "hsl(25, 95%, 53%)", strokeWidth: 2 }}
                               />
                             </LineChart>
                           </ResponsiveContainer>
