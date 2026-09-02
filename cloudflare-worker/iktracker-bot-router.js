@@ -371,20 +371,7 @@ export default {
         // Fallback vers le fichier statique
       }
 
-      // Fallback : servir le fichier statique depuis l'origin
-      const fallbackRes = await fetchOrigin(request);
-      if (fallbackRes.ok) {
-        const response = new Response(fallbackRes.body, {
-          status: fallbackRes.status,
-          headers: {
-            ...Object.fromEntries(fallbackRes.headers.entries()),
-            "X-Rendered-By": "cloudflare-worker",
-            "X-Sitemap-Source": "static-fallback",
-          },
-        });
-        ctx.waitUntil(sendLog(request, response, botDetected));
-        return response;
-      }
+
       // Ultime fallback : retourner une 503 explicite
       const errResponse = new Response("Sitemap temporarily unavailable", {
         status: 503,
