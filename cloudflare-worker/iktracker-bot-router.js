@@ -338,7 +338,7 @@ export default {
       "/vehicules-electriques": "/bareme-ik-2026#vehicules-electriques",
       "/install": "/installer",
       "/mestrajets": "/mes-trajets",
-      "/experts-comptables": "/expert-comptable"
+      "/experts-comptables": "/expert-comptable",
       ...BLOG_LEGACY_REDIRECTS,
     };
     if (LEGACY_REDIRECTS[path]) {
