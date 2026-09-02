@@ -1,6 +1,10 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 4.6.10 — 2 septembre 2026
+> Version 4.6.11 — 2 septembre 2026
+
+**Notes v4.6.11 (courbe de croissance des inscriptions, 2 septembre 2026)**
+- **Nouvelle RPC `get_signup_growth_by_month()`** : retourne, pour chaque mois depuis janvier de l'année en cours, le nombre de nouveaux inscrits non-admin, le total cumulé à la fin du mois, et le taux mensuel (`new_users / total_users * 100`). Accès réservé aux admins (`has_role` check), calcul privilégié isolé dans le schéma privé comme `get_monthly_signup_stats()`. Consommée par le graphique « Croissance des inscriptions (% mensuel) » dans `/admin` → Stats → KPI Marketing.
+- **KPI déplacé** : la carte « Nvx inscrits / total » (v4.6.9/4.6.10) quitte le header bleu pour la section Stats → KPI Marketing, à côté du graphique mensuel.
 
 **Notes v4.6.10 (correction KPI acquisition mensuelle, 2 septembre 2026)**
 - **Période corrigée** : `get_monthly_signup_stats()` mesure désormais le dernier mois civil complet, afin d'éviter qu'un début de mois incomplet affiche un taux artificiellement faible. Le total correspond aux inscrits non-admin présents à la fin de cette période.
@@ -262,6 +266,7 @@ Utilisateur → Cloudflare DNS (proxied)
 | `update_updated_at_column()` | Trigger pour auto-update updated_at |
 | `get_public_user_count()` | Retourne le nombre total d'utilisateurs inscrits (`count(*) FROM auth.users`). Fonction publique (`SECURITY DEFINER`) sans PII, utilisée par le compteur de preuve sociale sur la page d'accueil. Exécutable par `anon`, `authenticated` et `service_role`. |
 | `get_monthly_signup_stats()` | Retourne `{ total_users, monthly_new_users, rate, period_start, period_end }` pour les inscrits non-admin sur le dernier mois civil complet. `rate` = nouveaux inscrits du mois / total à la fin du mois. Accès réservé aux admins (`has_role` check). |
+| `get_signup_growth_by_month()` | Retourne un tableau `{ month, new_users, total_users, rate }` par mois civil depuis janvier de l'année en cours (inscrits non-admin), pour la courbe de croissance admin. Accès réservé aux admins (`has_role` check), calcul privilégié dans le schéma privé. |
 
 ---
 
