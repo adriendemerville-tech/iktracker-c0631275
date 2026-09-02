@@ -796,6 +796,45 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000,
   });
 
+  // Croissance des inscriptions par mois depuis janvier (nouveaux inscrits / total)
+  const { data: signupGrowthByMonth = [], isLoading: signupGrowthLoading } = useQuery({
+    queryKey: ["admin-signup-growth-by-month"],
+    queryFn: async () => {
+      const { data, error } = await (supabase.rpc as CallableFunction)("get_signup_growth_by_month");
+      if (error) throw error;
+      return (data as { month: string; new_users: number; total_users: number; rate: number }[]) ?? [];
+    },
+    refetchInterval: 15 * 60 * 1000,
+    staleTime: 60_000,
+  });
+
+  const signupGrowthChartData = useMemo(
+    () =>
+      signupGrowthByMonth.map((row) => ({
+        month: new Intl.DateTimeFormat("fr-FR", { month: "short", timeZone: "UTC" }).format(
+          new Date(`${row.month}T00:00:00Z`),
+        ),
+        rate: Number(row.rate),
+        new_users: Number(row.new_users),
+      })),
+    [signupGrowthByMonth],
+  );
+
+  // Dernier mois complet (exclut le mois en cours, incomplet)
+  const latestCompleteMonthGrowth = useMemo(() => {
+    const complete = signupGrowthByMonth.slice(0, -1);
+    const row = complete[complete.length - 1] ?? signupGrowthByMonth[0];
+    if (!row) return null;
+    return {
+      label: new Intl.DateTimeFormat("fr-FR", { month: "long", timeZone: "UTC" }).format(
+        new Date(`${row.month}T00:00:00Z`),
+      ),
+      rate: Number(row.rate),
+      new_users: Number(row.new_users),
+      total_users: Number(row.total_users),
+    };
+  }, [signupGrowthByMonth]);
+
   // Fetch recent signups - refresh every hour
   const { data: recentSignups = [], isLoading: signupsLoading } = useQuery({
     queryKey: ["admin-recent-signups"],
@@ -1236,6 +1275,32 @@ export function AdminStats() {
           </div>
         </div>
 
+        {/* KPI croissance des inscriptions (dernier mois complet) */}
+        <Card className="mb-4">
+          <CardContent className="p-3 flex items-center gap-3 flex-wrap">
+            <TrendingUp className="w-5 h-5 text-emerald-500 shrink-0" />
+            <div className="min-w-0">
+              <p className="text-[11px] leading-tight text-muted-foreground">
+                Nvx inscrits / total ({latestCompleteMonthGrowth?.label ?? "dernier mois complet"})
+              </p>
+              {signupGrowthLoading ? (
+                <Skeleton className="h-6 w-24 mt-1" />
+              ) : (
+                <p className="text-xl font-bold">
+                  {latestCompleteMonthGrowth
+                    ? `${latestCompleteMonthGrowth.rate.toFixed(1).replace(".", ",")}%`
+                    : "—"}
+                  {latestCompleteMonthGrowth && (
+                    <span className="ml-2 text-[11px] font-normal text-muted-foreground">
+                      {latestCompleteMonthGrowth.new_users} / {latestCompleteMonthGrowth.total_users}
+                    </span>
+                  )}
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Marketing Stats Cards - Draggable on desktop */}
         <DraggableMarketingCards cards={marketingCardsData} />
 
@@ -1249,6 +1314,40 @@ export function AdminStats() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
               {marketingSectionOrder.map((blockId) => {
                 switch (blockId) {
+                  case "signup-growth-chart":
+                    return (
+                      <DraggableStatsSection
+                        key={blockId}
+                        id={blockId}
+                        cardWidth={getCardWidth(blockId)}
+                        onWidthChange={handleWidthChange}
+                      >
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-lg flex items-center gap-2">
+                            <TrendingUp className="w-5 h-5 text-emerald-500" />
+                            Croissance des inscriptions (% mensuel)
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <AdaptiveChart
+                            data={signupGrowthChartData}
+                            xAxisKey="month"
+                            lines={[
+                              {
+                                dataKey: "rate",
+                                name: "Nvx inscrits / total (%)",
+                                stroke: "hsl(142, 76%, 36%)",
+                                showDots: true,
+                              },
+                            ]}
+                            isLoading={signupGrowthLoading}
+                            height={220}
+                            baseDataPoints={12}
+                          />
+                        </CardContent>
+                      </DraggableStatsSection>
+                    );
+
                   case "marketing-views-chart":
                     return (
                       <DraggableStatsSection

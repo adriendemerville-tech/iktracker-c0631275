@@ -141,6 +141,7 @@ export const DEFAULT_SECTION_ORDER = [
 ];
 
 export const DEFAULT_MARKETING_SECTION_ORDER = [
+  "signup-growth-chart",
   "marketing-views-chart",
   "marketing-signup-clicks-chart",
   "bareme-simulations-chart",
