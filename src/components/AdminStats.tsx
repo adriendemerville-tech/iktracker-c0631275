@@ -2431,6 +2431,15 @@ export function AdminStats() {
                                 dot={{ fill: "hsl(var(--primary))", strokeWidth: 0, r: 3 }}
                                 activeDot={{ r: 5, stroke: "hsl(var(--primary))", strokeWidth: 2 }}
                               />
+                              <Line
+                                type="monotone"
+                                dataKey="rollingAvg"
+                                name="Moyenne 7 jours"
+                                stroke="hsl(25, 95%, 53%)"
+                                strokeWidth={2}
+                                dot={false}
+                                activeDot={{ r: 5, stroke: "hsl(25, 95%, 53%)", strokeWidth: 2 }}
+                              />
                             </LineChart>
                           </ResponsiveContainer>
                         )}
