@@ -266,6 +266,7 @@ Utilisateur → Cloudflare DNS (proxied)
 | `update_updated_at_column()` | Trigger pour auto-update updated_at |
 | `get_public_user_count()` | Retourne le nombre total d'utilisateurs inscrits (`count(*) FROM auth.users`). Fonction publique (`SECURITY DEFINER`) sans PII, utilisée par le compteur de preuve sociale sur la page d'accueil. Exécutable par `anon`, `authenticated` et `service_role`. |
 | `get_monthly_signup_stats()` | Retourne `{ total_users, monthly_new_users, rate, period_start, period_end }` pour les inscrits non-admin sur le dernier mois civil complet. `rate` = nouveaux inscrits du mois / total à la fin du mois. Accès réservé aux admins (`has_role` check). |
+| `get_signup_growth_by_month()` | Retourne un tableau `{ month, new_users, total_users, rate }` par mois civil depuis janvier de l'année en cours (inscrits non-admin), pour la courbe de croissance admin. Accès réservé aux admins (`has_role` check), calcul privilégié dans le schéma privé. |
 
 ---
 
