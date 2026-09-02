@@ -374,7 +374,9 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
                 </ul>
 
                 {/* Social proof */}
-                <div className="mt-6 flex flex-wrap items-center gap-4 justify-center lg:justify-start">
+                {/* Grille à colonnes égales : les largeurs ne dépendent plus du
+                    nombre de chiffres affichés pendant l'animation → 0 CLS. */}
+                <div className="mt-6 grid grid-cols-3 gap-3 sm:gap-4 items-stretch">
                   <Counter
                     value={liveUserCount}
                     initialValue={initialUserCount ?? 1000}
