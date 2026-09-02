@@ -2411,7 +2411,6 @@ export function AdminStats() {
                                 tick={{ fontSize: 11 }}
                                 tickLine={false}
                                 axisLine={false}
-                                allowDecimals={false}
                               />
                               <Tooltip
                                 contentStyle={{
@@ -2422,6 +2421,7 @@ export function AdminStats() {
                                 }}
                                 labelStyle={{ fontWeight: "bold" }}
                               />
+                              <Legend fontSize={11} />
                               <Line
                                 type="monotone"
                                 dataKey="count"
