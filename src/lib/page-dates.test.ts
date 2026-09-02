@@ -85,7 +85,11 @@ describe("cohérence JSON-LD / balise de date par page statique", () => {
   });
 
   it.each(keys)("%s : mainEntityOfPage pointe vers l'URL canonique de la page", (key) => {
-    const src = readSchema(key);
+    // L'URL canonique peut vivre dans un module de métadonnées séparé
+    // (ex. *.meta.ts) importé par le module de schémas.
+    const metaFile = (SCHEMA_SOURCES[key] ?? "").replace(/\.seo\.ts$/, ".meta.ts");
+    const src =
+      readSchema(key) + (metaFile && existsSync(path.join(ROOT, metaFile)) ? read(metaFile) : "");
     const expected = `https://iktracker.fr${key}`;
     const inline = src.includes(`mainEntityOfPage: "${expected}"`);
     const viaConst = /mainEntityOfPage:\s*PAGE_URL/.test(src) && src.includes(`"${expected}"`);
