@@ -12,4 +12,20 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    // Cache incrémental : Vite réutilise node_modules/.vite (deps pré-bundlées,
+    // métadonnées de transform) entre les builds tant que ce dossier est persisté
+    // par l'environnement de build (CI / plateforme). warmup pré-transforme les
+    // modules les plus lourds en amont pour lisser le temps de build.
+    cacheDir: "node_modules/.vite",
+    optimizeDeps: {
+      // Garde les grosses deps pré-bundlées dans le cache persistant.
+      include: ["react", "react-dom", "@tanstack/react-router"],
+    },
+    server: {
+      warmup: {
+        clientFiles: ["./src/routes/index.tsx", "./src/pages/Landing.tsx"],
+      },
+    },
+  },
 });
