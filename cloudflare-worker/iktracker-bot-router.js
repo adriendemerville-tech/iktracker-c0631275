@@ -89,7 +89,6 @@ const BLOG_LEGACY_REDIRECTS = {
 };
 // <<< BLOG_REDIRECTS:GENERATED
 
-const SUPABASE_SITEMAP = "https://yarjaudctshlxkatqgeb.supabase.co/functions/v1/sitemap";
 
 const BOT_PATTERNS = [
   "googlebot",
