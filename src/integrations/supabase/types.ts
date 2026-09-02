@@ -2848,6 +2848,33 @@ export type Database = {
           },
         ]
       }
+      ui_layouts: {
+        Row: {
+          created_at: string
+          id: string
+          layout_key: string
+          updated_at: string
+          user_id: string
+          value: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          layout_key: string
+          updated_at?: string
+          user_id: string
+          value?: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          layout_key?: string
+          updated_at?: string
+          user_id?: string
+          value?: Json
+        }
+        Relationships: []
+      }
       user_preferences: {
         Row: {
           accountant_auto_send: boolean
