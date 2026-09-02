@@ -231,26 +231,18 @@ export function AdminStats() {
   const handleSectionDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
-      setSectionOrder((items) => {
-        const oldIndex = items.indexOf(active.id as string);
-        const newIndex = items.indexOf(over.id as string);
-        const newOrder = arrayMove(items, oldIndex, newIndex);
-        localStorage.setItem("admin-stats-section-order", JSON.stringify(newOrder));
-        return newOrder;
-      });
+      const oldIndex = sectionOrder.indexOf(active.id as string);
+      const newIndex = sectionOrder.indexOf(over.id as string);
+      setSectionOrder(arrayMove(sectionOrder, oldIndex, newIndex));
     }
   };
 
   const handleMarketingSectionDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
-      setMarketingSectionOrder((items) => {
-        const oldIndex = items.indexOf(active.id as string);
-        const newIndex = items.indexOf(over.id as string);
-        const newOrder = arrayMove(items, oldIndex, newIndex);
-        localStorage.setItem("admin-marketing-section-order", JSON.stringify(newOrder));
-        return newOrder;
-      });
+      const oldIndex = marketingSectionOrder.indexOf(active.id as string);
+      const newIndex = marketingSectionOrder.indexOf(over.id as string);
+      setMarketingSectionOrder(arrayMove(marketingSectionOrder, oldIndex, newIndex));
     }
   };
 
