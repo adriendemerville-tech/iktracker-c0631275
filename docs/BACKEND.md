@@ -1,8 +1,14 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 4.6.12 — 2 septembre 2026
+> Version 4.6.13 — 2 septembre 2026
+
+**Notes v4.6.13 (cache HTML côté origine, contournement Worker non invoqué, 2 septembre 2026)**
+- **Contexte** : le Worker `iktracker-bot-router` n'est toujours pas invoqué en production (routage custom-hostname Lovable, ticket support en cours), donc aucune règle de cache edge de notre zone ne s'applique. Le TTFB prod (~1–2,6 s) reste le premier frein LCP, avant tout travail de CSS critique.
+- **Contournement** : `src/lib/edge-cache.ts` (branché dans `src/server.ts`) pose `Cache-Control: public, max-age=0, s-maxage=300, stale-while-revalidate=86400` + `Vary: Cookie` sur les réponses **HTML publiques anonymes** en GET 200, afin que le CDN amont puisse servir la page sans réexécuter le SSR.
+- **Sécurité** : toute requête portant un cookie de session Supabase, ainsi que les préfixes `/app`, `/admin`, `/auth`, `/api`, `/_serverFn`, `/sso`, `/unsubscribe`, `/marina`, reçoivent `private, no-store`. En-tête de diagnostic : `X-Cache-Policy: public-html | private`.
 
 **Notes v4.6.12 (dette : source de vérité sitemap & redirections blog, 2 septembre 2026)**
+
 - **Sitemap — une seule source** : le Worker `iktracker-bot-router` ne proxifie plus `/sitemap.xml` vers l'Edge Function `sitemap` (elle-même simple proxy). Il interroge directement la route SSR d'origine (`src/lib/sitemap.server.ts`), en-tête `X-Sitemap-Source: ssr-route`. L'Edge Function `sitemap` reste déployée temporairement pour rollback mais n'est plus appelée.
 - **Redirections blog — de 3 copies à 1 source** : `src/lib/blog-redirects.ts` ré-exporte désormais le fichier partagé des Edge Functions (source unique). Le Worker contient un bloc **généré** `BLOG_LEGACY_REDIRECTS` produit par `scripts/sync-blog-redirects.cjs` et vérifié par `scripts/validate-blog-redirects-sync.cjs`.
 - **Validateurs corrigés** : `validate-sitemap-sync.cjs` compare le prebuild statique à `src/lib/sitemap.server.ts` ; `/forum` ajouté au sitemap statique pour aligner les deux sources.
