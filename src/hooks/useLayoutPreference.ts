@@ -11,18 +11,21 @@ export function useLayoutPreference<T>(layoutKey: string, defaultValue: T, norma
   const normalizeRef = useRef(normalize);
   normalizeRef.current = normalize;
 
-  const [value, setValue] = useState<T>(() => {
+  // SSR-safe : pas d'accès à localStorage pendant le rendu (crash serveur +
+  // désynchronisation d'hydratation). Le cache local est lu après montage.
+  const [value, setValue] = useState<T>(defaultValue);
+
+  useEffect(() => {
     try {
       const cached = localStorage.getItem(layoutKey);
-      if (cached) {
-        const parsed = JSON.parse(cached) as T;
-        return normalizeRef.current ? normalizeRef.current(parsed) : parsed;
-      }
+      if (!cached) return;
+      const parsed = JSON.parse(cached) as T;
+      setValue(normalizeRef.current ? normalizeRef.current(parsed) : parsed);
     } catch {
       /* ignore */
     }
-    return defaultValue;
-  });
+  }, [layoutKey]);
+
 
   // Load from DB (source of truth) once the user is known
   useEffect(() => {
