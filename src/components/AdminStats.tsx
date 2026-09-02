@@ -802,33 +802,40 @@ export function AdminStats() {
     queryFn: async () => {
       const { data, error } = await (supabase.rpc as CallableFunction)("get_signup_growth_by_month");
       if (error) throw error;
-      return (
-        (data as { month: string; new_users: number; total_users: number; rate: number }[]) ?? []
-      ).map((row) => ({
-        month: new Intl.DateTimeFormat("fr-FR", { month: "short", timeZone: "UTC" }).format(
-          new Date(`${row.month}T00:00:00Z`),
-        ),
-        new_users: Number(row.new_users),
-        total_users: Number(row.total_users),
-        rate: Number(row.rate),
-      }));
+      return (data as { month: string; new_users: number; total_users: number; rate: number }[]) ?? [];
     },
     refetchInterval: 15 * 60 * 1000,
     staleTime: 60_000,
   });
 
+  const signupGrowthChartData = useMemo(
+    () =>
+      signupGrowthByMonth.map((row) => ({
+        month: new Intl.DateTimeFormat("fr-FR", { month: "short", timeZone: "UTC" }).format(
+          new Date(`${row.month}T00:00:00Z`),
+        ),
+        rate: Number(row.rate),
+        new_users: Number(row.new_users),
+      })),
+    [signupGrowthByMonth],
+  );
+
+  // Dernier mois complet (exclut le mois en cours, incomplet)
   const latestCompleteMonthGrowth = useMemo(() => {
-    if (signupGrowthByMonth.length === 0) return null;
-    const now = new Date();
-    const currentMonthStart = new Date(
-      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1),
-    ).toISOString().slice(0, 10);
-    const raw =
-      (signupGrowthByMonth[signupGrowthByMonth.length - 1]?.month &&
-        (signupGrowthByMonth.length > 1 ? signupGrowthByMonth[signupGrowthByMonth.length - 2] : signupGrowthByMonth[0]));
-    void currentMonthStart;
-    return raw ?? null;
+    const complete = signupGrowthByMonth.slice(0, -1);
+    const row = complete[complete.length - 1] ?? signupGrowthByMonth[0];
+    if (!row) return null;
+    return {
+      label: new Intl.DateTimeFormat("fr-FR", { month: "long", timeZone: "UTC" }).format(
+        new Date(`${row.month}T00:00:00Z`),
+      ),
+      rate: Number(row.rate),
+      new_users: Number(row.new_users),
+      total_users: Number(row.total_users),
+    };
   }, [signupGrowthByMonth]);
+
+  // Fetch recent signups - refresh every hour
   const { data: recentSignups = [], isLoading: signupsLoading } = useQuery({
     queryKey: ["admin-recent-signups"],
     queryFn: async () => {
