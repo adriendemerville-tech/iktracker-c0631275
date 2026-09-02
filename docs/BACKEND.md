@@ -1,6 +1,10 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 4.6.9 — 2 septembre 2026
+> Version 4.6.10 — 2 septembre 2026
+
+**Notes v4.6.10 (correction KPI acquisition mensuelle, 2 septembre 2026)**
+- **Période corrigée** : `get_monthly_signup_stats()` mesure désormais le dernier mois civil complet, afin d'éviter qu'un début de mois incomplet affiche un taux artificiellement faible. Le total correspond aux inscrits non-admin présents à la fin de cette période.
+- **KPI vérifiable** : le header admin affiche le taux ainsi que le mois, le nombre de nouveaux inscrits et le total utilisés dans le calcul (ex. `août : 30 / 400`). La fonction publique est désormais `SECURITY INVOKER`, avec calcul privilégié isolé dans le schéma privé et contrôle du rôle admin.
 
 **Notes v4.6.9 (KPI admin — taux de nouveaux inscrits mensuels, 2 septembre 2026)**
 - **Nouvelle RPC `get_monthly_signup_stats()`** : retourne le nombre total d'inscrits non-admin, le nombre de nouveaux inscrits du mois en cours, et le taux mensuel de nouveaux inscrits (`monthly_new_users / total_users * 100`). Fonction `SECURITY DEFINER` avec vérification du rôle admin via `public.has_role(auth.uid(), 'admin')`. Exécutable par `authenticated` et `service_role`.
@@ -257,7 +261,7 @@ Utilisateur → Cloudflare DNS (proxied)
 | `cleanup_old_phone_numbers()` | Anonymise les téléphones > 7 jours |
 | `update_updated_at_column()` | Trigger pour auto-update updated_at |
 | `get_public_user_count()` | Retourne le nombre total d'utilisateurs inscrits (`count(*) FROM auth.users`). Fonction publique (`SECURITY DEFINER`) sans PII, utilisée par le compteur de preuve sociale sur la page d'accueil. Exécutable par `anon`, `authenticated` et `service_role`. |
-| `get_monthly_signup_stats()` | Retourne `{ total_users, monthly_new_users, rate }` pour les inscrits non-admin. `rate` = pourcentage de nouveaux inscrits du mois en cours par rapport au total. Accès réservé aux admins (`has_role` check). Exécutable par `authenticated` et `service_role`. |
+| `get_monthly_signup_stats()` | Retourne `{ total_users, monthly_new_users, rate, period_start, period_end }` pour les inscrits non-admin sur le dernier mois civil complet. `rate` = nouveaux inscrits du mois / total à la fin du mois. Accès réservé aux admins (`has_role` check). |
 
 ---
 
