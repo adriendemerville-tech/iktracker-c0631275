@@ -257,6 +257,7 @@ Utilisateur → Cloudflare DNS (proxied)
 | `cleanup_old_phone_numbers()` | Anonymise les téléphones > 7 jours |
 | `update_updated_at_column()` | Trigger pour auto-update updated_at |
 | `get_public_user_count()` | Retourne le nombre total d'utilisateurs inscrits (`count(*) FROM auth.users`). Fonction publique (`SECURITY DEFINER`) sans PII, utilisée par le compteur de preuve sociale sur la page d'accueil. Exécutable par `anon`, `authenticated` et `service_role`. |
+| `get_monthly_signup_stats()` | Retourne `{ total_users, monthly_new_users, rate }` pour les inscrits non-admin. `rate` = pourcentage de nouveaux inscrits du mois en cours par rapport au total. Accès réservé aux admins (`has_role` check). Exécutable par `authenticated` et `service_role`. |
 
 ---
 
