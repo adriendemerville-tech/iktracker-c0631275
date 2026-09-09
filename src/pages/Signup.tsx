@@ -108,9 +108,7 @@ const Signup = () => {
       const {
         data: { session },
       } = await supabase.auth.getSession();
-      // Résout un retour depuis l'écran de consentement Google
-      // (retour effectif, refus explicite, ou abandon sans session).
-      resolveOAuthReturn(!!session, "signup");
+      // Le retour OAuth est résolu globalement dans useAuth.
       if (session) {
         navigate("/app", { replace: true });
       }

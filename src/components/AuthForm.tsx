@@ -65,18 +65,8 @@ export const AuthForm = ({
     }
   }, [mode]);
 
-  // Résout un éventuel retour depuis l'écran de consentement OAuth
-  // (succès, refus explicite, ou abandon sans session).
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      const { data } = await supabase.auth.getSession();
-      if (!cancelled) resolveOAuthReturn(!!data.session, "auth");
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  // La résolution du retour OAuth est centralisée dans useAuth (après
+  // hydratation réelle de la session), pour éviter les faux abandons.
 
   const handleOAuthLogin = async (provider: "google" | "azure" | "apple") => {
     setOauthLoading(provider);
