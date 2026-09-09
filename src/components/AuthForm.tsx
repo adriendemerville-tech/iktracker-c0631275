@@ -51,14 +51,6 @@ export const AuthForm = ({
     setRememberMe(localStorage.getItem("ik_remember_me") === "true");
   }, []);
   const [loading, setLoading] = useState(false);
-  const [cooldown, setCooldown] = useState(0);
-
-  // Décrémente le compteur de cooldown chaque seconde
-  useEffect(() => {
-    if (cooldown <= 0) return;
-    const t = setTimeout(() => setCooldown((c) => Math.max(0, c - 1)), 1000);
-    return () => clearTimeout(t);
-  }, [cooldown]);
   const [oauthLoading, setOauthLoading] = useState<"google" | "azure" | "apple" | null>(null);
   const [oauthDiagnostic, setOauthDiagnostic] = useState<OAuthDiagnostic | null>(null);
   const navigate = useNavigate();
@@ -137,7 +129,7 @@ export const AuthForm = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (loading || cooldown > 0) return;
+    if (loading) return;
     setLoading(true);
 
     try {
@@ -183,13 +175,7 @@ export const AuthForm = ({
     } catch (error: any) {
       let message = error.message;
       const rawMsg: string = error.message || "";
-      // Rate limit Supabase Auth : "For security purposes, you can only request this after N seconds"
-      const rateMatch = rawMsg.match(/after (\d+) seconds?/i);
-      if (rateMatch || /rate limit|too many requests|over_email_send_rate_limit/i.test(rawMsg)) {
-        const secs = rateMatch ? parseInt(rateMatch[1], 10) : 30;
-        setCooldown(secs);
-        message = `Merci de patienter ${secs}s avant une nouvelle tentative (protection anti-spam).`;
-      } else if (rawMsg.includes("Invalid login credentials")) {
+      if (rawMsg.includes("Invalid login credentials")) {
         message = "Email ou mot de passe incorrect";
       } else if (rawMsg.includes("User already registered")) {
         message = "Cet email est déjà utilisé";
@@ -416,10 +402,10 @@ export const AuthForm = ({
             type="submit"
             className="w-full focus-visible-ring"
             variant="gradient"
-            disabled={loading || cooldown > 0}
+            disabled={loading}
           >
             {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" aria-hidden="true" />}
-            {cooldown > 0 ? `Patientez ${cooldown}s…` : getButtonText()}
+            {getButtonText()}
           </Button>
         </form>
 
