@@ -140,9 +140,18 @@ async function updateVersionLocalization(version) {
   };
 
   if (existing) {
-    await api('PATCH', `/v1/appStoreVersionLocalizations/${existing.id}`, {
-      data: { type: 'appStoreVersionLocalizations', id: existing.id, attributes },
-    });
+    try {
+      await api('PATCH', `/v1/appStoreVersionLocalizations/${existing.id}`, {
+        data: { type: 'appStoreVersionLocalizations', id: existing.id, attributes },
+      });
+    } catch (e) {
+      // 'whatsNew' n'est pas éditable sur une première version : on réessaie sans.
+      if (!/whatsNew/.test(e.message)) throw e;
+      const { whatsNew, ...rest } = attributes;
+      await api('PATCH', `/v1/appStoreVersionLocalizations/${existing.id}`, {
+        data: { type: 'appStoreVersionLocalizations', id: existing.id, attributes: rest },
+      });
+    }
     console.log('Version fr-FR mise à jour.');
     return existing;
   }
