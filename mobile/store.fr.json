@@ -1,12 +1,12 @@
 {
   "locale": "fr-FR",
-  "name": "IKTracker : frais kilométriques",
+  "name": "IKTracker : frais km",
   "subtitle": "Trajets pro et IK automatiques",
   "privacyPolicyUrl": "https://iktracker.fr/politique-confidentialite",
   "supportUrl": "https://iktracker.fr/contact",
   "marketingUrl": "https://iktracker.fr",
   "promotionalText": "Vos indemnités kilométriques calculées automatiquement, sans saisie manuelle. Gratuit, sans limite.",
-  "keywords": "indemnité,kilométrique,frais réels,trajet,note de frais,déplacement,tournée,véhicule,barème,comptable",
+  "keywords": "indemnité,kilométrique,frais réels,trajet,note de frais,déplacement,tournée,barème",
   "description": "IKTracker calcule automatiquement vos indemnités kilométriques, sans saisie manuelle.\n\nLancez une tournée depuis votre téléphone : la localisation mesure la distance réellement parcourue, et vous retrouvez un relevé complet, prêt à exporter pour votre comptable, votre employeur ou votre déclaration aux frais réels.\n\nCE QUE FAIT IKTRACKER\n- Suivi GPS automatique de vos trajets professionnels, même écran éteint\n- Mode Tournée : plusieurs arrêts dans la journée, distances calculées entre chaque étape\n- Trajets aller-retour en un geste, avec adresses de départ et d'arrivée\n- Import de vos rendez-vous d'agenda pour préparer la journée\n- Plusieurs véhicules, avec puissance fiscale et motorisation\n- Bonus de 20 % appliqué automatiquement aux véhicules 100 % électriques\n- Barème kilométrique officiel, tranches et remise à zéro annuelle gérées pour vous\n- Relevés et exports PDF/CSV prêts à envoyer au comptable\n- Synchronisation avec votre compte web iktracker.fr\n\nPOUR QUI\nArtisans, commerciaux, infirmiers libéraux, indépendants, auto-entrepreneurs et salariés en déplacement qui veulent arrêter de noter leurs kilomètres sur un carnet.\n\nGRATUIT, SANS LIMITE\nIKTracker est né d'un besoin réel et reste gratuit : pas d'abonnement, pas de quota de trajets, pas de revente de données. Vos trajets vous appartiennent et restent exportables à tout moment.\n\nVIE PRIVÉE\nLa localisation n'est utilisée que pendant un trajet que vous démarrez, pour calculer la distance. Vous pouvez supprimer vos données à tout moment depuis l'application.\n\nTéléchargez IKTracker et laissez votre téléphone compter les kilomètres pendant que vous travaillez.",
   "whatsNew": "Première version d'IKTracker sur iPhone : suivi GPS des trajets, Mode Tournée, import d'agenda, calcul automatique des indemnités kilométriques et export des relevés."
 }
