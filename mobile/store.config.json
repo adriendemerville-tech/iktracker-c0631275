@@ -1,0 +1,34 @@
+{
+  "configVersion": 0,
+  "apple": {
+    "info": {
+      "en-US": {
+        "title": "IKTracker: Frais Kilométriques",
+        "subtitle": "Trajets pro, IK auto sans sais",
+        "description": "IKTracker calcule automatiquement vos indemnités kilométriques, sans saisie manuelle.\n\nSuivez vos trajets professionnels en un instant : lancez une tournée, laissez la localisation faire le travail, et retrouvez un relevé complet prêt à exporter pour votre comptable ou votre employeur.\n\nFonctionnalités principales :\n- Suivi automatique de la distance parcourue pendant vos tournées\n- Enregistrement des trajets aller-retour avec départ et arrivée\n- Import des rendez-vous du jour pour préparer votre itinéraire\n- Choix du véhicule utilisé pour chaque trajet\n- Rapports et relevés IK générés automatiquement\n- Connexion rapide avec Apple ou Google\n\nIdéal pour les artisans, commerciaux, indépendants et salariés en déplacement qui veulent gagner du temps sur leurs notes de frais.\n\nTéléchargez IKTracker et laissez votre téléphone suivre vos kilomètres pendant que vous vous concentrez sur votre travail.",
+        "keywords": [
+          "indemnite",
+          "kilometrique",
+          "trajet",
+          "note",
+          "deplacement",
+          "vehicule",
+          "tournee",
+          "releve",
+          "comptable",
+          "itineraire"
+        ],
+        "promoText": "Vos indemnités kilométriques calculées automatiquement, sans saisie manuelle."
+      }
+    }
+  },
+  "play": {
+    "info": {
+      "en-US": {
+        "title": "IKTracker - Indemnités Km",
+        "shortDescription": "Suivi automatique des trajets et calcul des indemnités kilométriques pro",
+        "fullDescription": "IKTracker est une application de suivi de trajets conçue pour calculer vos indemnités kilométriques automatiquement, sans saisie manuelle fastidieuse.\n\nQue vous soyez artisan, commercial, indépendant ou salarié en déplacement, IKTracker vous aide à enregistrer chaque trajet professionnel avec précision. Grâce à la géolocalisation, l'application mesure la distance parcourue pendant vos tournées et génère un relevé kilométrique clair, prêt à être transmis à votre comptable ou votre employeur.\n\nPrincipales fonctionnalités :\n- Suivi automatique de la distance en cours pendant vos tournées\n- Enregistrement des trajets aller-retour, avec point de départ et d'arrivée\n- Import des rendez-vous du jour pour organiser vos déplacements professionnels\n- Sélection du véhicule utilisé pour chaque trajet, utile pour l'application du barème kilométrique\n- Rapports et relevés d'indemnités kilométriques générés automatiquement\n- Connexion simple et sécurisée via Apple ou Google\n\nIKTracker simplifie la gestion des notes de frais kilométriques au quotidien : plus besoin de noter manuellement chaque déplacement, l'application s'occupe du calcul des indemnités kilométriques pour vous.\n\nGagnez du temps sur vos tournées professionnelles et concentrez-vous sur votre activité, IKTracker s'occupe du suivi de vos trajets et de vos frais de déplacement."
+      }
+    }
+  }
+}
