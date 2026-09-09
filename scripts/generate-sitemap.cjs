@@ -12,35 +12,40 @@ const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 const BASE_URL = "https://iktracker.fr";
 
+// Hiérarchie à deux clusters (cf. src/lib/internal-linking.ts) :
+// 1.0 = home + les deux piliers · 0.9 = têtes de cluster
+// 0.8 = satellites de cluster & pages produit · 0.7 = support · 0.6 = comparatifs/conversion
 const staticPages = [
   { url: "/", priority: "1.0", changefreq: "weekly" },
+  // Pilier cluster « indemnités kilométriques »
   { url: "/indemnites-kilometriques", priority: "1.0", changefreq: "monthly" },
+  // Pilier cluster « frais réels »
+  { url: "/frais-reels", priority: "1.0", changefreq: "monthly" },
   { url: "/bareme-ik-2026", priority: "0.9", changefreq: "monthly" },
+  { url: "/note-de-frais-kilometrique", priority: "0.9", changefreq: "monthly" },
   {
     url: "/meilleure-application-indemnites-kilometriques",
-    priority: "0.9",
+    priority: "0.8",
     changefreq: "monthly",
   },
-  { url: "/fonctionnalites", priority: "0.9", changefreq: "monthly" },
-  { url: "/frais-reels", priority: "0.9", changefreq: "monthly" },
   {
     url: "/meilleurs-outils-indemnites-kilometriques-2027",
-    priority: "0.9",
+    priority: "0.8",
     changefreq: "monthly",
   },
   { url: "/indemnites-kilometriques-2027", priority: "0.8", changefreq: "monthly" },
-  { url: "/note-de-frais-kilometrique", priority: "0.8", changefreq: "monthly" },
+  { url: "/indemnite-grand-deplacement-2026", priority: "0.8", changefreq: "monthly" },
+  { url: "/expert-comptable", priority: "0.8", changefreq: "monthly" },
+  { url: "/fonctionnalites", priority: "0.8", changefreq: "monthly" },
   { url: "/mode-tournee", priority: "0.8", changefreq: "monthly" },
   { url: "/mes-trajets", priority: "0.8", changefreq: "monthly" },
   { url: "/blog", priority: "0.8", changefreq: "weekly" },
   { url: "/forum", priority: "0.8", changefreq: "daily" },
-  { url: "/calendrier", priority: "0.7", changefreq: "monthly" },
-  { url: "/lexique", priority: "0.7", changefreq: "monthly" },
   { url: "/indemnite-kilometrique-velo", priority: "0.7", changefreq: "monthly" },
-  { url: "/indemnite-grand-deplacement-2026", priority: "0.7", changefreq: "monthly" },
+  { url: "/lexique", priority: "0.7", changefreq: "monthly" },
+  { url: "/calendrier", priority: "0.7", changefreq: "monthly" },
   { url: "/artisans", priority: "0.7", changefreq: "monthly" },
   { url: "/independants", priority: "0.7", changefreq: "monthly" },
-  { url: "/expert-comptable", priority: "0.7", changefreq: "monthly" },
   { url: "/logiciel-devis-artisan", priority: "0.7", changefreq: "monthly" },
   { url: "/tarifs", priority: "0.7", changefreq: "monthly" },
   { url: "/comparatif-izika", priority: "0.6", changefreq: "monthly" },
