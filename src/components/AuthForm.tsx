@@ -183,13 +183,7 @@ export const AuthForm = ({
     } catch (error: any) {
       let message = error.message;
       const rawMsg: string = error.message || "";
-      // Rate limit Supabase Auth : "For security purposes, you can only request this after N seconds"
-      const rateMatch = rawMsg.match(/after (\d+) seconds?/i);
-      if (rateMatch || /rate limit|too many requests|over_email_send_rate_limit/i.test(rawMsg)) {
-        const secs = rateMatch ? parseInt(rateMatch[1], 10) : 30;
-        setCooldown(secs);
-        message = `Merci de patienter ${secs}s avant une nouvelle tentative (protection anti-spam).`;
-      } else if (rawMsg.includes("Invalid login credentials")) {
+      if (rawMsg.includes("Invalid login credentials")) {
         message = "Email ou mot de passe incorrect";
       } else if (rawMsg.includes("User already registered")) {
         message = "Cet email est déjà utilisé";
