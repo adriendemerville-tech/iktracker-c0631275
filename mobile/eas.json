@@ -22,7 +22,7 @@
         "appleTeamId": "ZG5QHXSQXK",
         "ascApiKeyIssuerId": "e4cee641-1e70-47d8-91dc-70ab04105360",
         "ascApiKeyId": "FTZRKBG3NH",
-        "ascApiKeyPath": "./AuthKey_FTZRKBG3NH.p8"
+        "ascApiKeyPath": "~/keys/AuthKey_FTZRKBG3NH.p8"
       },
       "android": {
         "serviceAccountKeyPath": "./google-service-account.json",

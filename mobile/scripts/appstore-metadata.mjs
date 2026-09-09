@@ -26,7 +26,13 @@ const meta = JSON.parse(readFileSync(path.join(ROOT, 'store.fr.json'), 'utf8'));
 const appId = process.env.ASC_APP_ID || cfg.ascAppId;
 const issuerId = process.env.ASC_ISSUER_ID || cfg.ascApiKeyIssuerId;
 const keyId = process.env.ASC_KEY_ID || cfg.ascApiKeyId;
-const keyPath = process.env.ASC_API_KEY_PATH || path.join(ROOT, (cfg.ascApiKeyPath || '').replace(/^\.\//, ''));
+import os from 'node:os';
+const resolveKeyPath = (p) => {
+  if (!p) return '';
+  if (p.startsWith('~/')) return path.join(os.homedir(), p.slice(2));
+  return path.isAbsolute(p) ? p : path.join(ROOT, p.replace(/^\.\//, ''));
+};
+const keyPath = process.env.ASC_API_KEY_PATH || resolveKeyPath(cfg.ascApiKeyPath);
 const privateKey = process.env.ASC_API_KEY_P8 || (existsSync(keyPath) ? readFileSync(keyPath, 'utf8') : null);
 
 if (!appId || !issuerId || !keyId || !privateKey) {
