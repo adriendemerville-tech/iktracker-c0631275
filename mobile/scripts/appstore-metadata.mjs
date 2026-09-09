@@ -12,8 +12,9 @@
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { createSign, createHash } from 'node:crypto';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const ROOT = path.resolve('mobile');
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const API = 'https://api.appstoreconnect.apple.com';
 const LOCALE = 'fr-FR';
 const WITH_SCREENSHOTS = process.argv.includes('--screenshots');
