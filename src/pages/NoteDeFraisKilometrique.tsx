@@ -1,3 +1,4 @@
+import { ClusterLinks } from "@/components/marketing/ClusterLinks";
 import { LastUpdated } from "@/components/LastUpdated";
 import { getStaticLastModified } from "@/lib/page-dates";
 import { Helmet } from "@/lib/helmet-compat";
@@ -215,6 +216,8 @@ export default function NoteDeFraisKilometrique() {
           </Link>
         </section>
       </main>
+
+      <ClusterLinks path="/note-de-frais-kilometrique" />
 
       <EnhancedMarketingFooter />
     </>

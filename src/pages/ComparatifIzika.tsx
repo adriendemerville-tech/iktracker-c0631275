@@ -1,3 +1,4 @@
+import { ClusterLinks } from "@/components/marketing/ClusterLinks";
 import { LastUpdated } from "@/components/LastUpdated";
 import { ORGANIZATION_ID } from "@/lib/seo-schemas";
 import { lazy, Suspense, memo } from "react";
@@ -395,6 +396,8 @@ const ComparatifIzika = () => {
             </div>
           </section>
         </main>
+
+        <ClusterLinks path="/comparatif-izika" />
 
         <Suspense fallback={<FooterPlaceholder />}>
           <EnhancedMarketingFooter />

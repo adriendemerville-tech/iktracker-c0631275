@@ -1,3 +1,4 @@
+import { ClusterLinks } from "@/components/marketing/ClusterLinks";
 import { LastUpdated } from "@/components/LastUpdated";
 import { Helmet } from "@/lib/helmet-compat";
 import { Link } from "@/lib/router-compat";
@@ -348,6 +349,8 @@ export default function IndemniteGrandDeplacement2026() {
           </Link>
         </section>
       </main>
+
+      <ClusterLinks path="/indemnite-grand-deplacement-2026" />
 
       <Suspense fallback={<FooterPlaceholder />}>
         <EnhancedMarketingFooter />

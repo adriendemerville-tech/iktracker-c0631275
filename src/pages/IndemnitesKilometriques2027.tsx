@@ -1,3 +1,4 @@
+import { ClusterLinks } from "@/components/marketing/ClusterLinks";
 import { LastUpdated } from "@/components/LastUpdated";
 import { DirectAnswer } from "@/components/DirectAnswer";
 import { getPageDates } from "@/lib/page-dates";
@@ -401,6 +402,8 @@ export default function IndemnitesKilometriques2027() {
           </div>
         </section>
       </main>
+
+      <ClusterLinks path="/indemnites-kilometriques-2027" />
 
       <EnhancedMarketingFooter />
     </>

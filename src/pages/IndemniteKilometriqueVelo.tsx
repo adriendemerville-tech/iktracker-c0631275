@@ -1,3 +1,4 @@
+import { ClusterLinks } from "@/components/marketing/ClusterLinks";
 import { LastUpdated } from "@/components/LastUpdated";
 import { Helmet } from "@/lib/helmet-compat";
 import { buildSoftwareApplicationSchema, ORGANIZATION_ID } from "@/lib/seo-schemas";
@@ -239,6 +240,8 @@ export default function IndemniteKilometriqueVelo() {
           </Link>
         </section>
       </main>
+
+      <ClusterLinks path="/indemnite-kilometrique-velo" />
 
       <EnhancedMarketingFooter />
     </>

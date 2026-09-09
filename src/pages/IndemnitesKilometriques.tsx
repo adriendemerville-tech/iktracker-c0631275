@@ -1,3 +1,4 @@
+import { ClusterLinks } from "@/components/marketing/ClusterLinks";
 import { LastUpdated } from "@/components/LastUpdated";
 import { DirectAnswer } from "@/components/DirectAnswer";
 import { getStaticLastModified } from "@/lib/page-dates";
@@ -605,6 +606,8 @@ export default function IndemnitesKilometriques() {
           </Link>
         </section>
       </main>
+
+      <ClusterLinks path="/indemnites-kilometriques" />
 
       <Suspense fallback={<div className="min-h-[400px]" aria-hidden="true" />}>
         <EnhancedMarketingFooter />

@@ -1,3 +1,4 @@
+import { ClusterLinks } from "@/components/marketing/ClusterLinks";
 import { LastUpdated } from "@/components/LastUpdated";
 import { getStaticLastModified } from "@/lib/page-dates";
 import type { JSX } from "react";
@@ -961,6 +962,8 @@ export default function Lexique() {
             </Link>
           </section>
         </main>
+
+        <ClusterLinks path="/lexique" />
 
         <EnhancedMarketingFooter />
       </div>

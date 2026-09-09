@@ -13,8 +13,20 @@
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://iktracker.fr/frais-reels</loc>
+    <lastmod>2026-08-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
     <loc>https://iktracker.fr/bareme-ik-2026</loc>
     <lastmod>2026-08-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://iktracker.fr/note-de-frais-kilometrique</loc>
+    <lastmod>2026-08-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -22,25 +34,13 @@
     <loc>https://iktracker.fr/meilleure-application-indemnites-kilometriques</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://iktracker.fr/fonctionnalites</loc>
-    <lastmod>2026-08-19</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://iktracker.fr/frais-reels</loc>
-    <lastmod>2026-08-19</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://iktracker.fr/meilleurs-outils-indemnites-kilometriques-2027</loc>
     <lastmod>2026-08-30</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://iktracker.fr/indemnites-kilometriques-2027</loc>
@@ -49,7 +49,19 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://iktracker.fr/note-de-frais-kilometrique</loc>
+    <loc>https://iktracker.fr/indemnite-grand-deplacement-2026</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://iktracker.fr/expert-comptable</loc>
+    <lastmod>2026-08-16</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://iktracker.fr/fonctionnalites</loc>
     <lastmod>2026-08-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -78,8 +90,8 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://iktracker.fr/calendrier</loc>
-    <lastmod>2026-08-16</lastmod>
+    <loc>https://iktracker.fr/indemnite-kilometrique-velo</loc>
+    <lastmod>2026-08-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -90,14 +102,8 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://iktracker.fr/indemnite-kilometrique-velo</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://iktracker.fr/indemnite-grand-deplacement-2026</loc>
-    <lastmod>2026-08-23</lastmod>
+    <loc>https://iktracker.fr/calendrier</loc>
+    <lastmod>2026-08-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -110,12 +116,6 @@
   <url>
     <loc>https://iktracker.fr/independants</loc>
     <lastmod>2026-08-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://iktracker.fr/expert-comptable</loc>
-    <lastmod>2026-08-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>

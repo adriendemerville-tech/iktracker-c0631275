@@ -1,3 +1,4 @@
+import { ClusterLinks } from "@/components/marketing/ClusterLinks";
 import { lazy, Suspense, memo } from "react";
 import { Link } from "@/lib/router-compat";
 import { Helmet } from "@/lib/helmet-compat";
@@ -439,6 +440,8 @@ export default function MeilleursOutilsIK2027() {
           </div>
         </section>
       </main>
+
+      <ClusterLinks path="/meilleurs-outils-indemnites-kilometriques-2027" />
 
       <Suspense fallback={<FooterPlaceholder />}>
         <EnhancedMarketingFooter />

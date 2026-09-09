@@ -1,3 +1,4 @@
+import { ClusterLinks } from "@/components/marketing/ClusterLinks";
 import { LastUpdated } from "@/components/LastUpdated";
 import { ORGANIZATION_ID } from "@/lib/seo-schemas";
 import { lazy, Suspense, memo } from "react";
@@ -602,6 +603,8 @@ const ComparatifDriversNote = () => {
             </div>
           </section>
         </main>
+
+        <ClusterLinks path="/comparatif-driversnote" />
 
         <Suspense fallback={<FooterPlaceholder />}>
           <EnhancedMarketingFooter />

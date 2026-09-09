@@ -1,3 +1,4 @@
+import { ClusterLinks } from "@/components/marketing/ClusterLinks";
 import { LastUpdated } from "@/components/LastUpdated";
 import { getStaticLastModified } from "@/lib/page-dates";
 import { lazy, Suspense, memo, useCallback, useEffect, useState, useRef } from "react";
@@ -599,6 +600,8 @@ const ExpertComptable = () => {
           </div>
         </section>
       </main>
+
+      <ClusterLinks path="/expert-comptable" />
 
       <Suspense fallback={<FooterPlaceholder />}>
         <EnhancedMarketingFooter />

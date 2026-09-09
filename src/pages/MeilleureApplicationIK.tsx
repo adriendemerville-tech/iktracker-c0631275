@@ -1,3 +1,4 @@
+import { ClusterLinks } from "@/components/marketing/ClusterLinks";
 import { LastUpdated } from "@/components/LastUpdated";
 import { ORGANIZATION_ID } from "@/lib/seo-schemas";
 import { lazy, Suspense, memo } from "react";
@@ -592,6 +593,8 @@ const MeilleureApplicationIK = () => {
             </div>
           </section>
         </main>
+
+        <ClusterLinks path="/meilleure-application-indemnites-kilometriques" />
 
         <Suspense fallback={<FooterPlaceholder />}>
           <EnhancedMarketingFooter />
