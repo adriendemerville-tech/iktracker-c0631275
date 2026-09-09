@@ -156,6 +156,16 @@ export const useAuth = () => {
     setRequiresAuth(sessionCount >= 2 && !user);
   }, [sessionCount, user]);
 
+  // Résolution globale d'un retour OAuth, une fois la session réellement
+  // hydratée (l'échange du code peut prendre 1-2 s après la redirection).
+  useEffect(() => {
+    if (loading) return;
+    const t = setTimeout(() => {
+      resolveOAuthReturn(!!user, typeof window !== "undefined" ? window.location.pathname : "auth");
+    }, 2500);
+    return () => clearTimeout(t);
+  }, [loading, user]);
+
   const signOut = async (): Promise<boolean> => {
     // Show logout overlay
     setIsLoggingOut(true);
