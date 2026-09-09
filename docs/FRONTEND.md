@@ -1,6 +1,16 @@
 # IKTracker — Documentation Technique Frontend
 
-> Version 3.5 — 2 septembre 2026 (Stats admin : croissance inscriptions, moyenne mobile, surveys mobiles, résilience lazy-loading)
+> Version 3.6 — 9 septembre 2026 (Persistance des layouts admin, inscription simplifiée, cache edge HTML, correctifs SEO/perf)
+
+**Notes v3.6 (9 septembre 2026)**
+- **Persistance des layouts admin** : `src/hooks/useLayoutPreference.ts` — la BDD (`public.ui_layouts`, clé `(user_id, layout_key)`) est la source de vérité, `localStorage` sert de cache instantané et de migration héritée. Câblé dans `AdminStats.tsx` et `DraggableMarketingCards.tsx` ; hook rendu SSR-safe (pas d'accès `window` au premier rendu).
+- **Inscription simplifiée** (`src/components/AuthForm.tsx`) : suppression du cooldown anti-spam de 30 s et du blocage de bouton associé ; les erreurs de limite d'envoi ne sont plus réécrites en message de cooldown. Côté backend, la protection « mot de passe compromis » est désactivée et la limite d'e-mails relevée (choix produit assumé).
+- **Cache HTML edge** : `src/lib/edge-cache.ts` intégré à `src/server.ts` — réponses HTML publiques anonymes en `s-maxage=300, stale-while-revalidate=86400`, routes authentifiées en `no-store` (actif après publication).
+- **Analytics** : chargement GTM ramené de 6 s à 2,5 s + initialisation forcée sur `pagehide`/`visibilitychange` (les sessions courtes n'étaient pas comptées).
+- **Perf / CLS** : compteurs animés de la home en grille 3 colonnes à hauteur minimale fixe (CLS mobile 0,49 → 0,068) ; correction des props de preload LCP dans `src/routes/index.tsx` (`imageSrcSet` / `imageSizes` au lieu des variantes minuscules, ignorées par React).
+- **SEO** : suppression du double JSON-LD `WebSite` à la racine, retrait de la mention « Numéro 1 en France » (non vérifiable), redirections blog consolidées autour de `supabase/functions/_shared/blog-redirects.ts` (Worker généré par `scripts/sync-blog-redirects.cjs`), `/forum` ajouté au sitemap statique.
+- **Tests** : `testTimeout`/`hookTimeout` Vitest portés à 30 s (la première compilation de route SSR provoquait de faux échecs) — 320/320 tests au vert.
+- **Build** : cache incrémental Vite persistant (`vite.config.ts`) avec pré-bundling React/TanStack et warmup de la home (build à chaud ≈ 17 s).
 
 **Notes v3.5 (2 septembre 2026)**
 - **Croissance des inscriptions** (`src/components/AdminStats.tsx`) : nouveau graphique « Croissance des inscriptions (% mensuel) » dans Stats → KPI Marketing, alimenté par la RPC `get_signup_growth_by_month()` — taux mensuel nouveaux inscrits / total depuis janvier. La carte KPI « Nvx inscrits / total » (dernier mois complet) est déplacée du header bleu vers cette section.
