@@ -1,3 +1,4 @@
+import { ClusterLinks } from "@/components/marketing/ClusterLinks";
 import { lazy, Suspense, memo } from "react";
 import { Link } from "@/lib/router-compat";
 import { Helmet } from "@/lib/helmet-compat";
@@ -26,7 +27,6 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import {
-import { ClusterLinks } from "@/components/marketing/ClusterLinks";
   COLONNES,
   FAQ,
   OUTILS,

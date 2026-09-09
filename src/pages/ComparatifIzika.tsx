@@ -1,3 +1,4 @@
+import { ClusterLinks } from "@/components/marketing/ClusterLinks";
 import { LastUpdated } from "@/components/LastUpdated";
 import { ORGANIZATION_ID } from "@/lib/seo-schemas";
 import { lazy, Suspense, memo } from "react";
@@ -26,7 +27,6 @@ import { useAuthLazy } from "@/hooks/useAuthLazy";
 import { ArrowRight, CheckCircle2, XCircle, Zap, HelpCircle, Minus } from "lucide-react";
 
 import { getPageDates, toIsoDateTime } from "@/lib/page-dates";
-import { ClusterLinks } from "@/components/marketing/ClusterLinks";
 
 const PAGE_DATE = getPageDates("/comparatif-izika");
 

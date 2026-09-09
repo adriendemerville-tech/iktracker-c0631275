@@ -1,3 +1,4 @@
+import { ClusterLinks } from "@/components/marketing/ClusterLinks";
 import { LastUpdated } from "@/components/LastUpdated";
 import { getStaticLastModified } from "@/lib/page-dates";
 import { lazy, Suspense, memo, useCallback, useEffect, useState, useRef } from "react";
@@ -27,7 +28,6 @@ const MarketingNav = lazy(() =>
   import("@/components/marketing/MarketingNav").then((m) => ({ default: m.MarketingNav })),
 );
 import { Breadcrumb } from "@/components/Breadcrumb";
-import { ClusterLinks } from "@/components/marketing/ClusterLinks";
 
 const PAGE_LASTMOD = getStaticLastModified("/expert-comptable");
 

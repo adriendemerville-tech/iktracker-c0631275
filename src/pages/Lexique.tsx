@@ -1,3 +1,4 @@
+import { ClusterLinks } from "@/components/marketing/ClusterLinks";
 import { LastUpdated } from "@/components/LastUpdated";
 import { getStaticLastModified } from "@/lib/page-dates";
 import type { JSX } from "react";
@@ -16,7 +17,6 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 import {
-import { ClusterLinks } from "@/components/marketing/ClusterLinks";
   type Term,
   termToSlug,
   lexiqueTerms,

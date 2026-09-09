@@ -1,3 +1,4 @@
+import { ClusterLinks } from "@/components/marketing/ClusterLinks";
 import { LastUpdated } from "@/components/LastUpdated";
 import { DirectAnswer } from "@/components/DirectAnswer";
 import { getPageDates } from "@/lib/page-dates";
@@ -15,7 +16,6 @@ import {
 } from "@/lib/seo-schemas";
 import { IK_BAREME_2024 } from "@/types/trip";
 import {
-import { ClusterLinks } from "@/components/marketing/ClusterLinks";
   ArrowRight,
   BellRing,
   Calculator,

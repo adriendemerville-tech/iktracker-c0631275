@@ -1,3 +1,4 @@
+import { ClusterLinks } from "@/components/marketing/ClusterLinks";
 import { LastUpdated } from "@/components/LastUpdated";
 import { Helmet } from "@/lib/helmet-compat";
 import { buildSoftwareApplicationSchema, ORGANIZATION_ID } from "@/lib/seo-schemas";
@@ -10,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Bike, Leaf, Euro, ShieldCheck } from "lucide-react";
 
 import { getPageDates, toIsoDateTime } from "@/lib/page-dates";
-import { ClusterLinks } from "@/components/marketing/ClusterLinks";
 
 const PAGE_DATE = getPageDates("/indemnite-kilometrique-velo");
 

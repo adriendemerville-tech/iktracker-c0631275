@@ -1,3 +1,4 @@
+import { ClusterLinks } from "@/components/marketing/ClusterLinks";
 import { LastUpdated } from "@/components/LastUpdated";
 import { getStaticLastModified } from "@/lib/page-dates";
 import { Helmet } from "@/lib/helmet-compat";
@@ -9,7 +10,6 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, FileText, ListChecks, ShieldCheck, FileDown } from "lucide-react";
-import { ClusterLinks } from "@/components/marketing/ClusterLinks";
 
 const PAGE_LASTMOD = getStaticLastModified("/note-de-frais-kilometrique");
 

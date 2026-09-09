@@ -1,3 +1,4 @@
+import { ClusterLinks } from "@/components/marketing/ClusterLinks";
 import { LastUpdated } from "@/components/LastUpdated";
 import { Helmet } from "@/lib/helmet-compat";
 import { Link } from "@/lib/router-compat";
@@ -18,7 +19,6 @@ import { ArrowRight, BedDouble, UtensilsCrossed, Plane, ShieldCheck, Euro } from
 import { buildSoftwareApplicationSchema, ORGANIZATION_ID } from "@/lib/seo-schemas";
 
 import { getPageDates, toIsoDateTime } from "@/lib/page-dates";
-import { ClusterLinks } from "@/components/marketing/ClusterLinks";
 
 const PAGE_DATE = getPageDates("/indemnite-grand-deplacement-2026");
 
