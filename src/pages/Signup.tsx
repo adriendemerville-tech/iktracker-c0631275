@@ -11,7 +11,7 @@ import confetti from "canvas-confetti";
 import ReCAPTCHA from "react-google-recaptcha";
 import { PersonaPicker, PERSONA_OPTIONS, type PersonaValue } from "@/components/PersonaPicker";
 import { trackSignupEvent } from "@/lib/signup-tracking";
-import { markOAuthStart, resolveOAuthReturn, clearOAuthPending } from "@/lib/oauth-return-tracking";
+import { markOAuthStart, clearOAuthPending } from "@/lib/oauth-return-tracking";
 import {
   buildOAuthDiagnostic,
   readOAuthErrorFromUrl,
