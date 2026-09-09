@@ -6,3 +6,4 @@ android/
 *.log
 .env
 .DS_Store
+*.p8
