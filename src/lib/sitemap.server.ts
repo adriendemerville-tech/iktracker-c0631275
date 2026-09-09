@@ -125,7 +125,7 @@ export async function buildSitemapResponse(): Promise<Response> {
             path: `/blog/${p.slug}`,
             lastmod: stamp ? new Date(stamp).toISOString().split("T")[0] : undefined,
             changefreq: "weekly",
-            priority: "0.8",
+            priority: "0.6",
           };
         });
 
