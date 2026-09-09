@@ -247,7 +247,10 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
       } = supabase.auth.onAuthStateChange((event, session) => {
         setUser(session?.user ?? null);
         if (event === "SIGNED_IN" && session) {
-          navigate("/app");
+          // Les nouveaux inscrits (OAuth inclus) passent par l'onboarding :
+          // choix du métier puis du thème.
+          const onboarded = localStorage.getItem("theme-onboarding-complete");
+          navigate(onboarded ? "/app" : "/app/theme-onboarding");
         }
       });
       unsubscribe = () => subscription.unsubscribe();

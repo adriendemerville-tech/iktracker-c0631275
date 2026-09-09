@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Mail, Lock, Loader2, Eye, EyeOff, ArrowLeft, CheckCircle2, User } from "lucide-react";
 import confetti from "canvas-confetti";
 import ReCAPTCHA from "react-google-recaptcha";
-import { PersonaPicker, PERSONA_OPTIONS, type PersonaValue } from "@/components/PersonaPicker";
+
 import { trackSignupEvent } from "@/lib/signup-tracking";
 import { markOAuthStart, clearOAuthPending } from "@/lib/oauth-return-tracking";
 import {
@@ -73,8 +73,6 @@ const Signup = () => {
   // exposer le formulaire complet aux crawlers.
   const hydrated = useHydrated();
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
-  const [selectedPersona, setSelectedPersona] = useState<PersonaValue | null>(null);
-  const [showPersonaPicker, setShowPersonaPicker] = useState(true);
   const recaptchaRef = useRef<ReCAPTCHA>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -125,30 +123,6 @@ const Signup = () => {
         const provider = (session.user.app_metadata?.provider as string) || "email";
         trackSignupEvent("signup_success", provider);
 
-        // Save persona to database after signup
-        if (selectedPersona) {
-          const personaOption = PERSONA_OPTIONS.find((p) => p.value === selectedPersona);
-          try {
-            await supabase.from("user_preferences").upsert(
-              {
-                user_id: session.user.id,
-                persona: selectedPersona,
-              } as any,
-              { onConflict: "user_id" },
-            );
-
-            // Also save profession to localStorage for immediate sync
-            if (personaOption) {
-              const stored = localStorage.getItem("ik-tracker-preferences");
-              const prefs = stored ? JSON.parse(stored) : {};
-              prefs.profession = personaOption.profession;
-              localStorage.setItem("ik-tracker-preferences", JSON.stringify(prefs));
-            }
-          } catch (e) {
-            console.warn("Failed to save persona:", e);
-          }
-        }
-
         fireConfetti();
         toast({ title: "Compte créé avec succès ! 🎉", description: "Bienvenue sur IKtracker !" });
         const themeOnboardingComplete = localStorage.getItem("theme-onboarding-complete");
@@ -161,12 +135,7 @@ const Signup = () => {
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate, toast, selectedPersona]);
-
-  const handlePersonaSelect = (persona: PersonaValue) => {
-    setSelectedPersona(persona);
-    setShowPersonaPicker(false);
-  };
+  }, [navigate, toast]);
 
   const handleOAuthLogin = async (provider: "google" | "apple" = "google") => {
     setOauthLoading(provider);
@@ -264,102 +233,6 @@ const Signup = () => {
       <div className="min-h-screen bg-slate-950 flex items-center justify-center cursor-default">
         <Loader2 className="w-8 h-8 animate-spin text-white" />
       </div>
-    );
-  }
-
-  // Show persona picker before signup form
-  if (showPersonaPicker) {
-    return (
-      <>
-        <Helmet>
-          <title>Créer un compte gratuit - Outil communautaire IK | IKtracker</title>
-          <meta
-            name="description"
-            content="Rejoignez la communauté IKtracker : automatisez vos indemnités kilométriques via GPS et calendrier. Mode Tournée, comparateur frais réels, barème 2026, export PDF. 100% gratuit."
-          />
-          <link rel="canonical" href="https://iktracker.fr/signup" />
-          <meta
-            property="og:title"
-            content="Créer un compte gratuit | IKtracker - Outil communautaire"
-          />
-          <meta
-            property="og:description"
-            content="Rejoignez la communauté IKtracker. Automatisez vos IK : mode tournée GPS, synchronisation calendrier, comparateur frais réels. 100% gratuit."
-          />
-          <meta property="og:url" content="https://iktracker.fr/signup" />
-          <meta property="og:type" content="website" />
-          <meta property="og:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
-          <meta property="og:locale" content="fr_FR" />
-          <meta property="og:site_name" content="IKtracker" />
-          <meta name="twitter:card" content="summary" />
-          <meta
-            name="twitter:title"
-            content="Créer un compte gratuit | IKtracker - Outil communautaire"
-          />
-          <meta
-            name="twitter:description"
-            content="Outil communautaire 100% gratuit. Mode Tournée GPS, synchronisation calendrier, comparateur frais réels, export PDF."
-          />
-          <meta name="twitter:image" content="https://iktracker.fr/logo-iktracker-250.webp" />
-          <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
-          <script type="application/ld+json">
-            {JSON.stringify({
-              "@context": "https://schema.org",
-              "@graph": [
-                {
-                  "@type": "WebPage",
-                  name: "Inscription gratuite IKtracker - Outil communautaire",
-                  description:
-                    "Rejoignez la communauté IKtracker pour automatiser le suivi de vos indemnités kilométriques professionnelles. 100% gratuit.",
-                  url: "https://iktracker.fr/signup",
-                  isPartOf: { "@type": "WebSite", name: "IKtracker", url: "https://iktracker.fr" },
-                  potentialAction: {
-                    "@type": "RegisterAction",
-                    target: "https://iktracker.fr/signup",
-                    name: "Créer mon compte gratuitement",
-                  },
-                },
-                {
-                  "@type": "SoftwareApplication",
-                  name: "IKtracker",
-                  applicationCategory: "BusinessApplication",
-                  operatingSystem: "Web, iOS, Android",
-                  offers: {
-                    "@type": "Offer",
-                    price: "0",
-                    priceCurrency: "EUR",
-                    availability: "https://schema.org/InStock",
-                  },
-                  description:
-                    "Outil communautaire gratuit d'automatisation des indemnités kilométriques : Mode Tournée GPS, synchronisation calendrier, comparateur frais réels, lexique fiscal, export PDF/CSV.",
-                  featureList: [
-                    "Mode Tournée GPS",
-                    "Synchronisation Google Calendar et Outlook",
-                    "Comparateur Frais Réels vs Abattement 10%",
-                    "Lexique fiscal",
-                    "Export PDF/CSV",
-                    "Barème 2026",
-                    "PWA installable",
-                  ],
-                  audience: {
-                    "@type": "BusinessAudience",
-                    audienceType:
-                      "Indépendants, professions libérales, artisans, commerciaux, infirmiers",
-                  },
-                },
-              ],
-            })}
-          </script>
-        </Helmet>
-        <Link
-          to="/"
-          className="fixed top-6 left-6 flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm z-20"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Retour
-        </Link>
-        <PersonaPicker onSelect={handlePersonaSelect} />
-      </>
     );
   }
 

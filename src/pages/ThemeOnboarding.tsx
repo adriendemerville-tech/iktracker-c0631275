@@ -1,12 +1,67 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "@/lib/router-compat";
 import { Helmet } from "@/lib/helmet-compat";
 import { motion } from "framer-motion";
-import { Sun, Moon } from "lucide-react";
+import { Sun, Moon, Loader2 } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
+import { supabase } from "@/integrations/supabase/client";
+import { PersonaPicker, PERSONA_OPTIONS, type PersonaValue } from "@/components/PersonaPicker";
 
 const ThemeOnboarding = () => {
   const navigate = useNavigate();
   const { setTheme } = useTheme();
+  // Le choix du métier a été déplacé APRÈS la création du compte (étape onboarding).
+  const [needsPersona, setNeedsPersona] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) {
+        if (!cancelled) setNeedsPersona(false);
+        return;
+      }
+      const { data } = await supabase
+        .from("user_preferences")
+        .select("persona")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+      const persona = (data as any)?.persona;
+      if (!cancelled) setNeedsPersona(!persona || persona === "undefined");
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handlePersonaSelect = async (persona: PersonaValue) => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (session) {
+      const personaOption = PERSONA_OPTIONS.find((p) => p.value === persona);
+      try {
+        await supabase.from("user_preferences").upsert(
+          {
+            user_id: session.user.id,
+            persona,
+          } as any,
+          { onConflict: "user_id" },
+        );
+        if (personaOption) {
+          const stored = localStorage.getItem("ik-tracker-preferences");
+          const prefs = stored ? JSON.parse(stored) : {};
+          prefs.profession = personaOption.profession;
+          localStorage.setItem("ik-tracker-preferences", JSON.stringify(prefs));
+        }
+      } catch (e) {
+        console.warn("Failed to save persona:", e);
+      }
+    }
+    setNeedsPersona(false);
+  };
 
   const handleThemeSelect = (selectedTheme: "light" | "dark") => {
     setTheme(selectedTheme);
@@ -14,6 +69,18 @@ const ThemeOnboarding = () => {
     localStorage.setItem("theme-onboarding-complete", "true");
     navigate("/app", { replace: true });
   };
+
+  if (needsPersona === null) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-white" />
+      </div>
+    );
+  }
+
+  if (needsPersona) {
+    return <PersonaPicker onSelect={handlePersonaSelect} />;
+  }
 
   return (
     <>
