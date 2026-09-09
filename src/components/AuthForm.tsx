@@ -129,7 +129,7 @@ export const AuthForm = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (loading || cooldown > 0) return;
+    if (loading) return;
     setLoading(true);
 
     try {
