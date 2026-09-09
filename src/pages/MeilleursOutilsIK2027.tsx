@@ -26,6 +26,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import {
+import { ClusterLinks } from "@/components/marketing/ClusterLinks";
   COLONNES,
   FAQ,
   OUTILS,
@@ -439,6 +440,8 @@ export default function MeilleursOutilsIK2027() {
           </div>
         </section>
       </main>
+
+      <ClusterLinks path="/meilleurs-outils-indemnites-kilometriques-2027" />
 
       <Suspense fallback={<FooterPlaceholder />}>
         <EnhancedMarketingFooter />

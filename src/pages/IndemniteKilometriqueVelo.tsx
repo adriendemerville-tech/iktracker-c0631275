@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Bike, Leaf, Euro, ShieldCheck } from "lucide-react";
 
 import { getPageDates, toIsoDateTime } from "@/lib/page-dates";
+import { ClusterLinks } from "@/components/marketing/ClusterLinks";
 
 const PAGE_DATE = getPageDates("/indemnite-kilometrique-velo");
 
@@ -239,6 +240,8 @@ export default function IndemniteKilometriqueVelo() {
           </Link>
         </section>
       </main>
+
+      <ClusterLinks path="/indemnite-kilometrique-velo" />
 
       <EnhancedMarketingFooter />
     </>

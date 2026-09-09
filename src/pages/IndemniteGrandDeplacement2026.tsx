@@ -18,6 +18,7 @@ import { ArrowRight, BedDouble, UtensilsCrossed, Plane, ShieldCheck, Euro } from
 import { buildSoftwareApplicationSchema, ORGANIZATION_ID } from "@/lib/seo-schemas";
 
 import { getPageDates, toIsoDateTime } from "@/lib/page-dates";
+import { ClusterLinks } from "@/components/marketing/ClusterLinks";
 
 const PAGE_DATE = getPageDates("/indemnite-grand-deplacement-2026");
 
@@ -348,6 +349,8 @@ export default function IndemniteGrandDeplacement2026() {
           </Link>
         </section>
       </main>
+
+      <ClusterLinks path="/indemnite-grand-deplacement-2026" />
 
       <Suspense fallback={<FooterPlaceholder />}>
         <EnhancedMarketingFooter />

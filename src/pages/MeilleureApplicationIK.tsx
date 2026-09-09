@@ -29,6 +29,7 @@ import { getPageDates, toIsoDateTime } from "@/lib/page-dates";
 const PAGE_DATE = getPageDates("/meilleure-application-indemnites-kilometriques");
 
 import {
+import { ClusterLinks } from "@/components/marketing/ClusterLinks";
   ArrowRight,
   CheckCircle2,
   XCircle,
@@ -592,6 +593,8 @@ const MeilleureApplicationIK = () => {
             </div>
           </section>
         </main>
+
+        <ClusterLinks path="/meilleure-application-indemnites-kilometriques" />
 
         <Suspense fallback={<FooterPlaceholder />}>
           <EnhancedMarketingFooter />

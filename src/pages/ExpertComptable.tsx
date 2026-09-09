@@ -27,6 +27,7 @@ const MarketingNav = lazy(() =>
   import("@/components/marketing/MarketingNav").then((m) => ({ default: m.MarketingNav })),
 );
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { ClusterLinks } from "@/components/marketing/ClusterLinks";
 
 const PAGE_LASTMOD = getStaticLastModified("/expert-comptable");
 
@@ -599,6 +600,8 @@ const ExpertComptable = () => {
           </div>
         </section>
       </main>
+
+      <ClusterLinks path="/expert-comptable" />
 
       <Suspense fallback={<FooterPlaceholder />}>
         <EnhancedMarketingFooter />

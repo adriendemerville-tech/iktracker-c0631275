@@ -28,6 +28,7 @@ import { getPageDates, toIsoDateTime } from "@/lib/page-dates";
 const PAGE_DATE = getPageDates("/comparatif-driversnote");
 
 import {
+import { ClusterLinks } from "@/components/marketing/ClusterLinks";
   ArrowRight,
   CheckCircle2,
   XCircle,
@@ -602,6 +603,8 @@ const ComparatifDriversNote = () => {
             </div>
           </section>
         </main>
+
+        <ClusterLinks path="/comparatif-driversnote" />
 
         <Suspense fallback={<FooterPlaceholder />}>
           <EnhancedMarketingFooter />

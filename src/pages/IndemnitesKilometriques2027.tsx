@@ -15,6 +15,7 @@ import {
 } from "@/lib/seo-schemas";
 import { IK_BAREME_2024 } from "@/types/trip";
 import {
+import { ClusterLinks } from "@/components/marketing/ClusterLinks";
   ArrowRight,
   BellRing,
   Calculator,
@@ -401,6 +402,8 @@ export default function IndemnitesKilometriques2027() {
           </div>
         </section>
       </main>
+
+      <ClusterLinks path="/indemnites-kilometriques-2027" />
 
       <EnhancedMarketingFooter />
     </>

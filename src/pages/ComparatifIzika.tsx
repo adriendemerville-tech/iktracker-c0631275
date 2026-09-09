@@ -26,6 +26,7 @@ import { useAuthLazy } from "@/hooks/useAuthLazy";
 import { ArrowRight, CheckCircle2, XCircle, Zap, HelpCircle, Minus } from "lucide-react";
 
 import { getPageDates, toIsoDateTime } from "@/lib/page-dates";
+import { ClusterLinks } from "@/components/marketing/ClusterLinks";
 
 const PAGE_DATE = getPageDates("/comparatif-izika");
 
@@ -395,6 +396,8 @@ const ComparatifIzika = () => {
             </div>
           </section>
         </main>
+
+        <ClusterLinks path="/comparatif-izika" />
 
         <Suspense fallback={<FooterPlaceholder />}>
           <EnhancedMarketingFooter />
