@@ -51,14 +51,6 @@ export const AuthForm = ({
     setRememberMe(localStorage.getItem("ik_remember_me") === "true");
   }, []);
   const [loading, setLoading] = useState(false);
-  const [cooldown, setCooldown] = useState(0);
-
-  // Décrémente le compteur de cooldown chaque seconde
-  useEffect(() => {
-    if (cooldown <= 0) return;
-    const t = setTimeout(() => setCooldown((c) => Math.max(0, c - 1)), 1000);
-    return () => clearTimeout(t);
-  }, [cooldown]);
   const [oauthLoading, setOauthLoading] = useState<"google" | "azure" | "apple" | null>(null);
   const [oauthDiagnostic, setOauthDiagnostic] = useState<OAuthDiagnostic | null>(null);
   const navigate = useNavigate();
