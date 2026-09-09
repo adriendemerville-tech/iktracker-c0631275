@@ -11,7 +11,7 @@ import confetti from "canvas-confetti";
 import ReCAPTCHA from "react-google-recaptcha";
 import { PersonaPicker, PERSONA_OPTIONS, type PersonaValue } from "@/components/PersonaPicker";
 import { trackSignupEvent } from "@/lib/signup-tracking";
-import { markOAuthStart, resolveOAuthReturn, clearOAuthPending } from "@/lib/oauth-return-tracking";
+import { markOAuthStart, clearOAuthPending } from "@/lib/oauth-return-tracking";
 import {
   buildOAuthDiagnostic,
   readOAuthErrorFromUrl,
@@ -108,9 +108,7 @@ const Signup = () => {
       const {
         data: { session },
       } = await supabase.auth.getSession();
-      // Résout un retour depuis l'écran de consentement Google
-      // (retour effectif, refus explicite, ou abandon sans session).
-      resolveOAuthReturn(!!session, "signup");
+      // Le retour OAuth est résolu globalement dans useAuth.
       if (session) {
         navigate("/app", { replace: true });
       }

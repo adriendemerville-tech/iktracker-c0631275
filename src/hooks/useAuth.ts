@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import type { User, Session } from "@supabase/supabase-js";
 import { getSupabase } from "@/integrations/supabase/lazy";
+import { clearOAuthPending, resolveOAuthReturn } from "@/lib/oauth-return-tracking";
 
 const SESSION_COUNT_KEY = "ik_session_count";
 
@@ -76,6 +77,13 @@ export const useAuth = () => {
         setUser(nextSession?.user ?? null);
         setLoading(false);
 
+        // Un retour OAuth réussi peut atterrir sur n'importe quelle page
+        // (redirect_uri = origine) : on solde le marqueur ici pour ne pas
+        // compter un faux abandon plus tard.
+        if (event === "SIGNED_IN" && nextSession) {
+          clearOAuthPending();
+        }
+
         // Force requiresAuth when user signs out
         if (event === "SIGNED_OUT") {
           setRequiresAuth(true);
@@ -147,6 +155,16 @@ export const useAuth = () => {
     // Requires auth if it's the second session or later AND user is not logged in
     setRequiresAuth(sessionCount >= 2 && !user);
   }, [sessionCount, user]);
+
+  // Résolution globale d'un retour OAuth, une fois la session réellement
+  // hydratée (l'échange du code peut prendre 1-2 s après la redirection).
+  useEffect(() => {
+    if (loading) return;
+    const t = setTimeout(() => {
+      resolveOAuthReturn(!!user, typeof window !== "undefined" ? window.location.pathname : "auth");
+    }, 2500);
+    return () => clearTimeout(t);
+  }, [loading, user]);
 
   const signOut = async (): Promise<boolean> => {
     // Show logout overlay
