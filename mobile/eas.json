@@ -17,9 +17,13 @@
   "submit": {
     "production": {
       "ios": {
-        "appleId": "remplace_appleId",
-        "ascAppId": "replace_ascAppId",
+        "appleId": "replace_appleId",
+        "ascAppId": "6800895090",
         "appleTeamId": "replace_teamId"
+      },
+      "android": {
+        "serviceAccountKeyPath": "./google-service-account.json",
+        "track": "internal"
       }
     }
   }
