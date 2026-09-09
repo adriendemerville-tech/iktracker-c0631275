@@ -126,7 +126,7 @@ function buildXml(posts) {
       return `  <url>
     <loc>${BASE_URL}/blog/${post.slug}</loc>${lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : ""}
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.6</priority>
   </url>`;
     })
     .join("\n");
