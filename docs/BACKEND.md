@@ -1,6 +1,12 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 4.6.13 — 2 septembre 2026
+> Version 4.6.14 — 9 septembre 2026
+
+**Notes v4.6.14 (persistance des layouts admin, assouplissement inscription, 9 septembre 2026)**
+- **Nouvelle table `public.ui_layouts`** : stockage JSONB de l'agencement des widgets (`user_id`, `layout_key` unique par utilisateur, `layout`, timestamps). RLS active, policy propriétaire (`auth.uid() = user_id`), GRANT `authenticated` + `service_role`, trigger `update_updated_at_column`. Consommée par `src/hooks/useLayoutPreference.ts` (DB source de vérité, localStorage en cache immédiat).
+- **Auth assouplie** : protection « mot de passe fuité » désactivée et limite d'envoi d'e-mails portée à 200/h. Le cooldown anti-spam de 30 s côté client a été retiré de `src/components/AuthForm.tsx`.
+- **Rappel** : `vehicle_cache` reste volontairement sans policy (accès service role uniquement) ; le linter la signale en INFO.
+
 
 **Notes v4.6.13 (cache HTML côté origine, contournement Worker non invoqué, 2 septembre 2026)**
 - **Contexte** : le Worker `iktracker-bot-router` n'est toujours pas invoqué en production (routage custom-hostname Lovable, ticket support en cours), donc aucune règle de cache edge de notre zone ne s'applique. Le TTFB prod (~1–2,6 s) reste le premier frein LCP, avant tout travail de CSS critique.
