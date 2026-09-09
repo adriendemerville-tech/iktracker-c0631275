@@ -14,47 +14,46 @@ const BASE_URL = "https://iktracker.fr";
 
 const staticPages = [
   { url: "/", priority: "1.0", changefreq: "weekly" },
-  { url: "/signup", priority: "0.5", changefreq: "monthly" },
-  { url: "/mode-tournee", priority: "0.8", changefreq: "monthly" },
-  { url: "/calendrier", priority: "0.8", changefreq: "monthly" },
-  { url: "/expert-comptable", priority: "0.7", changefreq: "monthly" },
-  { url: "/installer", priority: "0.6", changefreq: "monthly" },
-  { url: "/bareme-ik-2026", priority: "0.9", changefreq: "monthly" },
   { url: "/indemnites-kilometriques", priority: "1.0", changefreq: "monthly" },
-  { url: "/indemnites-kilometriques-2027", priority: "0.8", changefreq: "monthly" },
-  { url: "/frais-reels", priority: "0.8", changefreq: "monthly" },
-  { url: "/note-de-frais-kilometrique", priority: "0.8", changefreq: "monthly" },
-  { url: "/indemnite-kilometrique-velo", priority: "0.8", changefreq: "monthly" },
-  { url: "/indemnite-grand-deplacement-2026", priority: "0.8", changefreq: "monthly" },
-  { url: "/mes-trajets", priority: "0.8", changefreq: "monthly" },
-  { url: "/tarifs", priority: "0.7", changefreq: "monthly" },
-  { url: "/lexique", priority: "0.8", changefreq: "monthly" },
-  { url: "/comparatif-izika", priority: "0.8", changefreq: "monthly" },
-  { url: "/comparatif-driversnote", priority: "0.8", changefreq: "monthly" },
+  { url: "/bareme-ik-2026", priority: "0.9", changefreq: "monthly" },
+  {
+    url: "/meilleure-application-indemnites-kilometriques",
+    priority: "0.9",
+    changefreq: "monthly",
+  },
+  { url: "/fonctionnalites", priority: "0.9", changefreq: "monthly" },
+  { url: "/frais-reels", priority: "0.9", changefreq: "monthly" },
   {
     url: "/meilleurs-outils-indemnites-kilometriques-2027",
     priority: "0.9",
     changefreq: "monthly",
   },
-  {
-    url: "/meilleure-application-indemnites-kilometriques",
-    priority: "1.0",
-    changefreq: "monthly",
-  },
-  { url: "/api-docs", priority: "0.5", changefreq: "monthly" },
-  { url: "/fonctionnalites", priority: "0.9", changefreq: "monthly" },
-  { url: "/artisans", priority: "0.8", changefreq: "monthly" },
-  { url: "/logiciel-devis-artisan", priority: "0.8", changefreq: "monthly" },
-  { url: "/independants", priority: "0.8", changefreq: "monthly" },
-
+  { url: "/indemnites-kilometriques-2027", priority: "0.8", changefreq: "monthly" },
+  { url: "/note-de-frais-kilometrique", priority: "0.8", changefreq: "monthly" },
+  { url: "/mode-tournee", priority: "0.8", changefreq: "monthly" },
+  { url: "/mes-trajets", priority: "0.8", changefreq: "monthly" },
   { url: "/blog", priority: "0.8", changefreq: "weekly" },
-  { url: "/blog/auteur/adrien-de-volontat", priority: "0.6", changefreq: "monthly" },
   { url: "/forum", priority: "0.8", changefreq: "daily" },
-  { url: "/mentions-legales", priority: "0.5", changefreq: "yearly" },
+  { url: "/calendrier", priority: "0.7", changefreq: "monthly" },
+  { url: "/lexique", priority: "0.7", changefreq: "monthly" },
+  { url: "/indemnite-kilometrique-velo", priority: "0.7", changefreq: "monthly" },
+  { url: "/indemnite-grand-deplacement-2026", priority: "0.7", changefreq: "monthly" },
+  { url: "/artisans", priority: "0.7", changefreq: "monthly" },
+  { url: "/independants", priority: "0.7", changefreq: "monthly" },
+  { url: "/expert-comptable", priority: "0.7", changefreq: "monthly" },
+  { url: "/logiciel-devis-artisan", priority: "0.7", changefreq: "monthly" },
+  { url: "/tarifs", priority: "0.7", changefreq: "monthly" },
+  { url: "/comparatif-izika", priority: "0.6", changefreq: "monthly" },
+  { url: "/comparatif-driversnote", priority: "0.6", changefreq: "monthly" },
   { url: "/contact", priority: "0.6", changefreq: "monthly" },
-  { url: "/privacy", priority: "0.5", changefreq: "yearly" },
-  { url: "/rgpd", priority: "0.5", changefreq: "yearly" },
-  { url: "/terms", priority: "0.5", changefreq: "yearly" },
+  { url: "/installer", priority: "0.6", changefreq: "monthly" },
+  { url: "/signup", priority: "0.5", changefreq: "monthly" },
+  { url: "/blog/auteur/adrien-de-volontat", priority: "0.5", changefreq: "monthly" },
+  { url: "/api-docs", priority: "0.4", changefreq: "monthly" },
+  { url: "/mentions-legales", priority: "0.3", changefreq: "yearly" },
+  { url: "/privacy", priority: "0.3", changefreq: "yearly" },
+  { url: "/rgpd", priority: "0.3", changefreq: "yearly" },
+  { url: "/terms", priority: "0.3", changefreq: "yearly" },
 ];
 
 // Dernières modifications réelles, lues depuis src/lib/page-dates.ts
@@ -127,7 +126,7 @@ function buildXml(posts) {
       return `  <url>
     <loc>${BASE_URL}/blog/${post.slug}</loc>${lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : ""}
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.6</priority>
   </url>`;
     })
     .join("\n");
