@@ -19,7 +19,10 @@
       "ios": {
         "appleId": "adriendemerville@gmail.com",
         "ascAppId": "6800895090",
-        "appleTeamId": "ZG5QHXSQXK"
+        "appleTeamId": "ZG5QHXSQXK",
+        "ascApiKeyIssuerId": "e4cee641-1e70-47d8-91dc-70ab04105360",
+        "ascApiKeyKeyId": "FTZRKBG3NH",
+        "ascApiKeyPath": "replace_path_to_p8"
       },
       "android": {
         "serviceAccountKeyPath": "./google-service-account.json",
