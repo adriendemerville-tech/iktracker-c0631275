@@ -3,7 +3,6 @@ import { LastUpdated } from "@/components/LastUpdated";
 import { DirectAnswer } from "@/components/DirectAnswer";
 import { getStaticLastModified } from "@/lib/page-dates";
 import { useState, useMemo } from "react";
-import { RelatedLinks } from "@/components/marketing/RelatedLinks";
 import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
 import { Helmet } from "@/lib/helmet-compat";
 import { Link } from "@/lib/router-compat";
