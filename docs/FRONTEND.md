@@ -1,6 +1,10 @@
 # IKTracker — Documentation Technique Frontend
 
-> Version 3.6 — 9 septembre 2026 (Persistance des layouts admin, inscription simplifiée, cache edge HTML, correctifs SEO/perf)
+> Version 3.7 — 9 septembre 2026 (Maillage interne à deux clusters SEO, pondérations sitemap)
+
+**Notes v3.7 (9 septembre 2026)**
+- **Maillage interne à deux clusters** : `src/lib/internal-linking.ts` définit deux dossiers thématiques étanches — pilier `/frais-reels` (note de frais, grand déplacement, expert-comptable, lexique) et pilier `/indemnites-kilometriques` (barèmes 2026/2027, vélo, comparatifs, meilleurs outils). Chaque satellite pointe vers son pilier et ses pages sœurs ; seuls les deux piliers se citent mutuellement. Rendu par `src/components/marketing/ClusterLinks.tsx` (au-dessus du footer sur les 13 pages concernées), qui réutilise `RelatedLinks`.
+- **Sitemap** : hiérarchie alignée sur les clusters — `1.0` home + les deux piliers, `0.9` têtes de cluster (`/bareme-ik-2026`, `/note-de-frais-kilometrique`), `0.8` satellites & pages produit, `0.7` support, `0.6` comparatifs/conversion. Synchronisé dans `src/lib/sitemap.server.ts` et `scripts/generate-sitemap.cjs` (33 pages + 86 articles régénérés).
 
 **Notes v3.6 (9 septembre 2026)**
 - **Persistance des layouts admin** : `src/hooks/useLayoutPreference.ts` — la BDD (`public.ui_layouts`, clé `(user_id, layout_key)`) est la source de vérité, `localStorage` sert de cache instantané et de migration héritée. Câblé dans `AdminStats.tsx` et `DraggableMarketingCards.tsx` ; hook rendu SSR-safe (pas d'accès `window` au premier rendu).
