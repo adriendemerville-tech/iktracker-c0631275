@@ -30,8 +30,9 @@ export const Route = createFileRoute("/")({
         href: "/logo-iktracker-250.webp",
         type: "image/webp",
         fetchPriority: "high",
-        imagesrcset: "/logo-iktracker-250.webp 1x, /logo-iktracker-250.webp 2x",
-        imagesizes: "36px",
+        // React attend la casse camelCase, sinon les attributs sont ignorés.
+        imageSrcSet: "/logo-iktracker-250.webp 1x, /logo-iktracker-250.webp 2x",
+        imageSizes: "36px",
       },
 
     ],
