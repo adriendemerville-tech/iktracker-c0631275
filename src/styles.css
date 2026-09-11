@@ -173,6 +173,22 @@
     scroll-behavior: smooth;
   }
 
+  /* Aucun scroll latéral possible, quelle que soit la largeur d'écran */
+  html,
+  body {
+    overflow-x: clip;
+    max-width: 100%;
+  }
+
+  /* Les longs libellés de boutons passent à la ligne sur mobile */
+  @media (width < 640px) {
+    button,
+    a > button,
+    [role="button"] {
+      white-space: normal;
+    }
+  }
+
   [id] {
     scroll-margin-top: 5rem;
   }
