@@ -110,11 +110,11 @@ const speculationRules = JSON.stringify({
   ],
 });
 
-const SITE_TITLE = "Calcul Gratuit IK Indemnités Kilométriques – Barème 2026";
+const SITE_TITLE = "Barème kilométrique 2026 : calcul indemnités km | IKtracker";
 const SITE_DESCRIPTION =
-  "IKtracker, outil gratuit pour automatiser vos indemnités kilométriques : mode tournée GPS, sync calendrier, frais réels, export PDF. Barème 2026.";
+  "Calculez vos indemnités kilométriques 2026 avec le barème officiel URSSAF. Suivi GPS, agenda, électrique +20%, relevés PDF. Gratuit à vie.";
 const OG_DESCRIPTION =
-  "Outil communautaire 100% gratuit : automatisation des indemnités kilométriques, mode tournée GPS, synchronisation calendrier, comparateur frais réels. Barème 2026.";
+  "Calculez vos indemnités kilométriques 2026 avec le barème officiel URSSAF. Suivi GPS, agenda, électrique +20%, relevés PDF. Gratuit à vie.";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
