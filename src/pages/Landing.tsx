@@ -161,8 +161,8 @@ const LANDING_DEFAULTS = {
   // IMPORTANT : ces valeurs doivent rester identiques à la ligne page_key='home'
   // de la table page_contents. Sinon le contenu SSR (rendu avec ces fallbacks)
   // est remplacé après hydratation par les valeurs BDD → CLS + HTML bot ≠ utilisateur.
-  hero_title: "Calcul automatisé des indemnités kilométriques",
-  hero_highlight: "Barème 2026",
+  hero_title: "Barème kilométrique 2026 : calculez vos indemnités kilométriques",
+  hero_highlight: "gratuitement",
   hero_subtitle:
     "Enregistrez, calculez et exportez gratuitement vos indemnités kilométriques en quelques clics. Outil communautaire.",
   pain_badge: "Fini les tableaux Excel",
