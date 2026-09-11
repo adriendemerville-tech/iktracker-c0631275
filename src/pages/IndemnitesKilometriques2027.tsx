@@ -157,9 +157,10 @@ export default function IndemnitesKilometriques2027() {
               2027.
             </p>
             <p>
-              En attendant, tout déplacement professionnel réalisé en 2026 se calcule au barème
-              2026 en vigueur : kilomètres × tarif selon la puissance fiscale et la tranche
-              annuelle, avec une majoration de 20 % pour les véhicules 100 % électriques.
+              En attendant, tout déplacement professionnel réalisé en 2026 se calcule au{" "}
+              <strong>barème 2026 en vigueur</strong> : kilomètres × tarif selon la puissance
+              fiscale et la tranche annuelle, avec une <strong>majoration de 20 %</strong> pour
+              les véhicules 100 % électriques.
             </p>
             <p>
               La bonne pratique est donc d'enregistrer les trajets au fil de l'eau plutôt que
