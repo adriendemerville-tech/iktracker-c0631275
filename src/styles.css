@@ -173,6 +173,13 @@
     scroll-behavior: smooth;
   }
 
+  /* Aucun scroll latéral possible, quelle que soit la largeur d'écran */
+  html,
+  body {
+    overflow-x: clip;
+    max-width: 100%;
+  }
+
   [id] {
     scroll-margin-top: 5rem;
   }
@@ -963,3 +970,17 @@ img {
 [data-survey-size] .text-sm { font-size: calc(0.875rem * var(--survey-scale, 1)); }
 [data-survey-size] .text-base { font-size: calc(1rem * var(--survey-scale, 1)); }
 [data-survey-size] .text-lg { font-size: calc(1.125rem * var(--survey-scale, 1)); }
+
+/* Non layered: prend le pas sur les utilitaires whitespace-nowrap.
+   Sur mobile, les longs libellés de boutons passent à la ligne au lieu de déborder. */
+@media (width < 640px) {
+  button,
+  a > button,
+  [role="button"] {
+    white-space: normal;
+    max-width: 100%;
+    height: auto;
+    min-height: 2.75rem;
+    padding-block: 0.5rem;
+  }
+}
