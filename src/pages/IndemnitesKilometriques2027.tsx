@@ -150,8 +150,9 @@ export default function IndemnitesKilometriques2027() {
 
           <DirectAnswer question="Le barème kilométrique 2027 est-il publié, et quel barème appliquer en attendant ?">
             <p>
-              Non : au moment de la mise à jour de cette page, le barème kilométrique 2027 n'a pas
-              encore été publié par la DGFiP. Il paraît traditionnellement par arrêté au Journal
+              Non : au moment de la mise à jour de cette page, le{" "}
+              <strong>barème kilométrique 2027 n'a pas encore été publié</strong> par la DGFiP. Il
+              paraît traditionnellement par arrêté au Journal
               officiel entre mars et avril, pour la déclaration de revenus de l'année précédente,
               et s'applique rétroactivement à tous les trajets effectués depuis le 1er janvier
               2027.
