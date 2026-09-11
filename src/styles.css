@@ -979,5 +979,8 @@ img {
   [role="button"] {
     white-space: normal;
     max-width: 100%;
+    height: auto;
+    min-height: 2.75rem;
+    padding-block: 0.5rem;
   }
 }
