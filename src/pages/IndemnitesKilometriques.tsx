@@ -214,8 +214,9 @@ export default function IndemnitesKilometriques() {
           </h1>
           {PAGE_LASTMOD ? <LastUpdated date={PAGE_LASTMOD} className="mt-2 mb-4" /> : null}
           <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
-            Définition, barème officiel DGFiP par puissance fiscale, méthode de calcul, majoration
-            de 20 % pour les véhicules électriques et justificatifs exigés en cas de contrôle.
+            Définition, barème officiel DGFiP par puissance fiscale, méthode de calcul,{" "}
+            <strong className="text-foreground">majoration de 20 %</strong> pour les véhicules
+            électriques et justificatifs exigés en cas de contrôle.
             <strong className="text-foreground"> Simulateur gratuit, sans inscription.</strong>
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
