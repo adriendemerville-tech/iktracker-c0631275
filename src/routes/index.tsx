@@ -4,7 +4,7 @@ import { getRegisteredUserCount } from "@/lib/user-count.functions";
 import { getPublicTripStats } from "@/lib/trip-stats.functions";
 import { HOME_JSON_LD_SCRIPTS } from "@/lib/home-schemas";
 
-const TITLE = "IKtracker — Calcul indemnités kilométriques 2026 | Barème officiel";
+const TITLE = "Barème kilométrique 2026 : calcul indemnités km | IKtracker";
 const DESCRIPTION =
   "Calculez vos indemnités kilométriques 2026 avec le barème officiel URSSAF. Suivi GPS, agenda, électrique +20%, relevés PDF. Gratuit à vie.";
 
