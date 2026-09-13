@@ -79,7 +79,27 @@ function Stars({ count }: { count: number }) {
   );
 }
 
-function TestimonialsCarouselComponent() {
+export interface PublicReviewItem {
+  id: string;
+  rating: number;
+  content: string;
+  author: string;
+  company: string;
+  job: string | null;
+  city: string | null;
+}
+
+function TestimonialsCarouselComponent({ reviews = [] }: { reviews?: PublicReviewItem[] }) {
+  // Les avis réels validés passent devant ; les témoignages fixes complètent.
+  const realOnes: Testimonial[] = reviews.map((r) => ({
+    quote: r.content,
+    name: `${r.author} — ${r.company}`,
+    job: r.job || "Utilisateur IKtracker",
+    city: r.city || "France",
+    stars: (r.rating >= 4.5 ? 5 : 4) as 4 | 5,
+  }));
+  const items: Testimonial[] =
+    realOnes.length >= 6 ? realOnes : [...realOnes, ...testimonials].slice(0, 7);
   const [current, setCurrent] = useState(0);
   // SSR : on rend toujours la variante 3 colonnes, le passage à 1 colonne se fait
   // après hydratation pour éviter tout mismatch (le composant est désormais rendu côté serveur).
@@ -90,7 +110,7 @@ function TestimonialsCarouselComponent() {
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
   }, []);
-  const maxIndex = testimonials.length - visibleCount;
+  const maxIndex = Math.max(0, items.length - visibleCount);
 
 
   useEffect(() => {
@@ -121,7 +141,7 @@ function TestimonialsCarouselComponent() {
               className="flex transition-transform duration-500 ease-out"
               style={{ transform: `translateX(-${current * (100 / visibleCount)}%)` }}
             >
-              {testimonials.map((t, i) => (
+              {items.map((t, i) => (
                 <div
                   key={i}
                   className="flex-shrink-0 px-2 md:px-3"

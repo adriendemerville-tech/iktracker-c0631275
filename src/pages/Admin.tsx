@@ -56,6 +56,7 @@ import {
   Sparkles,
   Github,
   MessagesSquare,
+  Star,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -89,6 +90,7 @@ const AdminApiPartners = lazyRetry(() => import("@/components/admin/AdminApiPart
 const AdminWavespeed = lazyRetry(() => import("@/components/admin/AdminWavespeed").then((m) => ({ default: m.AdminWavespeed })), "AdminWavespeed");
 const AdminLinkedIn = lazyRetry(() => import("@/components/admin/AdminLinkedIn").then((m) => ({ default: m.AdminLinkedIn })), "AdminLinkedIn");
 const AdminForum = lazyRetry(() => import("@/components/admin/AdminForum").then((m) => ({ default: m.AdminForum })), "AdminForum");
+const AdminReviews = lazyRetry(() => import("@/components/admin/AdminReviews"), "AdminReviews");
 const AdminContentFreshness = lazyRetry(() => import("@/components/admin/AdminContentFreshness").then((m) => ({ default: m.AdminContentFreshness })), "AdminContentFreshness");
 const AdminGitHubActions = lazyRetry(() => import("@/components/admin/AdminGitHubActions").then((m) => ({ default: m.AdminGitHubActions })), "AdminGitHubActions");
 
@@ -750,6 +752,10 @@ const Admin = () => {
                 <MessagesSquare className="w-4 h-4" />
                 <span className="hidden sm:inline">Forum</span>
               </TabsTrigger>
+              <TabsTrigger value="reviews" className="flex items-center gap-1 text-xs sm:text-sm">
+                <Star className="w-4 h-4" />
+                <span className="hidden sm:inline">Avis publics</span>
+              </TabsTrigger>
               {adminRole !== "viewer" && (
                 <TabsTrigger value="surveys" className="flex items-center gap-1 text-xs sm:text-sm">
                   <BarChart3 className="w-4 h-4" />
@@ -1377,6 +1383,10 @@ const Admin = () => {
             {/* Surveys Tab */}
             <TabsContent value="forum">
               <AdminForum />
+            </TabsContent>
+
+            <TabsContent value="reviews">
+              <AdminReviews />
             </TabsContent>
 
             <TabsContent value="surveys">

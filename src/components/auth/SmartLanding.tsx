@@ -2,11 +2,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { Navigate, useLocation } from "@/lib/router-compat";
 import { useHydrated } from "@tanstack/react-router";
 import Landing from "@/pages/Landing";
+import type { PublicReviewItem } from "@/components/marketing/TestimonialsCarousel";
 
 interface SmartLandingProps {
   initialUserCount?: number;
   initialTripCount?: number;
   initialTotalKm?: number;
+  reviews?: PublicReviewItem[];
 }
 
 // Les points d'entrée publics ("/", "/auth", "/signup") doivent rendre du vrai HTML
@@ -17,6 +19,7 @@ export const SmartLanding = ({
   initialUserCount,
   initialTripCount,
   initialTotalKm,
+  reviews,
 }: SmartLandingProps) => {
   const { user, loading } = useAuth();
   const location = useLocation();
@@ -32,6 +35,7 @@ export const SmartLanding = ({
       initialUserCount={initialUserCount}
       initialTripCount={initialTripCount}
       initialTotalKm={initialTotalKm}
+      reviews={reviews}
     />
   );
 };

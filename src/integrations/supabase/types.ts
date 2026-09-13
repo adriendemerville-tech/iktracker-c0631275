@@ -2253,6 +2253,57 @@ export type Database = {
         }
         Relationships: []
       }
+      reviews: {
+        Row: {
+          city: string | null
+          company: string
+          content: string
+          created_at: string
+          first_name: string
+          id: string
+          job: string | null
+          last_name: string
+          moderation_note: string | null
+          published_at: string | null
+          rating: number
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          city?: string | null
+          company: string
+          content: string
+          created_at?: string
+          first_name: string
+          id?: string
+          job?: string | null
+          last_name: string
+          moderation_note?: string | null
+          published_at?: string | null
+          rating: number
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          city?: string | null
+          company?: string
+          content?: string
+          created_at?: string
+          first_name?: string
+          id?: string
+          job?: string | null
+          last_name?: string
+          moderation_note?: string | null
+          published_at?: string | null
+          rating?: number
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       seo_redirects: {
         Row: {
           created_at: string

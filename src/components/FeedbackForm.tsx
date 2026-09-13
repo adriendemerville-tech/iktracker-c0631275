@@ -34,6 +34,7 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+import { StarRatingInput } from "@/components/StarRatingInput";
 
 const MAX_CHARS = 700;
 
@@ -46,6 +47,12 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
   const [message, setMessage] = useState("");
   const [rating, setRating] = useState<number>(0);
   const [hoverRating, setHoverRating] = useState<number>(0);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [company, setCompany] = useState("");
+  const [jobTitle, setJobTitle] = useState("");
+  const [city, setCity] = useState("");
+  const [wantsPublish, setWantsPublish] = useState(false);
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -226,9 +233,37 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
         throw new Error("Erreur lors de l'envoi de votre avis");
       }
 
+      // Avis publiable : note >= 3,5 + identité complète + accord explicite.
+      const canPublish =
+        wantsPublish &&
+        rating >= 3.5 &&
+        firstName.trim().length > 1 &&
+        lastName.trim().length > 1 &&
+        company.trim().length > 1 &&
+        message.trim().length >= 10;
+
+      let queuedForPublication = false;
+      if (canPublish) {
+        const { error: reviewError } = await (supabase.from("reviews" as any) as any).insert({
+          user_id: user.id,
+          rating,
+          content: message.trim(),
+          first_name: firstName.trim(),
+          last_name: lastName.trim(),
+          company: company.trim(),
+          job: jobTitle.trim() || null,
+          city: city.trim() || null,
+          status: "pending",
+        });
+        if (reviewError) console.error("Review insert error:", reviewError);
+        else queuedForPublication = true;
+      }
+
       toast({
         title: "Merci pour votre avis !",
-        description: "Votre retour nous aide à améliorer l'application",
+        description: queuedForPublication
+          ? "Votre avis sera publié sur le site après validation."
+          : "Votre retour nous aide à améliorer l'application",
       });
 
       setMessage("");
@@ -237,6 +272,7 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
       setWantsCall(false);
       setPhoneNumber("");
       setRating(0);
+      setWantsPublish(false);
     } catch (error: any) {
       toast({
         title: "Erreur",
@@ -319,32 +355,63 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
             )}
 
             {/* Star rating */}
-            <div className="space-y-2">
-              <p className="text-sm font-medium">Votre note (optionnel)</p>
-              <div className="flex items-center gap-1" onMouseLeave={() => setHoverRating(0)}>
-                {[1, 2, 3, 4, 5].map((n) => (
-                  <button
-                    key={n}
-                    type="button"
-                    onClick={() => setRating(n === rating ? 0 : n)}
-                    onMouseEnter={() => setHoverRating(n)}
-                    className="p-1 hover:scale-110 transition-transform"
-                    aria-label={`Noter ${n} étoile${n > 1 ? "s" : ""}`}
-                  >
-                    <Star
-                      className={cn(
-                        "w-6 h-6 transition-colors",
-                        n <= (hoverRating || rating)
-                          ? "fill-amber-400 text-amber-400"
-                          : "text-muted-foreground/40",
-                      )}
+            <div className="space-y-2 rounded-lg border bg-muted/30 p-3">
+              <p className="text-sm font-medium">Notez IKtracker pour le faire connaître</p>
+              <p className="text-xs text-muted-foreground">
+                Une tape sur une étoile = une demi-étoile, deux tapes = l'étoile entière.
+              </p>
+              <StarRatingInput value={rating} onChange={setRating} />
+
+              {rating >= 3.5 && (
+                <div className="space-y-2 pt-2">
+                  <p className="text-xs text-muted-foreground">
+                    Pour publier votre avis sur le site, renseignez votre identité et votre société.
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <Input
+                      placeholder="Prénom"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value.slice(0, 60))}
+                      className="cursor-text select-text"
                     />
-                  </button>
-                ))}
-                {rating > 0 && (
-                  <span className="ml-2 text-sm text-muted-foreground">{rating}/5</span>
-                )}
-              </div>
+                    <Input
+                      placeholder="Nom"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value.slice(0, 60))}
+                      className="cursor-text select-text"
+                    />
+                    <Input
+                      placeholder="Nom commercial de la société"
+                      value={company}
+                      onChange={(e) => setCompany(e.target.value.slice(0, 80))}
+                      className="cursor-text select-text"
+                    />
+                    <Input
+                      placeholder="Métier (optionnel)"
+                      value={jobTitle}
+                      onChange={(e) => setJobTitle(e.target.value.slice(0, 60))}
+                      className="cursor-text select-text"
+                    />
+                    <Input
+                      placeholder="Ville (optionnel)"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value.slice(0, 60))}
+                      className="cursor-text select-text"
+                    />
+                  </div>
+                  <div className="flex items-start gap-3 pt-1">
+                    <Checkbox
+                      id="publish-review"
+                      checked={wantsPublish}
+                      onCheckedChange={(c) => setWantsPublish(c === true)}
+                    />
+                    <label htmlFor="publish-review" className="text-xs leading-relaxed cursor-pointer">
+                      J'autorise la publication de mon avis (prénom, initiale du nom, société) sur
+                      le site. Publication après validation.
+                    </label>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* New message form */}
