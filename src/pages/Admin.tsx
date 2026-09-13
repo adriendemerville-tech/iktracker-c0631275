@@ -89,6 +89,7 @@ const AdminApiPartners = lazyRetry(() => import("@/components/admin/AdminApiPart
 const AdminWavespeed = lazyRetry(() => import("@/components/admin/AdminWavespeed").then((m) => ({ default: m.AdminWavespeed })), "AdminWavespeed");
 const AdminLinkedIn = lazyRetry(() => import("@/components/admin/AdminLinkedIn").then((m) => ({ default: m.AdminLinkedIn })), "AdminLinkedIn");
 const AdminForum = lazyRetry(() => import("@/components/admin/AdminForum").then((m) => ({ default: m.AdminForum })), "AdminForum");
+const AdminReviews = lazyRetry(() => import("@/components/admin/AdminReviews"), "AdminReviews");
 const AdminContentFreshness = lazyRetry(() => import("@/components/admin/AdminContentFreshness").then((m) => ({ default: m.AdminContentFreshness })), "AdminContentFreshness");
 const AdminGitHubActions = lazyRetry(() => import("@/components/admin/AdminGitHubActions").then((m) => ({ default: m.AdminGitHubActions })), "AdminGitHubActions");
 
