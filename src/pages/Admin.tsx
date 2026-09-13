@@ -56,6 +56,7 @@ import {
   Sparkles,
   Github,
   MessagesSquare,
+  Star,
 } from "lucide-react";
 import {
   AlertDialog,
