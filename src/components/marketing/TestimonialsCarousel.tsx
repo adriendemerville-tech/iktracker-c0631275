@@ -110,7 +110,7 @@ function TestimonialsCarouselComponent({ reviews = [] }: { reviews?: PublicRevie
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
   }, []);
-  const maxIndex = testimonials.length - visibleCount;
+  const maxIndex = Math.max(0, items.length - visibleCount);
 
 
   useEffect(() => {
