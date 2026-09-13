@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SmartLanding } from "@/components/auth/SmartLanding";
 import { getRegisteredUserCount } from "@/lib/user-count.functions";
 import { getPublicTripStats } from "@/lib/trip-stats.functions";
+import { getPublishedReviews } from "@/lib/reviews.functions";
 import { HOME_JSON_LD_SCRIPTS } from "@/lib/home-schemas";
 
 const TITLE = "Barème kilométrique 2026 : calcul indemnités km | IKtracker";
@@ -41,19 +42,21 @@ export const Route = createFileRoute("/")({
   }),
   loader: async () => {
     try {
-      const [userResult, tripResult] = await Promise.all([
+      const [userResult, tripResult, reviews] = await Promise.all([
         getRegisteredUserCount(),
         getPublicTripStats(),
+        getPublishedReviews(),
       ]);
       return {
         count: userResult.count,
         offset: userResult.offset,
         tripCount: tripResult.tripCount,
         totalKm: tripResult.totalKm,
+        reviews,
       };
     } catch (err) {
       console.error("Failed to load homepage stats:", err);
-      return { count: 1000, offset: 1000, tripCount: 0, totalKm: 0 };
+      return { count: 1000, offset: 1000, tripCount: 0, totalKm: 0, reviews: [] };
     }
   },
   component: () => {
@@ -63,6 +66,7 @@ export const Route = createFileRoute("/")({
         initialUserCount={data?.count ?? 1000}
         initialTripCount={data?.tripCount ?? 0}
         initialTotalKm={data?.totalKm ?? 0}
+        reviews={data?.reviews ?? []}
       />
     );
   },

@@ -16,7 +16,7 @@ import { Counter } from "@/components/Counter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PdfReportMockup } from "@/components/marketing/PdfReportMockup";
 // Import statique volontaire : contenu texte indexable, doit être dans le HTML SSR de "/".
-import { TestimonialsCarousel } from "@/components/marketing/TestimonialsCarousel";
+import { TestimonialsCarousel, type PublicReviewItem } from "@/components/marketing/TestimonialsCarousel";
 
 
 import {
@@ -199,7 +199,7 @@ const LANDING_DEFAULTS = {
 // useLayoutEffect côté client (applique le swap avant le paint), useEffect côté serveur.
 const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
-const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: LandingProps) => {
+const Landing = ({ initialUserCount, initialTripCount, initialTotalKm, reviews }: LandingProps) => {
   const { count: liveUserCount } = useLiveUserCount({ initialCount: initialUserCount });
   const { tripCount: liveTripCount, totalKm: liveTotalKm } = useLiveTripStats({
     initialTripCount,
@@ -522,7 +522,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm }: Landing
         </section>
 
         {/* Testimonials — rendu SSR (contenu texte indexable) */}
-        <TestimonialsCarousel />
+        <TestimonialsCarousel reviews={reviews} />
 
 
         {/* Statistics Section - Independent Workers */}
