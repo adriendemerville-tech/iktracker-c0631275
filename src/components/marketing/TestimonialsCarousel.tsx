@@ -141,7 +141,7 @@ function TestimonialsCarouselComponent({ reviews = [] }: { reviews?: PublicRevie
               className="flex transition-transform duration-500 ease-out"
               style={{ transform: `translateX(-${current * (100 / visibleCount)}%)` }}
             >
-              {testimonials.map((t, i) => (
+              {items.map((t, i) => (
                 <div
                   key={i}
                   className="flex-shrink-0 px-2 md:px-3"
