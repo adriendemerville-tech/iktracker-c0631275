@@ -1380,6 +1380,10 @@ const Admin = () => {
               <AdminForum />
             </TabsContent>
 
+            <TabsContent value="reviews">
+              <AdminReviews />
+            </TabsContent>
+
             <TabsContent value="surveys">
               <AdminSurveys />
             </TabsContent>
