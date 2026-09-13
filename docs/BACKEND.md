@@ -1,6 +1,11 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 4.6.14 — 9 septembre 2026
+> Version 4.6.15 — 11 septembre 2026
+
+**Notes v4.6.15 (avis publics notés, 11 septembre 2026)**
+- **Nouvelle table `public.reviews`** : `user_id`, `rating` (0,5 → 5 par pas de 0,5, contrainte CHECK), `content` (10-700 car.), `first_name`, `last_name`, `company`, `job`, `city`, `status` (`pending`/`published`/`rejected`), `published_at`, `moderation_note`, timestamps. GRANT `anon` (SELECT), `authenticated` (CRUD), `service_role`. RLS : lecture publique des avis `published`, lecture/création de ses propres avis (statut forcé `pending`), modération complète via `has_role(auth.uid(), 'admin')`. Index `(status, published_at DESC)` + `(user_id)`, trigger `update_updated_at_column`.
+- **`get_aggregate_rating()` réécrite** : moyenne et nombre des avis `published` (arrondi 0,1) ; repli sur `4.8 / 127` tant qu'il y a moins de 5 avis publiés (conformité Google).
+- **Front** : `src/lib/reviews.functions.ts` (server functions publiques `getPublishedReviews`, `getAggregateRating` via client publishable) ; collecte dans `FeedbackForm.tsx` (`StarRatingInput` demi-étoiles) ; modération dans `src/components/admin/AdminReviews.tsx` (onglet « Avis publics »).
 
 **Notes v4.6.14 (persistance des layouts admin, assouplissement inscription, 9 septembre 2026)**
 - **Nouvelle table `public.ui_layouts`** : stockage JSONB de l'agencement des widgets (`user_id`, `layout_key` unique par utilisateur, `layout`, timestamps). RLS active, policy propriétaire (`auth.uid() = user_id`), GRANT `authenticated` + `service_role`, trigger `update_updated_at_column`. Consommée par `src/hooks/useLayoutPreference.ts` (DB source de vérité, localStorage en cache immédiat).
