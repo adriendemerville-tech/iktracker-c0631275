@@ -41,6 +41,7 @@ interface LandingProps {
   initialUserCount?: number;
   initialTripCount?: number;
   initialTotalKm?: number;
+  reviews?: PublicReviewItem[];
 }
 
 // Lazy load AuthForm — chunk préchargé dès l'évaluation du module (parallèle à l'hydratation)
