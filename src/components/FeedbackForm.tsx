@@ -46,6 +46,12 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
   const [message, setMessage] = useState("");
   const [rating, setRating] = useState<number>(0);
   const [hoverRating, setHoverRating] = useState<number>(0);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [company, setCompany] = useState("");
+  const [jobTitle, setJobTitle] = useState("");
+  const [city, setCity] = useState("");
+  const [wantsPublish, setWantsPublish] = useState(false);
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
