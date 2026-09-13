@@ -34,6 +34,7 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+import { StarRatingInput } from "@/components/StarRatingInput";
 
 const MAX_CHARS = 700;
 
