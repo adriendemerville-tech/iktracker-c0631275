@@ -133,7 +133,11 @@ function Cell({ v }: { v: any }) {
   return <span className="text-sm">{v}</span>;
 }
 
-const MeilleureApplicationIK = () => {
+const MeilleureApplicationIK = ({
+  aggregateRating,
+}: {
+  aggregateRating?: { ratingValue: number; reviewCount: number };
+} = {}) => {
   const { user, loading } = useAuthLazy();
   const { trackCTAClick } = useMarketingTracker("meilleure-application-ik");
 
@@ -180,8 +184,8 @@ const MeilleureApplicationIK = () => {
     },
     aggregateRating: {
       "@type": "AggregateRating",
-      ratingValue: "4.8",
-      reviewCount: "128",
+      ratingValue: String(aggregateRating?.ratingValue ?? 4.8),
+      reviewCount: String(aggregateRating?.reviewCount ?? 128),
       bestRating: "5",
     },
     featureList: KEY_FACTS.map((f) => `${f.label}: ${f.value}`),

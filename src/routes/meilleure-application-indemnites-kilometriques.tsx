@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import MeilleureApplicationIK from "@/pages/MeilleureApplicationIK";
+import { getAggregateRating } from "@/lib/reviews.functions";
 
 export const Route = createFileRoute("/meilleure-application-indemnites-kilometriques")({
   head: () => {
@@ -35,5 +36,10 @@ export const Route = createFileRoute("/meilleure-application-indemnites-kilometr
     };
   },
 
-  component: MeilleureApplicationIK,
+  loader: async () => ({ aggregateRating: await getAggregateRating() }),
+
+  component: () => {
+    const data = Route.useLoaderData();
+    return <MeilleureApplicationIK aggregateRating={data?.aggregateRating} />;
+  },
 });
