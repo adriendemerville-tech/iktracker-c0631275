@@ -233,9 +233,37 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
         throw new Error("Erreur lors de l'envoi de votre avis");
       }
 
+      // Avis publiable : note >= 3,5 + identité complète + accord explicite.
+      const canPublish =
+        wantsPublish &&
+        rating >= 3.5 &&
+        firstName.trim().length > 1 &&
+        lastName.trim().length > 1 &&
+        company.trim().length > 1 &&
+        message.trim().length >= 10;
+
+      let queuedForPublication = false;
+      if (canPublish) {
+        const { error: reviewError } = await (supabase.from("reviews" as any) as any).insert({
+          user_id: user.id,
+          rating,
+          content: message.trim(),
+          first_name: firstName.trim(),
+          last_name: lastName.trim(),
+          company: company.trim(),
+          job: jobTitle.trim() || null,
+          city: city.trim() || null,
+          status: "pending",
+        });
+        if (reviewError) console.error("Review insert error:", reviewError);
+        else queuedForPublication = true;
+      }
+
       toast({
         title: "Merci pour votre avis !",
-        description: "Votre retour nous aide à améliorer l'application",
+        description: queuedForPublication
+          ? "Votre avis sera publié sur le site après validation."
+          : "Votre retour nous aide à améliorer l'application",
       });
 
       setMessage("");
@@ -244,6 +272,7 @@ export const FeedbackForm = ({ hasNotification = false }: FeedbackFormProps) => 
       setWantsCall(false);
       setPhoneNumber("");
       setRating(0);
+      setWantsPublish(false);
     } catch (error: any) {
       toast({
         title: "Erreur",
