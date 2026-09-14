@@ -83,6 +83,11 @@ export const Route = createFileRoute("/blog/$slug")({
         { property: "article:published_time", content: publishedAt },
         { property: "article:modified_time", content: modifiedAt },
         { property: "article:section", content: "Indemnités kilométriques" },
+        {
+          property: "article:author",
+          content: (post.author_name as string | null) || "IKtracker",
+        },
+        { name: "author", content: (post.author_name as string | null) || "IKtracker" },
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:title", content: title },
         { name: "twitter:description", content: description },
