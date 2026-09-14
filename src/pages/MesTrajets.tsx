@@ -7,7 +7,7 @@ import {
   Location as TripLocation,
   TourStopData,
   getIKBareme,
-  IK_BAREME_2024,
+  IK_BAREME_2026,
   calculateTotalAnnualIK,
 } from "@/types/trip";
 import { TripCard } from "@/components/TripCard";
@@ -586,7 +586,7 @@ ${IKTRACKER_MENTION}
     rows.push([]);
     rows.push(["Barème kilométrique fiscal 2026"]);
     rows.push(["CV", "Jusqu'à 5000 km", "5001 à 20000 km", "Au-delà de 20000 km"]);
-    IK_BAREME_2024.forEach((b) => {
+    IK_BAREME_2026.forEach((b) => {
       rows.push([
         b.cv === "7+" ? "7 CV et plus" : `${b.cv} CV`,
         `d × ${b.upTo5000.rate}`,
@@ -1499,7 +1499,7 @@ ${IKTRACKER_URL}`;
               <div className="overflow-hidden">
                 <div className="border-t border-border p-4">
                   <div className="text-xs text-muted-foreground space-y-1">
-                    {IK_BAREME_2024.map((b) => (
+                    {IK_BAREME_2026.map((b) => (
                       <div key={b.cv} className="flex justify-between">
                         <span>{b.cv === "7+" ? "7 CV et +" : `${b.cv} CV`}</span>
                         <span>{b.upTo5000.rate} €/km (≤5000km)</span>

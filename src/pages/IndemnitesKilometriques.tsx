@@ -24,7 +24,7 @@ import {
   FOUNDER_PERSON,
   ORGANIZATION_ID,
 } from "@/lib/seo-schemas";
-import { IK_BAREME_2024 } from "@/types/trip";
+import { IK_BAREME_2026 } from "@/types/trip";
 import {
   ArrowRight,
   Calculator,
@@ -332,7 +332,7 @@ export default function IndemnitesKilometriques() {
                 </tr>
               </thead>
               <tbody>
-                {IK_BAREME_2024.map((row) => (
+                {IK_BAREME_2026.map((row) => (
                   <tr key={row.cv} className="border-t border-border">
                     <th scope="row" className="text-left p-3 font-medium text-foreground">
                       {row.cv === "7+" ? "7 CV et plus" : `${row.cv} CV`}

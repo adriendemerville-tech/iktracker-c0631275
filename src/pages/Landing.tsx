@@ -19,7 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 // Barème officiel partagé — import statique volontaire : contenu indexable, doit être dans le HTML SSR de "/".
-import { IK_BAREME_2024 } from "@/types/trip";
+import { IK_BAREME_2026 } from "@/types/trip";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
@@ -513,7 +513,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm, reviews }
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {IK_BAREME_2024.map((row, index) => (
+                    {IK_BAREME_2026.map((row, index) => (
                       <TableRow
                         key={row.cv}
                         className={index % 2 === 0 ? "bg-background" : "bg-muted/20"}

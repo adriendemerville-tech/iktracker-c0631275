@@ -64,7 +64,7 @@ export interface IKBareme {
   over20000: { rate: number };
 }
 
-export const IK_BAREME_2024: IKBareme[] = [
+export const IK_BAREME_2026: IKBareme[] = [
   {
     cv: "3",
     upTo5000: { rate: 0.529 },
@@ -98,11 +98,11 @@ export const IK_BAREME_2024: IKBareme[] = [
 ];
 
 export function getIKBareme(fiscalPower: number): IKBareme {
-  if (fiscalPower <= 3) return IK_BAREME_2024[0];
-  if (fiscalPower === 4) return IK_BAREME_2024[1];
-  if (fiscalPower === 5) return IK_BAREME_2024[2];
-  if (fiscalPower === 6) return IK_BAREME_2024[3];
-  return IK_BAREME_2024[4]; // 7 CV et plus
+  if (fiscalPower <= 3) return IK_BAREME_2026[0];
+  if (fiscalPower === 4) return IK_BAREME_2026[1];
+  if (fiscalPower === 5) return IK_BAREME_2026[2];
+  if (fiscalPower === 6) return IK_BAREME_2026[3];
+  return IK_BAREME_2026[4]; // 7 CV et plus
 }
 
 export type IKRateOverride = "auto" | "tier2" | "tier3";
