@@ -148,4 +148,59 @@ export const BLOG_SLUG_REDIRECTS: Record<string, string> = {
     "/blog/7-erreurs-courantes-indemnite-kilometrique-a-eviter",
   "suivi-kilometrique-les-7-astuces-des-professionnels-pour-eviter-un-redressement-":
     "/blog/7-erreurs-courantes-indemnite-kilometrique-a-eviter",
+
+  // Slugs supprimés (statut `deleted`) — évite les soft 404 (septembre 2026)
+  "bareme-indemnites-kilometriques-2026": "/bareme-ik-2026",
+  "bareme-indemnites-kilometriques-2026-calcul-declaration": "/bareme-ik-2026",
+  "bareme-kilometrique-2026-calcul-declaration": "/bareme-ik-2026",
+  "bareme-kilometrique-2026-calcul-nouveautes": "/bareme-ik-2026",
+  "bareme-kilometrique-2026-changements-declaration": "/bareme-ik-2026",
+  "bareme-kilometrique-2026-decrypte-calculs-optimisation-et-conformite": "/bareme-ik-2026",
+  "bareme-kilometrique-vs-frais-reels-2026":
+    "/blog/frais-reels-ou-forfait-optimisation-impots-2026",
+  "frais-kilometriques-2026-bareme-calcul-declaration": "/indemnites-kilometriques",
+  "frais-kilometriques-2026-baremes-obligations-nouveautes": "/indemnites-kilometriques",
+  "frais-kilometriques-guide-calcul-declaration-2026": "/indemnites-kilometriques",
+  "guide-indemnites-kilometriques-2026": "/indemnites-kilometriques",
+  "guide-optimisation-frais-kilometriques-2026": "/indemnites-kilometriques",
+  "indemnites-kilometriques-2026-guide-complet": "/indemnites-kilometriques",
+  "optimiser-deduction-frais-kilometriques-professionnels-liberaux-2026":
+    "/indemnites-kilometriques",
+  "suivi-frais-kilometriques-manuel-vs-automatique-2026": "/indemnites-kilometriques",
+  "loi-finances-2026-indemnites-kilometriques-changements": "/bareme-ik-2026",
+  "frais-reels-forfait-impots-independants-2026":
+    "/blog/frais-reels-ou-forfait-optimisation-impots-2026",
+  "frais-reels-impots-abattement-forfaitaire-guide-comparatif-2026":
+    "/blog/frais-reels-ou-abattement-choisir",
+  "frais-reels-impots-guide-declaration-2026":
+    "/blog/frais-reels-ou-forfait-optimisation-impots-2026",
+  "frais-reels-impots-independants-comparatif-2026":
+    "/blog/frais-reels-ou-forfait-optimisation-impots-2026",
+  "frais-reels-ou-abattement-forfaitaire-2026": "/blog/frais-reels-ou-abattement-choisir",
+  "frais-reels-ou-forfait-comparatif-2026":
+    "/blog/frais-reels-ou-forfait-optimisation-impots-2026",
+  "frais-reels-ou-forfait-comparatif-impots-2026":
+    "/blog/frais-reels-ou-forfait-optimisation-impots-2026",
+  "frais-reels-ou-forfait-impots-independants-2026":
+    "/blog/frais-reels-ou-forfait-optimisation-impots-2026",
+  "frais-reels-ou-forfait-independant-2026":
+    "/blog/frais-reels-ou-forfait-optimisation-impots-2026",
+  "frais-reels-ou-forfait-independant-impots-2026":
+    "/blog/frais-reels-ou-forfait-optimisation-impots-2026",
+  "frais-reels-ou-forfait-independants-2026":
+    "/blog/frais-reels-ou-forfait-optimisation-impots-2026",
+  "frais-reels-ou-regime-micro-independants-2026":
+    "/blog/frais-reels-ou-abattement-choisir",
+  "frais-reels-vs-abattement-forfaitaire-independant": "/blog/frais-reels-ou-abattement-choisir",
+  "frais-reels-vs-bareme-kilometrique-choix-optimisation-impots-2026":
+    "/blog/frais-reels-ou-forfait-optimisation-impots-2026",
+  "frais-reels-vs-forfait-independant-2026":
+    "/blog/frais-reels-ou-forfait-optimisation-impots-2026",
+  "frais-reels-vs-forfait-independants":
+    "/blog/frais-reels-ou-forfait-optimisation-impots-2026",
+  "frais-reels-vs-micro-entreprise-independant": "/blog/frais-reels-ou-abattement-choisir",
+  "indemnite-kilometrique-evitez-les-7-erreurs-critiques-qui-provoquent-des-redress":
+    "/blog/7-erreurs-courantes-indemnite-kilometrique-a-eviter",
+  "indemnite-kilometrique-les-7-regles-d-or-d-un-suivi-conforme-pour-eviter-un-redr":
+    "/blog/controle-urssaf-frais-kilometriques-2026",
 };
