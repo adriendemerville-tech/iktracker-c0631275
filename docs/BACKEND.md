@@ -1,6 +1,12 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 4.6.15 — 11 septembre 2026
+> Version 4.6.16 — 14 septembre 2026
+
+**Notes v4.6.16 (fin des soft 404 blog, 14 septembre 2026)**
+- **`supabase/functions/_shared/blog-redirects.ts`** : +35 slugs `deleted` (clusters barème, frais réels, guides IK) → 301 vers `/bareme-ik-2026`, `/indemnites-kilometriques` ou les articles piliers. Total 103 redirections, miroir Worker régénéré (`scripts/sync-blog-redirects.cjs`) et validé.
+- **`blog_posts`** : 3 articles encore `published` mais déjà présents dans la map de redirection (`7-etapes-du-calcul-...`, `calculer-indemnites-kilometriques-2026-guide`, `dossier-ik-2026-l-art-de-blinder-...`) passés en `archived` — ils étaient listés au sitemap tout en étant 301.
+- **Sitemap** régénéré : 33 pages + 84 articles (117 URLs). `meta-renderer` redéployée. Aucun lien interne vers un slug mort. 320/320 tests.
+
 
 **Notes v4.6.15 (avis publics notés, 11 septembre 2026)**
 - **Nouvelle table `public.reviews`** : `user_id`, `rating` (0,5 → 5 par pas de 0,5, contrainte CHECK), `content` (10-700 car.), `first_name`, `last_name`, `company`, `job`, `city`, `status` (`pending`/`published`/`rejected`), `published_at`, `moderation_note`, timestamps. GRANT `anon` (SELECT), `authenticated` (CRUD), `service_role`. RLS : lecture publique des avis `published`, lecture/création de ses propres avis (statut forcé `pending`), modération complète via `has_role(auth.uid(), 'admin')`. Index `(status, published_at DESC)` + `(user_id)`, trigger `update_updated_at_column`.
