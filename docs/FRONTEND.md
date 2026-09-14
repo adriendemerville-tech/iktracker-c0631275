@@ -122,7 +122,7 @@
 | TanStack Router | 1 | Routing file-based (`src/routes/`) |
 | TanStack Query | 5 | Data fetching & cache |
 | Framer Motion | - | Animations |
-| Helmet Async | - | SEO meta tags (via shim `@/lib/helmet-compat`) |
+| (supprimé) | - | react-helmet-async retiré : métadonnées 100 % `head()` de route, JSON-LD via `@/components/JsonLd` |
 | Lucide React | - | Icônes |
 | Recharts | - | Graphiques (lazy) |
 
@@ -145,14 +145,13 @@ src/
 │   └── auth/ProtectedRoute.tsx → Guard auth (AuthRequiredModal + EmailVerificationGate)
 ├── lib/
 │   ├── router-compat.tsx → Shim react-router-dom → TanStack Router
-│   └── helmet-compat.tsx → Shim react-helmet-async (interop CJS/ESM SSR)
 ├── hooks/ · types/ · integrations/supabase · assets/
 ```
 
 ### Compat & invariants SSR
 
 - **`@/lib/router-compat`** : tous les anciens imports `react-router-dom` (Link, useNavigate, useParams, useSearchParams…) passent par ce shim — ne pas importer `react-router-dom` ni `@tanstack/react-router` directement dans les pages existantes.
-- **`@/lib/helmet-compat`** : tous les imports `Helmet`/`HelmetProvider` passent par ce shim (import namespace + résolution `.default`) — un import nommé direct de `react-helmet-async` casse le SSR, un import default casse le build client. Le shim exporte désormais un **wrapper `Helmet`** qui sépare les enfants : les balises `meta`/`link`/`title` partent vers react-helmet-async, tandis que les `<script type="application/ld+json">` sont rendus **inline dans le corps du document**, donc présents dans le HTML SSR (Helmet ne mute le `<head>` qu'après hydratation, ce qui rendait les JSON-LD invisibles pour Googlebot et les agents LLM).
+- **`@/components/JsonLd`** : unique point d'entrée pour les données structurées. Le composant rend les `<script type="application/ld+json">` **inline dans le corps du document** (donc visibles dans le HTML SSR) et ignore tout autre enfant. Les `title`/`description`/`canonical`/OG sont exclusivement gérés par le `head()` des routes TanStack — plus aucun système parallèle.
 - **Pas d'accès `window`/`localStorage`/`sessionStorage` au niveau module ou dans les initialiseurs `useState`** sans garde `typeof … !== 'undefined'` (le SSR évalue les modules côté serveur).
 - `src/routeTree.gen.ts` est généré — ne jamais l'éditer.
 
@@ -160,7 +159,6 @@ src/
 
 ```
 QueryClientProvider (React Query, staleTime: 5min, retry: 2)
-  → HelmetProvider (shim)
     → ErrorBoundary / errorComponent (fallback brandé + reportLovableError)
       → TooltipProvider (shadcn)
         → Toaster + Sonner (notifications)
@@ -647,7 +645,7 @@ src/
 
 - Depuis la migration TanStack Start, les balises `<title>`, `description`, `canonical`, Open Graph et Twitter sont déclarées **dans le `head()` de chaque route** (`src/routes/**`), donc rendues côté serveur et visibles par Googlebot, GPTBot et les autres crawlers sans exécution JS.
 - Garde-fou automatisé : `src/test/ssr-structured-data.test.ts` (environnement `node`) interroge le serveur de dev et vérifie, pour 11 routes critiques, la présence dans le HTML serveur des schémas attendus (Article, FAQPage, BreadcrumbList, HowTo, SoftwareApplication, WebPage), du contenu principal (`<h1>`, `<main>`, extraits clés), du `<title>`/`description` et d'une canonique auto-référente. Base configurable via `SSR_TEST_BASE_URL` ; la suite est ignorée si aucun serveur ne répond.
-- `<Helmet>` reste utilisé dans les pages **uniquement** pour les JSON-LD et quelques balises dérivées d'un contenu chargé côté client. Ne jamais y remettre un `<title>` ou une `description` : cela créerait un doublon avec le `head()` de la route.
+- `<JsonLd>` est réservé aux données structurées. Ne jamais y mettre `<title>`, `meta` ou `link` : ces balises appartiennent au `head()` de la route.
 - `/blog/$slug` possède un `loader` qui récupère l'article (titre, meta_description, image, dates) et alimente `head()` : chaque article a désormais ses vraies métadonnées en SSR, avec un fallback `noindex` si l'article n'existe pas.
 - Règle pour toute nouvelle page : créer la route avec son `head()` (titre unique < 60 caractères, description < 160, canonical absolu sur `https://iktracker.fr`), `og:image` uniquement au niveau feuille, jamais sur `__root.tsx`.
 
@@ -727,6 +725,7 @@ src/
 - **3.4** (29 août 2026) — Hero homepage resserré et hiérarchie CTA, nav épurée (Tarifs/Ressources/Blog au footer), sections condensées, compteurs de preuve sociale, page `/app/messages` + bannière de réponse admin, surveys (taille de police, emojis), onglet Contributeurs du forum admin, title/meta home optimisés.
 - **2.8** (28 août 2026) — Blocs CTA + aperçu + largeur adaptative des surveys, onglet Forum dans /admin, toggle aller-retour dans la fiche trajet, layout du relevé comptable.
 - **2.7** (20 août 2026) — Flux Atom `/feed.xml` (SSR, 50 articles, client admin) + lien RSS au footer ; `src/lib/page-dates.ts` comme source unique des dates éditoriales (JSON-LD + `<LastUpdated />`) ; audit accessibilité des 47 `<img>` (alts descriptifs, décoratives en `alt=""`, `<figure>`/`<figcaption>`) ; nouvelle landing `/logiciel-devis-artisan` avec hero LCP optimisé ; liens dofollow DictaDevi/Crawlers dans la bio auteur.
+- **3.8** (14 septembre 2026) — Suppression complète de `react-helmet-async` et du shim `helmet-compat` ; les 49 pages concernées utilisent désormais `@/components/JsonLd` pour les JSON-LD, et titres/robots restants migrés vers le `head()` des routes (`/temporaryreport/$id`, éditeur blog, `blog/$slug` auteur) ; 404 géré côté client.
 - **2.6** (20 août 2026) — JSON-LD rendus en SSR via le wrapper `Helmet` de `helmet-compat` ; balise `<main>` ajoutée sur `/artisans` et `/logiciel-devis-artisan` ; suite de tests SSR des données structurées (`src/test/ssr-structured-data.test.ts`).
 - **2.5** (19 août 2026) — Qualité de code (lots 1 à 4 : Vitest, Prettier, typage, découpage), SSR restauré sur `/`, `/auth`, `/signup`, navigation marketing simplifiée + CTA mobile above the fold, A/B testing du H1 du hero avec suivi dans /admin > Stats, trajet en direct PWA.
 
