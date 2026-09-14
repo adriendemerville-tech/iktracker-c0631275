@@ -42,6 +42,12 @@ Disallow: /temporaryreport/
 Disallow: /sso
 Disallow: /offline
 Disallow: /debug/
+Disallow: /marina
+Disallow: /theme-onboarding
+Disallow: /profile
+Disallow: /recovery
+Disallow: /report
+Disallow: /mestrajets
 Disallow: /.lovable/oauth/consent
 Allow: /forum
 Allow: /forum/
@@ -68,6 +74,12 @@ Disallow: /temporaryreport/
 Disallow: /sso
 Disallow: /offline
 Disallow: /debug/
+Disallow: /marina
+Disallow: /theme-onboarding
+Disallow: /profile
+Disallow: /recovery
+Disallow: /report
+Disallow: /mestrajets
 Disallow: /.lovable/oauth/consent
 Allow: /forum
 Allow: /forum/
@@ -93,6 +105,12 @@ Disallow: /temporaryreport/
 Disallow: /sso
 Disallow: /offline
 Disallow: /debug/
+Disallow: /marina
+Disallow: /theme-onboarding
+Disallow: /profile
+Disallow: /recovery
+Disallow: /report
+Disallow: /mestrajets
 Disallow: /.lovable/oauth/consent
 Allow: /forum
 Allow: /forum/
@@ -115,6 +133,12 @@ Disallow: /temporaryreport/
 Disallow: /sso
 Disallow: /offline
 Disallow: /debug/
+Disallow: /marina
+Disallow: /theme-onboarding
+Disallow: /profile
+Disallow: /recovery
+Disallow: /report
+Disallow: /mestrajets
 Disallow: /.lovable/oauth/consent
 Allow: /forum
 Allow: /forum/
@@ -137,16 +161,20 @@ Sitemap: https://iktracker.fr/sitemap-forum.xml
 
 # Pages clés indexables :
 # https://iktracker.fr
-# https://iktracker.fr/fonctionnalites
+# https://iktracker.fr/indemnites-kilometriques
+# https://iktracker.fr/frais-reels
 # https://iktracker.fr/bareme-ik-2026
+# https://iktracker.fr/indemnites-kilometriques-2027
+# https://iktracker.fr/fonctionnalites
 # https://iktracker.fr/mode-tournee
 # https://iktracker.fr/calendrier
-# https://iktracker.fr/frais-reels
 # https://iktracker.fr/note-de-frais-kilometrique
 # https://iktracker.fr/indemnite-kilometrique-velo
 # https://iktracker.fr/indemnite-grand-deplacement-2026
 # https://iktracker.fr/mes-trajets
 # https://iktracker.fr/meilleure-application-indemnites-kilometriques
+# https://iktracker.fr/meilleurs-outils-indemnites-kilometriques-2027
+# https://iktracker.fr/logiciel-devis-artisan
 # https://iktracker.fr/lexique
 # https://iktracker.fr/comparatif-izika
 # https://iktracker.fr/comparatif-driversnote
@@ -156,6 +184,7 @@ Sitemap: https://iktracker.fr/sitemap-forum.xml
 # https://iktracker.fr/tarifs
 # https://iktracker.fr/installer
 # https://iktracker.fr/api-docs
+# https://iktracker.fr/forum
 # https://iktracker.fr/blog
 # https://iktracker.fr/blog/auteur/adrien-de-volontat
 # https://iktracker.fr/contact

@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "@/lib/router-compat";
-import { Helmet } from "@/lib/helmet-compat";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -253,11 +252,6 @@ const Auth = () => {
   if (showPersonaPicker) {
     return (
       <>
-        <Helmet>
-          <title>Votre profil | IKtracker</title>
-          <meta name="description" content="Complétez votre profil IKtracker." />
-          <meta name="robots" content="noindex, nofollow" />
-        </Helmet>
         <PersonaPicker onSelect={handlePersonaSelected} />
       </>
     );
@@ -267,15 +261,6 @@ const Auth = () => {
   if (showOAuthSuccess) {
     return (
       <>
-        <Helmet>
-          <title>Connexion | IKtracker</title>
-          <meta
-            name="description"
-            content="Connectez-vous à IKtracker pour gérer vos trajets professionnels et calculer automatiquement vos indemnités kilométriques."
-          />
-          <meta name="robots" content="noindex, nofollow" />
-          <link rel="canonical" href="https://iktracker.fr/auth" />
-        </Helmet>
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 flex items-center justify-center p-4 cursor-default">
           <Card className="w-full max-w-md shadow-2xl border-0 bg-white/95 backdrop-blur-xs">
             <CardHeader className="text-center">
@@ -356,15 +341,6 @@ const Auth = () => {
   if (showLoginForm) {
     return (
       <>
-        <Helmet>
-          <title>Connexion | IKtracker</title>
-          <meta
-            name="description"
-            content="Connectez-vous à IKtracker pour gérer vos trajets professionnels et calculer automatiquement vos indemnités kilométriques."
-          />
-          <meta name="robots" content="noindex, nofollow" />
-          <link rel="canonical" href="https://iktracker.fr/auth" />
-        </Helmet>
         <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 md:p-8 cursor-default relative overflow-hidden">
           {/* Subtle gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900" />

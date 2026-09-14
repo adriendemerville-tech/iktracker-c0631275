@@ -78,12 +78,7 @@ export default function AuthorPage({ articles = [] }: { articles?: AuthorArticle
   return (
     <>
       <Helmet>
-        <link rel="canonical" href={canonicalUrl} />
-
-        {/* Open Graph */}
-        <meta property="og:url" content={canonicalUrl} />
-
-        {/* Structured Data */}
+        {/* Canonical et OG servis en SSR depuis le head() de la route. */}
         <script type="application/ld+json">{JSON.stringify(personSchema)}</script>
       </Helmet>
 
