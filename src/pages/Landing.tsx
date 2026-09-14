@@ -9,6 +9,17 @@ import { useLiveTripStats } from "@/hooks/useLiveTripStats";
 import { HERO_VARIANTS, DEFAULT_VARIANT, getHeroVariant, type HeroVariant } from "@/lib/ab-test";
 import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+// Barème officiel partagé — import statique volontaire : contenu indexable, doit être dans le HTML SSR de "/".
+import { IK_BAREME_2024 } from "@/types/trip";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
@@ -457,6 +468,96 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm, reviews }
               <DeferUntilVisible>
                 <PartnerCard page="/" placement="under_simulator" />
               </DeferUntilVisible>
+            </div>
+          </div>
+        </section>
+
+        {/* Tableau du barème kilométrique 2026 — contenu statique SSR pour SEO/GEO */}
+        <section
+          className="py-12 md:py-16 px-4 section-contained"
+          aria-labelledby="bareme-home-heading"
+        >
+          <div className="container mx-auto max-w-4xl">
+            <div className="text-center mb-8">
+              <h2 id="bareme-home-heading" className="text-2xl md:text-3xl font-bold mb-4">
+                Barème kilométrique 2026 : le tableau officiel
+              </h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Voici le <strong>barème kilométrique 2026</strong> officiel (DGFiP/URSSAF) appliqué
+                automatiquement par IKtracker, avec les taux par puissance fiscale et la{" "}
+                <strong>majoration de 20 % pour les véhicules 100 % électriques</strong>.
+              </p>
+            </div>
+
+            <Card>
+              <CardContent className="p-0 overflow-x-auto">
+                <Table aria-label="Barème kilométrique 2026 par puissance fiscale">
+                  <caption className="sr-only">
+                    Tableau du barème kilométrique 2026 officiel : taux par puissance fiscale et
+                    distance annuelle
+                  </caption>
+                  <TableHeader>
+                    <TableRow className="bg-muted/50">
+                      <TableHead scope="col" className="font-bold">
+                        Puissance fiscale
+                      </TableHead>
+                      <TableHead scope="col" className="text-center font-bold">
+                        Jusqu'à 5 000 km
+                      </TableHead>
+                      <TableHead scope="col" className="text-center font-bold">
+                        De 5 001 à 20 000 km
+                      </TableHead>
+                      <TableHead scope="col" className="text-center font-bold">
+                        Plus de 20 000 km
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {IK_BAREME_2024.map((row, index) => (
+                      <TableRow
+                        key={row.cv}
+                        className={index % 2 === 0 ? "bg-background" : "bg-muted/20"}
+                      >
+                        <TableCell scope="row" className="font-semibold">
+                          <div className="flex items-center gap-2">
+                            <Car className="h-4 w-4 text-primary" aria-hidden="true" />
+                            {row.cv === "7+" ? "7 CV et plus" : `${row.cv} CV`}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-mono whitespace-nowrap">
+                            d × {row.upTo5000.rate.toFixed(3)} €
+                          </code>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-mono whitespace-nowrap">
+                            (d × {row.from5001To20000.rate.toFixed(3)}) +{" "}
+                            {row.from5001To20000.fixed} €
+                          </code>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-mono whitespace-nowrap">
+                            d × {row.over20000.rate.toFixed(3)} €
+                          </code>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+
+            <p className="text-sm text-muted-foreground text-center mt-4">
+              <strong>d</strong> = distance professionnelle annuelle en kilomètres. Véhicule 100 %
+              électrique : montant majoré de 20 %.
+            </p>
+            <div className="text-center mt-6">
+              <Button asChild variant="outline">
+                <Link to="/bareme-ik-2026">
+                  Voir le barème complet (voitures, motos, cyclomoteurs)
+                  <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+                </Link>
+              </Button>
             </div>
           </div>
         </section>
