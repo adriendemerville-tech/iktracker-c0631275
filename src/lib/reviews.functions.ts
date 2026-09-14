@@ -65,18 +65,21 @@ export const getPublishedReviews = createServerFn({ method: "GET" }).handler(asy
   }
 });
 
-/** Note moyenne agrégée (avis publiés), avec repli côté base sous 5 avis. */
+/**
+ * Note moyenne agrégée (avis publiés uniquement).
+ * Renvoie null sous 5 avis réels : aucune note inventée n'est publiée en JSON-LD.
+ */
 export const getAggregateRating = createServerFn({ method: "GET" }).handler(async () => {
   try {
     const supabase = await publicClient();
     const { data, error } = await (supabase.rpc as any)("get_aggregate_rating");
     if (error) throw error;
-    return {
-      ratingValue: Number(data?.ratingValue ?? 4.8),
-      reviewCount: Number(data?.reviewCount ?? 127),
-    } as AggregateRating;
+    const ratingValue = data?.ratingValue;
+    const reviewCount = Number(data?.reviewCount ?? 0);
+    if (ratingValue == null || reviewCount < 5) return null;
+    return { ratingValue: Number(ratingValue), reviewCount } as AggregateRating;
   } catch (err) {
     console.error("Failed to load aggregate rating:", err);
-    return { ratingValue: 4.8, reviewCount: 127 } as AggregateRating;
+    return null;
   }
 });
