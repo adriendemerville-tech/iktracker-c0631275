@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getIKBareme, calculateIK, calculateTotalAnnualIK, IK_BAREME_2024 } from "./trip";
+import { getIKBareme, calculateIK, calculateTotalAnnualIK, IK_BAREME_2026 } from "./trip";
 
 describe("getIKBareme", () => {
   it("returns 3CV barème for fiscal power <= 3", () => {
@@ -125,13 +125,13 @@ describe("calculateIK (per-trip marginal)", () => {
   });
 });
 
-describe("IK_BAREME_2024 data integrity", () => {
+describe("IK_BAREME_2026 data integrity", () => {
   it("contains 5 barème entries", () => {
-    expect(IK_BAREME_2024).toHaveLength(5);
+    expect(IK_BAREME_2026).toHaveLength(5);
   });
 
   it("rates are positive numbers", () => {
-    for (const b of IK_BAREME_2024) {
+    for (const b of IK_BAREME_2026) {
       expect(b.upTo5000.rate).toBeGreaterThan(0);
       expect(b.from5001To20000.rate).toBeGreaterThan(0);
       expect(b.from5001To20000.fixed).toBeGreaterThan(0);
@@ -140,15 +140,15 @@ describe("IK_BAREME_2024 data integrity", () => {
   });
 
   it("upTo5000 rate > from5001To20000 rate (rate decreases with scale)", () => {
-    for (const b of IK_BAREME_2024) {
+    for (const b of IK_BAREME_2026) {
       expect(b.upTo5000.rate).toBeGreaterThan(b.from5001To20000.rate);
     }
   });
 
   it("higher CV = higher rates within each tranche", () => {
-    for (let i = 0; i < IK_BAREME_2024.length - 1; i++) {
-      expect(IK_BAREME_2024[i + 1].upTo5000.rate).toBeGreaterThanOrEqual(
-        IK_BAREME_2024[i].upTo5000.rate,
+    for (let i = 0; i < IK_BAREME_2026.length - 1; i++) {
+      expect(IK_BAREME_2026[i + 1].upTo5000.rate).toBeGreaterThanOrEqual(
+        IK_BAREME_2026[i].upTo5000.rate,
       );
     }
   });

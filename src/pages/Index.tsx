@@ -23,7 +23,7 @@ import { useGeolocationPermission } from "@/hooks/useGeolocationPermission";
 import { calculateDrivingDistance } from "@/hooks/useGeolocation";
 import { reverseGeocode } from "@/lib/geocoding";
 import { detectLoop } from "@/lib/loop-detection";
-import { IK_BAREME_2024, calculateTotalAnnualIK, getIKBareme } from "@/types/trip";
+import { IK_BAREME_2026, calculateTotalAnnualIK, getIKBareme } from "@/types/trip";
 import { Counter } from "@/components/Counter";
 import { TripCard } from "@/components/TripCard";
 import { VehicleCard } from "@/components/VehicleCard";
@@ -902,7 +902,7 @@ ${IKTRACKER_MENTION}
     rows.push([]);
     rows.push(["Barème kilométrique fiscal 2026"]);
     rows.push(["CV", "Jusqu'à 5000 km", "5001 à 20000 km", "Au-delà de 20000 km"]);
-    IK_BAREME_2024.forEach((b) => {
+    IK_BAREME_2026.forEach((b) => {
       rows.push([
         b.cv === "7+" ? "7 CV et plus" : `${b.cv} CV`,
         `d × ${b.upTo5000.rate}`,

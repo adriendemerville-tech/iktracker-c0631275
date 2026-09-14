@@ -1,4 +1,4 @@
-import { Trip, Vehicle, IK_BAREME_2024 } from "@/types/trip";
+import { Trip, Vehicle, IK_BAREME_2026 } from "@/types/trip";
 import {
   esc,
   formatStopTime,
@@ -115,7 +115,7 @@ export function generateCleanPdfHTML(options: PrintReportOptions): string {
     })
     .join("");
 
-  const baremeRows = IK_BAREME_2024.map((b, i) => {
+  const baremeRows = IK_BAREME_2026.map((b, i) => {
     const bgColor = i % 2 === 0 ? "#ffffff" : "#f9fafb";
     return `
       <tr style="background-color: ${bgColor};">

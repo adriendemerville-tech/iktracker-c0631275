@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuthLazy } from "@/hooks/useAuthLazy";
-import { IK_BAREME_2024 } from "@/types/trip";
+import { IK_BAREME_2026 } from "@/types/trip";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { getPageDates, toIsoDateTime } from "@/lib/page-dates";
 
@@ -388,7 +388,7 @@ const BaremeIK2026 = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {IK_BAREME_2024.map((row, index) => (
+                      {IK_BAREME_2026.map((row, index) => (
                         <TableRow
                           key={row.cv}
                           className={index % 2 === 0 ? "bg-background" : "bg-muted/20"}

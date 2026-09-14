@@ -4,7 +4,7 @@
 import {
   Trip,
   Vehicle,
-  IK_BAREME_2024,
+  IK_BAREME_2026,
   calculateTotalAnnualIK,
   getIKBareme,
   IKRateOverride,
