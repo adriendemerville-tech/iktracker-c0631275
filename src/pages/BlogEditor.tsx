@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "@/lib/router-compat";
-import { JsonLd } from "@/components/JsonLd";
 import { supabase } from "@/integrations/supabase/client";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useAuth } from "@/hooks/useAuth";

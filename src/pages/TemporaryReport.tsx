@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "@/lib/router-compat";
-import { JsonLd } from "@/components/JsonLd";
 import { Printer, Download, Share2, Check, Send, FileSpreadsheet } from "lucide-react";
 
 import { Card } from "@/components/ui/card";

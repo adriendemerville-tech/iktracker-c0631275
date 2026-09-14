@@ -2,7 +2,6 @@ import { useEffect, useState, useMemo } from "react";
 import { getRouteApi } from "@tanstack/react-router";
 
 import { useParams, Link, useNavigate } from "@/lib/router-compat";
-import { JsonLd } from "@/components/JsonLd";
 import { supabase } from "@/integrations/supabase/client";
 import { useAdminLazy } from "@/hooks/useAdminLazy";
 import { Skeleton } from "@/components/ui/skeleton";
