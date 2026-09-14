@@ -40,6 +40,6 @@ export const Route = createFileRoute("/meilleure-application-indemnites-kilometr
 
   component: () => {
     const data = Route.useLoaderData();
-    return <MeilleureApplicationIK aggregateRating={data?.aggregateRating} />;
+    return <MeilleureApplicationIK aggregateRating={data?.aggregateRating ?? undefined} />;
   },
 });
