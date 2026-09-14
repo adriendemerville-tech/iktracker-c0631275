@@ -4,7 +4,7 @@ import { DirectAnswer } from "@/components/DirectAnswer";
 import { getStaticLastModified } from "@/lib/page-dates";
 import { useState, useMemo } from "react";
 import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
-import { Helmet } from "@/lib/helmet-compat";
+import { JsonLd } from "@/components/JsonLd";
 import { Link } from "@/lib/router-compat";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { EnhancedMarketingFooter } from "@/components/marketing/EnhancedMarketingFooter";
@@ -114,7 +114,7 @@ export default function FraisReels() {
 
   return (
     <>
-      <Helmet>
+      <JsonLd>
         {/* Open Graph */}
 
         {/* JSON-LD */}
@@ -264,7 +264,7 @@ export default function FraisReels() {
             }),
           )}
         </script>
-      </Helmet>
+      </JsonLd>
 
       <div className="min-h-screen bg-background">
         <MarketingNav user={user} loading={loading} />

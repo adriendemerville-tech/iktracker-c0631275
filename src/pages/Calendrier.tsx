@@ -1,7 +1,7 @@
 import { LastUpdated } from "@/components/LastUpdated";
 import { getStaticLastModified } from "@/lib/page-dates";
 import { useEffect, lazy, Suspense } from "react";
-import { Helmet } from "@/lib/helmet-compat";
+import { JsonLd } from "@/components/JsonLd";
 import { Link } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
@@ -136,7 +136,7 @@ export default function Calendrier() {
 
   return (
     <div className="min-h-screen bg-background font-display select-text">
-      <Helmet>
+      <JsonLd>
         {/* Open Graph */}
 
         {/* Twitter */}
@@ -205,7 +205,7 @@ export default function Calendrier() {
             ],
           })}
         </script>
-      </Helmet>
+      </JsonLd>
       <MarketingNav />
 
       <main id="main-content" tabIndex={-1} className="outline-hidden">

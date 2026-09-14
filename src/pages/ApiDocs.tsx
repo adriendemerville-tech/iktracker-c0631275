@@ -1,6 +1,5 @@
 import { LastUpdated } from "@/components/LastUpdated";
 import { getStaticLastModified } from "@/lib/page-dates";
-import { Helmet } from "@/lib/helmet-compat";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { EnhancedMarketingFooter } from "@/components/marketing/EnhancedMarketingFooter";
 import { Breadcrumb } from "@/components/Breadcrumb";
@@ -44,9 +43,7 @@ const Endpoint = ({
 
 export default function ApiDocs() {
   return (
-    <div className="min-h-screen bg-background">
-      <Helmet></Helmet>
-      <MarketingNav />
+    <div className="min-h-screen bg-background">      <MarketingNav />
 
       <main className="max-w-4xl mx-auto px-6 py-12 space-y-10">
         <Breadcrumb items={[{ label: "API Partenaires" }]} />

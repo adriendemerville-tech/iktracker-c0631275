@@ -1,4 +1,4 @@
-import { Helmet } from "@/lib/helmet-compat";
+import { JsonLd } from "@/components/JsonLd";
 import { Link } from "@/lib/router-compat";
 import { useEffect, useState } from "react";
 import { ArrowLeft, MapPin, Building2, Linkedin, ExternalLink, BadgeCheck } from "lucide-react";
@@ -77,10 +77,10 @@ export default function AuthorPage({ articles = [] }: { articles?: AuthorArticle
 
   return (
     <>
-      <Helmet>
+      <JsonLd>
         {/* Canonical et OG servis en SSR depuis le head() de la route. */}
         <script type="application/ld+json">{JSON.stringify(personSchema)}</script>
-      </Helmet>
+      </JsonLd>
 
       <div className="min-h-screen bg-background">
         <main className="container mx-auto px-4 py-12 max-w-3xl">

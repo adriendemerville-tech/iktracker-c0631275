@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "@/lib/router-compat";
-import { Helmet } from "@/lib/helmet-compat";
 import { supabase } from "@/integrations/supabase/client";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useAuth } from "@/hooks/useAuth";
@@ -287,15 +286,6 @@ export default function BlogEditor() {
 
   return (
     <>
-      <Helmet>
-        <title>{existingPost ? "Modifier l'article" : "Nouvel article"} - Blog IKtracker</title>
-        <meta name="robots" content="noindex, nofollow" />
-        <link
-          rel="canonical"
-          href={`https://iktracker.fr/app/admin/blog/edit${id ? `/${id}` : ""}`}
-        />
-      </Helmet>
-
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8 max-w-4xl">
           {/* Header */}

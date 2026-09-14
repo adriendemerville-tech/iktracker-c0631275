@@ -2,7 +2,7 @@ import { LastUpdated } from "@/components/LastUpdated";
 import { getStaticLastModified } from "@/lib/page-dates";
 import { useEffect, lazy, Suspense, memo } from "react";
 import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
-import { Helmet } from "@/lib/helmet-compat";
+import { JsonLd } from "@/components/JsonLd";
 import { Link } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
@@ -147,7 +147,7 @@ export default function ModeTournee() {
 
   return (
     <div className="min-h-screen bg-background font-display select-text">
-      <Helmet>
+      <JsonLd>
         {/* Open Graph */}
 
         {/* Twitter */}
@@ -240,7 +240,7 @@ export default function ModeTournee() {
             }),
           )}
         </script>
-      </Helmet>
+      </JsonLd>
       <MarketingNav />
 
       <main id="main-content" tabIndex={-1} className="outline-hidden">

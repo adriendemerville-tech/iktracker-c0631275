@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "@/lib/router-compat";
-import { Helmet } from "@/lib/helmet-compat";
 import { Printer, Download, Share2, Check, Send, FileSpreadsheet } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
@@ -239,11 +238,6 @@ https://iktracker.fr`;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Helmet>
-        <title>{title}</title>
-        <link rel="canonical" href={window.location.href} />
-      </Helmet>
-
       <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-3">
           {/* Logo à gauche - lien vers landing */}

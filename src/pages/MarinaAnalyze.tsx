@@ -1,5 +1,4 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import { Helmet } from "@/lib/helmet-compat";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -222,8 +221,6 @@ const MarinaAnalyze = () => {
 
   return (
     <>
-      <Helmet></Helmet>
-
       <div className="min-h-screen bg-background flex flex-col items-center justify-start pt-16 px-4 pb-16">
         <div className="w-full max-w-2xl space-y-8">
           {/* Header */}

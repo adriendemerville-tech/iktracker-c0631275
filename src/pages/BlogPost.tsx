@@ -2,7 +2,6 @@ import { useEffect, useState, useMemo } from "react";
 import { getRouteApi } from "@tanstack/react-router";
 
 import { useParams, Link, useNavigate } from "@/lib/router-compat";
-import { Helmet } from "@/lib/helmet-compat";
 import { supabase } from "@/integrations/supabase/client";
 import { useAdminLazy } from "@/hooks/useAdminLazy";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -167,13 +166,6 @@ export default function BlogPost() {
 
   return (
     <>
-      <Helmet>
-        {/* Title, description, canonical, OG/Twitter tags and all JSON-LD graphs
-            are served server-side from the route head() in src/routes/blog/$slug.tsx */}
-        {post.author_name ? <meta property="article:author" content={post.author_name} /> : null}
-        <meta name="author" content={post.author_name || "IKtracker"} />
-      </Helmet>
-
 
       <div className="min-h-screen bg-background">
         <main id="main-content" tabIndex={-1} className="outline-hidden">

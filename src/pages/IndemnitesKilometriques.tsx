@@ -3,7 +3,7 @@ import { LastUpdated } from "@/components/LastUpdated";
 import { DirectAnswer } from "@/components/DirectAnswer";
 import { getStaticLastModified } from "@/lib/page-dates";
 import { lazy, Suspense } from "react";
-import { Helmet } from "@/lib/helmet-compat";
+import { JsonLd } from "@/components/JsonLd";
 import { Link } from "@/lib/router-compat";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { Breadcrumb } from "@/components/Breadcrumb";
@@ -108,7 +108,7 @@ const brackets = [
 export default function IndemnitesKilometriques() {
   return (
     <>
-      <Helmet>
+      <JsonLd>
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
@@ -194,7 +194,7 @@ export default function IndemnitesKilometriques() {
             mentions: METHOD_STEPS.map((s) => ({ "@type": "Thing", name: s.t })),
           })}
         </script>
-      </Helmet>
+      </JsonLd>
 
 
       <MarketingNav />

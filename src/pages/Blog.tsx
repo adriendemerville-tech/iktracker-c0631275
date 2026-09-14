@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ORGANIZATION_ID } from "@/lib/seo-schemas";
 import { getRouteApi } from "@tanstack/react-router";
 import { Link } from "@/lib/router-compat";
-import { Helmet } from "@/lib/helmet-compat";
+import { JsonLd } from "@/components/JsonLd";
 import { supabase } from "@/integrations/supabase/client";
 import { useAdminLazy } from "@/hooks/useAdminLazy";
 import { useAuthLazy } from "@/hooks/useAuthLazy";
@@ -94,11 +94,7 @@ export default function Blog() {
 
   return (
     <>
-      <Helmet>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&display=swap"
-          rel="stylesheet"
-        />
+      <JsonLd>
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
@@ -124,7 +120,7 @@ export default function Blog() {
             inLanguage: "fr-FR",
           })}
         </script>
-      </Helmet>
+      </JsonLd>
 
       <div className="min-h-screen bg-background font-blog">
         <MarketingNav user={user} loading={authLoading} />

@@ -1,6 +1,6 @@
 import { useEffect, useState, lazy, Suspense, memo } from "react";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
-import { Helmet } from "@/lib/helmet-compat";
+import { JsonLd } from "@/components/JsonLd";
 import { Link } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -88,7 +88,7 @@ const Install = () => {
 
   return (
     <div className="min-h-screen bg-background select-text">
-      <Helmet>
+      <JsonLd>
         {/* Open Graph */}
 
         {/* Twitter */}
@@ -143,7 +143,7 @@ const Install = () => {
             },
           })}
         </script>
-      </Helmet>
+      </JsonLd>
 
       <MarketingNav />
 

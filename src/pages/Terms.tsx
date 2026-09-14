@@ -1,6 +1,6 @@
 import { LastUpdated } from "@/components/LastUpdated";
 import { getStaticLastModified } from "@/lib/page-dates";
-import { Helmet } from "@/lib/helmet-compat";
+import { JsonLd } from "@/components/JsonLd";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate, Link } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ const Terms = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Helmet>
+      <JsonLd>
         {/* Open Graph */}
 
         {/* Twitter */}
@@ -40,7 +40,7 @@ const Terms = () => {
             },
           })}
         </script>
-      </Helmet>
+      </JsonLd>
 
       {/* Skip to content link */}
       <a

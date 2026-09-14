@@ -1,6 +1,6 @@
 import { ClusterLinks } from "@/components/marketing/ClusterLinks";
 import { LastUpdated } from "@/components/LastUpdated";
-import { Helmet } from "@/lib/helmet-compat";
+import { JsonLd } from "@/components/JsonLd";
 import { buildSoftwareApplicationSchema, ORGANIZATION_ID } from "@/lib/seo-schemas";
 import { Link } from "@/lib/router-compat";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
@@ -44,7 +44,7 @@ const faqs = [
 export default function IndemniteKilometriqueVelo() {
   return (
     <>
-      <Helmet>
+      <JsonLd>
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
@@ -84,7 +84,7 @@ export default function IndemniteKilometriqueVelo() {
             }),
           )}
         </script>
-      </Helmet>
+      </JsonLd>
 
       <MarketingNav />
 

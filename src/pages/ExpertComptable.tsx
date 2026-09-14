@@ -3,7 +3,7 @@ import { LastUpdated } from "@/components/LastUpdated";
 import { getStaticLastModified } from "@/lib/page-dates";
 import { lazy, Suspense, memo, useCallback, useEffect, useState, useRef } from "react";
 import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
-import { Helmet } from "@/lib/helmet-compat";
+import { JsonLd } from "@/components/JsonLd";
 import { Link } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
 import {
@@ -100,7 +100,7 @@ const ExpertComptable = () => {
 
   return (
     <div className="min-h-screen bg-background select-text">
-      <Helmet>
+      <JsonLd>
         {/* Open Graph */}
 
         {/* Twitter */}
@@ -190,7 +190,7 @@ const ExpertComptable = () => {
             }),
           )}
         </script>
-      </Helmet>
+      </JsonLd>
 
       <Suspense fallback={<NavPlaceholder />}>
         <MarketingNav />

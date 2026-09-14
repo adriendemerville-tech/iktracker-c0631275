@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Helmet } from "@/lib/helmet-compat";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Monitor,
@@ -631,9 +630,7 @@ export default function RecoveryWizard() {
   }
 
   return (
-    <>
-      <Helmet></Helmet>
-      <div className="min-h-screen bg-slate-950 flex">
+    <>      <div className="min-h-screen bg-slate-950 flex">
         {/* Desktop Sidebar - sticky */}
         {!isMobile && <DesktopSidebar />}
 

@@ -3,7 +3,7 @@ import { LastUpdated } from "@/components/LastUpdated";
 import { getStaticLastModified } from "@/lib/page-dates";
 import type { JSX } from "react";
 import { ORGANIZATION_ID } from "@/lib/seo-schemas";
-import { Helmet } from "@/lib/helmet-compat";
+import { JsonLd } from "@/components/JsonLd";
 import { Link } from "@/lib/router-compat";
 import { ArrowLeft, BookOpen, Search, Share2, Download, FileText, Link2, Star } from "lucide-react";
 import { useState, useMemo, useCallback, useEffect } from "react";
@@ -672,10 +672,10 @@ export default function Lexique() {
 
   return (
     <>
-      <Helmet>
+      <JsonLd>
         <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
         <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>
-      </Helmet>
+      </JsonLd>
 
       <div className="min-h-screen bg-background">
         {/* Header simple */}

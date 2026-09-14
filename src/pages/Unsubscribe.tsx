@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "@/lib/router-compat";
-import { Helmet } from "@/lib/helmet-compat";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
@@ -48,9 +47,7 @@ export default function Unsubscribe() {
   };
 
   return (
-    <>
-      <Helmet></Helmet>
-      <main className="min-h-screen flex items-center justify-center bg-background px-4">
+    <>      <main className="min-h-screen flex items-center justify-center bg-background px-4">
         <div className="max-w-md w-full bg-card border border-border rounded-2xl p-8 shadow-xs text-center space-y-5">
           <h1 className="text-2xl font-semibold">Désabonnement IKtracker</h1>
 

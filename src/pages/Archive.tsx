@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Helmet } from "@/lib/helmet-compat";
 import { useNavigate } from "@/lib/router-compat";
 import {
   ArrowLeft,
@@ -212,8 +211,6 @@ export default function Archive() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Helmet></Helmet>
-
       <DesktopSidebar />
 
       <main className="md:pl-24 px-6 py-10 max-w-5xl mx-auto">

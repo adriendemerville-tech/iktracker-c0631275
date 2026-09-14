@@ -2,7 +2,7 @@ import { LastUpdated } from "@/components/LastUpdated";
 import { ORGANIZATION_ID } from "@/lib/seo-schemas";
 import { lazy, Suspense, memo } from "react";
 import { Link } from "@/lib/router-compat";
-import { Helmet } from "@/lib/helmet-compat";
+import { JsonLd } from "@/components/JsonLd";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
@@ -155,7 +155,7 @@ const Artisans = () => {
 
   return (
     <>
-      <Helmet>
+      <JsonLd>
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
@@ -208,7 +208,7 @@ const Artisans = () => {
             inLanguage: "fr-FR",
           })}
         </script>
-      </Helmet>
+      </JsonLd>
 
       <div className="min-h-screen bg-background">
         <MarketingNav user={user} loading={loading} />

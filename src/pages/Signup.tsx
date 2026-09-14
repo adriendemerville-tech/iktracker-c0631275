@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useHydrated } from "@tanstack/react-router";
 import { Link, useNavigate } from "@/lib/router-compat";
-import { Helmet } from "@/lib/helmet-compat";
+import { JsonLd } from "@/components/JsonLd";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -238,7 +238,7 @@ const Signup = () => {
 
   return (
     <>
-      <Helmet>
+      <JsonLd>
         {/* Title, description, canonical, OG/Twitter et robots sont servis en SSR
             depuis le head() de la route (src/routes/signup.tsx). */}
         <script type="application/ld+json">
@@ -289,7 +289,7 @@ const Signup = () => {
             ],
           })}
         </script>
-      </Helmet>
+      </JsonLd>
       <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 md:p-8 cursor-default relative overflow-hidden">
         {/* Gradient background */}
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-slate-950 to-slate-900" />
