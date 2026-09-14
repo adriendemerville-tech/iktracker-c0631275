@@ -1,6 +1,5 @@
 import { useLocation, Link } from "@/lib/router-compat";
 import { useEffect } from "react";
-import { JsonLd } from "@/components/JsonLd";
 import { Home, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -11,14 +10,21 @@ const NotFound = () => {
     console.error("404 Error: User attempted to access non-existent route:", location.pathname);
   }, [location.pathname]);
 
+  // Le 404 n'a pas de route dédiée : on pose titre et robots côté client.
+  useEffect(() => {
+    document.title = "Page non trouvée | IKtracker";
+    const robots = document.createElement("meta");
+    robots.name = "robots";
+    robots.content = "noindex, nofollow";
+    document.head.appendChild(robots);
+    return () => {
+      robots.remove();
+    };
+  }, []);
+
   return (
     <>
-      <JsonLd>
-        <title>Page non trouvée | IKtracker</title>
-        <meta name="description" content="Cette page n'existe pas sur IKtracker." />
-        <meta name="robots" content="noindex, nofollow" />
-        <link rel="canonical" href="https://iktracker.fr/404" />
-      </JsonLd>
+
 
       <div className="flex min-h-screen items-center justify-center bg-background px-4">
         <div className="text-center max-w-md">
