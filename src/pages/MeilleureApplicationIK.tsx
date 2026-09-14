@@ -182,12 +182,17 @@ const MeilleureApplicationIK = ({
       priceCurrency: "EUR",
       availability: "https://schema.org/InStock",
     },
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: String(aggregateRating?.ratingValue ?? 4.8),
-      reviewCount: String(aggregateRating?.reviewCount ?? 128),
-      bestRating: "5",
-    },
+    // Pas de note inventée : le bloc n'est émis qu'avec de vrais avis publiés.
+    ...(aggregateRating
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: String(aggregateRating.ratingValue),
+            reviewCount: String(aggregateRating.reviewCount),
+            bestRating: "5",
+          },
+        }
+      : {}),
     featureList: KEY_FACTS.map((f) => `${f.label}: ${f.value}`),
     inLanguage: "fr-FR",
   };
