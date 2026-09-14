@@ -1,6 +1,6 @@
 import { LastUpdated } from "@/components/LastUpdated";
 import { getStaticLastModified } from "@/lib/page-dates";
-import { Helmet } from "@/lib/helmet-compat";
+import { JsonLd } from "@/components/JsonLd";
 import { ArrowLeft, Mail, Shield, FileText, User, Clock, Server, Cookie, Lock } from "lucide-react";
 import { useNavigate, Link } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
@@ -34,9 +34,9 @@ const Rgpd = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Helmet>
+      <JsonLd>
         <script type="application/ld+json">{JSON.stringify(schema)}</script>
-      </Helmet>
+      </JsonLd>
 
       <a
         href="#main-content"

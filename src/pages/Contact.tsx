@@ -1,6 +1,6 @@
 import { LastUpdated } from "@/components/LastUpdated";
 import { getStaticLastModified } from "@/lib/page-dates";
-import { Helmet } from "@/lib/helmet-compat";
+import { JsonLd } from "@/components/JsonLd";
 import { ORGANIZATION_ID } from "@/lib/seo-schemas";
 import { ArrowLeft, Mail, MessageSquare, Send } from "lucide-react";
 import { useNavigate, Link } from "@/lib/router-compat";
@@ -72,7 +72,7 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Helmet>
+      <JsonLd>
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
@@ -96,7 +96,7 @@ const Contact = () => {
             },
           })}
         </script>
-      </Helmet>
+      </JsonLd>
 
       <a
         href="#main-content"

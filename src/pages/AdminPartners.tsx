@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { Copy, Plus, Power, Trash2, Webhook, RefreshCw } from "lucide-react";
-import { Helmet } from "@/lib/helmet-compat";
+import { JsonLd } from "@/components/JsonLd";
 
 interface Partner {
   id: string;
@@ -127,9 +127,7 @@ export default function AdminPartners() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-6 md:p-10">
-      <Helmet></Helmet>
-      <div className="max-w-6xl mx-auto space-y-8">
+    <div className="min-h-screen bg-background p-6 md:p-10">      <div className="max-w-6xl mx-auto space-y-8">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold">Partenaires API</h1>
           <Button onClick={load} variant="outline" size="sm">

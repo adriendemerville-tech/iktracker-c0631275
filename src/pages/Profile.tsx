@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, Suspense, lazy } from "react";
-import { Helmet } from "@/lib/helmet-compat";
+import { JsonLd } from "@/components/JsonLd";
 import { useNavigate, Link } from "@/lib/router-compat";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -271,9 +271,7 @@ const Profile = () => {
   };
 
   return (
-    <>
-      <Helmet></Helmet>
-      {/* Desktop Sidebar - hidden on mobile */}
+    <>      {/* Desktop Sidebar - hidden on mobile */}
       {!isMobile && (
         <DesktopSidebar
           vehicles={vehicles}

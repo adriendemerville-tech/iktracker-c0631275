@@ -1,6 +1,6 @@
 import { LastUpdated } from "@/components/LastUpdated";
 import { getStaticLastModified } from "@/lib/page-dates";
-import { Helmet } from "@/lib/helmet-compat";
+import { JsonLd } from "@/components/JsonLd";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate, Link } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ const MentionsLegales = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Helmet>
+      <JsonLd>
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
@@ -30,7 +30,7 @@ const MentionsLegales = () => {
             },
           })}
         </script>
-      </Helmet>
+      </JsonLd>
 
       <a
         href="#main-content"

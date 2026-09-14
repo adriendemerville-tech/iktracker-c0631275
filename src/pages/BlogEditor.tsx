@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "@/lib/router-compat";
-import { Helmet } from "@/lib/helmet-compat";
+import { JsonLd } from "@/components/JsonLd";
 import { supabase } from "@/integrations/supabase/client";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useAuth } from "@/hooks/useAuth";
@@ -287,14 +287,14 @@ export default function BlogEditor() {
 
   return (
     <>
-      <Helmet>
+      <JsonLd>
         <title>{existingPost ? "Modifier l'article" : "Nouvel article"} - Blog IKtracker</title>
         <meta name="robots" content="noindex, nofollow" />
         <link
           rel="canonical"
           href={`https://iktracker.fr/app/admin/blog/edit${id ? `/${id}` : ""}`}
         />
-      </Helmet>
+      </JsonLd>
 
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8 max-w-4xl">

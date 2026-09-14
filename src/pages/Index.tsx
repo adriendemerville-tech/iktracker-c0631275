@@ -1,6 +1,6 @@
 import { useState, useEffect, lazy, Suspense, memo } from "react";
 import { Link, useNavigate } from "@/lib/router-compat";
-import { Helmet } from "@/lib/helmet-compat";
+import { JsonLd } from "@/components/JsonLd";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useEmailGate, UNVERIFIED_TOUR_LIMIT } from "@/hooks/useEmailGate";
@@ -1145,8 +1145,6 @@ ${IKTRACKER_MENTION}
       )}
 
       {/* SEO for protected app page */}
-      <Helmet></Helmet>
-
       <div
         className={`min-h-screen bg-background font-urbanist cursor-default select-none transition-[padding] duration-200 ${sidebarExpanded ? "md:pl-56" : "md:pl-24"}`}
       >

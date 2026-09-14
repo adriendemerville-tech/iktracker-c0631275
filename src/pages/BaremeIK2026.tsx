@@ -3,7 +3,7 @@ import { LastUpdated } from "@/components/LastUpdated";
 import { DirectAnswer } from "@/components/DirectAnswer";
 import { lazy, Suspense, memo } from "react";
 import { Link } from "@/lib/router-compat";
-import { Helmet } from "@/lib/helmet-compat";
+import { JsonLd } from "@/components/JsonLd";
 import { buildSoftwareApplicationSchema, ORGANIZATION_ID } from "@/lib/seo-schemas";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { IKSimulator } from "@/components/marketing/IKSimulator";
@@ -108,7 +108,7 @@ const BaremeIK2026 = () => {
 
   return (
     <>
-      <Helmet>
+      <JsonLd>
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
@@ -166,7 +166,7 @@ const BaremeIK2026 = () => {
             }),
           )}
         </script>
-      </Helmet>
+      </JsonLd>
 
       <div className="min-h-screen bg-background font-display select-text">
         <MarketingNav user={user} loading={loading} />

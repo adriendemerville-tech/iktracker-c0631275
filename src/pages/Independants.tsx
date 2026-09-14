@@ -3,7 +3,7 @@ import { getStaticLastModified } from "@/lib/page-dates";
 import { lazy, Suspense, memo } from "react";
 import { ORGANIZATION_ID } from "@/lib/seo-schemas";
 import { Link } from "@/lib/router-compat";
-import { Helmet } from "@/lib/helmet-compat";
+import { JsonLd } from "@/components/JsonLd";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
@@ -111,7 +111,7 @@ const Independants = () => {
 
   return (
     <>
-      <Helmet>
+      <JsonLd>
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
@@ -146,7 +146,7 @@ const Independants = () => {
             inLanguage: "fr-FR",
           })}
         </script>
-      </Helmet>
+      </JsonLd>
 
       <div className="min-h-screen bg-background">
         <MarketingNav user={user} loading={loading} />

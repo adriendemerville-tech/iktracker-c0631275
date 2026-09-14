@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, lazy, Suspense } from "react";
 import { useNavigate, useSearchParams, Link } from "@/lib/router-compat";
-import { Helmet } from "@/lib/helmet-compat";
+import { JsonLd } from "@/components/JsonLd";
 import { useTrips } from "@/hooks/useTrips";
 import {
   Trip,
@@ -1024,8 +1024,6 @@ ${IKTRACKER_URL}`;
 
   return (
     <>
-      <Helmet></Helmet>
-
       {/* Desktop Sidebar - hidden on mobile */}
       {!isMobile && (
         <DesktopSidebar

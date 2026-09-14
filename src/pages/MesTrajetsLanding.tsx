@@ -1,4 +1,4 @@
-import { Helmet } from "@/lib/helmet-compat";
+import { JsonLd } from "@/components/JsonLd";
 import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
 import { Link } from "@/lib/router-compat";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
@@ -92,7 +92,7 @@ const features = [
 export default function MesTrajetsLanding() {
   return (
     <>
-      <Helmet>
+      <JsonLd>
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
@@ -151,7 +151,7 @@ export default function MesTrajetsLanding() {
             }),
           )}
         </script>
-      </Helmet>
+      </JsonLd>
 
       <MarketingNav />
 

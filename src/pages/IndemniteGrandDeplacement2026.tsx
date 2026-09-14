@@ -1,6 +1,6 @@
 import { ClusterLinks } from "@/components/marketing/ClusterLinks";
 import { LastUpdated } from "@/components/LastUpdated";
-import { Helmet } from "@/lib/helmet-compat";
+import { JsonLd } from "@/components/JsonLd";
 import { Link } from "@/lib/router-compat";
 import { lazy, Suspense, memo } from "react";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
@@ -91,7 +91,7 @@ const FAQS = [
 export default function IndemniteGrandDeplacement2026() {
   return (
     <>
-      <Helmet>
+      <JsonLd>
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
@@ -129,7 +129,7 @@ export default function IndemniteGrandDeplacement2026() {
             }),
           )}
         </script>
-      </Helmet>
+      </JsonLd>
 
       <MarketingNav />
 

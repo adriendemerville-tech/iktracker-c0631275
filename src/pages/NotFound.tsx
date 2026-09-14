@@ -1,6 +1,6 @@
 import { useLocation, Link } from "@/lib/router-compat";
 import { useEffect } from "react";
-import { Helmet } from "@/lib/helmet-compat";
+import { JsonLd } from "@/components/JsonLd";
 import { Home, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -13,12 +13,12 @@ const NotFound = () => {
 
   return (
     <>
-      <Helmet>
+      <JsonLd>
         <title>Page non trouvée | IKtracker</title>
         <meta name="description" content="Cette page n'existe pas sur IKtracker." />
         <meta name="robots" content="noindex, nofollow" />
         <link rel="canonical" href="https://iktracker.fr/404" />
-      </Helmet>
+      </JsonLd>
 
       <div className="flex min-h-screen items-center justify-center bg-background px-4">
         <div className="text-center max-w-md">

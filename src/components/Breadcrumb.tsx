@@ -1,5 +1,5 @@
 import { Link, useLocation } from "@/lib/router-compat";
-import { Helmet } from "@/lib/helmet-compat";
+import { JsonLd } from "@/components/JsonLd";
 import { ChevronRight, Home } from "lucide-react";
 
 interface BreadcrumbItem {
@@ -39,9 +39,9 @@ export function Breadcrumb({ items, className = "" }: BreadcrumbProps) {
 
   return (
     <>
-      <Helmet>
+      <JsonLd>
         <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
-      </Helmet>
+      </JsonLd>
 
       <nav aria-label="Fil d'Ariane" className={`mb-6 ${className}`}>
         <ol className="flex items-center gap-1.5 text-sm text-muted-foreground flex-wrap">

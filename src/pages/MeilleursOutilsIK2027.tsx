@@ -1,7 +1,7 @@
 import { ClusterLinks } from "@/components/marketing/ClusterLinks";
 import { lazy, Suspense, memo } from "react";
 import { Link } from "@/lib/router-compat";
-import { Helmet } from "@/lib/helmet-compat";
+import { JsonLd } from "@/components/JsonLd";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { LastUpdated } from "@/components/LastUpdated";
@@ -179,13 +179,13 @@ export default function MeilleursOutilsIK2027() {
 
   return (
     <>
-      <Helmet>
+      <JsonLd>
         {schemas.map((s, i) => (
           <script key={i} type="application/ld+json">
             {JSON.stringify(s)}
           </script>
         ))}
-      </Helmet>
+      </JsonLd>
 
       <MarketingNav />
 

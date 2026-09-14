@@ -1,6 +1,6 @@
 import { LastUpdated } from "@/components/LastUpdated";
 import { getStaticLastModified } from "@/lib/page-dates";
-import { Helmet } from "@/lib/helmet-compat";
+import { JsonLd } from "@/components/JsonLd";
 import { RelatedLinks } from "@/components/marketing/RelatedLinks";
 import { Link } from "@/lib/router-compat";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
@@ -192,7 +192,7 @@ const faqs = [
 export default function Fonctionnalites() {
   return (
     <>
-      <Helmet>
+      <JsonLd>
         <script type="application/ld+json">
           {JSON.stringify(
             buildSoftwareApplicationSchema({
@@ -213,7 +213,7 @@ export default function Fonctionnalites() {
             })),
           })}
         </script>
-      </Helmet>
+      </JsonLd>
 
       <MarketingNav />
 

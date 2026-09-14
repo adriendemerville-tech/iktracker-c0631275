@@ -1,7 +1,7 @@
 import { ClusterLinks } from "@/components/marketing/ClusterLinks";
 import { LastUpdated } from "@/components/LastUpdated";
 import { getStaticLastModified } from "@/lib/page-dates";
-import { Helmet } from "@/lib/helmet-compat";
+import { JsonLd } from "@/components/JsonLd";
 import { buildSoftwareApplicationSchema } from "@/lib/seo-schemas";
 import { Link } from "@/lib/router-compat";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
@@ -39,7 +39,7 @@ const faqs = [
 export default function NoteDeFraisKilometrique() {
   return (
     <>
-      <Helmet>
+      <JsonLd>
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
@@ -98,7 +98,7 @@ export default function NoteDeFraisKilometrique() {
             }),
           )}
         </script>
-      </Helmet>
+      </JsonLd>
 
       <MarketingNav />
 
