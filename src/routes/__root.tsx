@@ -1,6 +1,5 @@
 import { lazy, Suspense, useEffect } from "react";
 import type { ReactNode } from "react";
-import { HelmetProvider } from "@/lib/helmet-compat";
 import { QueryClientProvider, type QueryClient } from "@tanstack/react-query";
 import {
   createRootRouteWithContext,
@@ -367,7 +366,7 @@ function AppContent() {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
-    <HelmetProvider>
+    <>
       <QueryClientProvider client={queryClient}>
         <ErrorBoundary>
           <Suspense fallback={null}>
@@ -379,7 +378,7 @@ function RootComponent() {
           </Suspense>
         </ErrorBoundary>
       </QueryClientProvider>
-    </HelmetProvider>
+    </>
   );
 }
 
