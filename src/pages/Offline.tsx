@@ -1,5 +1,4 @@
 import { WifiOff, RefreshCw, Home } from "lucide-react";
-import { JsonLd } from "@/components/JsonLd";
 import { Button } from "@/components/ui/button";
 
 const Offline = () => {

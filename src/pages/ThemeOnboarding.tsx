@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "@/lib/router-compat";
-import { JsonLd } from "@/components/JsonLd";
 import { motion } from "framer-motion";
 import { Sun, Moon, Loader2 } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";

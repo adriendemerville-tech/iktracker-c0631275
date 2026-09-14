@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { Copy, Plus, Power, Trash2, Webhook, RefreshCw } from "lucide-react";
-import { JsonLd } from "@/components/JsonLd";
 
 interface Partner {
   id: string;

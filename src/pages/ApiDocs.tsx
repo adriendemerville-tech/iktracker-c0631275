@@ -1,6 +1,5 @@
 import { LastUpdated } from "@/components/LastUpdated";
 import { getStaticLastModified } from "@/lib/page-dates";
-import { JsonLd } from "@/components/JsonLd";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { EnhancedMarketingFooter } from "@/components/marketing/EnhancedMarketingFooter";
 import { Breadcrumb } from "@/components/Breadcrumb";

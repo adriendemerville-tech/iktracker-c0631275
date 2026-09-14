@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { JsonLd } from "@/components/JsonLd";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Monitor,

@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { JsonLd } from "@/components/JsonLd";
 import { useNavigate } from "@/lib/router-compat";
 import {
   ArrowLeft,

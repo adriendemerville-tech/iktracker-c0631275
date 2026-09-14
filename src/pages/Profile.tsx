@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo, Suspense, lazy } from "react";
-import { JsonLd } from "@/components/JsonLd";
 import { useNavigate, Link } from "@/lib/router-compat";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";

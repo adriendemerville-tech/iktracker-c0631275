@@ -1,6 +1,5 @@
 import { useState, useEffect, lazy, Suspense, memo } from "react";
 import { Link, useNavigate } from "@/lib/router-compat";
-import { JsonLd } from "@/components/JsonLd";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useEmailGate, UNVERIFIED_TOUR_LIMIT } from "@/hooks/useEmailGate";
