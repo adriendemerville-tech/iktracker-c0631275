@@ -167,13 +167,6 @@ export default function BlogPost() {
 
   return (
     <>
-      <JsonLd>
-        {/* Title, description, canonical, OG/Twitter tags and all JSON-LD graphs
-            are served server-side from the route head() in src/routes/blog/$slug.tsx */}
-        {post.author_name ? <meta property="article:author" content={post.author_name} /> : null}
-        <meta name="author" content={post.author_name || "IKtracker"} />
-      </JsonLd>
-
 
       <div className="min-h-screen bg-background">
         <main id="main-content" tabIndex={-1} className="outline-hidden">
