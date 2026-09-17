@@ -1,4 +1,5 @@
 import { useState, useEffect, lazy, Suspense, memo } from "react";
+import { DeferUntilIdle } from "@/components/marketing/DeferUntilIdle";
 import { Link, useNavigate } from "@/lib/router-compat";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -1043,9 +1044,9 @@ ${IKTRACKER_MENTION}
 
   return (
     <>
-      <Suspense fallback={null}>
+      <DeferUntilIdle>
         <ReferralSourceModal />
-      </Suspense>
+      </DeferUntilIdle>
       <AlertDialog open={showTourMobileOnly} onOpenChange={setShowTourMobileOnly}>
         <AlertDialogContent className="max-w-sm">
           <AlertDialogHeader className="text-center">
