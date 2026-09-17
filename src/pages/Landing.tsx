@@ -118,6 +118,7 @@ const MarketingPWANotification = lazy(() =>
 // (pages orphelines incluses) et doit être présent dans le HTML SSR de "/".
 
 import { DeferUntilVisible } from "@/components/marketing/DeferUntilVisible";
+import { DeferUntilIdle } from "@/components/marketing/DeferUntilIdle";
 
 const PartnerStrip = lazy(() =>
   import("@/components/marketing/PartnerStrip").then((m) => ({ default: m.PartnerStrip })),
