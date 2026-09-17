@@ -1138,10 +1138,10 @@ ${IKTRACKER_MENTION}
       />
 
       {/* Onboarding Tutorial - Desktop only */}
-      {!isMobile && (
-        <Suspense fallback={<SheetLoader />}>
+      {!isMobile && showTutorial && (
+        <DeferUntilIdle>
           <OnboardingTutorial isVisible={showTutorial} onComplete={completeTutorial} />
-        </Suspense>
+        </DeferUntilIdle>
       )}
 
       {/* SEO for protected app page */}
