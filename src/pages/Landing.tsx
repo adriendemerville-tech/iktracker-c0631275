@@ -1153,9 +1153,9 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm, reviews }
       <BodyEndInjections />
       <EnhancedMarketingFooter />
 
-      <Suspense fallback={null}>
+      <DeferUntilIdle>
         <MarketingPWANotification />
-      </Suspense>
+      </DeferUntilIdle>
     </div>
   );
 };
