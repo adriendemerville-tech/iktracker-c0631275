@@ -68,10 +68,15 @@ export const Route = createFileRoute("/blog/$slug")({
       created_at: post.created_at as string | null,
       updated_at: post.updated_at as string | null,
     });
+    // Le suffixe de marque n'est ajouté que s'il tient sous les 70 caractères
+    // recommandés : sinon le titre serait tronqué dans les SERP.
+    const SUFFIX = " | Blog IKtracker";
+    const seoTitle = title.length + SUFFIX.length <= 70 ? `${title}${SUFFIX}` : title;
     return {
 
       meta: [
-        { title: `${title} | Blog IKtracker` },
+        { title: seoTitle },
+
         { name: "description", content: description },
         { property: "og:title", content: title },
         { property: "og:description", content: description },
