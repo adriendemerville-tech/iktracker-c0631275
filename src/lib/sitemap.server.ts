@@ -61,6 +61,10 @@ const staticPages: SitemapEntry[] = [
   { path: "/terms", priority: "0.3", changefreq: "yearly" },
 ];
 
+/** Chemins statiques indexables, réutilisés par la soumission IndexNow/Google. */
+export const STATIC_INDEXABLE_PATHS = staticPages.map((p) => p.path);
+
+
 const PAGE_SIZE = 1000;
 
 async function fetchAllPublishedPosts() {
