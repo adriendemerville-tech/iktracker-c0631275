@@ -191,7 +191,22 @@ export const Route = createFileRoute("/api/public/submit-indexing")({
             url: `${SITE}/blog/${p.slug}`,
             updatedAt: (p.updated_at ?? p.published_at ?? new Date().toISOString()) as string,
           }));
+
+          // Pages statiques indexables : soumises une fois par version de
+          // contenu (dédupliquées via STATIC_PAGE_LASTMOD), sinon des pages
+          // clés comme /indemnites-kilometriques-2027 ne partaient jamais.
+          const [{ STATIC_INDEXABLE_PATHS }, { STATIC_PAGE_LASTMOD }] = await Promise.all([
+            import("@/lib/sitemap.server"),
+            import("@/lib/page-dates"),
+          ]);
+          for (const path of STATIC_INDEXABLE_PATHS) {
+            candidates.push({
+              url: `${SITE}${path}`,
+              updatedAt: STATIC_PAGE_LASTMOD[path] ?? "static",
+            });
+          }
         }
+
 
         // --- Deduplicate against previous SUCCESSFUL submissions of the same content version ---
         // (les échecs restent rejouables : un 429 doit repasser au run suivant)
