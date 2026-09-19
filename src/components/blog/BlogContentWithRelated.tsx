@@ -190,6 +190,12 @@ export function BlogContentWithRelated({ content, postId }: BlogContentWithRelat
     prose-td:border prose-td:border-border prose-td:p-3`;
 
   const markdownComponents = {
+    // Le <h1> de la page est le titre de l'article : tout h1 présent dans le
+    // contenu (markdown ou HTML injecté) est rétrogradé en h2 pour éviter
+    // les "multiple H1" signalés par les audits SEO.
+    h1: ({ children, ...props }: { children?: React.ReactNode }) => (
+      <h2 {...props}>{children}</h2>
+    ),
     img: ({ src, alt }: { src?: string; alt?: string }) => (
       <OptimizedImage
         src={src || ""}
@@ -199,6 +205,7 @@ export function BlogContentWithRelated({ content, postId }: BlogContentWithRelat
       />
     ),
   };
+
 
   return (
     <>
