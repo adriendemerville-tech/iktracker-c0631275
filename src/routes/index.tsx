@@ -42,10 +42,12 @@ export const Route = createFileRoute("/")({
   }),
   loader: async () => {
     try {
+      // Chaque appel a son propre repli : un échec isolé ne doit pas
+      // mettre les autres compteurs à zéro.
       const [userResult, tripResult, reviews] = await Promise.all([
-        getRegisteredUserCount(),
-        getPublicTripStats(),
-        getPublishedReviews(),
+        getRegisteredUserCount().catch(() => undefined),
+        getPublicTripStats().catch(() => undefined),
+        getPublishedReviews().catch(() => undefined),
       ]);
       return {
         count: userResult?.count ?? 1000,
