@@ -48,11 +48,11 @@ export const Route = createFileRoute("/")({
         getPublishedReviews(),
       ]);
       return {
-        count: userResult.count,
-        offset: userResult.offset,
-        tripCount: tripResult.tripCount,
-        totalKm: tripResult.totalKm,
-        reviews,
+        count: userResult?.count ?? 1000,
+        offset: userResult?.offset ?? 1000,
+        tripCount: tripResult?.tripCount ?? 0,
+        totalKm: tripResult?.totalKm ?? 0,
+        reviews: reviews ?? [],
       };
     } catch (err) {
       console.error("Failed to load homepage stats:", err);
