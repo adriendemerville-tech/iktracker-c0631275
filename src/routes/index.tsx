@@ -42,17 +42,19 @@ export const Route = createFileRoute("/")({
   }),
   loader: async () => {
     try {
+      // Chaque appel a son propre repli : un échec isolé ne doit pas
+      // mettre les autres compteurs à zéro.
       const [userResult, tripResult, reviews] = await Promise.all([
-        getRegisteredUserCount(),
-        getPublicTripStats(),
-        getPublishedReviews(),
+        getRegisteredUserCount().catch(() => undefined),
+        getPublicTripStats().catch(() => undefined),
+        getPublishedReviews().catch(() => undefined),
       ]);
       return {
-        count: userResult.count,
-        offset: userResult.offset,
-        tripCount: tripResult.tripCount,
-        totalKm: tripResult.totalKm,
-        reviews,
+        count: userResult?.count ?? 1000,
+        offset: userResult?.offset ?? 1000,
+        tripCount: tripResult?.tripCount ?? 0,
+        totalKm: tripResult?.totalKm ?? 0,
+        reviews: reviews ?? [],
       };
     } catch (err) {
       console.error("Failed to load homepage stats:", err);
