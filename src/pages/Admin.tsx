@@ -653,8 +653,11 @@ const Admin = () => {
     );
   }
 
-  const pendingCount = feedbacks.filter((f) => !f.response).length;
-  const respondedCount = feedbacks.filter((f) => f.response).length;
+  // On ne comptabilise que les messages des utilisateurs, pas ceux des admins.
+  const userFeedbacks = feedbacks.filter((f) => !f.is_admin_message);
+  const pendingCount = userFeedbacks.filter((f) => !f.response).length;
+  const respondedCount = userFeedbacks.filter((f) => f.response).length;
+
   const adminCount = userRoles.length;
 
   return (
