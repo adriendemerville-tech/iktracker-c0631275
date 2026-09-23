@@ -134,7 +134,10 @@ interface UserWithRole {
   persona: string | null;
 }
 
+const SEEN_FEEDBACK_KEY = "ik_admin_seen_feedback_ids";
+
 const Admin = () => {
+
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user, loading: authLoading } = useAuth();
