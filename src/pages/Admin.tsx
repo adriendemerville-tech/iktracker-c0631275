@@ -134,7 +134,10 @@ interface UserWithRole {
   persona: string | null;
 }
 
+const SEEN_FEEDBACK_KEY = "ik_admin_seen_feedback_ids";
+
 const Admin = () => {
+
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user, loading: authLoading } = useAuth();
@@ -152,7 +155,18 @@ const Admin = () => {
   const [userSheetOpen, setUserSheetOpen] = useState(false);
   const [convoToDelete, setConvoToDelete] = useState<string | null>(null);
   const [adminMessageText, setAdminMessageText] = useState("");
+  const [seenMessageIds, setSeenMessageIds] = useState<string[]>([]);
   const adminMessageRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(SEEN_FEEDBACK_KEY);
+      if (raw) setSeenMessageIds(JSON.parse(raw));
+    } catch {
+      /* stockage indisponible */
+    }
+  }, []);
+
 
   // Unresolved critical errors count for header alert
   const { data: unresolvedErrors = 0 } = useQuery({
@@ -525,8 +539,10 @@ const Admin = () => {
     messages: Feedback[];
     lastMessageAt: string;
     unrespondedCount: number;
+    lastMessageId: string;
     totalCount: number;
   }
+
 
   const conversations: ConversationGroup[] = (() => {
     const grouped = new Map<string, Feedback[]>();
@@ -558,11 +574,30 @@ const Admin = () => {
             const last = sorted[sorted.length - 1];
             return last && !last.is_admin_message && !last.response ? 1 : 0;
           })(),
+          lastMessageId: sorted[sorted.length - 1]?.id ?? "",
           totalCount: sorted.length,
         };
       })
       .sort((a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime());
   })();
+
+  // Pastille rouge : conversations dont le dernier message utilisateur non répondu
+  // n'a pas encore été consulté par l'admin.
+  const unseenConversations = conversations.filter(
+    (c) => c.unrespondedCount > 0 && !seenMessageIds.includes(c.lastMessageId),
+  ).length;
+
+  const markConversationSeen = (lastMessageId: string) => {
+    if (!lastMessageId || seenMessageIds.includes(lastMessageId)) return;
+    const next = [...seenMessageIds, lastMessageId].slice(-200);
+    setSeenMessageIds(next);
+    try {
+      localStorage.setItem(SEEN_FEEDBACK_KEY, JSON.stringify(next));
+    } catch {
+      /* stockage indisponible */
+    }
+  };
+
 
   const selectedConversation =
     conversations.find((c) => c.userId === selectedConversationUserId) || null;
@@ -618,8 +653,11 @@ const Admin = () => {
     );
   }
 
-  const pendingCount = feedbacks.filter((f) => !f.response).length;
-  const respondedCount = feedbacks.filter((f) => f.response).length;
+  // On ne comptabilise que les messages des utilisateurs, pas ceux des admins.
+  const userFeedbacks = feedbacks.filter((f) => !f.is_admin_message);
+  const pendingCount = userFeedbacks.filter((f) => !f.response).length;
+  const respondedCount = userFeedbacks.filter((f) => f.response).length;
+
   const adminCount = userRoles.length;
 
   return (
@@ -704,7 +742,14 @@ const Admin = () => {
               </TabsTrigger>
               <TabsTrigger value="feedbacks" className="flex items-center gap-1 text-xs sm:text-sm">
                 <MessageSquare className="w-4 h-4" />
-                <span className="hidden sm:inline">Avis</span> ({feedbacks.length})
+                <span className="hidden sm:inline">Avis</span> ({userFeedbacks.length})
+                {unseenConversations > 0 && (
+                  <span
+                    aria-label={`${unseenConversations} nouveau(x) message(s)`}
+                    className="ml-1 inline-block h-2.5 w-2.5 rounded-full bg-destructive"
+                  />
+                )}
+
               </TabsTrigger>
               {adminRole !== "viewer" && (
                 <TabsTrigger value="users" className="flex items-center gap-1 text-xs sm:text-sm">
@@ -829,6 +874,8 @@ const Admin = () => {
                               key={convo.userId}
                               onClick={() => {
                                 setSelectedConversationUserId(convo.userId);
+                                markConversationSeen(convo.lastMessageId);
+
                                 setSelectedFeedback(null);
                                 setResponseText("");
                               }}
