@@ -525,8 +525,10 @@ const Admin = () => {
     messages: Feedback[];
     lastMessageAt: string;
     unrespondedCount: number;
+    lastMessageId: string;
     totalCount: number;
   }
+
 
   const conversations: ConversationGroup[] = (() => {
     const grouped = new Map<string, Feedback[]>();
