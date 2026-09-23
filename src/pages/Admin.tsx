@@ -874,6 +874,8 @@ const Admin = () => {
                               key={convo.userId}
                               onClick={() => {
                                 setSelectedConversationUserId(convo.userId);
+                                markConversationSeen(convo.lastMessageId);
+
                                 setSelectedFeedback(null);
                                 setResponseText("");
                               }}
