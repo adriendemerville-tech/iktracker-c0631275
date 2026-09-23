@@ -742,7 +742,14 @@ const Admin = () => {
               </TabsTrigger>
               <TabsTrigger value="feedbacks" className="flex items-center gap-1 text-xs sm:text-sm">
                 <MessageSquare className="w-4 h-4" />
-                <span className="hidden sm:inline">Avis</span> ({feedbacks.length})
+                <span className="hidden sm:inline">Avis</span> ({userFeedbacks.length})
+                {unseenConversations > 0 && (
+                  <span
+                    aria-label={`${unseenConversations} nouveau(x) message(s)`}
+                    className="ml-1 inline-block h-2.5 w-2.5 rounded-full bg-destructive"
+                  />
+                )}
+
               </TabsTrigger>
               {adminRole !== "viewer" && (
                 <TabsTrigger value="users" className="flex items-center gap-1 text-xs sm:text-sm">
