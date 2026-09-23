@@ -558,11 +558,30 @@ const Admin = () => {
             const last = sorted[sorted.length - 1];
             return last && !last.is_admin_message && !last.response ? 1 : 0;
           })(),
+          lastMessageId: sorted[sorted.length - 1]?.id ?? "",
           totalCount: sorted.length,
         };
       })
       .sort((a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime());
   })();
+
+  // Pastille rouge : conversations dont le dernier message utilisateur non répondu
+  // n'a pas encore été consulté par l'admin.
+  const unseenConversations = conversations.filter(
+    (c) => c.unrespondedCount > 0 && !seenMessageIds.includes(c.lastMessageId),
+  ).length;
+
+  const markConversationSeen = (lastMessageId: string) => {
+    if (!lastMessageId || seenMessageIds.includes(lastMessageId)) return;
+    const next = [...seenMessageIds, lastMessageId].slice(-200);
+    setSeenMessageIds(next);
+    try {
+      localStorage.setItem(SEEN_FEEDBACK_KEY, JSON.stringify(next));
+    } catch {
+      /* stockage indisponible */
+    }
+  };
+
 
   const selectedConversation =
     conversations.find((c) => c.userId === selectedConversationUserId) || null;
