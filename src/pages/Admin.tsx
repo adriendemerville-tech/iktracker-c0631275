@@ -152,7 +152,18 @@ const Admin = () => {
   const [userSheetOpen, setUserSheetOpen] = useState(false);
   const [convoToDelete, setConvoToDelete] = useState<string | null>(null);
   const [adminMessageText, setAdminMessageText] = useState("");
+  const [seenMessageIds, setSeenMessageIds] = useState<string[]>([]);
   const adminMessageRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(SEEN_FEEDBACK_KEY);
+      if (raw) setSeenMessageIds(JSON.parse(raw));
+    } catch {
+      /* stockage indisponible */
+    }
+  }, []);
+
 
   // Unresolved critical errors count for header alert
   const { data: unresolvedErrors = 0 } = useQuery({
