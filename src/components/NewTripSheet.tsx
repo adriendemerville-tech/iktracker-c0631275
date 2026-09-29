@@ -280,7 +280,7 @@ export function NewTripSheet({
         setStep("start");
       }
     }
-  }, [open, editTrip, vehicles, draft.vehicleId]);
+  }, [open, editTrip, vehicles, draft.vehicleId, preferences.defaultVehicleId]);
 
   // Restore draft from localStorage when opening (if not editing)
   useEffect(() => {
