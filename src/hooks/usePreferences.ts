@@ -103,7 +103,7 @@ export function usePreferences() {
         const { data, error } = await supabase
           .from("user_preferences")
           .select(
-            "accountant_email, persona, calendar_import_mode, ik_rate_override, accountant_auto_send, accountant_frequency, accountant_send_day, user_monthly_report_enabled",
+            "accountant_email, persona, calendar_import_mode, ik_rate_override, accountant_auto_send, accountant_frequency, accountant_send_day, user_monthly_report_enabled, default_vehicle_id",
           )
           .eq("user_id", user.id)
           .maybeSingle();
@@ -156,6 +156,9 @@ export function usePreferences() {
           }
           if (typeof data.user_monthly_report_enabled === "boolean") {
             updates.userMonthlyReportEnabled = data.user_monthly_report_enabled;
+          }
+          if (data.default_vehicle_id !== undefined) {
+            updates.defaultVehicleId = data.default_vehicle_id;
           }
 
           if (Object.keys(updates).length > 0) {
@@ -325,6 +328,19 @@ export function usePreferences() {
     }
     if (key === "userMonthlyReportEnabled" && user) {
       saveAccountantScheduleToDatabase({ user_monthly_report_enabled: value as boolean });
+    }
+
+    // Sync default vehicle to database
+    if (key === "defaultVehicleId" && user) {
+      supabase
+        .from("user_preferences")
+        .upsert(
+          { user_id: user.id, default_vehicle_id: (value as string | null) ?? null },
+          { onConflict: "user_id" },
+        )
+        .then(({ error }) => {
+          if (error) console.warn("Failed to save default_vehicle_id:", error);
+        });
     }
   };
 
