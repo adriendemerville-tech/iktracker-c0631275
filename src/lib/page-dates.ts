@@ -67,7 +67,7 @@ export const STATIC_PAGE_LASTMOD: Record<string, string> = {
   "/comparatif-izika": "2026-08-23",
   "/comparatif-driversnote": "2026-08-23",
   "/meilleurs-outils-indemnites-kilometriques-2027": "2026-08-30",
-  "/api-docs": "2026-08-16",
+  "/api-docs": "2026-09-29",
   "/fonctionnalites": "2026-08-19",
   "/artisans": "2026-08-23",
   "/logiciel-devis-artisan": "2026-08-20",

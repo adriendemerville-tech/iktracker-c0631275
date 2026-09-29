@@ -201,9 +201,19 @@ x-api-key: ikt_live_xxx...
 x-external-user-id: user-12345`}</Code>
           <Code>{`{
   "calendar_import_mode": "tour",
+  "ik_rate_override": "auto",
+  "ik_rate_override_options": ["auto", "tier1", "tier2", "tier3"],
+  "default_vehicle_id": "a1b2c3d4-…",
   "has_home_address": true,
   "note": null
 }`}</Code>
+          <p className="text-sm text-muted-foreground">
+            <code>ik_rate_override</code> fige le taux IK appliqué à chaque km (
+            <code>tier1</code> ≤ 5 000 km, <code>tier2</code> 5 001–20 000 km, <code>tier3</code>{" "}
+            &gt; 20 000 km) ; <code>auto</code> suit le barème officiel.{" "}
+            <code>default_vehicle_id</code> est le véhicule présélectionné à l'ouverture d'un
+            nouveau trajet (<code>null</code> si aucun).
+          </p>
           <p className="text-sm text-muted-foreground">
             <code>note: "home_address_missing"</code> signale que le mode <code>tour</code> est
             actif mais qu'aucune adresse « Maison » n'est définie côté IKtracker : les imports
@@ -213,21 +223,29 @@ x-external-user-id: user-12345`}</Code>
 
         <Endpoint method="PUT" path="/preferences" scope="preferences:write">
           <p className="text-sm text-muted-foreground">
-            Met à jour le mode d'import calendrier de l'utilisateur lié. Renvoie{" "}
+            Met à jour les préférences de l'utilisateur lié : mode d'import calendrier, taux IK
+            forcé et/ou véhicule par défaut (un ou plusieurs champs par requête). Renvoie{" "}
             <code>409 home_address_required</code>
-            si l'utilisateur active <code>tour</code> sans avoir défini d'adresse Maison.
+            si l'utilisateur active <code>tour</code> sans avoir défini d'adresse Maison, et{" "}
+            <code>400</code> si <code>default_vehicle_id</code> n'appartient pas à l'utilisateur.
           </p>
           <Code>{`PUT ${baseUrl}/preferences
 x-api-key: ikt_live_xxx...
 x-external-user-id: user-12345
 Content-Type: application/json
 
-{ "calendar_import_mode": "tour" }`}</Code>
+{ "calendar_import_mode": "tour", "ik_rate_override": "tier2", "default_vehicle_id": "a1b2c3d4-…" }`}</Code>
           <Code>{`{
+  "success": true,
   "calendar_import_mode": "tour",
-  "has_home_address": true,
-  "updated_at": "2026-07-22T09:12:00Z"
+  "ik_rate_override": "tier2",
+  "default_vehicle_id": "a1b2c3d4-…"
 }`}</Code>
+          <p className="text-sm text-muted-foreground">
+            Passer <code>default_vehicle_id: null</code> efface le véhicule par défaut. Le véhicule
+            doit appartenir à l'utilisateur lié (récupérez les identifiants via{" "}
+            <code>GET /vehicles</code>).
+          </p>
           <p className="text-sm text-muted-foreground">
             Déclenche le webhook <code>preferences.updated</code> si votre plateforme y est abonnée.
           </p>
