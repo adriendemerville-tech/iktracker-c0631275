@@ -1414,7 +1414,7 @@ async function handleUpdatePreferences(req: Request, ctx: PartnerContext): Promi
 
   const { data: updated } = await admin
     .from("user_preferences")
-    .select("calendar_import_mode, ik_rate_override")
+    .select("calendar_import_mode, ik_rate_override, default_vehicle_id")
     .eq("user_id", userId)
     .maybeSingle();
 
@@ -1423,6 +1423,7 @@ async function handleUpdatePreferences(req: Request, ctx: PartnerContext): Promi
     iktracker_user_id: userId,
     calendar_import_mode: updated?.calendar_import_mode,
     ik_rate_override: updated?.ik_rate_override,
+    default_vehicle_id: updated?.default_vehicle_id,
     changed: Object.keys(patch),
   });
 
@@ -1430,6 +1431,7 @@ async function handleUpdatePreferences(req: Request, ctx: PartnerContext): Promi
     success: true,
     calendar_import_mode: updated?.calendar_import_mode,
     ik_rate_override: updated?.ik_rate_override,
+    default_vehicle_id: updated?.default_vehicle_id,
   });
 }
 
