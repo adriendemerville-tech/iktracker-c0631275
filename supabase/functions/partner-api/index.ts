@@ -1361,6 +1361,9 @@ async function handleUpdatePreferences(req: Request, ctx: PartnerContext): Promi
 
   const body = await req.json().catch(() => ({}));
 
+  const userId = await resolveLinkedUserId(ctx, externalUserId);
+  if (!userId) return jsonResponse({ error: "User not linked" }, 404);
+
   const patch: Record<string, unknown> = {};
   if (body.calendar_import_mode !== undefined) {
     if (!VALID_CAL_MODES.includes(body.calendar_import_mode)) {
