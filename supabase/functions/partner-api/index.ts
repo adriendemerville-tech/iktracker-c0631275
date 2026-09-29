@@ -1383,15 +1383,29 @@ async function handleUpdatePreferences(req: Request, ctx: PartnerContext): Promi
     }
     patch.ik_rate_override = body.ik_rate_override;
   }
+  if (body.default_vehicle_id !== undefined) {
+    if (body.default_vehicle_id === null) {
+      patch.default_vehicle_id = null;
+    } else {
+      const vehicleId = String(body.default_vehicle_id);
+      const { data: vehicle } = await admin
+        .from("vehicles")
+        .select("id")
+        .eq("id", vehicleId)
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (!vehicle) {
+        return jsonResponse({ error: "default_vehicle_id must be a vehicle owned by this user (or null)" }, 400);
+      }
+      patch.default_vehicle_id = vehicleId;
+    }
+  }
   if (Object.keys(patch).length === 0) {
     return jsonResponse(
-      { error: "Provide at least one of: calendar_import_mode, ik_rate_override" },
+      { error: "Provide at least one of: calendar_import_mode, ik_rate_override, default_vehicle_id" },
       400,
     );
   }
-
-  const userId = await resolveLinkedUserId(ctx, externalUserId);
-  if (!userId) return jsonResponse({ error: "User not linked" }, 404);
 
   const { error } = await admin
     .from("user_preferences")
