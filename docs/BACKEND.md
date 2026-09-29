@@ -158,7 +158,7 @@ Utilisateur → Cloudflare DNS (proxied)
 | `locations` | Adresses enregistrées (domicile, travail) | ✅ user_id |
 | `frequent_destinations` | Destinations fréquentes (mot-clé → adresse) | ✅ user_id |
 | `distance_cache` | Cache des distances calculées | ✅ user_id |
-| `user_preferences` | Préférences (persona, comptable, visites, didacticiel terminé, `calendar_import_mode` : `individual` ou `tour`, `ik_rate_override` : `auto` \| `tier2` \| `tier3` pour figer le taux IK) | ✅ user_id |
+| `user_preferences` | Préférences (persona, comptable, visites, didacticiel terminé, `calendar_import_mode` : `individual` ou `tour`, `ik_rate_override` : `auto` \| `tier2` \| `tier3` pour figer le taux IK, `default_vehicle_id` : véhicule présélectionné à l'ouverture d'un nouveau trajet, FK `vehicles` ON DELETE SET NULL) | ✅ user_id |
 | `tour_sessions` | Sessions de tournée GPS en cours (+ compteurs reprise) | ✅ user_id |
 | `tour_recovery_events` | Journal des événements de reprise de tournée (modal, auto-finalize, erreurs, toasts) | ✅ user_id + admin/viewer |
 
@@ -942,8 +942,8 @@ Validation via la fonction SQL `validate_partner_key(_key_hash)` (SECURITY DEFIN
 | `POST` | `/reports/send-email` | `reports` | Envoi du rapport par email (Resend) |
 | `POST` | `/sso/magic-link` | `sso` | Génère un magic link signé (JWT partenaire requis dans `Authorization`) |
 | `POST` | `/sso/dev` | `sso` | **Dev only** — génère un magic link sans JWT, à partir de `external_user_id` + `external_email` |
-| `GET` | `/preferences` | `preferences:read` / `read` | Retourne `calendar_import_mode`, `ik_rate_override`, `ik_rate_override_options`, `has_home_address` pour l'utilisateur lié |
-| `PUT` \| `PATCH` | `/preferences` | `preferences:write` / `write` | Met à jour `calendar_import_mode` et/ou `ik_rate_override`. Déclenche le webhook `preferences.updated` |
+| `GET` | `/preferences` | `preferences:read` / `read` | Retourne `calendar_import_mode`, `ik_rate_override`, `ik_rate_override_options`, `default_vehicle_id`, `has_home_address` pour l'utilisateur lié |
+| `PUT` \| `PATCH` | `/preferences` | `preferences:write` / `write` | Met à jour `calendar_import_mode`, `ik_rate_override` et/ou `default_vehicle_id`. Déclenche le webhook `preferences.updated` |
 | `GET` | `/vehicles` | `read` | Liste les véhicules de l'utilisateur lié |
 | `PATCH` \| `PUT` | `/vehicles/:id` | `vehicles:write` / `write` | Met à jour un véhicule (`fiscal_power`, `is_electric`, `make`, `model`, `year`, `license_plate`) et, si `update_past_trips: true`, recalcule immédiatement les IK de tous les trajets passés liés. Déclenche le webhook `vehicle.updated` |
 
@@ -952,6 +952,7 @@ Validation via la fonction SQL `validate_partner_key(_key_hash)` (SECURITY DEFIN
 Exposé pour permettre aux partenaires (ex. Dictadevi) d'offrir à leurs utilisateurs le pilotage des deux réglages clés du calcul IK sans quitter leur plateforme :
 - **`calendar_import_mode`** : `individual` (un trajet par événement) ou `tour` (regroupe les événements d'un même jour et d'un même calendrier en tournée). `tour` exige une adresse `Maison` dans `locations`.
 - **`ik_rate_override`** : `auto` (barème officiel tiered), `tier1` (≤ 5 000 km/an), `tier2` (5 001–20 000 km/an) ou `tier3` (> 20 000 km/an). Fige le taux appliqué à chaque km — utile pour les indépendants qui se remboursent mensuellement et veulent un taux stable toute l'année.
+- **`default_vehicle_id`** : véhicule présélectionné à l'ouverture d'un nouveau trajet (prime sur le dernier véhicule utilisé). Doit être un véhicule appartenant à l'utilisateur, ou `null` pour effacer le réglage.
 
 **Résolution utilisateur** : header `x-external-user-id` obligatoire → mapping `partner_users` → `iktracker_user_id`. Renvoie `404` si l'utilisateur n'est pas encore provisionné (appeler `/sso/magic-link` au préalable pour créer le mapping).
 
@@ -961,19 +962,20 @@ Exposé pour permettre aux partenaires (ex. Dictadevi) d'offrir à leurs utilisa
   "calendar_import_mode": "individual",
   "ik_rate_override": "auto",
   "ik_rate_override_options": ["auto", "tier1", "tier2", "tier3"],
+  "default_vehicle_id": "a1b2c3d4-…",
   "has_home_address": true,
   "note": null
 }
 ```
 `has_home_address` reflète l'existence d'une entrée `locations` avec `label = 'Maison'` (case-insensitive). `note = "home_address_missing"` est renvoyé si le mode courant est `tour` sans Maison définie : dans ce cas `sync-calendar-trips` retombe silencieusement en trajets individuels.
 
-**`PUT /preferences`** (ou `PATCH`) — body accepte un ou les deux champs :
+**`PUT /preferences`** (ou `PATCH`) — body accepte un ou plusieurs champs :
 ```json
-{ "calendar_import_mode": "tour", "ik_rate_override": "tier2" }
+{ "calendar_import_mode": "tour", "ik_rate_override": "tier2", "default_vehicle_id": "a1b2c3d4-…" }
 ```
-Upsert sur `user_preferences (user_id, calendar_import_mode, ik_rate_override)`. Codes :
-- `200` : préférences enregistrées, renvoie `{ success, calendar_import_mode, ik_rate_override }`.
-- `400` : valeur invalide, ou aucun champ fourni.
+Upsert sur `user_preferences (user_id, calendar_import_mode, ik_rate_override, default_vehicle_id)`. `default_vehicle_id` est validé : le véhicule doit appartenir à l'utilisateur lié (`null` accepté pour effacer). Codes :
+- `200` : préférences enregistrées, renvoie `{ success, calendar_import_mode, ik_rate_override, default_vehicle_id }`.
+- `400` : valeur invalide, `default_vehicle_id` n'appartenant pas à l'utilisateur, ou aucun champ fourni.
 - `403` : scope manquant (`preferences:write` ou fallback `write`).
 - `404` : utilisateur externe non provisionné.
 - `409` : `{ "error": "home_address_required" }` si activation `tour` sans Maison (bloquant : les préférences ne sont pas modifiées).
@@ -988,6 +990,7 @@ Upsert sur `user_preferences (user_id, calendar_import_mode, ik_rate_override)`.
     "iktracker_user_id": "…",
     "calendar_import_mode": "tour",
     "ik_rate_override": "tier2",
+    "default_vehicle_id": "a1b2c3d4-…",
     "changed": ["calendar_import_mode", "ik_rate_override"]
   }
 }
@@ -1465,6 +1468,7 @@ Serveur MCP OAuth 2.1 exposant les données IKtracker à ChatGPT / Claude / Curs
 - **3.3** (30 juillet 2026) — Boucle qualité LinkedIn : nouvelle Edge Function `linkedin-post-audit` (cron `*/5 * * * *`) qui relit chaque post publié ~5 min après, l'audite (hook, potentiel d'impressions, contrôles déterministes de forme) et déclenche automatiquement une republication corrigée via `?mode=repost` en conservant le média. Nouvelles colonnes d'audit sur `linkedin_post_log`.
 - **3.2** (27 juillet 2026) — Recalcul IK opt-in : la modif d'un véhicule (CV fiscaux, statut électrique) ne recalcule plus systématiquement les trajets passés. Nouvelle case « Mettre à jour les trajets passés » dans `VehicleForm` (côté app) et paramètre `update_past_trips` dans `PATCH /vehicles/:id` de l'API partenaire. Par défaut, seuls les trajets à venir utilisent le nouveau barème. Nouveau endpoint `GET /vehicles` (liste), webhook `vehicle.updated` enrichi (`changed[]`, `update_past_trips`, `recalculated_trips`).
 - **3.1** (27 juillet 2026) — Renforcement anti-doublons des trajets à compléter : normalisation partagée en base (`normalize_trip_dedupe_text`), purge rétroactive par `date + destination + intitulé`, et trigger comptes liés (`sync_linked_trip_ins`) qui fusionne les variantes d'adresse au lieu de recréer un doublon. `sync-calendar-trips` applique la même garde avant insertion.
+- **3.1** (29 septembre 2026) — `user_preferences.default_vehicle_id` (FK `vehicles`, ON DELETE SET NULL) : véhicule par défaut persisté en base (synchro `usePreferences`), présélectionné à l'ouverture d'un nouveau trajet. Exposé dans l'API partenaire : `GET /preferences` le retourne, `PUT|PATCH /preferences` l'accepte (validation d'appartenance, `null` pour effacer), webhook `preferences.updated` enrichi.
 - **3.0** (27 juillet 2026) — API partenaire : endpoint `/preferences` étendu en lecture + écriture pour `calendar_import_mode` **et** `ik_rate_override` (`auto`|`tier1`|`tier2`|`tier3`). `PATCH` accepté en plus de `PUT`. Webhook `preferences.updated` enrichi (`ik_rate_override` + tableau `changed[]`). Filtrage rétroactif des doublons dans les trajets à compléter (`pending_location`) pour tous les utilisateurs.
 
 - **2.9** (27 juillet 2026) — Consolidation domaine sur l'apex `iktracker.fr` (www + .com → 301 apex). Ajout du déploiement Wrangler du Worker Cloudflare (`cloudflare-worker/wrangler.toml` + README) et de la map `LEGACY_REDIRECTS` (8 slugs legacy → slugs modernes). Audit sitemap : `/marina` retiré, `/signup` dépriorisé à 0.5, `/meilleure-application-...` remonté à 1.0, `/bareme-ik-2026` passé en `monthly`. `robots.txt` : `/admin` et `/admin/` bloqués explicitement.

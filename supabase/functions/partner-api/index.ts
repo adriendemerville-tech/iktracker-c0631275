@@ -1325,7 +1325,7 @@ async function handleGetPreferences(req: Request, ctx: PartnerContext): Promise<
 
   const { data } = await admin
     .from("user_preferences")
-    .select("calendar_import_mode, ik_rate_override")
+    .select("calendar_import_mode, ik_rate_override, default_vehicle_id")
     .eq("user_id", userId)
     .maybeSingle();
 
@@ -1343,6 +1343,7 @@ async function handleGetPreferences(req: Request, ctx: PartnerContext): Promise<
     calendar_import_mode: mode,
     ik_rate_override: ikOverride,
     ik_rate_override_options: VALID_IK_OVERRIDES,
+    default_vehicle_id: data?.default_vehicle_id ?? null,
     has_home_address: !!home,
     note:
       mode === "tour" && !home
@@ -1359,6 +1360,9 @@ async function handleUpdatePreferences(req: Request, ctx: PartnerContext): Promi
   if (!externalUserId) return jsonResponse({ error: "Missing x-external-user-id header" }, 400);
 
   const body = await req.json().catch(() => ({}));
+
+  const userId = await resolveLinkedUserId(ctx, externalUserId);
+  if (!userId) return jsonResponse({ error: "User not linked" }, 404);
 
   const patch: Record<string, unknown> = {};
   if (body.calendar_import_mode !== undefined) {
@@ -1379,15 +1383,29 @@ async function handleUpdatePreferences(req: Request, ctx: PartnerContext): Promi
     }
     patch.ik_rate_override = body.ik_rate_override;
   }
+  if (body.default_vehicle_id !== undefined) {
+    if (body.default_vehicle_id === null) {
+      patch.default_vehicle_id = null;
+    } else {
+      const vehicleId = String(body.default_vehicle_id);
+      const { data: vehicle } = await admin
+        .from("vehicles")
+        .select("id")
+        .eq("id", vehicleId)
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (!vehicle) {
+        return jsonResponse({ error: "default_vehicle_id must be a vehicle owned by this user (or null)" }, 400);
+      }
+      patch.default_vehicle_id = vehicleId;
+    }
+  }
   if (Object.keys(patch).length === 0) {
     return jsonResponse(
-      { error: "Provide at least one of: calendar_import_mode, ik_rate_override" },
+      { error: "Provide at least one of: calendar_import_mode, ik_rate_override, default_vehicle_id" },
       400,
     );
   }
-
-  const userId = await resolveLinkedUserId(ctx, externalUserId);
-  if (!userId) return jsonResponse({ error: "User not linked" }, 404);
 
   const { error } = await admin
     .from("user_preferences")
@@ -1396,7 +1414,7 @@ async function handleUpdatePreferences(req: Request, ctx: PartnerContext): Promi
 
   const { data: updated } = await admin
     .from("user_preferences")
-    .select("calendar_import_mode, ik_rate_override")
+    .select("calendar_import_mode, ik_rate_override, default_vehicle_id")
     .eq("user_id", userId)
     .maybeSingle();
 
@@ -1405,6 +1423,7 @@ async function handleUpdatePreferences(req: Request, ctx: PartnerContext): Promi
     iktracker_user_id: userId,
     calendar_import_mode: updated?.calendar_import_mode,
     ik_rate_override: updated?.ik_rate_override,
+    default_vehicle_id: updated?.default_vehicle_id,
     changed: Object.keys(patch),
   });
 
@@ -1412,6 +1431,7 @@ async function handleUpdatePreferences(req: Request, ctx: PartnerContext): Promi
     success: true,
     calendar_import_mode: updated?.calendar_import_mode,
     ik_rate_override: updated?.ik_rate_override,
+    default_vehicle_id: updated?.default_vehicle_id,
   });
 }
 

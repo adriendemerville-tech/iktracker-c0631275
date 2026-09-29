@@ -2935,6 +2935,7 @@ export type Database = {
           accountant_send_day: number
           calendar_import_mode: string
           created_at: string
+          default_vehicle_id: string | null
           id: string
           ik_rate_override: string
           persona: string
@@ -2953,6 +2954,7 @@ export type Database = {
           accountant_send_day?: number
           calendar_import_mode?: string
           created_at?: string
+          default_vehicle_id?: string | null
           id?: string
           ik_rate_override?: string
           persona?: string
@@ -2971,6 +2973,7 @@ export type Database = {
           accountant_send_day?: number
           calendar_import_mode?: string
           created_at?: string
+          default_vehicle_id?: string | null
           id?: string
           ik_rate_override?: string
           persona?: string
@@ -2981,7 +2984,15 @@ export type Database = {
           user_monthly_report_last_sent_at?: string | null
           visit_count?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_preferences_default_vehicle_id_fkey"
+            columns: ["default_vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
