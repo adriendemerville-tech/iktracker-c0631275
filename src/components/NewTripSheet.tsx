@@ -186,6 +186,7 @@ export function NewTripSheet({
   onCreateRecurring,
   recurringOnly = false,
 }: NewTripSheetProps) {
+  const { preferences } = usePreferences();
   const [step, setStep] = useState<Step>("vehicle");
   const [draft, setDraft] = useState<TripDraft>({});
   const [purpose, setPurpose] = useState("");
@@ -265,6 +266,11 @@ export function NewTripSheet({
 
       if (vehicles.length === 1) {
         vehicleToSelect = vehicles[0].id;
+      } else if (
+        preferences.defaultVehicleId &&
+        vehicles.find((v) => v.id === preferences.defaultVehicleId)
+      ) {
+        vehicleToSelect = preferences.defaultVehicleId;
       } else if (lastSelectedVehicleId && vehicles.find((v) => v.id === lastSelectedVehicleId)) {
         vehicleToSelect = lastSelectedVehicleId;
       }
@@ -630,9 +636,11 @@ export function NewTripSheet({
   const applyParsedTrip = async (parsed: ParsedTrip) => {
     if (!draft.vehicleId && vehicles.length > 0) {
       const vid =
-        lastSelectedVehicleId && vehicles.find((v) => v.id === lastSelectedVehicleId)
-          ? lastSelectedVehicleId
-          : vehicles[0].id;
+        preferences.defaultVehicleId && vehicles.find((v) => v.id === preferences.defaultVehicleId)
+          ? preferences.defaultVehicleId
+          : lastSelectedVehicleId && vehicles.find((v) => v.id === lastSelectedVehicleId)
+            ? lastSelectedVehicleId
+            : vehicles[0].id;
       setDraft((d) => ({ ...d, vehicleId: vid }));
     }
 
