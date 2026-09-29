@@ -35,6 +35,7 @@ import { fr } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { TripPromptBar, ParsedTrip } from "./TripPromptBar";
+import { usePreferences } from "@/hooks/usePreferences";
 
 // Normalize address for consistent caching
 const normalizeAddress = (address: string): string => {
