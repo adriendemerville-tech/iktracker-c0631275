@@ -1325,7 +1325,7 @@ async function handleGetPreferences(req: Request, ctx: PartnerContext): Promise<
 
   const { data } = await admin
     .from("user_preferences")
-    .select("calendar_import_mode, ik_rate_override")
+    .select("calendar_import_mode, ik_rate_override, default_vehicle_id")
     .eq("user_id", userId)
     .maybeSingle();
 
@@ -1343,6 +1343,7 @@ async function handleGetPreferences(req: Request, ctx: PartnerContext): Promise<
     calendar_import_mode: mode,
     ik_rate_override: ikOverride,
     ik_rate_override_options: VALID_IK_OVERRIDES,
+    default_vehicle_id: data?.default_vehicle_id ?? null,
     has_home_address: !!home,
     note:
       mode === "tour" && !home
