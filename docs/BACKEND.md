@@ -1634,4 +1634,4 @@ Le score de priorité est la somme des poids, plafonnée à 100.
 ### Changelog 3.2 — Scan carte grise
 - Bucket privé `vehicle-documents` (10 Mo, RLS : dossier = auth.uid()) — créé mais non utilisé : la photo de la carte grise n'est jamais enregistrée (document sensible).
 - Table `public.vehicle_registration_scans` (user_id, license_plate, extracted jsonb [A, B, C3, D1, D3, I, P3, P6], image_path toujours NULL, scanned_at) — RLS propriétaire, justificatif horodaté en cas de contrôle fiscal ; seules les données extraites et l'horodatage sont conservés.
-- Server fn `scanRegistration` (src/lib/registration-scan.functions.ts) : OCR via Lovable AI (gemini-2.5-flash), upload photo + insertion du scan.
+- Server fn `scanRegistration` (src/lib/registration-scan.functions.ts) : OCR via Lovable AI (gemini-2.5-flash), sans stockage de la photo : extraction IA puis insertion des seules données.
