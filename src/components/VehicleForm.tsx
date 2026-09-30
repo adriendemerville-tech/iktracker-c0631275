@@ -295,7 +295,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle, vehicleCo
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="bottom"
-        className="h-auto max-h-[90dvh] sm:max-h-[calc(100dvh-3rem)] sm:bottom-6 w-full sm:max-w-xl sm:mx-auto rounded-t-3xl sm:rounded-3xl overflow-hidden flex flex-col"
+        className="h-auto max-h-[90dvh] sm:max-h-[calc(100dvh-3rem)] sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2 w-full sm:max-w-xl sm:mx-auto rounded-t-3xl sm:rounded-3xl overflow-hidden flex flex-col"
       >
         <div className="w-full min-h-0 flex-1 flex flex-col">
           <SheetHeader className="pb-3 sm:pb-5 shrink-0">
@@ -366,7 +366,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle, vehicleCo
                 )}
               </div>
 
-              <div className="grid grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] gap-3 items-start">
+              <div className="grid grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] gap-3 items-start">
               {/* License plate */}
               <div className="space-y-2 min-w-0">
                 <Label htmlFor="licensePlate">Plaque d'immatriculation *</Label>
