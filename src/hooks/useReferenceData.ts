@@ -25,11 +25,12 @@ type VehicleRow = Tables<"vehicles">;
 function mapVehicleRow(v: VehicleRow): Vehicle {
   return {
     id: v.id,
+    name: v.name || "",
     ownerFirstName: v.owner_first_name || "",
     ownerLastName: v.owner_last_name || "",
     licensePlate: v.license_plate || "",
     make: v.make || "",
-    model: v.model || v.name,
+    model: v.model || "",
     fiscalPower: v.fiscal_power,
     year: v.year || undefined,
     isElectric: v.is_electric || false,
