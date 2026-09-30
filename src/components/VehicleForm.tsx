@@ -296,7 +296,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full h-11 font-display"
+                  className="w-full h-10 sm:h-11 font-display"
                   disabled={isScanning}
                   onClick={() => fileRef.current?.click()}
                 >
@@ -382,7 +382,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
                   value={fiscalPower}
                   onValueChange={(v) => setFiscalPower(v)}
                 >
-                  <SelectTrigger className="h-12 w-full">
+                  <SelectTrigger className="h-11 sm:h-12 w-full">
                     <SelectValue placeholder="Sélectionnez la puissance" />
                   </SelectTrigger>
                   <SelectContent className="max-h-60">
