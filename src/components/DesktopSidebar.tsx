@@ -257,7 +257,7 @@ export const DesktopSidebar = ({
         </div>
 
         {/* Spacer to push nav below header — follows the halved header height */}
-        <div className="h-24" />
+        <div className="h-12" />
 
         {/* Navigation items */}
         <nav className={`flex-1 flex flex-col ${expanded ? "w-full px-3" : "items-center"} gap-1`}>
