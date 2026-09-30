@@ -74,7 +74,10 @@ const FAQ_ITEMS = [
 
 interface DesktopSidebarProps {
   vehicles?: Vehicle[];
-  onAddVehicle?: (vehicleData: Omit<Vehicle, "id">) => void;
+  onAddVehicle?: (
+    vehicleData: Omit<Vehicle, "id">,
+    options?: { period?: { start: string; end?: string }; setAsDefault?: boolean },
+  ) => void;
   onEditVehicle?: (
     vehicleId: string,
     vehicleData: Partial<Vehicle>,
@@ -134,12 +137,16 @@ export const DesktopSidebar = ({
 
   const handleVehicleFormSubmit = (
     vehicleData: Omit<Vehicle, "id">,
-    options?: { updatePastTrips?: boolean },
+    options?: {
+      updatePastTrips?: boolean;
+      period?: { start: string; end?: string };
+      setAsDefault?: boolean;
+    },
   ) => {
     if (editingVehicleId && onEditVehicle) {
       onEditVehicle(editingVehicleId, vehicleData, options);
     } else {
-      onAddVehicle?.(vehicleData);
+      onAddVehicle?.(vehicleData, options);
     }
     setShowVehicleForm(false);
     setEditingVehicleId(null);
@@ -380,6 +387,7 @@ export const DesktopSidebar = ({
         }}
         onSave={handleVehicleFormSubmit}
         editVehicle={editingVehicle}
+        vehicleCount={vehicles.length}
       />
 
       {/* Calendar Sheet - opens from right */}
