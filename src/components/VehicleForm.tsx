@@ -346,7 +346,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
                   placeholder="Ex : Clio pro"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="h-12"
+                  className="h-11 sm:h-12"
                 />
               </div>
 
@@ -410,7 +410,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
                       value={make}
                       onChange={(e) => setMake(e.target.value)}
                       list="common-makes"
-                      className="h-12"
+                      className="h-11 sm:h-12"
                     />
                     <datalist id="common-makes">
                       {COMMON_MAKES.map((m) => (
@@ -425,7 +425,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
                       placeholder="Ex : Clio"
                       value={model}
                       onChange={(e) => setModel(e.target.value)}
-                      className="h-12"
+                      className="h-11 sm:h-12"
                     />
                   </div>
                 </div>
