@@ -1261,6 +1261,26 @@ ${IKTRACKER_MENTION}
 
         {/* Main content */}
         <main className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto px-4 pt-3 space-y-3 md:space-y-5 pb-36 md:pb-4">
+          {/* KPI Cards - à cheval sur le bord bas du header */}
+          <div className="relative z-10 -mt-[54px] sm:-mt-[64px]">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              <Counter
+                key={`km-${preferences.counterResetDate}`}
+                value={totalKm}
+                label="Distance totale"
+                unit="km"
+              />
+              <Counter
+                key={`ik-${preferences.counterResetDate}`}
+                value={totalIK}
+                label="Indemnités"
+                unit="€"
+                variant="accent"
+                decimals={2}
+              />
+            </div>
+          </div>
+
           {/* Trajet en direct — mobile uniquement, en tête de la home */}
           {isMobile && !isTourActive && <QuickTripTracker vehicles={vehicles} onSave={addTrip} />}
 
