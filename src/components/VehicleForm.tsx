@@ -267,6 +267,38 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
                 </p>
               </div>
 
+              {/* Make / Model - editable when lookup failed or incomplete */}
+              {(!lookupDone || !make || !model) && (
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="make">Marque</Label>
+                    <Input
+                      id="make"
+                      placeholder="Ex : Renault"
+                      value={make}
+                      onChange={(e) => setMake(e.target.value)}
+                      list="common-makes"
+                      className="h-12"
+                    />
+                    <datalist id="common-makes">
+                      {COMMON_MAKES.map((m) => (
+                        <option key={m} value={m} />
+                      ))}
+                    </datalist>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="model">Modèle</Label>
+                    <Input
+                      id="model"
+                      placeholder="Ex : Clio"
+                      value={model}
+                      onChange={(e) => setModel(e.target.value)}
+                      className="h-12"
+                    />
+                  </div>
+                </div>
+              )}
+
               {/* Vehicle info - Read only display when lookup done */}
               {lookupDone && (make || model || year) && (
                 <div className="p-3 bg-muted/50 rounded-lg space-y-2">
