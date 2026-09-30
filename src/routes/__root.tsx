@@ -319,7 +319,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: RootNotFound,
-  errorComponent: RootErrorComponent,
+  errorComponent: lazy(async () => ({ default: RootErrorComponent })),
 });
 
 function RootNotFound() {
