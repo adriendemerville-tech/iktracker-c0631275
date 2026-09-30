@@ -85,12 +85,12 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
   // Sync form state when editVehicle changes or sheet opens
   useEffect(() => {
     if (open) {
-      setTitle(editVehicle?.name || "");
+      setTitle(editVehicle?.name === "Non renseigné Non renseigné" ? "" : editVehicle?.name || "");
       setFirstName(editVehicle?.ownerFirstName || "");
       setLastName(editVehicle?.ownerLastName || "");
       setLicensePlate(editVehicle?.licensePlate || "");
-      setMake(editVehicle?.make || "");
-      setModel(editVehicle?.model || "");
+      setMake(editVehicle?.make === "Non renseigné" ? "" : editVehicle?.make || "");
+      setModel(editVehicle?.model === "Non renseigné" ? "" : editVehicle?.model || "");
       setFiscalPower(editVehicle?.fiscalPower?.toString() || "");
       setYear(editVehicle?.year?.toString() || "");
       setIsElectric(editVehicle?.isElectric || false);
@@ -239,7 +239,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
 
     onSave(
       {
-        name: title.trim() || undefined,
+        name: title.trim() || (!make.trim() && !model.trim() ? licensePlate.toUpperCase() : undefined),
         ownerFirstName: firstName.trim(),
         ownerLastName: lastName.trim(),
         licensePlate: licensePlate.toUpperCase(),
@@ -432,7 +432,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
               )}
 
               {/* Vehicle info - Read only display when lookup done */}
-              {lookupDone && (make || model || year) && (
+              {lookupDone && !!make && !!model && (
                 <div className="p-3 bg-muted/50 rounded-lg space-y-2">
                   <p className="text-xs font-medium text-muted-foreground">Véhicule détecté</p>
                   <div className="flex flex-wrap gap-2 text-sm">

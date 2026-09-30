@@ -65,7 +65,9 @@ export const VehicleCard = memo(function VehicleCard({
             <Car className="w-4 h-4" />
           </div>
           <span className="font-semibold truncate font-display">
-            {vehicle.name || `${vehicle.make} ${vehicle.model}`.trim() || "Véhicule"}
+            {vehicle.name === "Non renseigné Non renseigné"
+              ? vehicle.licensePlate || "Véhicule"
+              : vehicle.name || `${vehicle.make} ${vehicle.model}`.trim() || "Véhicule"}
           </span>
 
           {/* Electric badge */}
