@@ -1632,6 +1632,6 @@ Le score de priorité est la somme des poids, plafonnée à 100.
 - Côté utilisateur : bannière desktop `src/components/AdminReplyBanner.tsx` (affichée dans `/app`, masquable via `localStorage.ik_admin_reply_banner_dismissed`) et page de discussion `/app/messages` (`src/pages/Messages.tsx`) qui marque les réponses comme lues et permet de répondre via un nouvel enregistrement `feedback`.
 
 ### Changelog 3.2 — Scan carte grise
-- Bucket privé `vehicle-documents` (10 Mo, RLS : dossier = auth.uid()).
-- Table `public.vehicle_registration_scans` (user_id, license_plate, extracted jsonb [A, B, C3, D1, D3, I, P3, P6], image_path, scanned_at) — RLS propriétaire, justificatif horodaté en cas de contrôle fiscal.
-- Server fn `scanRegistration` (src/lib/registration-scan.functions.ts) : OCR via Lovable AI (gemini-2.5-flash), upload photo + insertion du scan.
+- Bucket privé `vehicle-documents` (10 Mo, RLS : dossier = auth.uid()) — créé mais non utilisé : la photo de la carte grise n'est jamais enregistrée (document sensible).
+- Table `public.vehicle_registration_scans` (user_id, license_plate, extracted jsonb [A, B, C3, D1, D3, I, P3, P6], image_path toujours NULL, scanned_at) — RLS propriétaire, justificatif horodaté en cas de contrôle fiscal ; seules les données extraites et l'horodatage sont conservés.
+- Server fn `scanRegistration` (src/lib/registration-scan.functions.ts) : OCR via Lovable AI (gemini-2.5-flash), sans stockage de la photo : extraction IA puis insertion des seules données.

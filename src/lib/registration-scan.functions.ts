@@ -90,22 +90,16 @@ export const scanRegistration = createServerFn({ method: "POST" })
       P6: Number.isInteger(p6) && p6 > 0 && p6 < 100 ? p6 : null,
     };
 
-    // Conservation horodatée (photo + données) pour justificatif fiscal
+    // Conservation horodatée des données extraites uniquement (justificatif fiscal).
+    // La photo n'est jamais enregistrée (document sensible).
     const scannedAt = new Date().toISOString();
-    const ext = data.mimeType.split("/")[1];
-    const path = `${context.userId}/carte-grise-${scannedAt.replace(/[:.]/g, "-")}.${ext}`;
-    const bytes = Uint8Array.from(atob(data.imageBase64), (c) => c.charCodeAt(0));
-    const up = await context.supabase.storage
-      .from("vehicle-documents")
-      .upload(path, bytes, { contentType: data.mimeType, upsert: false });
-
     const { data: row } = await context.supabase
       .from("vehicle_registration_scans")
       .insert({
         user_id: context.userId,
         license_plate: extracted.A,
         extracted,
-        image_path: up.error ? null : path,
+        image_path: null,
         scanned_at: scannedAt,
       })
       .select("id")
