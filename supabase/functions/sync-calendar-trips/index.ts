@@ -137,7 +137,7 @@ function shouldSkipEvent(
 
   // 5) Location = home address → 0 km trip, always skipped
   if (hasLocation && userHomeLocation?.address) {
-    const loc = normalizeAddress(event.location);
+    const loc = normalizeAddress(cleanLocationText(event.location));
     const home = normalizeAddress(userHomeLocation.address);
     if (loc && home && (loc === home || loc.includes(home) || home.includes(loc))) {
       return "location_equals_home";
