@@ -481,12 +481,13 @@ serve(async (req) => {
       },
     );
 
-    // 3️⃣ Données simulées (PAS mises en cache pour retenter les vraies sources)
-    const simulatedData = generateSimulatedData(cleanPlate, licensePlate);
-    await logApiCall(supabaseAdmin, userId, true, "simulated", formattedPlate);
-    return new Response(JSON.stringify(simulatedData), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    // 3️⃣ Aucune source fiable : ne jamais inventer un véhicule, laisser l'utilisateur saisir
+    void generateSimulatedData;
+    await logApiCall(supabaseAdmin, userId, false, "not_found", formattedPlate);
+    return new Response(
+      JSON.stringify({ success: false, notFound: true, licensePlate, make: "", model: "" }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     console.error("Error in vehicle-lookup function:", errorMessage);
