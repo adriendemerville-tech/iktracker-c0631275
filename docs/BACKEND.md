@@ -1630,3 +1630,8 @@ Le score de priorité est la somme des poids, plafonnée à 100.
 - Nouveau template transactionnel `admin-reply` (`supabase/functions/_shared/transactional-email-templates/admin-reply.tsx`), enregistré dans `registry.ts` et déployé avec `send-transactional-email`.
 - Déclenchement : `src/pages/Admin.tsx` (`respondMutation`) invoque `send-transactional-email` avec `recipientEmail` = e-mail du feedback, `templateData = { firstName, excerpt, conversationUrl }`. Échec e-mail non bloquant pour la mise à jour de `feedback.response`.
 - Côté utilisateur : bannière desktop `src/components/AdminReplyBanner.tsx` (affichée dans `/app`, masquable via `localStorage.ik_admin_reply_banner_dismissed`) et page de discussion `/app/messages` (`src/pages/Messages.tsx`) qui marque les réponses comme lues et permet de répondre via un nouvel enregistrement `feedback`.
+
+### Changelog 3.2 — Scan carte grise
+- Bucket privé `vehicle-documents` (10 Mo, RLS : dossier = auth.uid()).
+- Table `public.vehicle_registration_scans` (user_id, license_plate, extracted jsonb [A, B, C3, D1, D3, I, P3, P6], image_path, scanned_at) — RLS propriétaire, justificatif horodaté en cas de contrôle fiscal.
+- Server fn `scanRegistration` (src/lib/registration-scan.functions.ts) : OCR via Lovable AI (gemini-2.5-flash), upload photo + insertion du scan.
