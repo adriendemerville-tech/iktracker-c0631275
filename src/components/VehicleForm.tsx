@@ -270,7 +270,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
         className="h-auto max-h-[85vh] w-full sm:max-w-xl sm:mx-auto rounded-t-3xl sm:rounded-3xl overflow-hidden flex flex-col"
       >
         <div className="w-full flex flex-col">
-          <SheetHeader className="pb-5 shrink-0">
+          <SheetHeader className="pb-3 sm:pb-5 shrink-0">
             <SheetTitle className="text-lg flex items-center gap-2 font-display">
               <Car className="w-5 h-5 text-primary" />
               {editVehicle ? "Modifier le véhicule" : "Ajouter un véhicule"}
@@ -278,7 +278,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
           </SheetHeader>
 
           <div className="overflow-y-auto flex-1">
-            <div className="space-y-5 pb-6 font-display">
+            <div className="space-y-3 sm:space-y-5 pb-4 sm:pb-6 font-display">
               {/* Scan carte grise */}
               <div className="space-y-2">
                 <input
@@ -307,7 +307,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
                   )}
                   {isScanning ? "Lecture de la carte grise…" : "Scanner la carte grise"}
                 </Button>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="hidden sm:block text-[11px] text-muted-foreground">
                   Par sécurité, la photo n'est pas enregistrée : seules les données extraites et l'heure du scan sont conservées.
                 </p>
                 {scan && (
@@ -393,7 +393,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
                     ))}
                   </SelectContent>
                 </Select>
-                <p className="text-xs text-muted-foreground flex items-center gap-1.5 mt-1">
+                <p className="hidden sm:flex text-xs text-muted-foreground items-center gap-1.5 mt-1">
                   <AlertCircle className="w-3.5 h-3.5 text-primary shrink-0" />
                   Rubrique P.6 de la carte grise
                 </p>
