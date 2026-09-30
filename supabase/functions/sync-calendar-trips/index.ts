@@ -1002,7 +1002,7 @@ async function createTripFromEvent(
   const eventDate = new Date(eventDateTime).toISOString().split("T")[0];
 
   // Determine destination address
-  let destinationAddress = event.location || "";
+  let destinationAddress = cleanLocationText(event.location);
   let tripStatus = "validated";
 
   // If no location in event, try to find from frequent_destinations using title keywords
