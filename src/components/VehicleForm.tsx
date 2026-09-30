@@ -297,6 +297,9 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
                   )}
                   {isScanning ? "Lecture de la carte grise…" : "Scanner la carte grise"}
                 </Button>
+                <p className="text-[11px] text-muted-foreground">
+                  Par sécurité, la photo n'est pas enregistrée : seules les données extraites et l'heure du scan sont conservées.
+                </p>
                 {scan && (
                   <div className="p-3 rounded-lg border bg-muted/40 space-y-1.5 text-xs">
                     <p className="font-medium flex items-center gap-1.5">
