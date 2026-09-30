@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { Vehicle } from "@/types/trip";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -6,10 +7,22 @@ import { Label } from "./ui/label";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
 import { Switch } from "./ui/switch";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import { Car, Loader2, AlertCircle, Check, Zap, Info } from "lucide-react";
+import { Car, Loader2, AlertCircle, Check, Zap, Info, Camera, FileCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { scanRegistration, type RegistrationScanResult } from "@/lib/registration-scan.functions";
+
+async function compressImage(file: File): Promise<{ base64: string; mime: "image/jpeg" }> {
+  const bmp = await createImageBitmap(file);
+  const scale = Math.min(1, 1800 / Math.max(bmp.width, bmp.height));
+  const c = document.createElement("canvas");
+  c.width = Math.round(bmp.width * scale);
+  c.height = Math.round(bmp.height * scale);
+  c.getContext("2d")!.drawImage(bmp, 0, 0, c.width, c.height);
+  const url = c.toDataURL("image/jpeg", 0.85);
+  return { base64: url.split(",")[1], mime: "image/jpeg" };
+}
 
 export interface VehicleSaveOptions {
   updatePastTrips?: boolean;
@@ -56,6 +69,10 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
   const [isLookingUp, setIsLookingUp] = useState(false);
   const [lookupDone, setLookupDone] = useState(false);
   const [updatePastTrips, setUpdatePastTrips] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+  const [scan, setScan] = useState<RegistrationScanResult | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const scanFn = useServerFn(scanRegistration);
 
   // Sync form state when editVehicle changes or sheet opens
   useEffect(() => {
@@ -70,6 +87,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
       setIsElectric(editVehicle?.isElectric || false);
       setLookupDone(!!editVehicle);
       setUpdatePastTrips(false);
+      setScan(null);
     }
   }, [open, editVehicle]);
 
@@ -153,6 +171,41 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
     setIsLookingUp(false);
   };
 
+  const handleScan = async (file: File) => {
+    setIsScanning(true);
+    try {
+      const { base64, mime } = await compressImage(file);
+      const r = await scanFn({ data: { imageBase64: base64, mimeType: mime } });
+      setScan(r);
+      if (r.A) setLicensePlate(formatLicensePlate(r.A));
+      if (r.D1) setMake(r.D1);
+      if (r.D3) setModel(r.D3);
+      if (r.P6) setFiscalPower(String(r.P6));
+      const y = r.B?.match(/(\d{4})\s*$/)?.[1];
+      if (y) setYear(y);
+      if (r.P3) setIsElectric(r.P3.toUpperCase() === "EL");
+      setLookupDone(true);
+      toast.success("Carte grise lue", { description: "Vérifiez les informations extraites." });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Lecture impossible");
+    }
+    setIsScanning(false);
+  };
+
+  const scanWarnings: string[] = [];
+  if (scan) {
+    if (!scan.P6) scanWarnings.push("P.6 illisible : sélectionnez la puissance fiscale manuellement.");
+    if (!scan.C3) scanWarnings.push("C.3 illisible : vérifiez que la carte grise est à votre adresse.");
+    const parse = (d: string | null) => {
+      const m = d?.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+      return m ? new Date(`${m[3]}-${m[2]}-${m[1]}`) : null;
+    };
+    const b = parse(scan.B);
+    const i = parse(scan.I);
+    if (b && i && i < b) scanWarnings.push("Date I antérieure à la date B : vérifiez la lecture.");
+    if (i && i > new Date()) scanWarnings.push("Date I dans le futur : vérifiez la lecture.");
+  }
+
   // Determine fuel type label and color
   const getFuelTypeInfo = () => {
     if (isElectric) return { label: "Électrique", className: "bg-emerald-500 text-white" };
@@ -216,6 +269,62 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
 
           <div className="overflow-y-auto flex-1">
             <div className="space-y-5 pb-6 font-display">
+              {/* Scan carte grise */}
+              <div className="space-y-2">
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) handleScan(f);
+                    e.target.value = "";
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full h-11 font-display"
+                  disabled={isScanning}
+                  onClick={() => fileRef.current?.click()}
+                >
+                  {isScanning ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Camera className="w-4 h-4 mr-2" />
+                  )}
+                  {isScanning ? "Lecture de la carte grise…" : "Scanner la carte grise"}
+                </Button>
+                {scan && (
+                  <div className="p-3 rounded-lg border bg-muted/40 space-y-1.5 text-xs">
+                    <p className="font-medium flex items-center gap-1.5">
+                      <FileCheck className="w-3.5 h-3.5 text-primary" />
+                      Scan conservé le {new Date(scan.scannedAt).toLocaleString("fr-FR")}
+                    </p>
+                    <p>
+                      <span className="text-muted-foreground">C.3 Adresse :</span>{" "}
+                      {scan.C3 ?? <span className="text-destructive">non lue</span>}
+                    </p>
+                    <p>
+                      <span className="text-muted-foreground">B 1re immat. :</span>{" "}
+                      {scan.B ?? <span className="text-destructive">non lue</span>}
+                    </p>
+                    <p>
+                      <span className="text-muted-foreground">I Date du certificat :</span>{" "}
+                      {scan.I ?? <span className="text-destructive">non lue</span>}
+                    </p>
+                    {scanWarnings.map((w) => (
+                      <p key={w} className="text-destructive flex items-start gap-1.5">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-px" />
+                        {w}
+                      </p>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               {/* License plate */}
               <div className="space-y-2">
                 <Label htmlFor="licensePlate">Plaque d'immatriculation *</Label>

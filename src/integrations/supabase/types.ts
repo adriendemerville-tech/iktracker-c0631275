@@ -3039,6 +3039,33 @@ export type Database = {
         }
         Relationships: []
       }
+      vehicle_registration_scans: {
+        Row: {
+          extracted: Json
+          id: string
+          image_path: string | null
+          license_plate: string | null
+          scanned_at: string
+          user_id: string
+        }
+        Insert: {
+          extracted?: Json
+          id?: string
+          image_path?: string | null
+          license_plate?: string | null
+          scanned_at?: string
+          user_id: string
+        }
+        Update: {
+          extracted?: Json
+          id?: string
+          image_path?: string | null
+          license_plate?: string | null
+          scanned_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       vehicles: {
         Row: {
           created_at: string
