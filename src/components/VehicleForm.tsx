@@ -237,7 +237,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
 
     onSave(
       {
-        name: title.trim() || (!make.trim() && !model.trim() ? licensePlate.toUpperCase() : undefined),
+        name: !make.trim() && !model.trim() ? licensePlate.toUpperCase() : undefined,
         ownerFirstName: firstName.trim(),
         ownerLastName: lastName.trim(),
         licensePlate: licensePlate.toUpperCase(),
@@ -334,18 +334,6 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
                     ))}
                   </div>
                 )}
-              </div>
-
-              {/* Title */}
-              <div className="space-y-2">
-                <Label htmlFor="vehicleTitle">Titre</Label>
-                <Input
-                  id="vehicleTitle"
-                  placeholder="Ex : Clio pro"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="h-11 sm:h-12"
-                />
               </div>
 
               {/* License plate */}
