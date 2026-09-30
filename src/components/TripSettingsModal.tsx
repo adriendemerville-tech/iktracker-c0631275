@@ -70,7 +70,10 @@ interface Props {
   vehicles: Vehicle[];
   savedLocations: TripLocation[];
   getTotalAnnualKm: (vehicleId: string) => number;
-  onAddVehicle: (v: Omit<Vehicle, "id">) => void;
+  onAddVehicle: (
+    v: Omit<Vehicle, "id">,
+    options?: { period?: { start: string; end?: string }; setAsDefault?: boolean },
+  ) => void;
   onUpdateVehicle: (id: string, updates: Partial<Vehicle>) => void;
   onDeleteVehicle: (id: string) => void;
   onAddLocation: (
@@ -966,11 +969,12 @@ export function TripSettingsModal(props: Props) {
             open={vehicleFormOpen}
             onOpenChange={setVehicleFormOpen}
             editVehicle={editingVehicle ?? undefined}
-            onSave={(v) => {
+            vehicleCount={vehicles.length}
+            onSave={(v, options) => {
               if (editingVehicle) {
                 onUpdateVehicle(editingVehicle.id, v);
               } else {
-                onAddVehicle(v);
+                onAddVehicle(v, options);
               }
               setVehicleFormOpen(false);
               setEditingVehicle(null);
