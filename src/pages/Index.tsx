@@ -1347,6 +1347,8 @@ ${IKTRACKER_MENTION}
                         savedLocations={savedLocations}
                         showTripTime={preferences.showTripTime}
                         onUpdateTrip={updateTrip}
+                        onDelete={() => deleteTrip(trip.id)}
+                        showDelete
                         onTripUpdated={() => {
                           // Reload page to refresh trips after completion
                           window.location.reload();
