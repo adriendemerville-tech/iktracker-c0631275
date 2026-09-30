@@ -1150,7 +1150,7 @@ ${IKTRACKER_MENTION}
       >
         {/* Header - Primary gradient light / Dark slate dark */}
         <header
-          className="text-foreground px-4 pt-4 pb-4 md:pt-8 md:pb-8 relative overflow-hidden 
+          className="text-foreground px-4 pt-2 pb-[42px] md:pt-4 md:pb-[52px] relative overflow-hidden 
           mx-3 sm:mx-4 mt-3 sm:mt-4 rounded-2xl 
           border border-border/70
           shadow-[0_4px_12px_-2px_hsl(30_15%_20%/0.08),0_2px_4px_-2px_hsl(30_15%_20%/0.04)] 
@@ -1196,7 +1196,7 @@ ${IKTRACKER_MENTION}
             }}
           />
           <div className="max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto relative z-10 px-4">
-            <div className="flex items-center gap-3 mb-3 md:mb-6">
+            <div className="flex items-center gap-3 mb-0">
               {/* Desktop: Text + subtitle (logo is in sidebar) */}
               <div className="flex-1 hidden md:block">
                 <h1 className="text-xl sm:text-2xl md:text-[27px] font-extrabold font-urbanist text-foreground">
