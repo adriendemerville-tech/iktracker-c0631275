@@ -243,14 +243,21 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm, reviews }
   const heroHighlight = hero?.highlight ?? c.hero_highlight;
   const heroSubtitle = hero?.subtitle ?? c.hero_subtitle;
 
+  // navigate change d'identité à chaque navigation : on le garde en ref pour ne
+  // pas réabonner le listener (sinon SIGNED_IN → navigate → réabonnement → boucle).
+  const navigateRef = useRef(navigate);
+  navigateRef.current = navigate;
+
   useEffect(() => {
     let cancelled = false;
     let unsubscribe: (() => void) | null = null;
+    let hadSession: boolean | null = null;
 
     void getSupabase().then((supabase) => {
       if (cancelled) return;
 
       supabase.auth.getSession().then(({ data: { session } }) => {
+        hadSession = !!session;
         setUser(session?.user ?? null);
         setLoading(false);
       });
@@ -259,11 +266,11 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm, reviews }
         data: { subscription },
       } = supabase.auth.onAuthStateChange((event, session) => {
         setUser(session?.user ?? null);
-        if (event === "SIGNED_IN" && session) {
-          // Les nouveaux inscrits (OAuth inclus) passent par l'onboarding :
-          // choix du métier puis du thème.
+        // Seulement une vraie connexion (pas la réémission d'une session existante).
+        if (event === "SIGNED_IN" && session && hadSession === false) {
+          hadSession = true;
           const onboarded = localStorage.getItem("theme-onboarding-complete");
-          navigate(onboarded ? "/app" : "/app/theme-onboarding");
+          navigateRef.current(onboarded ? "/app" : "/app/theme-onboarding");
         }
       });
       unsubscribe = () => subscription.unsubscribe();
@@ -274,7 +281,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm, reviews }
       cancelled = true;
       unsubscribe?.();
     };
-  }, [navigate]);
+  }, []);
 
   // Remove logout transition overlay once React has fully mounted
   useEffect(() => {
