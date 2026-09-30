@@ -1642,3 +1642,7 @@ Le score de priorité est la somme des poids, plafonnée à 100.
 ### Changelog — anti-doublon & RDV personnels (2026-09-30)
 - Trigger `a0_trips_block_own_pending_duplicate` (BEFORE INSERT sur `trips`) : ignore un trajet « à compléter » si le même utilisateur en a déjà un le même jour avec destination + objet normalisés identiques (import multi-agendas / comptes liés).
 - `sync-calendar-trips` : nouveau filtre `personal_event` (visibilité privée/confidentielle ou mots-clés santé/famille/loisirs).
+
+### Changelog — nettoyage des adresses agenda (2026-10-01)
+- `sync-calendar-trips` : nouvelle fonction `cleanLocationText` appliquée aux adresses importées — supprime les balises HTML (`<br>` → virgule, autres balises → espace) et les entités (`&amp;`, `&nbsp;`).
+- Nettoyage rétroactif des `trips.start_location` / `end_location` contenant des `<br>`.

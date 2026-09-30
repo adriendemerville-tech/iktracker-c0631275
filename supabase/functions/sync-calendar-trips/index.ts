@@ -65,6 +65,19 @@ function isVirtualMeeting(event: CalendarEvent): boolean {
 // - all-day event without a location = personal marker (anniversaire, jour férié, congé, prénom)
 // - status 'cancelled' = ignore
 // - location matching user's home address = 0-km trip
+// Strip HTML artifacts (e.g. "<br>", "&amp;") that calendar locations sometimes contain
+function cleanLocationText(s: string | undefined | null): string {
+  return (s || "")
+    .replace(/<br\s*\/?>/gi, ", ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/,\s*,/g, ",")
+    .replace(/\s{2,}/g, " ")
+    .replace(/^[,\s]+|[,\s]+$/g, "")
+    .trim();
+}
+
 function normalizeAddress(s: string | undefined | null): string {
   return (s || "")
     .toLowerCase()
@@ -124,7 +137,7 @@ function shouldSkipEvent(
 
   // 5) Location = home address → 0 km trip, always skipped
   if (hasLocation && userHomeLocation?.address) {
-    const loc = normalizeAddress(event.location);
+    const loc = normalizeAddress(cleanLocationText(event.location));
     const home = normalizeAddress(userHomeLocation.address);
     if (loc && home && (loc === home || loc.includes(home) || home.includes(loc))) {
       return "location_equals_home";
@@ -989,7 +1002,7 @@ async function createTripFromEvent(
   const eventDate = new Date(eventDateTime).toISOString().split("T")[0];
 
   // Determine destination address
-  let destinationAddress = event.location || "";
+  let destinationAddress = cleanLocationText(event.location);
   let tripStatus = "validated";
 
   // If no location in event, try to find from frequent_destinations using title keywords
