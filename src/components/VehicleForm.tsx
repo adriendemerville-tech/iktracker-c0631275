@@ -267,9 +267,9 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="bottom"
-        className="h-auto max-h-[85vh] w-full sm:max-w-xl sm:mx-auto rounded-t-3xl sm:rounded-3xl overflow-hidden flex flex-col"
+        className="h-auto max-h-[90dvh] sm:max-h-[calc(100dvh-3rem)] sm:bottom-6 w-full sm:max-w-xl sm:mx-auto rounded-t-3xl sm:rounded-3xl overflow-hidden flex flex-col"
       >
-        <div className="w-full flex flex-col">
+        <div className="w-full min-h-0 flex-1 flex flex-col">
           <SheetHeader className="pb-3 sm:pb-5 shrink-0">
             <SheetTitle className="text-lg flex items-center gap-2 font-display">
               <Car className="w-5 h-5 text-primary" />
@@ -277,8 +277,8 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
             </SheetTitle>
           </SheetHeader>
 
-          <div className="overflow-y-auto flex-1">
-            <div className="space-y-3 sm:space-y-5 pb-4 sm:pb-6 font-display">
+          <div className="min-h-0 overflow-y-auto flex-1">
+            <div className="space-y-3 sm:space-y-5 font-display">
               {/* Scan carte grise */}
               <div className="space-y-2">
                 <input
@@ -514,20 +514,19 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
                 </label>
               )}
 
-              {/* Actions */}
-              <div className="flex gap-3 pt-2">
-                <Button
-                  variant="secondary"
-                  className="flex-1 font-display"
-                  onClick={() => onOpenChange(false)}
-                >
-                  Annuler
-                </Button>
-                <Button variant="gradient" className="flex-1 font-display" onClick={handleSave}>
-                  {editVehicle ? "Enregistrer" : "Ajouter"}
-                </Button>
-              </div>
             </div>
+          </div>
+          <div className="flex gap-3 pt-4 shrink-0">
+            <Button
+              variant="secondary"
+              className="flex-1 font-display"
+              onClick={() => onOpenChange(false)}
+            >
+              Annuler
+            </Button>
+            <Button variant="gradient" className="flex-1 font-display" onClick={handleSave}>
+              {editVehicle ? "Enregistrer" : "Ajouter"}
+            </Button>
           </div>
         </div>
       </SheetContent>
