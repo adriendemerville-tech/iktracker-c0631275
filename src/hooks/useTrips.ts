@@ -736,7 +736,69 @@ export function useTrips() {
     }
   };
 
-  const addVehicle = async (vehicle: Omit<Vehicle, "id">) => {
+  // Retroactively assign non-manual trips of a period to a vehicle, then
+  // recompute IK for every affected vehicle/year (tiered scale is cumulative).
+  const reassignPeriodToVehicle = async (target: Vehicle, start: string, end?: string) => {
+    if (!user) return;
+    let q = supabase
+      .from("trips")
+      .select("id, vehicle_id, source")
+      .eq("user_id", user.id)
+      .is("deleted_at", null)
+      .gte("date", start);
+    if (end) q = q.lte("date", `${end}T23:59:59`);
+    const { data: inPeriod } = await q;
+    const toMove = (inPeriod ?? []).filter((t) => t.source !== "manual" && t.vehicle_id !== target.id);
+    if (toMove.length === 0) {
+      toast.info("Aucun trajet à réattribuer sur cette période");
+      return;
+    }
+    const affected = new Set<string>([target.id]);
+    toMove.forEach((t) => t.vehicle_id && affected.add(t.vehicle_id));
+    const ids = toMove.map((t) => t.id);
+    for (let i = 0; i < ids.length; i += 200) {
+      await supabase.from("trips").update({ vehicle_id: target.id }).in("id", ids.slice(i, i + 200));
+    }
+    const allVehicles = [target, ...vehicles];
+    const { data: rows } = await supabase
+      .from("trips")
+      .select("id, vehicle_id, date, distance")
+      .eq("user_id", user.id)
+      .is("deleted_at", null)
+      .in("vehicle_id", [...affected])
+      .order("date", { ascending: true });
+    const cum = new Map<string, number>();
+    const updates: { id: string; ik: number }[] = [];
+    for (const r of rows ?? []) {
+      const v = allVehicles.find((x) => x.id === r.vehicle_id);
+      if (!v) continue;
+      const key = `${r.vehicle_id}-${String(r.date).slice(0, 4)}`;
+      const before = cum.get(key) ?? 0;
+      const after = before + (r.distance ?? 0);
+      cum.set(key, after);
+      let ik =
+        calculateTotalAnnualIK(after, v.fiscalPower, preferences.ikRateOverride) -
+        calculateTotalAnnualIK(before, v.fiscalPower, preferences.ikRateOverride);
+      if (v.isElectric) ik *= 1.2;
+      updates.push({ id: r.id, ik });
+    }
+    for (let i = 0; i < updates.length; i += 20) {
+      await Promise.all(
+        updates
+          .slice(i, i + 20)
+          .map((u) => supabase.from("trips").update({ ik_amount: u.ik }).eq("id", u.id)),
+      );
+    }
+    loadFromDatabase();
+    toast.success("Trajets passés mis à jour", {
+      description: `${toMove.length} trajet(s) réattribué(s), indemnités recalculées.`,
+    });
+  };
+
+  const addVehicle = async (
+    vehicle: Omit<Vehicle, "id">,
+    options?: { period?: { start: string; end?: string } },
+  ) => {
     if (user) {
       const { data } = await supabase
         .from("vehicles")
@@ -811,6 +873,10 @@ export function useTrips() {
           toast.success(
             `${tripsWithoutVehicle.length} trajet(s) mis à jour avec le nouveau véhicule`,
           );
+        }
+
+        if (options?.period?.start) {
+          await reassignPeriodToVehicle(newVehicle, options.period.start, options.period.end);
         }
 
         return newVehicle;

@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Switch } from "./ui/switch";
+import { Checkbox } from "./ui/checkbox";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { Car, Loader2, AlertCircle, Check, Zap, Info, Camera, FileCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -33,6 +34,7 @@ async function compressImage(file: File): Promise<{ base64: string; mime: "image
 
 export interface VehicleSaveOptions {
   updatePastTrips?: boolean;
+  period?: { start: string; end?: string };
 }
 
 interface VehicleFormProps {
@@ -76,6 +78,9 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
   const [isLookingUp, setIsLookingUp] = useState(false);
   const [lookupDone, setLookupDone] = useState(false);
   const [updatePastTrips, setUpdatePastTrips] = useState(false);
+  const [usePeriod, setUsePeriod] = useState(false);
+  const [periodStart, setPeriodStart] = useState("");
+  const [periodEnd, setPeriodEnd] = useState("");
   const [isScanning, setIsScanning] = useState(false);
   const [scan, setScan] = useState<RegistrationScanResult | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -94,6 +99,9 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
       setIsElectric(editVehicle?.isElectric || false);
       setLookupDone(!!editVehicle);
       setUpdatePastTrips(false);
+      setUsePeriod(false);
+      setPeriodStart("");
+      setPeriodEnd("");
       setScan(null);
     }
   }, [open, editVehicle]);
@@ -232,6 +240,17 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
       return;
     }
 
+    if (usePeriod && !editVehicle) {
+      if (!periodStart) {
+        toast.error("Indiquez la date de début d'utilisation");
+        return;
+      }
+      if (periodEnd && periodEnd < periodStart) {
+        toast.error("La date de fin doit être après la date de début");
+        return;
+      }
+    }
+
     const impactsPastTrips =
       !!editVehicle && (cv !== editVehicle.fiscalPower || isElectric !== !!editVehicle.isElectric);
 
@@ -247,7 +266,13 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
         year: year ? parseInt(year) : undefined,
         isElectric,
       },
-      { updatePastTrips: impactsPastTrips ? updatePastTrips : false },
+      {
+        updatePastTrips: impactsPastTrips ? updatePastTrips : false,
+        period:
+          usePeriod && !editVehicle && periodStart
+            ? { start: periodStart, end: periodEnd || undefined }
+            : undefined,
+      },
     );
 
     onOpenChange(false);
@@ -476,6 +501,53 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
                 </div>
                 <Switch id="electric" checked={isElectric} onCheckedChange={setIsElectric} />
               </div>
+
+              {/* Retroactive period (new vehicle only) */}
+              {!editVehicle && (
+                <div className="rounded-xl border-2 border-border p-3 space-y-3">
+                  <label htmlFor="usePeriod" className="flex items-center gap-2.5 cursor-pointer">
+                    <Checkbox
+                      id="usePeriod"
+                      checked={usePeriod}
+                      onCheckedChange={(v) => setUsePeriod(v === true)}
+                    />
+                    <span className="text-sm font-semibold">
+                      J'utilisais déjà ce véhicule (trajets passés)
+                    </span>
+                  </label>
+                  {usePeriod && (
+                    <div className="space-y-2">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <Label htmlFor="periodStart" className="text-xs">Depuis le *</Label>
+                          <Input
+                            id="periodStart"
+                            type="date"
+                            value={periodStart}
+                            max={new Date().toISOString().slice(0, 10)}
+                            onChange={(e) => setPeriodStart(e.target.value)}
+                            className="h-10"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label htmlFor="periodEnd" className="text-xs">Jusqu'au (optionnel)</Label>
+                          <Input
+                            id="periodEnd"
+                            type="date"
+                            value={periodEnd}
+                            min={periodStart || undefined}
+                            onChange={(e) => setPeriodEnd(e.target.value)}
+                            className="h-10"
+                          />
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted-foreground leading-snug">
+                        Les trajets de cette période (hors saisies manuelles) passeront sur ce véhicule, et les indemnités seront recalculées. Les nouveaux trajets restent sur le véhicule par défaut.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Retroactive recalculation toggle */}
               {showUpdatePastToggle && (

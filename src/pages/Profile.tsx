@@ -244,12 +244,12 @@ const Profile = () => {
 
   const handleSaveVehicle = (
     vehicleData: Omit<Vehicle, "id">,
-    options?: { updatePastTrips?: boolean },
+    options?: { updatePastTrips?: boolean; period?: { start: string; end?: string } },
   ) => {
     if (editingVehicle) {
       updateVehicle(editingVehicle.id, vehicleData, options);
     } else {
-      addVehicle(vehicleData);
+      addVehicle(vehicleData, { period: options?.period });
     }
     setEditingVehicle(null);
     setVehicleFormOpen(false);
