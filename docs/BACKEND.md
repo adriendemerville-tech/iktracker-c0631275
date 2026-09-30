@@ -1635,3 +1635,7 @@ Le score de priorité est la somme des poids, plafonnée à 100.
 - Bucket privé `vehicle-documents` (10 Mo, RLS : dossier = auth.uid()) — créé mais non utilisé : la photo de la carte grise n'est jamais enregistrée (document sensible).
 - Table `public.vehicle_registration_scans` (user_id, license_plate, extracted jsonb [A, B, C3, D1, D3, I, P3, P6], image_path toujours NULL, scanned_at) — RLS propriétaire, justificatif horodaté en cas de contrôle fiscal ; seules les données extraites et l'horodatage sont conservés.
 - Server fn `scanRegistration` (src/lib/registration-scan.functions.ts) : OCR via Lovable AI (gemini-2.5-flash), sans stockage de la photo : extraction IA puis insertion des seules données.
+
+### Changelog — anti-doublon & RDV personnels (2026-09-30)
+- Trigger `a0_trips_block_own_pending_duplicate` (BEFORE INSERT sur `trips`) : ignore un trajet « à compléter » si le même utilisateur en a déjà un le même jour avec destination + objet normalisés identiques (import multi-agendas / comptes liés).
+- `sync-calendar-trips` : nouveau filtre `personal_event` (visibilité privée/confidentielle ou mots-clés santé/famille/loisirs).

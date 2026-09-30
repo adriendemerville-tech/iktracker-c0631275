@@ -8,6 +8,13 @@
       "when": 1790786620356,
       "tag": "0000_vehicle_registration_scans",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790801736941,
+      "tag": "0001_block_own_pending_trip_duplicates",
+      "breakpoints": true
     }
   ]
 }
