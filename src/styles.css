@@ -975,6 +975,19 @@ img {
   z-index: 9999 !important;
 }
 
+/* Modale véhicule : pas de bordure/ring bleue sur les champs sélectionnés */
+.vehicle-form-modal input:focus-visible,
+.vehicle-form-modal input:focus,
+.vehicle-form-modal textarea:focus-visible,
+.vehicle-form-modal textarea:focus,
+.vehicle-form-modal [role="combobox"]:focus-visible,
+.vehicle-form-modal [role="combobox"]:focus,
+.vehicle-form-modal [role="combobox"][data-state="open"] {
+  outline: none;
+  box-shadow: none;
+  border-color: hsl(var(--input));
+}
+
 /* Survey widget font size setting (small / standard / large) */
 [data-survey-size="small"] { --survey-scale: 0.85; }
 [data-survey-size="standard"] { --survey-scale: 1; }

@@ -295,7 +295,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle, vehicleCo
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="bottom"
-        className="h-auto max-h-[90dvh] sm:max-h-[calc(100dvh-3rem)] sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2 w-full sm:max-w-xl sm:mx-auto rounded-t-3xl sm:rounded-3xl overflow-hidden flex flex-col"
+        className="vehicle-form-modal h-auto max-h-[90dvh] sm:max-h-[calc(100dvh-3rem)] sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2 w-full sm:max-w-xl sm:mx-auto rounded-t-3xl sm:rounded-3xl overflow-hidden flex flex-col"
       >
         <div className="w-full min-h-0 flex-1 flex flex-col">
           <SheetHeader className="pb-3 sm:pb-5 shrink-0">
@@ -379,7 +379,6 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle, vehicleCo
                     maxLength={11}
                     className={cn(
                       "font-mono text-sm sm:text-base pr-8 h-11 sm:h-12",
-                      isPlateEmpty && "ring-2 ring-primary/50 border-primary",
                     )}
                   />
                   <div className="absolute right-2 top-1/2 -translate-y-1/2">
