@@ -366,13 +366,17 @@ export function AdminStats() {
     refetchInterval: 60 * 60 * 1000, // 1 hour
   });
 
-  // Rolling active users over the selected window (7 or 30 days), shown on 30 days of history
+  // Activité & visiteurs : historique = période choisie, fenêtre = intervalle
+  // (jour → toggle 7j/30j, semaine → 7j, mois → 30j). "Tout" plafonné à 2 ans.
+  const activityDaysBack = Math.min(periodConfig[period].daysBack, 730);
+  const activityWindow =
+    granularity === "week" ? 7 : granularity === "month" ? 30 : uniqueVisitorsWindow;
   const { data: dailyActiveUsers = [], isLoading: dauLoading } = useQuery({
-    queryKey: ["admin-dau", uniqueVisitorsWindow],
+    queryKey: ["admin-dau", activityWindow, activityDaysBack],
     queryFn: async () => {
       const { data, error } = await supabase.rpc("get_rolling_active_users", {
-        days_back: 30,
-        window_size: uniqueVisitorsWindow,
+        days_back: activityDaysBack,
+        window_size: activityWindow,
       });
       if (error) throw error;
       return (data as unknown as { day: string; count: number }[]).map((d) => ({
@@ -654,11 +658,11 @@ export function AdminStats() {
 
   // Rolling unique visitors series (all pages), same rolling window as the engaged users line
   const { data: uniqueVisitorsSeries = [], isLoading: uniqueVisitorsSeriesLoading } = useQuery({
-    queryKey: ["admin-unique-visitors-series", uniqueVisitorsWindow],
+    queryKey: ["admin-unique-visitors-series", activityWindow, activityDaysBack],
     queryFn: async () => {
       const { data, error } = await supabase.rpc("get_rolling_unique_visitors", {
-        days_back: 30,
-        window_size: uniqueVisitorsWindow,
+        days_back: activityDaysBack,
+        window_size: activityWindow,
       });
       if (error) throw error;
       const rows = (data as unknown as { day: string; unique_visitors: number }[]) || [];
@@ -677,7 +681,7 @@ export function AdminStats() {
       : 0;
   const uniqueVisitorsWindowedLoading = uniqueVisitorsSeriesLoading;
 
-  // Merged daily series for the combined activity widget (engaged users + unique visitors)
+  // Merged series for the activity widget, following period (range) and granularity (1 point/bucket)
   const activitySeries = useMemo(() => {
     const engagedMap = new globalThis.Map(dailyActiveUsers.map((d) => [d.day, d.count]));
     const visitorsMap = new globalThis.Map(
@@ -686,17 +690,31 @@ export function AdminStats() {
     const filled: { day: string; engaged: number; visitors: number }[] = [];
     const today = new Date();
     const startDate = new Date(today);
-    startDate.setDate(startDate.getDate() - 30);
+    startDate.setDate(startDate.getDate() - activityDaysBack);
+    const bucketKey = (d: Date) =>
+      granularity === "month"
+        ? format(d, "yyyy-MM")
+        : granularity === "week"
+          ? format(startOfWeek(d, { weekStartsOn: 1 }), "yyyy-MM-dd")
+          : format(d, "yyyy-MM-dd");
+    const bucketLabel = (d: Date) =>
+      granularity === "month" ? format(d, "MMM yy", { locale: fr }) : format(d, "dd/MM", { locale: fr });
+    let lastBucket = "";
     for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
       const key = format(d, "yyyy-MM-dd");
-      filled.push({
-        day: format(d, "dd/MM", { locale: fr }),
+      const point = {
+        day: bucketLabel(granularity === "week" ? startOfWeek(d, { weekStartsOn: 1 }) : d),
         engaged: engagedMap.get(key) ?? 0,
         visitors: visitorsMap.get(key) ?? 0,
-      });
+      };
+      const b = bucketKey(d);
+      // Série glissante : on garde la dernière valeur de chaque intervalle.
+      if (b === lastBucket) filled[filled.length - 1] = point;
+      else filled.push(point);
+      lastBucket = b;
     }
     return filled;
-  }, [dailyActiveUsers, uniqueVisitorsSeries, uniqueVisitorsWindow]);
+  }, [dailyActiveUsers, uniqueVisitorsSeries, activityDaysBack, granularity]);
 
   // Compute engaged users today vs yesterday (from the filled series)
   const dauToday =
@@ -1739,9 +1757,10 @@ export function AdminStats() {
                            emptyMessage="Aucune activité sur la période"
                          />
                          <p className="text-xs text-muted-foreground mt-1">
-                           30 derniers jours — chaque point = fenêtre glissante de{" "}
-                           {uniqueVisitorsWindow} jours (actifs engagés hors admins vs visiteurs
-                           uniques toutes pages)
+                            {periodConfig[period].label} · 1 point par{" "}
+                            {granularity === "day" ? "jour" : granularity === "week" ? "semaine" : "mois"}{" "}
+                            — fenêtre glissante de {activityWindow} jours (actifs engagés hors
+                            admins vs visiteurs uniques toutes pages)
                          </p>
                       </CardContent>
                     </DraggableStatsSection>
