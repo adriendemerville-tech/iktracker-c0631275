@@ -9,6 +9,7 @@ export interface Location {
 
 export interface Vehicle {
   id: string;
+  name?: string; // Titre libre du véhicule (ex : "Clio pro")
   ownerFirstName: string;
   ownerLastName: string;
   licensePlate: string;
