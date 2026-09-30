@@ -824,12 +824,18 @@ export function useTrips() {
         };
         setVehiclesCache((prev) => [newVehicle, ...prev]);
 
-        // Query database directly for trips without a vehicle (more reliable than local state)
-        const { data: tripsWithoutVehicle } = await supabase
-          .from("trips")
-          .select("*")
+        // Only the very first vehicle absorbs vehicle-less trips. Additional
+        // vehicles never touch past trips unless a period is explicitly set.
+        const { count: otherVehicles } = await supabase
+          .from("vehicles")
+          .select("id", { count: "exact", head: true })
           .eq("user_id", user.id)
-          .is("vehicle_id", null);
+          .neq("id", data.id);
+        const isFirstVehicle = (otherVehicles ?? 0) === 0;
+
+        const { data: tripsWithoutVehicle } = isFirstVehicle
+          ? await supabase.from("trips").select("*").eq("user_id", user.id).is("vehicle_id", null)
+          : { data: [] as never[] };
 
         if (tripsWithoutVehicle && tripsWithoutVehicle.length > 0) {
           console.log(
