@@ -1,4 +1,4 @@
-import { useState, useEffect, useLayoutEffect, lazy, Suspense, memo } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, lazy, Suspense, memo } from "react";
 import BodyEndInjections from "@/components/BodyEndInjections";
 import { EnhancedMarketingFooter } from "@/components/marketing/EnhancedMarketingFooter";
 import { Link, useNavigate } from "@/lib/router-compat";
