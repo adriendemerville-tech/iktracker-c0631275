@@ -299,7 +299,7 @@ export const TripCard = memo(function TripCard({
               )}
             </div>
           )}
-          {showDelete && onDelete && showActionButtons && (
+          {showDelete && onDelete && (showActionButtons || isPending) && (
             <Button
               variant="ghost"
               size="icon"
