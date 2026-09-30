@@ -44,7 +44,6 @@ interface VehicleFormProps {
   onSave: (vehicle: Omit<Vehicle, "id">, options?: VehicleSaveOptions) => void;
   editVehicle?: Vehicle;
   vehicleCount?: number;
-  isDefaultVehicle?: boolean;
 }
 
 // Common French car makes for suggestion
@@ -69,7 +68,7 @@ const COMMON_MAKES = [
   "Tesla",
 ];
 
-export function VehicleForm({ open, onOpenChange, onSave, editVehicle, vehicleCount = 0, isDefaultVehicle = false }: VehicleFormProps) {
+export function VehicleForm({ open, onOpenChange, onSave, editVehicle, vehicleCount = 0 }: VehicleFormProps) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [licensePlate, setLicensePlate] = useState("");
@@ -104,12 +103,12 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle, vehicleCo
       setLookupDone(!!editVehicle);
       setUpdatePastTrips(false);
       setUsePeriod(false);
-      setSetAsDefault(isDefaultVehicle);
+      setSetAsDefault(false);
       setPeriodStart("");
       setPeriodEnd("");
       setScan(null);
     }
-  }, [open, editVehicle, isDefaultVehicle]);
+  }, [open, editVehicle]);
 
   const formatLicensePlate = (value: string) => {
     const cleaned = value.toUpperCase().replace(/[^A-Z0-9]/g, "");
@@ -273,7 +272,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle, vehicleCo
       },
       {
         updatePastTrips: impactsPastTrips ? updatePastTrips : false,
-        setAsDefault: setAsDefault && vehicleCount > (editVehicle ? 1 : 0),
+        setAsDefault: !editVehicle && vehicleCount > 0 && setAsDefault,
         period:
           usePeriod && !editVehicle && periodStart
             ? { start: periodStart, end: periodEnd || undefined }
@@ -510,7 +509,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle, vehicleCo
                 <Switch id="electric" checked={isElectric} onCheckedChange={setIsElectric} />
               </div>
 
-              {vehicleCount > (editVehicle ? 1 : 0) && (
+              {!editVehicle && vehicleCount > 0 && (
                 <label htmlFor="defaultVehicle" className="flex items-center gap-2.5 cursor-pointer">
                   <Checkbox
                     id="defaultVehicle"

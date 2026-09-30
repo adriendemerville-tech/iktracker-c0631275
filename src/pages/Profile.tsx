@@ -248,11 +248,12 @@ const Profile = () => {
   ) => {
     if (editingVehicle) {
       await updateVehicle(editingVehicle.id, vehicleData, options);
-      if (options?.setAsDefault) updatePreference("defaultVehicleId", editingVehicle.id);
-      else if (preferences.defaultVehicleId === editingVehicle.id) updatePreference("defaultVehicleId", null);
     } else {
       const added = await addVehicle(vehicleData, { period: options?.period });
       if (added && options?.setAsDefault) updatePreference("defaultVehicleId", added.id);
+      else if (added && !preferences.defaultVehicleId) {
+        updatePreference("defaultVehicleId", vehicles[0]?.id ?? added.id);
+      }
     }
     setEditingVehicle(null);
     setVehicleFormOpen(false);
@@ -932,7 +933,6 @@ const Profile = () => {
             onSave={handleSaveVehicle}
             editVehicle={editingVehicle || undefined}
             vehicleCount={vehicles.length}
-            isDefaultVehicle={!!editingVehicle && preferences.defaultVehicleId === editingVehicle.id}
           />
 
           {/* Kilometers Chart */}
