@@ -65,6 +65,19 @@ function isVirtualMeeting(event: CalendarEvent): boolean {
 // - all-day event without a location = personal marker (anniversaire, jour férié, congé, prénom)
 // - status 'cancelled' = ignore
 // - location matching user's home address = 0-km trip
+// Strip HTML artifacts (e.g. "<br>", "&amp;") that calendar locations sometimes contain
+function cleanLocationText(s: string | undefined | null): string {
+  return (s || "")
+    .replace(/<br\s*\/?>/gi, ", ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/,\s*,/g, ",")
+    .replace(/\s{2,}/g, " ")
+    .replace(/^[,\s]+|[,\s]+$/g, "")
+    .trim();
+}
+
 function normalizeAddress(s: string | undefined | null): string {
   return (s || "")
     .toLowerCase()
