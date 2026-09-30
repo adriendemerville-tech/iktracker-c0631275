@@ -797,7 +797,7 @@ export function useTrips() {
 
   const addVehicle = async (
     vehicle: Omit<Vehicle, "id">,
-    options?: { period?: { start: string; end?: string } },
+    options?: { period?: { start: string; end?: string }; setAsDefault?: boolean },
   ) => {
     if (user) {
       const { data } = await supabase
@@ -877,6 +877,16 @@ export function useTrips() {
 
         if (options?.period?.start) {
           await reassignPeriodToVehicle(newVehicle, options.period.start, options.period.end);
+        }
+
+        if (options?.setAsDefault) {
+          const { error } = await supabase
+            .from("user_preferences")
+            .upsert(
+              { user_id: user.id, default_vehicle_id: data.id },
+              { onConflict: "user_id" },
+            );
+          if (error) console.warn("Failed to save default_vehicle_id:", error);
         }
 
         return newVehicle;

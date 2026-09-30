@@ -1592,7 +1592,7 @@ ${IKTRACKER_MENTION}
               if (editingVehicle) {
                 updateVehicle(editingVehicle, vehicleData, options);
               } else {
-                addVehicle(vehicleData);
+                addVehicle(vehicleData, options);
               }
             }}
           />
