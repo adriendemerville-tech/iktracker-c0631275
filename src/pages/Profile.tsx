@@ -72,7 +72,7 @@ import { CalendarConnections } from "@/components/CalendarConnections";
 import { GoogleCalendarStatus } from "@/components/GoogleCalendarStatus";
 import { FeedbackForm } from "@/components/FeedbackForm";
 import { VehicleCard } from "@/components/VehicleCard";
-import { VehicleForm } from "@/components/VehicleForm";
+import { VehicleForm, type VehicleSaveOptions } from "@/components/VehicleForm";
 import { AddressCard } from "@/components/AddressCard";
 import { AddressForm } from "@/components/AddressForm";
 import { DesktopSidebar } from "@/components/DesktopSidebar";
@@ -242,14 +242,18 @@ const Profile = () => {
     }
   };
 
-  const handleSaveVehicle = (
+  const handleSaveVehicle = async (
     vehicleData: Omit<Vehicle, "id">,
-    options?: { updatePastTrips?: boolean; period?: { start: string; end?: string } },
+    options?: VehicleSaveOptions,
   ) => {
     if (editingVehicle) {
-      updateVehicle(editingVehicle.id, vehicleData, options);
+      await updateVehicle(editingVehicle.id, vehicleData, options);
     } else {
-      addVehicle(vehicleData, { period: options?.period });
+      const added = await addVehicle(vehicleData, { period: options?.period });
+      if (added && options?.setAsDefault) updatePreference("defaultVehicleId", added.id);
+      else if (added && !preferences.defaultVehicleId) {
+        updatePreference("defaultVehicleId", vehicles[0]?.id ?? added.id);
+      }
     }
     setEditingVehicle(null);
     setVehicleFormOpen(false);
@@ -928,6 +932,7 @@ const Profile = () => {
             onOpenChange={setVehicleFormOpen}
             onSave={handleSaveVehicle}
             editVehicle={editingVehicle || undefined}
+            vehicleCount={vehicles.length}
           />
 
           {/* Kilometers Chart */}
