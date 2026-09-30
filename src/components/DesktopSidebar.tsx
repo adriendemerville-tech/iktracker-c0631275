@@ -380,6 +380,7 @@ export const DesktopSidebar = ({
         }}
         onSave={handleVehicleFormSubmit}
         editVehicle={editingVehicle}
+        vehicleCount={vehicles.length}
       />
 
       {/* Calendar Sheet - opens from right */}
