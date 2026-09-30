@@ -322,6 +322,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: RootErrorComponent,
 });
 
+function RootNotFound() {
+  return (
+    <Suspense fallback={null}>
+      <NotFound />
+    </Suspense>
+  );
+}
+
 function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="fr" suppressHydrationWarning>
