@@ -267,7 +267,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="bottom"
-        className="h-auto max-h-[85vh] rounded-t-3xl overflow-hidden flex flex-col"
+        className="h-auto max-h-[85vh] w-full sm:max-w-xl sm:mx-auto rounded-t-3xl sm:rounded-3xl overflow-hidden flex flex-col"
       >
         <div className="w-full flex flex-col">
           <SheetHeader className="pb-5 shrink-0">
@@ -338,6 +338,18 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
                 )}
               </div>
 
+              {/* Title */}
+              <div className="space-y-2">
+                <Label htmlFor="vehicleTitle">Titre</Label>
+                <Input
+                  id="vehicleTitle"
+                  placeholder="Ex : Clio pro"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="h-12"
+                />
+              </div>
+
               {/* License plate */}
               <div className="space-y-2">
                 <Label htmlFor="licensePlate">Plaque d'immatriculation *</Label>
@@ -366,23 +378,21 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
               {/* Fiscal Power */}
               <div className="space-y-2">
                 <Label>Puissance fiscale (CV) *</Label>
-                <div className="grid grid-cols-5 sm:grid-cols-10 gap-1.5">
-                  {fiscalPowerOptions.map((cv) => (
-                    <button
-                      key={cv}
-                      type="button"
-                      onClick={() => setFiscalPower(cv.toString())}
-                      className={cn(
-                        "py-2 px-2 rounded-lg text-sm font-medium transition-all font-display",
-                        fiscalPower === cv.toString()
-                          ? "bg-primary text-primary-foreground shadow-md scale-105"
-                          : "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-                      )}
-                    >
-                      {cv}
-                    </button>
-                  ))}
-                </div>
+                <Select
+                  value={fiscalPower}
+                  onValueChange={(v) => setFiscalPower(v)}
+                >
+                  <SelectTrigger className="h-12 w-full">
+                    <SelectValue placeholder="Sélectionnez la puissance" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-60">
+                    {fiscalPowerOptions.map((cv) => (
+                      <SelectItem key={cv} value={cv.toString()}>
+                        {cv} CV
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <p className="text-xs text-muted-foreground flex items-center gap-1.5 mt-1">
                   <AlertCircle className="w-3.5 h-3.5 text-primary shrink-0" />
                   Rubrique P.6 de la carte grise
