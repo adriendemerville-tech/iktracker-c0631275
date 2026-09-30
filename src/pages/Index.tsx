@@ -1586,6 +1586,7 @@ ${IKTRACKER_MENTION}
           <VehicleForm
             open={showVehicleForm}
             onOpenChange={setShowVehicleForm}
+            vehicleCount={vehicles.length}
             editVehicle={editingVehicle ? vehicles.find((v) => v.id === editingVehicle) : undefined}
             onSave={(vehicleData, options) => {
               if (editingVehicle) {
