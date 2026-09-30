@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Car, X } from "lucide-react";
+import { X } from "lucide-react";
 import { isBrowser, isBot, safeLocalStorage, safeMatchMedia } from "@/lib/ssr-utils";
 
 interface BeforeInstallPromptEvent extends Event {
