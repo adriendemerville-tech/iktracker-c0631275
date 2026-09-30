@@ -361,7 +361,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
                     onChange={(e) => handleLicensePlateChange(e.target.value)}
                     maxLength={11}
                     className={cn(
-                      "font-mono text-base sm:text-lg tracking-wider pr-10 h-12",
+                      "font-mono text-base sm:text-lg tracking-wider pr-10 h-11 sm:h-12",
                       isPlateEmpty && "ring-2 ring-primary/50 border-primary",
                     )}
                   />
