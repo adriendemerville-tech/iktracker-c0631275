@@ -35,6 +35,7 @@ async function compressImage(file: File): Promise<{ base64: string; mime: "image
 export interface VehicleSaveOptions {
   updatePastTrips?: boolean;
   period?: { start: string; end?: string };
+  setAsDefault?: boolean;
 }
 
 interface VehicleFormProps {
@@ -42,6 +43,8 @@ interface VehicleFormProps {
   onOpenChange: (open: boolean) => void;
   onSave: (vehicle: Omit<Vehicle, "id">, options?: VehicleSaveOptions) => void;
   editVehicle?: Vehicle;
+  vehicleCount?: number;
+  isDefaultVehicle?: boolean;
 }
 
 // Common French car makes for suggestion
@@ -66,7 +69,7 @@ const COMMON_MAKES = [
   "Tesla",
 ];
 
-export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: VehicleFormProps) {
+export function VehicleForm({ open, onOpenChange, onSave, editVehicle, vehicleCount = 0, isDefaultVehicle = false }: VehicleFormProps) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [licensePlate, setLicensePlate] = useState("");
@@ -79,6 +82,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
   const [lookupDone, setLookupDone] = useState(false);
   const [updatePastTrips, setUpdatePastTrips] = useState(false);
   const [usePeriod, setUsePeriod] = useState(false);
+  const [setAsDefault, setSetAsDefault] = useState(false);
   const [periodStart, setPeriodStart] = useState("");
   const [periodEnd, setPeriodEnd] = useState("");
   const [isScanning, setIsScanning] = useState(false);
@@ -100,11 +104,12 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
       setLookupDone(!!editVehicle);
       setUpdatePastTrips(false);
       setUsePeriod(false);
+      setSetAsDefault(isDefaultVehicle);
       setPeriodStart("");
       setPeriodEnd("");
       setScan(null);
     }
-  }, [open, editVehicle]);
+  }, [open, editVehicle, isDefaultVehicle]);
 
   const formatLicensePlate = (value: string) => {
     const cleaned = value.toUpperCase().replace(/[^A-Z0-9]/g, "");
@@ -268,6 +273,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
       },
       {
         updatePastTrips: impactsPastTrips ? updatePastTrips : false,
+        setAsDefault: setAsDefault && vehicleCount > (editVehicle ? 1 : 0),
         period:
           usePeriod && !editVehicle && periodStart
             ? { start: periodStart, end: periodEnd || undefined }
@@ -361,8 +367,9 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
                 )}
               </div>
 
+              <div className="grid grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] gap-3 items-start">
               {/* License plate */}
-              <div className="space-y-2">
+              <div className="space-y-2 min-w-0">
                 <Label htmlFor="licensePlate">Plaque d'immatriculation *</Label>
                 <div className="relative">
                   <Input
@@ -372,11 +379,11 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
                     onChange={(e) => handleLicensePlateChange(e.target.value)}
                     maxLength={11}
                     className={cn(
-                      "font-mono text-base sm:text-lg tracking-wider pr-10 h-11 sm:h-12",
+                      "font-mono text-sm sm:text-base pr-8 h-11 sm:h-12",
                       isPlateEmpty && "ring-2 ring-primary/50 border-primary",
                     )}
                   />
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2">
                     {isLookingUp ? (
                       <Loader2 className="w-5 h-5 animate-spin text-primary" />
                     ) : lookupDone ? (
@@ -387,14 +394,14 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
               </div>
 
               {/* Fiscal Power */}
-              <div className="space-y-2">
-                <Label>Puissance fiscale (CV) *</Label>
+              <div className="space-y-2 min-w-0">
+                <Label className="text-xs sm:text-sm whitespace-nowrap">Puissance fiscale *</Label>
                 <Select
                   value={fiscalPower}
                   onValueChange={(v) => setFiscalPower(v)}
                 >
                   <SelectTrigger className="h-11 sm:h-12 w-full">
-                    <SelectValue placeholder="Sélectionnez la puissance" />
+                    <SelectValue placeholder="CV" />
                   </SelectTrigger>
                   <SelectContent className="max-h-60">
                     {fiscalPowerOptions.map((cv) => (
@@ -408,6 +415,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
                   <AlertCircle className="w-3.5 h-3.5 text-primary shrink-0" />
                   Rubrique P.6 de la carte grise
                 </p>
+              </div>
               </div>
 
               {/* Make / Model - editable when lookup failed or incomplete */}
@@ -501,6 +509,17 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
                 </div>
                 <Switch id="electric" checked={isElectric} onCheckedChange={setIsElectric} />
               </div>
+
+              {vehicleCount > (editVehicle ? 1 : 0) && (
+                <label htmlFor="defaultVehicle" className="flex items-center gap-2.5 cursor-pointer">
+                  <Checkbox
+                    id="defaultVehicle"
+                    checked={setAsDefault}
+                    onCheckedChange={(value) => setSetAsDefault(value === true)}
+                  />
+                  <span className="text-sm font-semibold">Véhicule principal</span>
+                </label>
+              )}
 
               {/* Retroactive period (new vehicle only) */}
               {!editVehicle && (
