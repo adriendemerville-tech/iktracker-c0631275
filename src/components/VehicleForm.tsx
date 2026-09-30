@@ -296,7 +296,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full h-10 sm:h-11 font-display"
+                  className="w-full h-10 sm:h-11 font-display focus-visible:ring-0 focus-visible:ring-offset-0"
                   disabled={isScanning}
                   onClick={() => fileRef.current?.click()}
                 >
