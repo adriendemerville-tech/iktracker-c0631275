@@ -33,6 +33,16 @@ interface CalendarEvent {
   attendees?: Array<{ self?: boolean; responseStatus?: string }>;
   organizer?: { self?: boolean; email?: string };
   recurringEventId?: string;
+  visibility?: string; // 'default' | 'public' | 'private' | 'confidential'
+}
+
+// Personal appointments (santé, famille, loisirs) — never a business trip.
+const PERSONAL_EVENT_REGEX =
+  /\b(?:psy(?:chiatre|chologue|chanalyste)?|m[ée]decin|docteur|dr\.?|g[ée]n[ée]raliste|dentiste|orthodontiste|kin[ée](?:sith[ée]rapeute)?|ost[ée]o(?:pathe)?|ophtalmo(?:logue)?|dermato(?:logue)?|gyn[ée]co(?:logue)?|p[ée]diatre|cardiologue|radiologie|radio|irm|scanner|prise de sang|laboratoire|labo|pharmacie|h[ôo]pital|clinique|v[ée]t[ée]rinaire|v[ée]to|coiffeur|coiffure|barbier|esth[ée]ticienne|manucure|massage|[ée]cole|cr[èe]che|nounou|garderie|anniversaire|mariage|bapt[êe]me|enterrement|obs[èe]ques|perso(?:nnel)?|priv[ée]|vacances|cong[ée]s?|sport|salle de sport|fitness|yoga|pilates|piscine|foot(?:ball)?|tennis|padel|restau(?:rant)?\s+(?:en\s+)?famille)\b/i;
+
+function isPersonalEvent(event: CalendarEvent): boolean {
+  if (event.visibility === "private" || event.visibility === "confidential") return true;
+  return PERSONAL_EVENT_REGEX.test(`${event.summary || ""} ${event.location || ""}`);
 }
 
 // Detect virtual meeting markers (Meet, Zoom, Teams, Webex, visio, etc.)
@@ -45,6 +55,7 @@ function isVirtualMeeting(event: CalendarEvent): boolean {
   const haystack = `${event.location || ""} ${event.description || ""} ${event.summary || ""}`;
   return VIRTUAL_MEETING_REGEX.test(haystack);
 }
+
 
 // ============ Level 1 deterministic filter =============
 // Signals from Google Calendar API v3 + RFC 5545 (ICS), NOT from event title semantics.
@@ -99,6 +110,9 @@ function shouldSkipEvent(
 
   // 3bis) Virtual meeting (Meet / Zoom / Teams / visio) → never a physical trip
   if (isVirtualMeeting(event)) return "virtual_meeting";
+
+  // 3ter) Private visibility or personal keywords (santé, famille, loisirs)
+  if (isPersonalEvent(event)) return "personal_event";
 
   const isAllDay = !!event.start?.date && !event.start?.dateTime;
   const hasLocation = !!(event.location && event.location.trim().length > 0);
