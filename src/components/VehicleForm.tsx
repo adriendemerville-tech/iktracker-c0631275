@@ -366,7 +366,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle, vehicleCo
                 )}
               </div>
 
-              <div className="grid grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] gap-3 items-start">
+              <div className="grid grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] gap-3 items-start">
               {/* License plate */}
               <div className="space-y-2 min-w-0">
                 <Label htmlFor="licensePlate">Plaque d'immatriculation *</Label>
