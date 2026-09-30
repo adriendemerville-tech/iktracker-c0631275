@@ -65,7 +65,6 @@ const COMMON_MAKES = [
 ];
 
 export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: VehicleFormProps) {
-  const [title, setTitle] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [licensePlate, setLicensePlate] = useState("");
@@ -85,7 +84,6 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
   // Sync form state when editVehicle changes or sheet opens
   useEffect(() => {
     if (open) {
-      setTitle(editVehicle?.name === "Non renseigné Non renseigné" ? "" : editVehicle?.name || "");
       setFirstName(editVehicle?.ownerFirstName || "");
       setLastName(editVehicle?.ownerLastName || "");
       setLicensePlate(editVehicle?.licensePlate || "");
@@ -239,7 +237,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
 
     onSave(
       {
-        name: title.trim() || (!make.trim() && !model.trim() ? licensePlate.toUpperCase() : undefined),
+        name: !make.trim() && !model.trim() ? licensePlate.toUpperCase() : undefined,
         ownerFirstName: firstName.trim(),
         ownerLastName: lastName.trim(),
         licensePlate: licensePlate.toUpperCase(),
@@ -336,18 +334,6 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
                     ))}
                   </div>
                 )}
-              </div>
-
-              {/* Title */}
-              <div className="space-y-2">
-                <Label htmlFor="vehicleTitle">Titre</Label>
-                <Input
-                  id="vehicleTitle"
-                  placeholder="Ex : Clio pro"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="h-11 sm:h-12"
-                />
               </div>
 
               {/* License plate */}
