@@ -318,11 +318,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   }),
   shellComponent: RootShell,
   component: RootComponent,
-  notFoundComponent: () => (
-    <Suspense fallback={null}>
-      <NotFound />
-    </Suspense>
-  ),
+  notFoundComponent: RootNotFound,
   errorComponent: RootErrorComponent,
 });
 
