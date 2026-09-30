@@ -318,13 +318,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   }),
   shellComponent: RootShell,
   component: RootComponent,
-  notFoundComponent: () => (
+  notFoundComponent: RootNotFound,
+  errorComponent: lazy(async () => ({ default: RootErrorComponent })),
+});
+
+function RootNotFound() {
+  return (
     <Suspense fallback={null}>
       <NotFound />
     </Suspense>
-  ),
-  errorComponent: RootErrorComponent,
-});
+  );
+}
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
@@ -382,13 +386,15 @@ function RootComponent() {
   );
 }
 
-function RootErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function RootErrorComponent({ error, reset }: { error: unknown; reset: () => void }) {
   const router = useRouter();
 
   console.error(error);
 
   useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    reportLovableError(error instanceof Error ? error : new Error(String(error)), {
+      boundary: "tanstack_root_error_component",
+    });
   }, [error]);
 
   return (
