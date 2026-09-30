@@ -115,8 +115,8 @@ export const MarketingPWANotification = forwardRef<HTMLDivElement>((_, ref) => {
               <div className="relative p-5 pr-10">
                 <div className="flex items-start gap-4">
                   {/* Icon */}
-                  <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg shadow-primary/25">
-                    <Smartphone className="w-6 h-6 text-primary-foreground" />
+                  <div className="flex-shrink-0 w-12 h-12 rounded-xl overflow-hidden shadow-lg shadow-primary/25">
+                    <img src="/app-icon.png" alt="" className="w-full h-full object-cover" />
                   </div>
 
                   {/* Content */}
