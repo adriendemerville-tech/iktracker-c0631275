@@ -742,7 +742,7 @@ export function useTrips() {
         .from("vehicles")
         .insert({
           user_id: user.id,
-          name: `${vehicle.make} ${vehicle.model}`.trim() || "Véhicule",
+          name: vehicle.name || `${vehicle.make} ${vehicle.model}`.trim() || "Véhicule",
           fiscal_power: vehicle.fiscalPower,
           owner_first_name: vehicle.ownerFirstName,
           owner_last_name: vehicle.ownerLastName,
@@ -853,6 +853,7 @@ export function useTrips() {
         .from("vehicles")
         .update({
           name:
+            updates.name ||
             `${updates.make || existingVehicle.make || ""} ${updates.model || existingVehicle.model || ""}`.trim() ||
             undefined,
           fiscal_power: updates.fiscalPower,
