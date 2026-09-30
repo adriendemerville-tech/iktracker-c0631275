@@ -10,10 +10,17 @@ import {
   useSearch as tsSearch,
   useRouter,
   Link as TSLink,
-  Navigate as TSNavigate,
   Outlet as TSOutlet,
 } from "@tanstack/react-router";
-import { useMemo, useCallback, forwardRef, type ComponentProps, type ReactNode } from "react";
+import {
+  useMemo,
+  useCallback,
+  useEffect,
+  useRef,
+  forwardRef,
+  type ComponentProps,
+  type ReactNode,
+} from "react";
 
 // ---------- shared URL parsing ----------
 
@@ -155,6 +162,9 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link(
 
 // ---------- Navigate ----------
 
+// Navigue une seule fois par montage. Le <Navigate> de TanStack renavigue à
+// chaque rendu dont les props changent d'identité : pendant la transition,
+// l'ancienne page reste affichée et se re-rend → boucle infinie.
 export function Navigate({
   to,
   replace,
@@ -164,16 +174,22 @@ export function Navigate({
   replace?: boolean;
   state?: unknown;
 }) {
-  const { pathname, search, hash } = parseTo(to);
-  return (
-    <TSNavigate
-      to={pathname as never}
-      search={search as never}
-      hash={hash}
-      state={state as never}
-      replace={replace}
-    />
-  );
+  const nav = tsNavigate();
+  const doneRef = useRef(false);
+  useEffect(() => {
+    if (doneRef.current) return;
+    doneRef.current = true;
+    const { pathname, search, hash } = parseTo(to);
+    void nav({
+      to: pathname as never,
+      search: search as never,
+      hash,
+      state: state as never,
+      replace,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return null;
 }
 
 // ---------- Outlet ----------
