@@ -65,7 +65,6 @@ const COMMON_MAKES = [
 ];
 
 export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: VehicleFormProps) {
-  const [title, setTitle] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [licensePlate, setLicensePlate] = useState("");
@@ -85,7 +84,6 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle }: Vehicle
   // Sync form state when editVehicle changes or sheet opens
   useEffect(() => {
     if (open) {
-      setTitle(editVehicle?.name === "Non renseigné Non renseigné" ? "" : editVehicle?.name || "");
       setFirstName(editVehicle?.ownerFirstName || "");
       setLastName(editVehicle?.ownerLastName || "");
       setLicensePlate(editVehicle?.licensePlate || "");
