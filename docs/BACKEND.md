@@ -1423,6 +1423,9 @@ Serveur MCP OAuth 2.1 exposant les données IKtracker à ChatGPT / Claude / Curs
 
 ## Changelog
 
+- vehicle-lookup : suppression du repli « données simulées » (renvoie notFound, saisie manuelle).
+
+
 - **4.6.7** (29 août 2026) — Worker `iktracker-bot-router` redéployé en production (user-agents IA complétés : `perplexity-user`, `mistralai-user`, etc.) ; e-mail automatique `admin-reply` à l'utilisateur sur réponse depuis /admin.
 
 - **4.5** (23 août 2026) — GEO : qualité des réponses non-200 et politique robots explicite :
