@@ -304,8 +304,10 @@ export const TripCard = memo(function TripCard({
               variant="ghost"
               size="icon"
               className={cn(
-                "h-5 w-5 text-muted-foreground/60 hover:text-destructive hover:bg-transparent",
-                desktopHoverReveal,
+                isPending
+                  ? "h-7 w-7 text-white hover:text-white hover:bg-white/20"
+                  : "h-5 w-5 text-muted-foreground/60 hover:text-destructive hover:bg-transparent",
+                !isPending && desktopHoverReveal,
               )}
               onClick={(e) => {
                 e.stopPropagation();
