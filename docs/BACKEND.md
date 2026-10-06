@@ -1646,3 +1646,6 @@ Le score de priorité est la somme des poids, plafonnée à 100.
 ### Changelog — nettoyage des adresses agenda (2026-10-01)
 - `sync-calendar-trips` : nouvelle fonction `cleanLocationText` appliquée aux adresses importées — supprime les balises HTML (`<br>` → virgule, autres balises → espace) et les entités (`&amp;`, `&nbsp;`).
 - Nettoyage rétroactif des `trips.start_location` / `end_location` contenant des `<br>`.
+
+## MCP blog (2026-10-06)
+Serveur MCP `mcp` (OAuth) : outils list_blog_posts, get_blog_post, create_blog_post, update_blog_post sur public.blog_posts ; écriture limitée par RLS au rôle admin. API REST alternative : edge function blog-api (header x-api-key, table blog_api_keys).
