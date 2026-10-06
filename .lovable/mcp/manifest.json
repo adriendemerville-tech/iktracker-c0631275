@@ -157,6 +157,203 @@
           "$schema": "http://json-schema.org/draft-07/schema#"
         },
         "outputSchema": null
+      },
+      {
+        "name": "list_blog_posts",
+        "title": "Lister les articles du blog",
+        "description": "Liste les articles du blog IKtracker (filtre statut/recherche titre). Brouillons visibles pour les admins.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "published",
+                "archived"
+              ],
+              "description": "Filtrer par statut."
+            },
+            "search": {
+              "type": "string",
+              "maxLength": 200,
+              "description": "Recherche dans le titre."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "description": "Défaut 50."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_blog_post",
+        "title": "Lire un article",
+        "description": "Retourne un article complet (contenu Markdown inclus) par slug.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "slug": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "slug"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_blog_post",
+        "title": "Créer un article",
+        "description": "Crée un article (brouillon par défaut). Réservé aux admins IKtracker.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "slug": {
+              "type": "string",
+              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "subtitle": {
+              "type": "string",
+              "maxLength": 300
+            },
+            "content": {
+              "type": "string",
+              "description": "Contenu Markdown (un seul H1 = le titre ; utiliser ## dans le contenu)."
+            },
+            "meta_description": {
+              "type": "string",
+              "maxLength": 170
+            },
+            "featured_image_url": {
+              "type": "string",
+              "format": "uri"
+            },
+            "author_name": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "is_listed": {
+              "type": "boolean"
+            },
+            "seo_indexable": {
+              "type": "boolean"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "published",
+                "archived"
+              ],
+              "description": "draft par défaut."
+            }
+          },
+          "required": [
+            "slug",
+            "title",
+            "content"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "update_blog_post",
+        "title": "Modifier / publier un article",
+        "description": "Met à jour un article par slug (contenu, SEO, statut draft/published/archived). Réservé aux admins.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "slug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "subtitle": {
+              "type": "string",
+              "maxLength": 300
+            },
+            "content": {
+              "type": "string",
+              "description": "Contenu Markdown (un seul H1 = le titre ; utiliser ## dans le contenu)."
+            },
+            "meta_description": {
+              "type": "string",
+              "maxLength": 170
+            },
+            "featured_image_url": {
+              "type": "string",
+              "format": "uri"
+            },
+            "author_name": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "is_listed": {
+              "type": "boolean"
+            },
+            "seo_indexable": {
+              "type": "boolean"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "published",
+                "archived"
+              ],
+              "description": "draft par défaut."
+            }
+          },
+          "required": [
+            "slug"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
       }
     ]
   }
