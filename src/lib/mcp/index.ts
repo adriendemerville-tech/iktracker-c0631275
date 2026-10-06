@@ -3,6 +3,7 @@ import listVehiclesTool from "./tools/list-vehicles";
 import listTripsTool from "./tools/list-trips";
 import getYtdSummaryTool from "./tools/get-ytd-summary";
 import createTripTool from "./tools/create-trip";
+import { listBlogPostsTool, getBlogPostTool, createBlogPostTool, updateBlogPostTool } from "./tools/blog";
 
 // The OAuth issuer MUST be the direct Supabase host (not the .lovable.cloud proxy).
 // Build it from the project ref, inlined at build time by Vite.
@@ -13,10 +14,10 @@ export default defineMcp({
   title: "IKtracker MCP",
   version: "0.1.0",
   instructions:
-    "Outils IKtracker pour consulter les trajets, véhicules et cumuls annuels d'indemnités kilométriques de l'utilisateur connecté, et créer de nouveaux trajets. Toutes les données sont scopées à l'utilisateur authentifié.",
+    "Outils IKtracker pour consulter les trajets, véhicules et cumuls annuels d'indemnités kilométriques de l'utilisateur connecté, et créer de nouveaux trajets. Les admins peuvent aussi lire, créer, modifier et publier les articles du blog. Toutes les données sont scopées à l'utilisateur authentifié.",
   auth: auth.oauth.issuer({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated",
   }),
-  tools: [listVehiclesTool, listTripsTool, getYtdSummaryTool, createTripTool],
+  tools: [listVehiclesTool, listTripsTool, getYtdSummaryTool, createTripTool, listBlogPostsTool, getBlogPostTool, createBlogPostTool, updateBlogPostTool],
 });
