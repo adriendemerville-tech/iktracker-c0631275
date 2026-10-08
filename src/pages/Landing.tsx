@@ -1,4 +1,4 @@
-import { useState, useEffect, useLayoutEffect, useRef, lazy, Suspense, memo } from "react";
+import { useState, useEffect, useRef, lazy, Suspense, memo } from "react";
 import BodyEndInjections from "@/components/BodyEndInjections";
 import { EnhancedMarketingFooter } from "@/components/marketing/EnhancedMarketingFooter";
 import { Link, useNavigate } from "@/lib/router-compat";
@@ -6,7 +6,7 @@ import { getSupabase } from "@/integrations/supabase/lazy";
 import { usePageContent } from "@/hooks/usePageContent";
 import { useLiveUserCount } from "@/hooks/useLiveUserCount";
 import { useLiveTripStats } from "@/hooks/useLiveTripStats";
-import { HERO_VARIANTS, DEFAULT_VARIANT, getHeroVariant, type HeroVariant } from "@/lib/ab-test";
+import { HERO_VARIANTS } from "@/lib/ab-test";
 import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -208,9 +208,6 @@ const LANDING_DEFAULTS = {
   faq_subtitle: "Tout ce que vous devez savoir sur IKtracker.",
 };
 
-// useLayoutEffect côté client (applique le swap avant le paint), useEffect côté serveur.
-const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
-
 const Landing = ({ initialUserCount, initialTripCount, initialTotalKm, reviews }: LandingProps) => {
   const { count: liveUserCount } = useLiveUserCount({ initialCount: initialUserCount });
   const { tripCount: liveTripCount, totalKm: liveTotalKm } = useLiveTripStats({
@@ -229,19 +226,10 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm, reviews }
   const { trackCTAClick, trackSignupClick } = useMarketingTracker("landing");
   const { content: c } = usePageContent("home", LANDING_DEFAULTS);
 
-  // Test A/B du H1 : le serveur (et Googlebot) reçoit toujours la variante de
-  // contrôle ; le swap éventuel (variante B) a lieu avant le premier paint
-  // post-hydratation (useLayoutEffect) pour éviter tout flash visible, et le
-  // conteneur du H1 réserve une hauteur fixe pour éviter tout CLS.
-  const [heroVariant, setHeroVariant] = useState<HeroVariant>(DEFAULT_VARIANT);
-  useIsomorphicLayoutEffect(() => {
-    setHeroVariant(getHeroVariant());
-  }, []);
-
-  const hero = heroVariant === "A" ? null : HERO_VARIANTS[heroVariant];
-  const heroTitle = hero?.title ?? c.hero_title;
-  const heroHighlight = hero?.highlight ?? c.hero_highlight;
-  const heroSubtitle = hero?.subtitle ?? c.hero_subtitle;
+  // Variante A généralisée : même texte au rendu serveur et pour tous les navigateurs.
+  const heroTitle = HERO_VARIANTS.A.title;
+  const heroHighlight = HERO_VARIANTS.A.highlight;
+  const heroSubtitle = HERO_VARIANTS.A.subtitle;
 
   // navigate change d'identité à chaque navigation : on le garde en ref pour ne
   // pas réabonner le listener (sinon SIGNED_IN → navigate → réabonnement → boucle).

@@ -67,7 +67,7 @@ export function ABTestCard({ daysBack }: Props) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Test A/B — Titre du hero</CardTitle>
+          <CardTitle>Test A/B terminé — Variante A retenue</CardTitle>
         </CardHeader>
         <CardContent className="flex justify-center py-8">
           <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
@@ -99,14 +99,13 @@ export function ABTestCard({ daysBack }: Props) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <FlaskConical className="h-5 w-5 text-primary" aria-hidden="true" />
-          Test A/B — Titre du hero
+          Test A/B terminé — Variante A retenue
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {rows.length === 0 && (
           <p className="text-sm text-muted-foreground">
-            Aucune donnée pour cette période. Les variantes sont attribuées aux nouveaux visiteurs
-            (50/50) et remontent ici dès les premiers évènements.
+            Aucune donnée historique pour cette période. La variante A est désormais affichée à tous les visiteurs.
           </p>
         )}
 
@@ -179,7 +178,7 @@ export function ABTestCard({ daysBack }: Props) {
             <p className="text-xs text-muted-foreground">
               {stats.significant
                 ? "L'écart est statistiquement fiable : la décision peut être prise."
-                : "L'intervalle de confiance contient 0 : ne pas trancher, laisser tourner le test."}
+                 : "L'écart n'est pas statistiquement établi. La variante A a été retenue par choix éditorial."}
             </p>
             {(sorted[0].visitors < 300 || sorted[1].visitors < 300) && (
               <p className="text-xs text-muted-foreground">
