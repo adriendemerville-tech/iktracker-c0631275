@@ -9,6 +9,8 @@
 import { isBrowser } from "@/lib/ssr-utils";
 
 export const AB_TEST_ID = "hero_h1_v1";
+// Test terminé : conserver les définitions pour les résultats historiques uniquement.
+export const AB_TEST_ACTIVE = false;
 const STORAGE_KEY = `ab_${AB_TEST_ID}`;
 
 export type HeroVariant = "A" | "B";
@@ -55,6 +57,7 @@ function readVariant(): HeroVariant | null {
  * Renvoie la variante de contrôle côté serveur.
  */
 export function getHeroVariant(): HeroVariant {
+  if (!AB_TEST_ACTIVE) return DEFAULT_VARIANT;
   if (!isBrowser()) return DEFAULT_VARIANT;
   const stored = readVariant();
   if (stored) return stored;
@@ -73,6 +76,7 @@ export function getHeroVariant(): HeroVariant {
  * pages ne sont pas rattachés au test.
  */
 export function getVariantTag(): string | null {
+  if (!AB_TEST_ACTIVE) return null;
   const stored = readVariant();
   return stored ? `${AB_TEST_ID}:${stored}` : null;
 }
