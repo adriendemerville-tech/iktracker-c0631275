@@ -24,16 +24,8 @@ export const FOUNDER_PERSON = {
   url: FOUNDER_URL,
   jobTitle: "Fondateur d'IKtracker, dirigeant d'agence indépendante",
   description:
-    "Entrepreneur indépendant à Saint-Rémy-de-Provence, dirigeant de l'agence Avenir Rénovations. A conçu IKtracker en 2025 pour répondre à ses propres besoins de terrain et ceux de ses confrères indépendants : suivi fiscalement opposable, automatisation GPS, zéro abonnement.",
-  worksFor: {
-    "@type": "Organization",
-    name: "Avenir Rénovations",
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: "Saint-Rémy-de-Provence",
-      addressCountry: "FR",
-    },
-  },
+    "Entrepreneur indépendant. A conçu IKtracker en 2025 pour répondre à ses propres besoins de terrain et à ceux de ses confrères indépendants : suivi fiscalement opposable, automatisation GPS, zéro abonnement.",
+  worksFor: { "@id": ORGANIZATION_ID },
   sameAs: ["https://www.linkedin.com/in/adrien-de-volontat"],
 };
 
@@ -104,25 +96,22 @@ export const TRUST_SIGNALS = {
  */
 export const ORG_LEGAL_NAME = "Voluntas Novare";
 export const ORG_EMAIL = "contact@iktracker.fr";
-export const ORG_POSTAL_ADDRESS = {
-  "@type": "PostalAddress",
-  addressLocality: "Saint-Rémy-de-Provence",
-  postalCode: "13210",
-  addressRegion: "Provence-Alpes-Côte d'Azur",
-  addressCountry: "FR",
-};
+
+/** Profils EXTERNES officiels d'IKtracker (annuaires de confiance, page LinkedIn société, Product Hunt…).
+ *  Jamais une page d'iktracker.fr ni un profil personnel. Vide pour l'instant. */
+export const SAME_AS: string[] = [];
+/** Email public de contact pour le JSON-LD — null tant que la réception n'est pas confirmée. */
+export const CONTACT_EMAIL: string | null = null;
+/** Date de dernière mise à jour réelle du logiciel (à modifier à la main, jamais new Date()). */
+export const SOFTWARE_DATE_MODIFIED = "2026-10-09";
+
 export const ORG_CONTACT_POINT = {
   "@type": "ContactPoint",
   contactType: "Support utilisateurs",
-  email: ORG_EMAIL,
+  ...(CONTACT_EMAIL ? { email: CONTACT_EMAIL } : {}),
   url: `${SITE_URL}/contact`,
   availableLanguage: ["fr", "en"],
 };
-export const ORG_SAME_AS = [
-  FOUNDER_URL,
-  "https://www.linkedin.com/in/adrien-de-volontat",
-  "https://github.com/adriendemerville-tech",
-];
 
 /** Comprehensive Organization + SoftwareApplication schema for landing pages */
 export function buildSoftwareApplicationSchema(opts?: {
@@ -149,7 +138,7 @@ export function buildSoftwareApplicationSchema(opts?: {
     countriesSupported: "FR",
     softwareVersion: "2026.1",
     datePublished: "2025-03-01",
-    dateModified: new Date().toISOString().split("T")[0],
+    dateModified: SOFTWARE_DATE_MODIFIED,
     description:
       opts?.pageDescription ??
       "IKtracker automatise le calcul, l'enregistrement GPS et l'export fiscal des indemnités kilométriques selon le barème URSSAF 2025-2026. Gratuit à vie, conçu par un entrepreneur indépendant pour les indépendants : infirmiers libéraux, commerciaux, artisans, consultants, experts-comptables et leurs clients.",
@@ -166,31 +155,7 @@ export function buildSoftwareApplicationSchema(opts?: {
     featureList: IKTRACKER_FEATURES,
     creator: FOUNDER_PERSON,
     author: FOUNDER_PERSON,
-    publisher: {
-      "@type": "Organization",
-      "@id": ORGANIZATION_ID,
-      name: "IKtracker",
-      legalName: ORG_LEGAL_NAME,
-      url: SITE_URL,
-      email: ORG_EMAIL,
-      logo: {
-        "@type": "ImageObject",
-        url: LOGO_URL,
-        width: 250,
-        height: 250,
-      },
-      founder: FOUNDER_PERSON,
-      foundingDate: "2025-03-01",
-      foundingLocation: {
-        "@type": "Place",
-        address: ORG_POSTAL_ADDRESS,
-      },
-      slogan: "Gratuit à vie. Communautaire. Conçu par un indépendant pour les indépendants.",
-      description: TRUST_SIGNALS.business_model,
-      address: ORG_POSTAL_ADDRESS,
-      contactPoint: ORG_CONTACT_POINT,
-      sameAs: ORG_SAME_AS,
-    },
+    publisher: { "@id": ORGANIZATION_ID },
     aggregateRating: undefined, // Intentionally omitted — never fabricate ratings
     audience: {
       "@type": "Audience",
@@ -213,7 +178,7 @@ export function buildOrganizationSchema() {
     name: "IKtracker",
     legalName: ORG_LEGAL_NAME,
     url: SITE_URL,
-    email: ORG_EMAIL,
+    ...(CONTACT_EMAIL ? { email: CONTACT_EMAIL } : {}),
     logo: {
       "@type": "ImageObject",
       url: LOGO_URL,
@@ -221,18 +186,14 @@ export function buildOrganizationSchema() {
       height: 250,
     },
     founder: FOUNDER_PERSON,
-    foundingDate: "2025-03-01",
-    foundingLocation: {
-      "@type": "Place",
-      address: ORG_POSTAL_ADDRESS,
-    },
+    foundingDate: "2025",
     slogan:
       "Gratuit à vie. Communautaire. Conçu par un indépendant pour les indépendants.",
-    description: TRUST_SIGNALS.business_model,
-    address: ORG_POSTAL_ADDRESS,
+    description:
+      "IKtracker est un outil communautaire gratuit de calcul et de suivi des indemnités kilométriques pour les indépendants, édité par Voluntas Novare.",
     contactPoint: ORG_CONTACT_POINT,
     areaServed: { "@type": "Country", name: "France" },
-    sameAs: ORG_SAME_AS,
+    ...(SAME_AS.length > 0 ? { sameAs: SAME_AS } : {}),
     knowsAbout: [
       "Indemnités kilométriques",
       "Barème fiscal URSSAF",
