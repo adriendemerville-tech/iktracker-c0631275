@@ -27,6 +27,7 @@ const DEPLOYED_DOMAIN = "iktracker.lovable.app";
 const Auth = () => {
   const [isResetPassword, setIsResetPassword] = useState(false);
   const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(false);
@@ -234,6 +235,10 @@ const Auth = () => {
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (newPassword !== confirmPassword) {
+      toast({ title: "Erreur", description: "Les mots de passe ne sont pas identiques.", variant: "destructive" });
+      return;
+    }
     setLoading(true);
 
     try {
@@ -337,7 +342,22 @@ const Auth = () => {
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
-              <Button type="submit" className="w-full" disabled={loading}>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Confirmer le mot de passe"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="pl-10 pr-10"
+                  minLength={6}
+                  required
+                />
+              </div>
+              {confirmPassword && confirmPassword !== newPassword && (
+                <p className="text-sm text-destructive">Les mots de passe ne sont pas identiques.</p>
+              )}
+              <Button type="submit" className="w-full" disabled={loading || !newPassword || newPassword !== confirmPassword}>
                 {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
                 Modifier le mot de passe
               </Button>
