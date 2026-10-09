@@ -48,6 +48,7 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as RecoveryRouteImport } from './routes/recovery'
 import { Route as ReportRouteImport } from './routes/report'
+import { Route as ResetMotDePasseRouteImport } from './routes/reset-mot-de-passe'
 import { Route as RgpdRouteImport } from './routes/rgpd'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SitemapForumDotxmlRouteImport } from './routes/sitemap-forum[.]xml'
@@ -87,6 +88,7 @@ import { Route as ForumCategorieCategoryRouteImport } from './routes/forum/categ
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as AdminBlogEditIndexRouteImport } from './routes/admin/blog/edit/index'
 import { Route as AdminBlogEditIdRouteImport } from './routes/admin/blog/edit/$id'
+import { Route as ApiPublicAuthConfirmResetRouteImport } from './routes/api/public/auth/confirm-reset'
 import { Route as ApiPublicAuthRequestResetRouteImport } from './routes/api/public/auth/request-reset'
 import { Route as AppAdminBlogIndexRouteImport } from './routes/app/admin/blog/index'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
@@ -296,6 +298,11 @@ const ReportRoute = ReportRouteImport.update({
   path: '/report',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResetMotDePasseRoute = ResetMotDePasseRouteImport.update({
+  id: '/reset-mot-de-passe',
+  path: '/reset-mot-de-passe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RgpdRoute = RgpdRouteImport.update({
   id: '/rgpd',
   path: '/rgpd',
@@ -492,6 +499,12 @@ const AdminBlogEditIdRoute = AdminBlogEditIdRouteImport.update({
   path: '/admin/blog/edit/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicAuthConfirmResetRoute =
+  ApiPublicAuthConfirmResetRouteImport.update({
+    id: '/api/public/auth/confirm-reset',
+    path: '/api/public/auth/confirm-reset',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicAuthRequestResetRoute =
   ApiPublicAuthRequestResetRouteImport.update({
     id: '/api/public/auth/request-reset',
@@ -576,6 +589,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/recovery': typeof RecoveryRoute
   '/report': typeof ReportRoute
+  '/reset-mot-de-passe': typeof ResetMotDePasseRoute
   '/rgpd': typeof RgpdRoute
   '/signup': typeof SignupRoute
   '/sitemap-forum.xml': typeof SitemapForumDotxmlRoute
@@ -614,6 +628,7 @@ export interface FileRoutesByFullPath {
   '/app/admin/': typeof AppAdminIndexRoute
   '/blog/edit/': typeof BlogEditIndexRoute
   '/admin/blog/edit/$id': typeof AdminBlogEditIdRoute
+  '/api/public/auth/confirm-reset': typeof ApiPublicAuthConfirmResetRoute
   '/api/public/auth/request-reset': typeof ApiPublicAuthRequestResetRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -664,6 +679,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/recovery': typeof RecoveryRoute
   '/report': typeof ReportRoute
+  '/reset-mot-de-passe': typeof ResetMotDePasseRoute
   '/rgpd': typeof RgpdRoute
   '/signup': typeof SignupRoute
   '/sitemap-forum.xml': typeof SitemapForumDotxmlRoute
@@ -702,6 +718,7 @@ export interface FileRoutesByTo {
   '/app/admin': typeof AppAdminIndexRoute
   '/blog/edit': typeof BlogEditIndexRoute
   '/admin/blog/edit/$id': typeof AdminBlogEditIdRoute
+  '/api/public/auth/confirm-reset': typeof ApiPublicAuthConfirmResetRoute
   '/api/public/auth/request-reset': typeof ApiPublicAuthRequestResetRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -753,6 +770,7 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/recovery': typeof RecoveryRoute
   '/report': typeof ReportRoute
+  '/reset-mot-de-passe': typeof ResetMotDePasseRoute
   '/rgpd': typeof RgpdRoute
   '/signup': typeof SignupRoute
   '/sitemap-forum.xml': typeof SitemapForumDotxmlRoute
@@ -791,6 +809,7 @@ export interface FileRoutesById {
   '/app/admin/': typeof AppAdminIndexRoute
   '/blog/edit/': typeof BlogEditIndexRoute
   '/admin/blog/edit/$id': typeof AdminBlogEditIdRoute
+  '/api/public/auth/confirm-reset': typeof ApiPublicAuthConfirmResetRoute
   '/api/public/auth/request-reset': typeof ApiPublicAuthRequestResetRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -843,6 +862,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/recovery'
     | '/report'
+    | '/reset-mot-de-passe'
     | '/rgpd'
     | '/signup'
     | '/sitemap-forum.xml'
@@ -881,6 +901,7 @@ export interface FileRouteTypes {
     | '/app/admin/'
     | '/blog/edit/'
     | '/admin/blog/edit/$id'
+    | '/api/public/auth/confirm-reset'
     | '/api/public/auth/request-reset'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -931,6 +952,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/recovery'
     | '/report'
+    | '/reset-mot-de-passe'
     | '/rgpd'
     | '/signup'
     | '/sitemap-forum.xml'
@@ -969,6 +991,7 @@ export interface FileRouteTypes {
     | '/app/admin'
     | '/blog/edit'
     | '/admin/blog/edit/$id'
+    | '/api/public/auth/confirm-reset'
     | '/api/public/auth/request-reset'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -1019,6 +1042,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/recovery'
     | '/report'
+    | '/reset-mot-de-passe'
     | '/rgpd'
     | '/signup'
     | '/sitemap-forum.xml'
@@ -1057,6 +1081,7 @@ export interface FileRouteTypes {
     | '/app/admin/'
     | '/blog/edit/'
     | '/admin/blog/edit/$id'
+    | '/api/public/auth/confirm-reset'
     | '/api/public/auth/request-reset'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -1108,6 +1133,7 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   RecoveryRoute: typeof RecoveryRoute
   ReportRoute: typeof ReportRoute
+  ResetMotDePasseRoute: typeof ResetMotDePasseRoute
   RgpdRoute: typeof RgpdRoute
   SignupRoute: typeof SignupRoute
   SitemapForumDotxmlRoute: typeof SitemapForumDotxmlRoute
@@ -1146,6 +1172,7 @@ export interface RootRouteChildren {
   AppAdminIndexRoute: typeof AppAdminIndexRoute
   BlogEditIndexRoute: typeof BlogEditIndexRoute
   AdminBlogEditIdRoute: typeof AdminBlogEditIdRoute
+  ApiPublicAuthConfirmResetRoute: typeof ApiPublicAuthConfirmResetRoute
   ApiPublicAuthRequestResetRoute: typeof ApiPublicAuthRequestResetRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -1432,6 +1459,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReportRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reset-mot-de-passe': {
+      id: '/reset-mot-de-passe'
+      path: '/reset-mot-de-passe'
+      fullPath: '/reset-mot-de-passe'
+      preLoaderRoute: typeof ResetMotDePasseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/rgpd': {
       id: '/rgpd'
       path: '/rgpd'
@@ -1705,6 +1739,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminBlogEditIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/auth/confirm-reset': {
+      id: '/api/public/auth/confirm-reset'
+      path: '/api/public/auth/confirm-reset'
+      fullPath: '/api/public/auth/confirm-reset'
+      preLoaderRoute: typeof ApiPublicAuthConfirmResetRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/auth/request-reset': {
       id: '/api/public/auth/request-reset'
       path: '/api/public/auth/request-reset'
@@ -1806,6 +1847,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   RecoveryRoute: RecoveryRoute,
   ReportRoute: ReportRoute,
+  ResetMotDePasseRoute: ResetMotDePasseRoute,
   RgpdRoute: RgpdRoute,
   SignupRoute: SignupRoute,
   SitemapForumDotxmlRoute: SitemapForumDotxmlRoute,
@@ -1844,6 +1886,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppAdminIndexRoute: AppAdminIndexRoute,
   BlogEditIndexRoute: BlogEditIndexRoute,
   AdminBlogEditIdRoute: AdminBlogEditIdRoute,
+  ApiPublicAuthConfirmResetRoute: ApiPublicAuthConfirmResetRoute,
   ApiPublicAuthRequestResetRoute: ApiPublicAuthRequestResetRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
