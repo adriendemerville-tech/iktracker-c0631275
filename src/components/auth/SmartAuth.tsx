@@ -9,7 +9,13 @@ export const SmartAuth = () => {
   const { user, loading } = useAuth();
   const hydrated = useHydrated();
 
-  if (hydrated && !loading && user) {
+  // Ne pas rediriger pendant un flux de réinitialisation de mot de passe :
+  // le lien crée une session temporaire, mais l'utilisateur doit d'abord
+  // voir le formulaire de nouveau mot de passe.
+  const isRecovery =
+    typeof window !== "undefined" && window.location.hash.includes("type=recovery");
+
+  if (hydrated && !loading && user && !isRecovery) {
     return <Navigate to="/app" replace />;
   }
 
