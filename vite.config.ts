@@ -23,6 +23,10 @@ export default defineConfig({
     resolve: {
       alias: {
         // Force la copie hoisted entities v4.5.0 (la copie imbriquée v7 casse le SSR).
+        // Les alias exacts "entities/decode" (style v7, utilisé par parse5) doivent
+        // précéder l'alias racine : v4.5.0 n'exporte pas "./decode".
+        "entities/decode": path.resolve(__dirname, "node_modules/entities/lib/decode.js"),
+        "entities/encode": path.resolve(__dirname, "node_modules/entities/lib/encode.js"),
         "entities/lib/decode.js": path.resolve(__dirname, "node_modules/entities/lib/decode.js"),
         "entities/lib/encode.js": path.resolve(__dirname, "node_modules/entities/lib/encode.js"),
         entities: path.resolve(__dirname, "node_modules/entities"),
