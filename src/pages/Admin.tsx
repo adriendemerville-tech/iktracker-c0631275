@@ -72,6 +72,7 @@ import { fr } from "date-fns/locale";
 
 import { lazyRetry } from "@/lib/lazy-retry";
 import { LazyBoundary } from "@/components/LazyBoundary";
+import { AdminAlerts } from "@/components/admin/AdminAlerts";
 // Panneaux admin chargés à la demande (recharts & co hors du bundle initial/SSR)
 const AdminStats = lazyRetry(() => import("@/components/AdminStats").then((m) => ({ default: m.AdminStats })), "AdminStats");
 const AdminCosts = lazyRetry(() => import("@/components/admin/AdminCosts").then((m) => ({ default: m.AdminCosts })), "AdminCosts");
@@ -733,6 +734,7 @@ const Admin = () => {
         </header>
 
         <main className="max-w-[1600px] mx-auto p-4">
+          <AdminAlerts />
           <LazyBoundary label="Panneau admin" fallback={<div className="p-6"><Skeleton className="h-64 w-full" /></div>}>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="inline-flex h-auto min-h-10 w-full flex-nowrap items-center justify-start gap-1 overflow-x-auto mb-4 [&>*]:min-w-fit [&>*]:shrink-0">
