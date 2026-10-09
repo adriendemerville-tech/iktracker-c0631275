@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "@/lib/router-compat";
 import { supabase } from "@/integrations/supabase/client";
+import { isRecoveryFlow, setRecoveryFlag, clearRecoveryFlag } from "@/lib/recovery-flag";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -147,7 +148,8 @@ const Auth = () => {
       const error = hashParams.get("error");
       const errorDescription = hashParams.get("error_description");
 
-      if (type === "recovery") {
+      if (type === "recovery" || isRecoveryFlow()) {
+        setRecoveryFlag();
         setIsResetPassword(true);
         setCheckingAuth(false);
         return;
@@ -197,9 +199,15 @@ const Auth = () => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setRecoveryFlag();
+        setIsResetPassword(true);
+        setCheckingAuth(false);
+        return;
+      }
       if (event === "SIGNED_IN" && session) {
         // Ne pas naviguer pendant un flux de réinitialisation de mot de passe
-        if (window.location.hash.includes("type=recovery")) return;
+        if (isRecoveryFlow()) return;
         // Auto-connect calendar if OAuth sign-in
         await autoConnectCalendar(session);
 
@@ -237,6 +245,7 @@ const Auth = () => {
         title: "Mot de passe modifié",
         description: "Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.",
       });
+      clearRecoveryFlag();
       window.location.hash = "";
       navigate("/", { replace: true });
     } catch (error: any) {
