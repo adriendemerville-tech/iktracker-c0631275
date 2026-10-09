@@ -2047,6 +2047,33 @@ export type Database = {
           },
         ]
       }
+      password_reset_tokens: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          token_hash: string
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          token_hash: string
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          token_hash?: string
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       recurring_trips: {
         Row: {
           active_months: number[] | null
@@ -3230,6 +3257,7 @@ export type Database = {
         }[]
       }
       get_api_cost_stats: { Args: { days_back?: number }; Returns: Json }
+      get_auth_user_id_by_email: { Args: { p_email: string }; Returns: string }
       get_bareme_simulations_by_day: {
         Args: { days_back?: number }
         Returns: {
