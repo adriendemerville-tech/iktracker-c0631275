@@ -116,7 +116,7 @@ const OG_DESCRIPTION =
   "Calculez vos indemnités kilométriques 2026 avec le barème officiel URSSAF. Suivi GPS, agenda, électrique +20%, relevés PDF. Gratuit à vie.";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
+  head: ({ matches }) => ({
     meta: [
       { charSet: "utf-8" },
       // viewport-fit=cover : nécessaire pour que env(safe-area-inset-*) soit
@@ -311,7 +311,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       // Structured data
       { type: "application/ld+json", children: organizationJsonLd },
       { type: "application/ld+json", children: websiteJsonLd },
-      { type: "application/ld+json", children: howToJsonLd },
+      // HowTo générique omis sur /mode-tournee (la page émet son propre HowTo).
+      ...(matches.some((m) => (m.routeId as string) === "/mode-tournee")
+        ? []
+        : [{ type: "application/ld+json", children: howToJsonLd }]),
       // Speculation Rules API for instant navigation
       { type: "speculationrules", children: speculationRules },
     ],
