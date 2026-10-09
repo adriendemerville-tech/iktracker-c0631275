@@ -137,7 +137,7 @@ export const DesktopSidebar = ({
     open();
     params.delete("open");
     const qs = params.toString();
-    navigate(`${location.pathname}${qs ? `?${qs}` : ""}`, { replace: true });
+    void qs; // TEMP: strip désactivé pour diagnostic
   }, [location.search, location.pathname, navigate]);
 
   const toggleExpanded = () => {
