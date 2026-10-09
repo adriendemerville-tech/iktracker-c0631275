@@ -1,2 +1,3 @@
 - [x] Mettre immatriculation et puissance fiscale côte à côte dans la modale véhicule.
 - [x] Permettre de choisir le véhicule principal dès le deuxième véhicule, sans changer les trajets passés.
+- [x] Renouveler la clé Azure d'Outlook et vérifier qu'elle est acceptée.
