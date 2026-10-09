@@ -75,8 +75,17 @@ export default function ResetPasswordPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="w-full max-w-sm bg-card border border-border rounded-2xl p-6 md:p-8">
-        <h1 className="text-xl font-bold text-foreground mb-1">Nouveau mot de passe</h1>
+      <div className="w-full max-w-[500px] bg-card border border-border rounded-2xl p-8 md:p-10">
+        <img
+          src="/logo-iktracker-250.webp"
+          alt="Logo IKtracker"
+          width={56}
+          height={56}
+          className="mx-auto mb-5 h-14 w-14"
+          loading="eager"
+          fetchPriority="high"
+        />
+        <h1 className="text-2xl font-bold text-foreground mb-1">Nouveau mot de passe</h1>
         <p className="text-sm text-muted-foreground mb-6">
           Choisissez un mot de passe d'au moins 6 caractères.
         </p>
