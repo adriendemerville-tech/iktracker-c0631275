@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/unsubscribe')({
+  validateSearch: (search: Record<string, unknown>) => ({
+    token: typeof search.token === 'string' ? search.token : undefined,
+  }),
   head: () => ({
     meta: [
       { title: 'Désinscription | IKtracker' },
