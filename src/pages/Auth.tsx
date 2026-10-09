@@ -165,6 +165,20 @@ const Auth = () => {
       }
 
       // Show OAuth errors from URL hash — avec diagnostic détaillé
+      const errorCode = hashParams.get("error_code") || "";
+      if (error && (errorCode === "otp_expired" || /email link/i.test(errorDescription || ""))) {
+        clearRecoveryFlag();
+        toast({
+          title: "Lien expiré",
+          description: "Ce lien email a déjà été utilisé ou a expiré. Redemandez un nouvel email.",
+          variant: "destructive",
+        });
+        window.location.hash = "";
+        setShowLoginForm(true);
+        setCheckingAuth(false);
+        return;
+      }
+
       if (error) {
         setOauthDiagnostic(buildOAuthDiagnostic("google", error, errorDescription || ""));
         window.location.hash = "";
