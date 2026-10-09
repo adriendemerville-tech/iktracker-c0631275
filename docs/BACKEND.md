@@ -1657,8 +1657,8 @@ Serveur MCP `mcp` (OAuth) : outils list_blog_posts, get_blog_post, create_blog_p
 - `vite.config.ts` : `loadEnv` sans préfixe pour exposer les variables serveur (SUPABASE_SERVICE_ROLE_KEY) aux routes, alias `entities` v4.5.0 pour le SSR.
 - `src/start.ts` : les chemins `/lovable/*` contournent les middlewares applicatifs (authentification propre aux webhooks).
 
-## Réinitialisation de mot de passe maison — liens 28 h (2026-10-09)
-Le lien de réinitialisation natif du service d'authentification est plafonné à 1 h (otp_expiry max 3600 s). Nouveau flux maison valable 28 h :
+## Réinitialisation de mot de passe maison — liens 48 h (2026-10-09)
+Le lien de réinitialisation natif du service d'authentification est plafonné à 1 h (otp_expiry max 3600 s). Nouveau flux maison valable 48 h :
 - Table `public.password_reset_tokens` (migration `drizzle/migrations/0002_custom_password_reset_tokens_28h.sql`) : `id`, `user_id` (uuid, référence `auth.users`), `token_hash` unique (SHA-256 du jeton brut, jamais stocké en clair), `expires_at`, `used_at`, `created_at`. RLS activé, accès service_role uniquement ; index sur `user_id` et `expires_at`.
 - Fonction security definer `public.get_auth_user_id_by_email(text)` : résolution user_id par email, exécution réservée à `service_role` (revoked de public/anon/authenticated).
 - Route publique `POST /api/public/auth/request-reset` : validation email, anti-abus (3 demandes / 10 min / compte), génération du jeton (32 octets aléatoires, hashé SHA-256), purge des jetons précédents du compte et des jetons expirés > 7 jours, envoi du template `password-reset` (FR, lien `/reset-mot-de-passe?token=…`, idempotence sur token_hash). Réponse identique que le compte existe ou non (pas d'énumération d'emails).

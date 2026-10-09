@@ -4,9 +4,9 @@ import { render } from '@react-email/render'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { TEMPLATES } from '@/lib/email-templates/registry'
 
-// Lien de réinitialisation maison : valable 28 h (le lien standard est plafonné à 1 h).
+// Lien de réinitialisation maison : valable 48 h (le lien standard est plafonné à 1 h).
 const SITE_URL = 'https://iktracker.fr'
-const TOKEN_TTL_HOURS = 28
+const TOKEN_TTL_HOURS = 48
 const TEMPLATE_NAME = 'password-reset'
 
 function redactEmail(email: string | null | undefined): string {

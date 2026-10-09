@@ -18,7 +18,7 @@ interface PasswordResetEmailProps {
 
 export const PasswordResetEmail = ({
   resetUrl,
-  validityHours = 28,
+  validityHours = 48,
 }: PasswordResetEmailProps) => (
   <Html lang="fr" dir="ltr">
     <Head />
@@ -57,7 +57,7 @@ export const template = {
   component: PasswordResetEmail,
   subject: 'Nouveau mot de passe — IKtracker',
   displayName: 'Réinitialisation du mot de passe',
-  previewData: { resetUrl: 'https://iktracker.fr/reset-mot-de-passe?token=exemple' },
+  previewData: { resetUrl: 'https://iktracker.fr/reset-mot-de-passe?token=exemple', validityHours: 48 },
 } satisfies import('./registry').TemplateEntry
 
 const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
