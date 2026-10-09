@@ -126,5 +126,10 @@
     "vite": "^8.1.5",
     "vitest": "^3.2.7"
   },
-  "version": "0.0.0"
+  "version": "0.0.0",
+  "pnpm": {
+    "overrides": {
+      "entities": "4.5.0"
+    }
+  }
 }
