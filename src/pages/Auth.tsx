@@ -266,6 +266,12 @@ const Auth = () => {
       if (error.message.includes("Password should be at least")) {
         message = "Le mot de passe doit contenir au moins 6 caractères";
       }
+      if (error.message.includes("session missing")) {
+        message = "Lien expiré. Redemandez un email de réinitialisation.";
+        clearRecoveryFlag();
+        setIsResetPassword(false);
+        setShowLoginForm(true);
+      }
       toast({ title: "Erreur", description: message, variant: "destructive" });
     } finally {
       setLoading(false);
