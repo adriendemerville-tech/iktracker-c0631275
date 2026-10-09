@@ -778,6 +778,7 @@ Tous les crawlers IA sont explicitement autorisés (`GPTBot`, `Claude-Web`, `Per
 | Scopes | `Calendars.Read` |
 | Edge Function | `outlook-calendar-auth` |
 | Secrets | `MICROSOFT_CLIENT_ID`, `MICROSOFT_CLIENT_SECRET` |
+| Rotation | Secret client renouvelé le 09/10/2026 (expiration 08/10/2028). Les refresh tokens des utilisateurs restent valides : aucune reconnexion manuelle n'est requise, la synchro repart au prochain cycle |
 
 ### ICS (lien public)
 
