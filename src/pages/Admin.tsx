@@ -656,7 +656,9 @@ const Admin = () => {
 
   // On ne comptabilise que les messages des utilisateurs, pas ceux des admins.
   const userFeedbacks = feedbacks.filter((f) => !f.is_admin_message);
-  const pendingCount = userFeedbacks.filter((f) => !f.response).length;
+  // Compte les conversations dont le dernier message est un message
+  // utilisateur sans réponse (champ response ni message admin ultérieur).
+  const pendingCount = conversations.filter((c) => c.unrespondedCount > 0).length;
   const respondedCount = userFeedbacks.filter((f) => f.response).length;
 
   const adminCount = userRoles.length;
