@@ -165,36 +165,11 @@ export default function ModeTournee() {
                 description:
                   "Fonctionnalité de suivi kilométrique multi-arrêts par GPS pour professionnels itinérants. Outil communautaire gratuit.",
                 url: "https://iktracker.fr/mode-tournee",
-                isPartOf: {
-                  "@type": "WebSite",
-                  name: "IKtracker",
-                  url: "https://iktracker.fr",
-                },
+                isPartOf: { "@id": "https://iktracker.fr/#website" },
+                about: { "@id": "https://iktracker.fr/#software" },
                 speakable: {
                   "@type": "SpeakableSpecification",
                   cssSelector: ["#hero-heading", "#main-content > section:first-of-type p"],
-                },
-              },
-              {
-                "@type": "SoftwareApplication",
-                name: "IKtracker Mode Tournée",
-                applicationCategory: "BusinessApplication",
-                operatingSystem: "Web, iOS, Android",
-                offers: {
-                  "@type": "Offer",
-                  price: "0.00",
-                  priceCurrency: "EUR",
-                },
-                featureList: [
-                  "Tracking GPS en temps réel des arrêts clients",
-                  "Calcul automatique des distances via Google Maps",
-                  "Navigation intégrée Waze et Google Maps",
-                  "Génération automatique des trajets et IK",
-                  "Export PDF/CSV de la tournée complète",
-                ],
-                audience: {
-                  "@type": "BusinessAudience",
-                  audienceType: "Infirmiers libéraux, artisans, commerciaux, aide à domicile",
                 },
               },
               {
