@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import * as React from 'react'
 import { render } from '@react-email/render'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { TEMPLATES } from '@/lib/email-templates/registry'
 
 // Lien de réinitialisation maison : valable 28 h (le lien standard est plafonné à 1 h).
@@ -119,7 +119,7 @@ export const Route = createFileRoute('/api/public/auth/request-reset')({
 })
 
 async function sendResetEmail(
-  admin: ReturnType<typeof createClient>,
+  admin: SupabaseClient<any, any, any, any, any>,
   recipient: string,
   templateData: Record<string, unknown>,
   tokenHash: string,
