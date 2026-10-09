@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useNavigate } from "@/lib/router-compat";
+import { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "@/lib/router-compat";
 import { useAppAuth } from "@/components/AppChrome";
 import { Button } from "@/components/ui/button";
 import { CalendarConnections } from "@/components/CalendarConnections";
@@ -113,6 +113,34 @@ export const DesktopSidebar = ({
   const [showVehicleForm, setShowVehicleForm] = useState(false);
   const [showTourMobileOnly, setShowTourMobileOnly] = useState(false);
   const [editingVehicleId, setEditingVehicleId] = useState<string | null>(null);
+
+  // Ouverture automatique d'un panneau depuis l'URL (?open=calendrier).
+  // Sert aux CTA de survey : le lien ouvre la même modale que le clic dans la barre latérale.
+  // Le paramètre est retiré après ouverture pour qu'un rafraîchissement ne rouvre pas le panneau.
+  const location = useLocation();
+  useEffect(() => {
+    // useLocation renvoie parfois le search avec un "?" déjà inclus, voire deux : on normalise.
+    const params = new URLSearchParams(location.search.replace(/^\?+/, ""));
+    const key = (params.get("open") || params.get("tab") || "").toLowerCase();
+    if (!key) return;
+    const openers: Record<string, () => void> = {
+      calendrier: () => setShowCalendarSheet(true),
+      agendas: () => setShowCalendarSheet(true),
+      vehicules: () => setShowVehicleSheet(true),
+      vehicles: () => setShowVehicleSheet(true),
+      "véhicule": () => setShowVehicleForm(true),
+      aide: () => setShowFeedbackSheet(true),
+      messages: () => setShowFeedbackSheet(true),
+      preferences: () => setShowPreferencesSheet(true),
+    };
+    const open = openers[key];
+    if (!open) return;
+    open();
+    params.delete("open");
+    params.delete("tab");
+    const qs = params.toString();
+    navigate(`${location.pathname}${qs ? `?${qs}` : ""}`, { replace: true });
+  }, [location.search, location.pathname, navigate]);
 
   const toggleExpanded = () => {
     const next = !expanded;

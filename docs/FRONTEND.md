@@ -30,6 +30,7 @@
 - **Compteurs de preuve sociale** : trois cartes (inscrits avec offset +1000, trajets, kilomètres) alimentées par `useLiveTripStats` (RPC `get_public_trip_stats`, rafraîchi toutes les 60 s) et `get_public_user_count`.
 - **Réponses admin visibles par l'utilisateur** : page `/app/messages` (`src/pages/Messages.tsx`, vue conversation avec réponse) et bannière `AdminReplyBanner.tsx` en haut de l'app — cliquable (→ discussion), masquable, affichée à la connexion suivante sur desktop.
 - **Surveys** : réglage `font_size` (petit/standard/grand) côté admin, appliqué par échelle CSS (`src/styles.css`) ; bouton emoji (`EmojiField.tsx`) dans l'éditeur ; boutons CTA à largeur proportionnelle à l'ancre ; pictos différenciés (œil = aperçu uniquement).
+- **CTA de survey ouvrant une modale** : `DesktopSidebar.tsx` lit `?open=` (alias `?tab=`) et ouvre le panneau correspondant — `calendrier`/`agendas`, `vehicules`/`vehicles`, `véhicule` (formulaire), `aide`/`messages`, `preferences`. Le paramètre est retiré de l'URL après ouverture (`replace`) pour qu'un rafraîchissement ne rouvre pas le panneau. Fonctionne desktop et mobile (la sidebar est montée mais masquée en CSS ; les `Sheet` sont rendus en portail).
 - **Forum admin** : onglet « Contributeurs » (humains et bots) avec discussions vues, contributions et votes par membre.
 - **SEO home** : title `IKtracker — Calcul indemnités kilométriques 2026 | Barème officiel` + meta description enrichie (`src/routes/index.tsx`).
 
