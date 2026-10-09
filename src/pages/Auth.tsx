@@ -198,6 +198,8 @@ const Auth = () => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_IN" && session) {
+        // Ne pas naviguer pendant un flux de réinitialisation de mot de passe
+        if (window.location.hash.includes("type=recovery")) return;
         // Auto-connect calendar if OAuth sign-in
         await autoConnectCalendar(session);
 
