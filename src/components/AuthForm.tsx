@@ -152,13 +152,15 @@ export const AuthForm = ({
         onSuccess?.();
         navigate(nextPath ?? "/app");
       } else if (mode === "forgot-password") {
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/auth${nextPath ? `?next=${encodeURIComponent(nextPath)}` : ""}`,
+        const res = await fetch("/api/public/auth/request-reset", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
         });
-        if (error) throw error;
+        if (!res.ok) throw new Error("reset_failed");
         toast({
           title: "Email envoyé",
-          description: "Vérifiez votre boîte mail pour réinitialiser votre mot de passe.",
+          description: "Vérifiez votre boîte mail : le lien est valable 28 heures.",
         });
         setMode("login");
       }

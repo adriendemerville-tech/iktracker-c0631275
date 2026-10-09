@@ -6,7 +6,10 @@ import { attachSupabaseAuthLazy } from "@/integrations/supabase/lazy-auth-attach
 const errorMiddleware = createMiddleware().server(async ({ next, request }) => {
   // Les routes /lovable/* (webhooks email, previews) s'authentifient elles-mêmes
   // et ne doivent pas passer par les middlewares applicatifs.
-  if (new URL(request.url).pathname.startsWith("/lovable/")) {
+  if (
+    new URL(request.url).pathname.startsWith("/lovable/") ||
+    new URL(request.url).pathname === "/email/unsubscribe"
+  ) {
     return next();
   }
   try {

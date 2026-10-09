@@ -15,6 +15,13 @@
       "when": 1790801736941,
       "tag": "0001_block_own_pending_trip_duplicates",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791560024275,
+      "tag": "0002_custom_password_reset_tokens_28h",
+      "breakpoints": true
     }
   ]
 }
