@@ -150,10 +150,18 @@ const Auth = () => {
       const errorDescription = hashParams.get("error_description");
 
       if (type === "recovery" || isRecoveryFlow()) {
-        setRecoveryFlag();
-        setIsResetPassword(true);
-        setCheckingAuth(false);
-        return;
+        if (session || type === "recovery") {
+          setRecoveryFlag();
+          setIsResetPassword(true);
+          setCheckingAuth(false);
+          return;
+        }
+        // Lien expiré/consommé : pas de session, on libère la page
+        clearRecoveryFlag();
+        if (error) {
+          toast({ title: "Lien expiré", description: "Redemandez un email de réinitialisation.", variant: "destructive" });
+          window.location.hash = "";
+        }
       }
 
       // Show OAuth errors from URL hash — avec diagnostic détaillé
@@ -257,6 +265,12 @@ const Auth = () => {
       let message = error.message;
       if (error.message.includes("Password should be at least")) {
         message = "Le mot de passe doit contenir au moins 6 caractères";
+      }
+      if (error.message.includes("session missing")) {
+        message = "Lien expiré. Redemandez un email de réinitialisation.";
+        clearRecoveryFlag();
+        setIsResetPassword(false);
+        setShowLoginForm(true);
       }
       toast({ title: "Erreur", description: message, variant: "destructive" });
     } finally {
