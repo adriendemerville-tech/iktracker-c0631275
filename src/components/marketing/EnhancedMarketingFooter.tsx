@@ -420,7 +420,6 @@ export function EnhancedMarketingFooter() {
                   alt="Badge FranceSaaS"
                   width={200}
                   height={44}
-                  style={{ height: "auto" }}
                   className="h-7 w-auto"
                   decoding="async"
                 />
