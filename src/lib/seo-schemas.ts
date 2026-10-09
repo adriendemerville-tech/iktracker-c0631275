@@ -100,8 +100,8 @@ export const ORG_EMAIL = "contact@iktracker.fr";
 /** Profils EXTERNES officiels d'IKtracker (annuaires de confiance, page LinkedIn société, Product Hunt…).
  *  Jamais une page d'iktracker.fr ni un profil personnel. Vide pour l'instant. */
 export const SAME_AS: string[] = [];
-/** Email public de contact pour le JSON-LD — null tant que la réception n'est pas confirmée. */
-export const CONTACT_EMAIL: string | null = null;
+/** Email public de contact pour le JSON-LD — réception confirmée. */
+export const CONTACT_EMAIL: string | null = "contact@iktracker.fr";
 /** Date de dernière mise à jour réelle du logiciel (à modifier à la main, jamais new Date()). */
 export const SOFTWARE_DATE_MODIFIED = "2026-10-09";
 
