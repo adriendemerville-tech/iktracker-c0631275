@@ -1649,3 +1649,9 @@ Le score de priorité est la somme des poids, plafonnée à 100.
 
 ## MCP blog (2026-10-06)
 Serveur MCP `mcp` (OAuth) : outils list_blog_posts, get_blog_post, create_blog_post, update_blog_post sur public.blog_posts ; écriture limitée par RLS au rôle admin. API REST alternative : edge function blog-api (header x-api-key, table blog_api_keys).
+
+## Emails d'authentification en français (2026-10-09)
+- Routes serveur TanStack `src/routes/lovable/email/auth/webhook.ts` (hook auth signé, file `auth_emails` via `enqueue_email`) et `preview.ts` ; déployées avec l'app, pas d'edge function.
+- 6 modèles React Email dans `src/lib/email-templates/` (signup, invite, magic-link, recovery, email-change, reauthentication), tous rédigés en français (`lang="fr"`, objets FR dans `EMAIL_SUBJECTS`). Expéditeur : `IKtracker <noreply@iktracker.fr>`, domaine d'envoi vérifié `notify.iktracker.fr`.
+- `vite.config.ts` : `loadEnv` sans préfixe pour exposer les variables serveur (SUPABASE_SERVICE_ROLE_KEY) aux routes, alias `entities` v4.5.0 pour le SSR.
+- `src/start.ts` : les chemins `/lovable/*` contournent les middlewares applicatifs (authentification propre aux webhooks).

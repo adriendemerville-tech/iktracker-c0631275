@@ -86,6 +86,8 @@ import { Route as ForumCategorieCategoryRouteImport } from './routes/forum/categ
 import { Route as AdminBlogEditIndexRouteImport } from './routes/admin/blog/edit/index'
 import { Route as AdminBlogEditIdRouteImport } from './routes/admin/blog/edit/$id'
 import { Route as AppAdminBlogIndexRouteImport } from './routes/app/admin/blog/index'
+import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as AppAdminBlogEditIndexRouteImport } from './routes/app/admin/blog/edit/index'
 import { Route as AppAdminBlogEditIdRouteImport } from './routes/app/admin/blog/edit/$id'
 
@@ -480,6 +482,16 @@ const AppAdminBlogIndexRoute = AppAdminBlogIndexRouteImport.update({
   path: '/app/admin/blog/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
+  id: '/lovable/email/auth/preview',
+  path: '/lovable/email/auth/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
+  id: '/lovable/email/auth/webhook',
+  path: '/lovable/email/auth/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppAdminBlogEditIndexRoute = AppAdminBlogEditIndexRouteImport.update({
   id: '/app/admin/blog/edit/',
   path: '/app/admin/blog/edit/',
@@ -567,6 +579,8 @@ export interface FileRoutesByFullPath {
   '/app/admin/': typeof AppAdminIndexRoute
   '/blog/edit/': typeof BlogEditIndexRoute
   '/admin/blog/edit/$id': typeof AdminBlogEditIdRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/admin/blog/edit/': typeof AdminBlogEditIndexRoute
   '/app/admin/blog/': typeof AppAdminBlogIndexRoute
   '/app/admin/blog/edit/$id': typeof AppAdminBlogEditIdRoute
@@ -648,6 +662,8 @@ export interface FileRoutesByTo {
   '/app/admin': typeof AppAdminIndexRoute
   '/blog/edit': typeof BlogEditIndexRoute
   '/admin/blog/edit/$id': typeof AdminBlogEditIdRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/admin/blog/edit': typeof AdminBlogEditIndexRoute
   '/app/admin/blog': typeof AppAdminBlogIndexRoute
   '/app/admin/blog/edit/$id': typeof AppAdminBlogEditIdRoute
@@ -730,6 +746,8 @@ export interface FileRoutesById {
   '/app/admin/': typeof AppAdminIndexRoute
   '/blog/edit/': typeof BlogEditIndexRoute
   '/admin/blog/edit/$id': typeof AdminBlogEditIdRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/admin/blog/edit/': typeof AdminBlogEditIndexRoute
   '/app/admin/blog/': typeof AppAdminBlogIndexRoute
   '/app/admin/blog/edit/$id': typeof AppAdminBlogEditIdRoute
@@ -813,6 +831,8 @@ export interface FileRouteTypes {
     | '/app/admin/'
     | '/blog/edit/'
     | '/admin/blog/edit/$id'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/admin/blog/edit/'
     | '/app/admin/blog/'
     | '/app/admin/blog/edit/$id'
@@ -894,6 +914,8 @@ export interface FileRouteTypes {
     | '/app/admin'
     | '/blog/edit'
     | '/admin/blog/edit/$id'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/admin/blog/edit'
     | '/app/admin/blog'
     | '/app/admin/blog/edit/$id'
@@ -975,6 +997,8 @@ export interface FileRouteTypes {
     | '/app/admin/'
     | '/blog/edit/'
     | '/admin/blog/edit/$id'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/admin/blog/edit/'
     | '/app/admin/blog/'
     | '/app/admin/blog/edit/$id'
@@ -1057,6 +1081,8 @@ export interface RootRouteChildren {
   AppAdminIndexRoute: typeof AppAdminIndexRoute
   BlogEditIndexRoute: typeof BlogEditIndexRoute
   AdminBlogEditIdRoute: typeof AdminBlogEditIdRoute
+  LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
+  LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   AdminBlogEditIndexRoute: typeof AdminBlogEditIndexRoute
   AppAdminBlogIndexRoute: typeof AppAdminBlogIndexRoute
   AppAdminBlogEditIdRoute: typeof AppAdminBlogEditIdRoute
@@ -1604,6 +1630,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminBlogIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lovable/email/auth/preview': {
+      id: '/lovable/email/auth/preview'
+      path: '/lovable/email/auth/preview'
+      fullPath: '/lovable/email/auth/preview'
+      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/auth/webhook': {
+      id: '/lovable/email/auth/webhook'
+      path: '/lovable/email/auth/webhook'
+      fullPath: '/lovable/email/auth/webhook'
+      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app/admin/blog/edit/': {
       id: '/app/admin/blog/edit/'
       path: '/app/admin/blog/edit'
@@ -1699,6 +1739,8 @@ const rootRouteChildren: RootRouteChildren = {
   AppAdminIndexRoute: AppAdminIndexRoute,
   BlogEditIndexRoute: BlogEditIndexRoute,
   AdminBlogEditIdRoute: AdminBlogEditIdRoute,
+  LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
+  LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   AdminBlogEditIndexRoute: AdminBlogEditIndexRoute,
   AppAdminBlogIndexRoute: AppAdminBlogIndexRoute,
   AppAdminBlogEditIdRoute: AppAdminBlogEditIdRoute,

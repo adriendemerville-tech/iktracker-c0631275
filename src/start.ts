@@ -3,7 +3,12 @@ import { createStart, createCsrfMiddleware, createMiddleware } from "@tanstack/r
 import { renderErrorPage } from "./lib/error-page";
 import { attachSupabaseAuthLazy } from "@/integrations/supabase/lazy-auth-attacher";
 
-const errorMiddleware = createMiddleware().server(async ({ next }) => {
+const errorMiddleware = createMiddleware().server(async ({ next, request }) => {
+  // Les routes /lovable/* (webhooks email, previews) s'authentifient elles-mêmes
+  // et ne doivent pas passer par les middlewares applicatifs.
+  if (new URL(request.url).pathname.startsWith("/lovable/")) {
+    return next();
+  }
   try {
     return await next();
   } catch (error) {
