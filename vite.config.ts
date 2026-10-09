@@ -27,6 +27,7 @@ export default defineConfig({
         // précéder l'alias racine : v4.5.0 n'exporte pas "./decode".
         "entities/decode": path.resolve(__dirname, "node_modules/entities/lib/decode.js"),
         "entities/encode": path.resolve(__dirname, "node_modules/entities/lib/encode.js"),
+        "entities/escape": path.resolve(__dirname, "node_modules/entities/lib/escape.js"),
         "entities/lib/decode.js": path.resolve(__dirname, "node_modules/entities/lib/decode.js"),
         "entities/lib/encode.js": path.resolve(__dirname, "node_modules/entities/lib/encode.js"),
         entities: path.resolve(__dirname, "node_modules/entities"),
