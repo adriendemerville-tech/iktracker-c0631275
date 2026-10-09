@@ -150,10 +150,18 @@ const Auth = () => {
       const errorDescription = hashParams.get("error_description");
 
       if (type === "recovery" || isRecoveryFlow()) {
-        setRecoveryFlag();
-        setIsResetPassword(true);
-        setCheckingAuth(false);
-        return;
+        if (session || type === "recovery") {
+          setRecoveryFlag();
+          setIsResetPassword(true);
+          setCheckingAuth(false);
+          return;
+        }
+        // Lien expiré/consommé : pas de session, on libère la page
+        clearRecoveryFlag();
+        if (error) {
+          toast({ title: "Lien expiré", description: "Redemandez un email de réinitialisation.", variant: "destructive" });
+          window.location.hash = "";
+        }
       }
 
       // Show OAuth errors from URL hash — avec diagnostic détaillé
