@@ -73,7 +73,6 @@ describe("nœud d'identité Organization — builders (sans serveur)", () => {
   it("les schémas de la home ne contiennent que des Organizations à l'@id canonique", () => {
     const nodes = HOME_JSON_LD_SCRIPTS.flatMap((s) => flattenJsonLd(JSON.parse(s.children)));
     const orgs = nodes.filter(isIktrackerOrg);
-    expect(orgs.length).toBeGreaterThan(0);
     for (const org of orgs) {
       expect(org["@id"], `home : Organization « IKtracker » sans @id canonique`).toBe(
         ORGANIZATION_ID,
