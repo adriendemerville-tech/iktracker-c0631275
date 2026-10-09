@@ -68,6 +68,7 @@ import { Route as AppThemeOnboardingRouteImport } from './routes/app/theme-onboa
 import { Route as BlogIndexRouteImport } from './routes/blog/index'
 import { Route as BlogSlugRouteImport } from './routes/blog/$slug'
 import { Route as DebugTourModalRouteImport } from './routes/debug/tour-modal'
+import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as ForumIndexRouteImport } from './routes/forum/index'
 import { Route as ForumSlugRouteImport } from './routes/forum/$slug'
 import { Route as TemporaryreportIdRouteImport } from './routes/temporaryreport/$id'
@@ -83,11 +84,14 @@ import { Route as BlogAuteurSlugRouteImport } from './routes/blog/auteur/$slug'
 import { Route as BlogEditIndexRouteImport } from './routes/blog/edit/index'
 import { Route as BlogEditIdRouteImport } from './routes/blog/edit/$id'
 import { Route as ForumCategorieCategoryRouteImport } from './routes/forum/categorie/$category'
+import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as AdminBlogEditIndexRouteImport } from './routes/admin/blog/edit/index'
 import { Route as AdminBlogEditIdRouteImport } from './routes/admin/blog/edit/$id'
 import { Route as AppAdminBlogIndexRouteImport } from './routes/app/admin/blog/index'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
+import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
+import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as AppAdminBlogEditIndexRouteImport } from './routes/app/admin/blog/edit/index'
 import { Route as AppAdminBlogEditIdRouteImport } from './routes/app/admin/blog/edit/$id'
 
@@ -391,6 +395,11 @@ const DebugTourModalRoute = DebugTourModalRouteImport.update({
   path: '/debug/tour-modal',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
+  id: '/email/unsubscribe',
+  path: '/email/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ForumIndexRoute = ForumIndexRouteImport.update({
   id: '/forum/',
   path: '/forum/',
@@ -467,6 +476,11 @@ const ForumCategorieCategoryRoute = ForumCategorieCategoryRouteImport.update({
   path: '/forum/categorie/$category',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
+  id: '/lovable/email/suppression',
+  path: '/lovable/email/suppression',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminBlogEditIndexRoute = AdminBlogEditIndexRouteImport.update({
   id: '/admin/blog/edit/',
   path: '/admin/blog/edit/',
@@ -492,6 +506,18 @@ const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
   path: '/lovable/email/auth/webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LovableEmailTransactionalPreviewRoute =
+  LovableEmailTransactionalPreviewRouteImport.update({
+    id: '/lovable/email/transactional/preview',
+    path: '/lovable/email/transactional/preview',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const LovableEmailTransactionalSendRoute =
+  LovableEmailTransactionalSendRouteImport.update({
+    id: '/lovable/email/transactional/send',
+    path: '/lovable/email/transactional/send',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AppAdminBlogEditIndexRoute = AppAdminBlogEditIndexRouteImport.update({
   id: '/app/admin/blog/edit/',
   path: '/app/admin/blog/edit/',
@@ -560,6 +586,7 @@ export interface FileRoutesByFullPath {
   '/app/theme-onboarding': typeof AppThemeOnboardingRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/debug/tour-modal': typeof DebugTourModalRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/forum/$slug': typeof ForumSlugRoute
   '/temporaryreport/$id': typeof TemporaryreportIdRoute
   '/admin/': typeof AdminIndexRoute
@@ -575,12 +602,15 @@ export interface FileRoutesByFullPath {
   '/blog/auteur/$slug': typeof BlogAuteurSlugRoute
   '/blog/edit/$id': typeof BlogEditIdRoute
   '/forum/categorie/$category': typeof ForumCategorieCategoryRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/admin/blog/': typeof AdminBlogIndexRoute
   '/app/admin/': typeof AppAdminIndexRoute
   '/blog/edit/': typeof BlogEditIndexRoute
   '/admin/blog/edit/$id': typeof AdminBlogEditIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/admin/blog/edit/': typeof AdminBlogEditIndexRoute
   '/app/admin/blog/': typeof AppAdminBlogIndexRoute
   '/app/admin/blog/edit/$id': typeof AppAdminBlogEditIdRoute
@@ -643,6 +673,7 @@ export interface FileRoutesByTo {
   '/app/theme-onboarding': typeof AppThemeOnboardingRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/debug/tour-modal': typeof DebugTourModalRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/forum/$slug': typeof ForumSlugRoute
   '/temporaryreport/$id': typeof TemporaryreportIdRoute
   '/admin': typeof AdminIndexRoute
@@ -658,12 +689,15 @@ export interface FileRoutesByTo {
   '/blog/auteur/$slug': typeof BlogAuteurSlugRoute
   '/blog/edit/$id': typeof BlogEditIdRoute
   '/forum/categorie/$category': typeof ForumCategorieCategoryRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/admin/blog': typeof AdminBlogIndexRoute
   '/app/admin': typeof AppAdminIndexRoute
   '/blog/edit': typeof BlogEditIndexRoute
   '/admin/blog/edit/$id': typeof AdminBlogEditIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/admin/blog/edit': typeof AdminBlogEditIndexRoute
   '/app/admin/blog': typeof AppAdminBlogIndexRoute
   '/app/admin/blog/edit/$id': typeof AppAdminBlogEditIdRoute
@@ -727,6 +761,7 @@ export interface FileRoutesById {
   '/app/theme-onboarding': typeof AppThemeOnboardingRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/debug/tour-modal': typeof DebugTourModalRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/forum/$slug': typeof ForumSlugRoute
   '/temporaryreport/$id': typeof TemporaryreportIdRoute
   '/admin/': typeof AdminIndexRoute
@@ -742,12 +777,15 @@ export interface FileRoutesById {
   '/blog/auteur/$slug': typeof BlogAuteurSlugRoute
   '/blog/edit/$id': typeof BlogEditIdRoute
   '/forum/categorie/$category': typeof ForumCategorieCategoryRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/admin/blog/': typeof AdminBlogIndexRoute
   '/app/admin/': typeof AppAdminIndexRoute
   '/blog/edit/': typeof BlogEditIndexRoute
   '/admin/blog/edit/$id': typeof AdminBlogEditIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/admin/blog/edit/': typeof AdminBlogEditIndexRoute
   '/app/admin/blog/': typeof AppAdminBlogIndexRoute
   '/app/admin/blog/edit/$id': typeof AppAdminBlogEditIdRoute
@@ -812,6 +850,7 @@ export interface FileRouteTypes {
     | '/app/theme-onboarding'
     | '/blog/$slug'
     | '/debug/tour-modal'
+    | '/email/unsubscribe'
     | '/forum/$slug'
     | '/temporaryreport/$id'
     | '/admin/'
@@ -827,12 +866,15 @@ export interface FileRouteTypes {
     | '/blog/auteur/$slug'
     | '/blog/edit/$id'
     | '/forum/categorie/$category'
+    | '/lovable/email/suppression'
     | '/admin/blog/'
     | '/app/admin/'
     | '/blog/edit/'
     | '/admin/blog/edit/$id'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
     | '/admin/blog/edit/'
     | '/app/admin/blog/'
     | '/app/admin/blog/edit/$id'
@@ -895,6 +937,7 @@ export interface FileRouteTypes {
     | '/app/theme-onboarding'
     | '/blog/$slug'
     | '/debug/tour-modal'
+    | '/email/unsubscribe'
     | '/forum/$slug'
     | '/temporaryreport/$id'
     | '/admin'
@@ -910,12 +953,15 @@ export interface FileRouteTypes {
     | '/blog/auteur/$slug'
     | '/blog/edit/$id'
     | '/forum/categorie/$category'
+    | '/lovable/email/suppression'
     | '/admin/blog'
     | '/app/admin'
     | '/blog/edit'
     | '/admin/blog/edit/$id'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
     | '/admin/blog/edit'
     | '/app/admin/blog'
     | '/app/admin/blog/edit/$id'
@@ -978,6 +1024,7 @@ export interface FileRouteTypes {
     | '/app/theme-onboarding'
     | '/blog/$slug'
     | '/debug/tour-modal'
+    | '/email/unsubscribe'
     | '/forum/$slug'
     | '/temporaryreport/$id'
     | '/admin/'
@@ -993,12 +1040,15 @@ export interface FileRouteTypes {
     | '/blog/auteur/$slug'
     | '/blog/edit/$id'
     | '/forum/categorie/$category'
+    | '/lovable/email/suppression'
     | '/admin/blog/'
     | '/app/admin/'
     | '/blog/edit/'
     | '/admin/blog/edit/$id'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
     | '/admin/blog/edit/'
     | '/app/admin/blog/'
     | '/app/admin/blog/edit/$id'
@@ -1062,6 +1112,7 @@ export interface RootRouteChildren {
   AppThemeOnboardingRoute: typeof AppThemeOnboardingRoute
   BlogSlugRoute: typeof BlogSlugRoute
   DebugTourModalRoute: typeof DebugTourModalRoute
+  EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   ForumSlugRoute: typeof ForumSlugRoute
   TemporaryreportIdRoute: typeof TemporaryreportIdRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -1077,12 +1128,15 @@ export interface RootRouteChildren {
   BlogAuteurSlugRoute: typeof BlogAuteurSlugRoute
   BlogEditIdRoute: typeof BlogEditIdRoute
   ForumCategorieCategoryRoute: typeof ForumCategorieCategoryRoute
+  LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   AdminBlogIndexRoute: typeof AdminBlogIndexRoute
   AppAdminIndexRoute: typeof AppAdminIndexRoute
   BlogEditIndexRoute: typeof BlogEditIndexRoute
   AdminBlogEditIdRoute: typeof AdminBlogEditIdRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
+  LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
+  LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
   AdminBlogEditIndexRoute: typeof AdminBlogEditIndexRoute
   AppAdminBlogIndexRoute: typeof AppAdminBlogIndexRoute
   AppAdminBlogEditIdRoute: typeof AppAdminBlogEditIdRoute
@@ -1504,6 +1558,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DebugTourModalRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/email/unsubscribe': {
+      id: '/email/unsubscribe'
+      path: '/email/unsubscribe'
+      fullPath: '/email/unsubscribe'
+      preLoaderRoute: typeof EmailUnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/forum/': {
       id: '/forum/'
       path: '/forum'
@@ -1609,6 +1670,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ForumCategorieCategoryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lovable/email/suppression': {
+      id: '/lovable/email/suppression'
+      path: '/lovable/email/suppression'
+      fullPath: '/lovable/email/suppression'
+      preLoaderRoute: typeof LovableEmailSuppressionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/blog/edit/': {
       id: '/admin/blog/edit/'
       path: '/admin/blog/edit'
@@ -1642,6 +1710,20 @@ declare module '@tanstack/react-router' {
       path: '/lovable/email/auth/webhook'
       fullPath: '/lovable/email/auth/webhook'
       preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/transactional/preview': {
+      id: '/lovable/email/transactional/preview'
+      path: '/lovable/email/transactional/preview'
+      fullPath: '/lovable/email/transactional/preview'
+      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/transactional/send': {
+      id: '/lovable/email/transactional/send'
+      path: '/lovable/email/transactional/send'
+      fullPath: '/lovable/email/transactional/send'
+      preLoaderRoute: typeof LovableEmailTransactionalSendRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app/admin/blog/edit/': {
@@ -1720,6 +1802,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppThemeOnboardingRoute: AppThemeOnboardingRoute,
   BlogSlugRoute: BlogSlugRoute,
   DebugTourModalRoute: DebugTourModalRoute,
+  EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   ForumSlugRoute: ForumSlugRoute,
   TemporaryreportIdRoute: TemporaryreportIdRoute,
   AdminIndexRoute: AdminIndexRoute,
@@ -1735,12 +1818,15 @@ const rootRouteChildren: RootRouteChildren = {
   BlogAuteurSlugRoute: BlogAuteurSlugRoute,
   BlogEditIdRoute: BlogEditIdRoute,
   ForumCategorieCategoryRoute: ForumCategorieCategoryRoute,
+  LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   AdminBlogIndexRoute: AdminBlogIndexRoute,
   AppAdminIndexRoute: AppAdminIndexRoute,
   BlogEditIndexRoute: BlogEditIndexRoute,
   AdminBlogEditIdRoute: AdminBlogEditIdRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
+  LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
+  LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,
   AdminBlogEditIndexRoute: AdminBlogEditIndexRoute,
   AppAdminBlogIndexRoute: AppAdminBlogIndexRoute,
   AppAdminBlogEditIdRoute: AppAdminBlogEditIdRoute,
