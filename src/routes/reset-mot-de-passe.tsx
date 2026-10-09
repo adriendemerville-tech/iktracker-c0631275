@@ -18,6 +18,7 @@ export const Route = createFileRoute('/reset-mot-de-passe')({
       { name: 'robots', content: 'noindex, nofollow' },
     ],
   }),
+  component: ResetPasswordPage,
 })
 
 export default function ResetPasswordPage() {
