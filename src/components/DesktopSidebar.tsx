@@ -119,8 +119,8 @@ export const DesktopSidebar = ({
   // Le paramètre est retiré après ouverture pour qu'un rafraîchissement ne rouvre pas le panneau.
   const location = useLocation();
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    console.log("DIAG effect", JSON.stringify(location.search), location.pathname);
+    // useLocation renvoie parfois le search avec un "?" déjà inclus, voire deux : on normalise.
+    const params = new URLSearchParams(location.search.replace(/^\?+/, ""));
     const key = (params.get("open") || "").toLowerCase();
     if (!key) return;
     const openers: Record<string, () => void> = {
@@ -128,7 +128,7 @@ export const DesktopSidebar = ({
       agendas: () => setShowCalendarSheet(true),
       vehicules: () => setShowVehicleSheet(true),
       vehicles: () => setShowVehicleSheet(true),
-      véhicule: () => setShowVehicleForm(true),
+      "véhicule": () => setShowVehicleForm(true),
       aide: () => setShowFeedbackSheet(true),
       messages: () => setShowFeedbackSheet(true),
       preferences: () => setShowPreferencesSheet(true),
@@ -138,7 +138,7 @@ export const DesktopSidebar = ({
     open();
     params.delete("open");
     const qs = params.toString();
-    void qs; // TEMP: strip désactivé pour diagnostic
+    navigate(`${location.pathname}${qs ? `?${qs}` : ""}`, { replace: true });
   }, [location.search, location.pathname, navigate]);
 
   const toggleExpanded = () => {
