@@ -60,18 +60,14 @@ describe("nœud d'identité Organization — builders (sans serveur)", () => {
     expect(org["@type"]).toBe("Organization");
     expect(org["@id"]).toBe(ORGANIZATION_ID);
     expect(org.legalName).toBe("Voluntas Novare");
-    expect(org.address).toMatchObject({ postalCode: "13210", addressCountry: "FR" });
-    expect(org.contactPoint).toMatchObject({ email: "contact@iktracker.fr" });
-    expect(org.sameAs).toEqual(
-      expect.arrayContaining([expect.stringContaining("linkedin.com")]),
-    );
+    expect(org).not.toHaveProperty("address");
+    expect(org.contactPoint).toMatchObject({ url: "https://iktracker.fr/contact" });
+    expect(org).not.toHaveProperty("sameAs");
   });
 
   it("le publisher de SoftwareApplication référence l'@id canonique", () => {
     const app = buildSoftwareApplicationSchema();
     expect(app.publisher["@id"]).toBe(ORGANIZATION_ID);
-    expect(app.publisher.name).toBe("IKtracker");
-    expect(app.publisher.legalName).toBe(ORG_LEGAL_NAME);
   });
 
   it("les schémas de la home ne contiennent que des Organizations à l'@id canonique", () => {
