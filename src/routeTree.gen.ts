@@ -87,6 +87,7 @@ import { Route as ForumCategorieCategoryRouteImport } from './routes/forum/categ
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as AdminBlogEditIndexRouteImport } from './routes/admin/blog/edit/index'
 import { Route as AdminBlogEditIdRouteImport } from './routes/admin/blog/edit/$id'
+import { Route as ApiPublicAuthRequestResetRouteImport } from './routes/api/public/auth/request-reset'
 import { Route as AppAdminBlogIndexRouteImport } from './routes/app/admin/blog/index'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
@@ -491,6 +492,12 @@ const AdminBlogEditIdRoute = AdminBlogEditIdRouteImport.update({
   path: '/admin/blog/edit/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicAuthRequestResetRoute =
+  ApiPublicAuthRequestResetRouteImport.update({
+    id: '/api/public/auth/request-reset',
+    path: '/api/public/auth/request-reset',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AppAdminBlogIndexRoute = AppAdminBlogIndexRouteImport.update({
   id: '/app/admin/blog/',
   path: '/app/admin/blog/',
@@ -607,6 +614,7 @@ export interface FileRoutesByFullPath {
   '/app/admin/': typeof AppAdminIndexRoute
   '/blog/edit/': typeof BlogEditIndexRoute
   '/admin/blog/edit/$id': typeof AdminBlogEditIdRoute
+  '/api/public/auth/request-reset': typeof ApiPublicAuthRequestResetRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -694,6 +702,7 @@ export interface FileRoutesByTo {
   '/app/admin': typeof AppAdminIndexRoute
   '/blog/edit': typeof BlogEditIndexRoute
   '/admin/blog/edit/$id': typeof AdminBlogEditIdRoute
+  '/api/public/auth/request-reset': typeof ApiPublicAuthRequestResetRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -782,6 +791,7 @@ export interface FileRoutesById {
   '/app/admin/': typeof AppAdminIndexRoute
   '/blog/edit/': typeof BlogEditIndexRoute
   '/admin/blog/edit/$id': typeof AdminBlogEditIdRoute
+  '/api/public/auth/request-reset': typeof ApiPublicAuthRequestResetRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -871,6 +881,7 @@ export interface FileRouteTypes {
     | '/app/admin/'
     | '/blog/edit/'
     | '/admin/blog/edit/$id'
+    | '/api/public/auth/request-reset'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
@@ -958,6 +969,7 @@ export interface FileRouteTypes {
     | '/app/admin'
     | '/blog/edit'
     | '/admin/blog/edit/$id'
+    | '/api/public/auth/request-reset'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
@@ -1045,6 +1057,7 @@ export interface FileRouteTypes {
     | '/app/admin/'
     | '/blog/edit/'
     | '/admin/blog/edit/$id'
+    | '/api/public/auth/request-reset'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
@@ -1133,6 +1146,7 @@ export interface RootRouteChildren {
   AppAdminIndexRoute: typeof AppAdminIndexRoute
   BlogEditIndexRoute: typeof BlogEditIndexRoute
   AdminBlogEditIdRoute: typeof AdminBlogEditIdRoute
+  ApiPublicAuthRequestResetRoute: typeof ApiPublicAuthRequestResetRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
@@ -1691,6 +1705,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminBlogEditIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/auth/request-reset': {
+      id: '/api/public/auth/request-reset'
+      path: '/api/public/auth/request-reset'
+      fullPath: '/api/public/auth/request-reset'
+      preLoaderRoute: typeof ApiPublicAuthRequestResetRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app/admin/blog/': {
       id: '/app/admin/blog/'
       path: '/app/admin/blog'
@@ -1823,6 +1844,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppAdminIndexRoute: AppAdminIndexRoute,
   BlogEditIndexRoute: BlogEditIndexRoute,
   AdminBlogEditIdRoute: AdminBlogEditIdRoute,
+  ApiPublicAuthRequestResetRoute: ApiPublicAuthRequestResetRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,

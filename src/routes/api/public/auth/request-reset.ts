@@ -109,7 +109,7 @@ export const Route = createFileRoute('/api/public/auth/request-reset')({
           await sendResetEmail(admin, email, {
             resetUrl: `${SITE_URL}/reset-mot-de-passe?token=${rawToken}`,
             validityHours: TOKEN_TTL_HOURS,
-          })
+          }, tokenHash)
         }
 
         return Response.json({ success: true })
@@ -122,6 +122,7 @@ async function sendResetEmail(
   admin: ReturnType<typeof createClient>,
   recipient: string,
   templateData: Record<string, unknown>,
+  tokenHash: string,
 ) {
   const template = TEMPLATES[TEMPLATE_NAME]
   if (!template) {
@@ -183,7 +184,7 @@ async function sendResetEmail(
       text: plainText,
       purpose: 'transactional',
       label: TEMPLATE_NAME,
-      idempotency_key: `password-reset-${tokenHashPlaceholder()}`,
+      idempotency_key: `password-reset-${tokenHash}`,
       unsubscribe_token: unsubscribeToken,
       queued_at: new Date().toISOString(),
     },
@@ -191,9 +192,4 @@ async function sendResetEmail(
   if (enqueueError) {
     console.error('Failed to enqueue email', { email_redacted: redactEmail(recipient) })
   }
-}
-
-function tokenHashPlaceholder(): string {
-  // Idempotence : régénérée à l'appel réel via la closure du routeur.
-  return crypto.randomUUID()
 }
