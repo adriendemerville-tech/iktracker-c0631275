@@ -121,7 +121,7 @@ export const DesktopSidebar = ({
   useEffect(() => {
     // useLocation renvoie parfois le search avec un "?" déjà inclus, voire deux : on normalise.
     const params = new URLSearchParams(location.search.replace(/^\?+/, ""));
-    const key = (params.get("open") || "").toLowerCase();
+    const key = (params.get("open") || params.get("tab") || "").toLowerCase();
     if (!key) return;
     const openers: Record<string, () => void> = {
       calendrier: () => setShowCalendarSheet(true),
@@ -137,6 +137,7 @@ export const DesktopSidebar = ({
     if (!open) return;
     open();
     params.delete("open");
+    params.delete("tab");
     const qs = params.toString();
     navigate(`${location.pathname}${qs ? `?${qs}` : ""}`, { replace: true });
   }, [location.search, location.pathname, navigate]);

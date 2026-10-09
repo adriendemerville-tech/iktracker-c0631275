@@ -345,8 +345,8 @@ export function ContentBlockEditor({
                   placeholder="/app/mestrajets ou tab=stats"
                 />
                 <p className="text-[10px] text-muted-foreground mt-1">
-                  /app?open=calendrier ouvre la modale Connexions calendrier (aussi : vehicules,
-                  aide, preferences)
+                  tab=calendrier ouvre la modale Connexions calendrier (aussi : vehicules, aide,
+                  preferences)
                 </p>
               </div>
             </div>
@@ -395,8 +395,8 @@ export function ContentBlockEditor({
                   placeholder="https://iktracker.fr/forum/"
                 />
                 <p className="text-[10px] text-muted-foreground mt-1">
-                  /app?open=calendrier ouvre la modale Connexions calendrier (aussi : vehicules,
-                  aide, preferences)
+                  tab=calendrier ouvre la modale Connexions calendrier (aussi : vehicules, aide,
+                  preferences)
                 </p>
               </div>
             </div>
