@@ -312,7 +312,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { type: "application/ld+json", children: organizationJsonLd },
       { type: "application/ld+json", children: websiteJsonLd },
       // HowTo générique omis sur /mode-tournee (la page émet son propre HowTo).
-      ...(matches.some((m) => m.routeId === "/mode-tournee")
+      ...(matches.some((m) => (m.routeId as string) === "/mode-tournee")
         ? []
         : [{ type: "application/ld+json", children: howToJsonLd }]),
       // Speculation Rules API for instant navigation
