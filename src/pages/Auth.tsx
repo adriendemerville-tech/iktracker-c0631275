@@ -147,7 +147,8 @@ const Auth = () => {
       const error = hashParams.get("error");
       const errorDescription = hashParams.get("error_description");
 
-      if (type === "recovery") {
+      if (type === "recovery" || isRecoveryFlow()) {
+        setRecoveryFlag();
         setIsResetPassword(true);
         setCheckingAuth(false);
         return;
@@ -197,9 +198,15 @@ const Auth = () => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setRecoveryFlag();
+        setIsResetPassword(true);
+        setCheckingAuth(false);
+        return;
+      }
       if (event === "SIGNED_IN" && session) {
         // Ne pas naviguer pendant un flux de réinitialisation de mot de passe
-        if (window.location.hash.includes("type=recovery")) return;
+        if (isRecoveryFlow()) return;
         // Auto-connect calendar if OAuth sign-in
         await autoConnectCalendar(session);
 
