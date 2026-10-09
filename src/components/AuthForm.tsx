@@ -160,7 +160,7 @@ export const AuthForm = ({
         if (!res.ok) throw new Error("reset_failed");
         toast({
           title: "Email envoyé",
-          description: "Vérifiez votre boîte mail : le lien est valable 28 heures.",
+          description: "Vérifiez votre boîte mail : le lien est valable 48 heures.",
         });
         setMode("login");
       }
