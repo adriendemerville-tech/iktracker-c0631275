@@ -120,6 +120,7 @@ export const DesktopSidebar = ({
   const location = useLocation();
   useEffect(() => {
     const params = new URLSearchParams(location.search);
+    console.log("DIAG effect", JSON.stringify(location.search), location.pathname);
     const key = (params.get("open") || "").toLowerCase();
     if (!key) return;
     const openers: Record<string, () => void> = {
