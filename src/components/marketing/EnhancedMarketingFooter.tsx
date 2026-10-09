@@ -407,6 +407,24 @@ export function EnhancedMarketingFooter() {
                 MossAI Tools
               </a>
             </p>
+            <p className="mt-3 flex justify-center">
+              <a
+                href="https://francesaas.fr/saas/iktracker"
+                target="_blank"
+                rel="noopener"
+                title="Profil du SaaS IKtracker sur FranceSaaS.fr"
+                className="inline-block opacity-80 hover:opacity-100 transition-opacity"
+              >
+                <img
+                  src="https://francesaas.fr/badge-francesaas.svg"
+                  alt="Badge FranceSaaS"
+                  width={200}
+                  height={44}
+                  className="h-7 w-auto"
+                  decoding="async"
+                />
+              </a>
+            </p>
           </div>
         </div>
       </div>
