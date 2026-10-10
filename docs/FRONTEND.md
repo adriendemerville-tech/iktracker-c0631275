@@ -343,6 +343,7 @@ QueryClientProvider (React Query, staleTime: 5min, retry: 2)
 | `CalendarSyncDemo.tsx` | Démo sync calendrier |
 | `CrawlersBanner.tsx` | Bannière crawlers IA |
 | `EnhancedMarketingFooter.tsx` | Footer marketing enrichi |
+| `HomeDemoVideo.tsx` | Vidéo 16:9 après le hero de l'accueil : fichiers statiques `/video/`, poster SSR, source chargée à proximité via IntersectionObserver, lecture silencieuse en boucle uniquement à l'écran, son activable avec reprise au début et bouton lecture de repli. VideoObject dédié dans les schémas de la home. |
 | `MarketingFooter.tsx` | Footer marketing simple |
 | `MarketingNav.tsx` | Navigation marketing |
 | `MarketingPWANotification.tsx` | Notification PWA marketing |

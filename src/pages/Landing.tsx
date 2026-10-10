@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, lazy, Suspense, memo } from "react";
 import BodyEndInjections from "@/components/BodyEndInjections";
 import { EnhancedMarketingFooter } from "@/components/marketing/EnhancedMarketingFooter";
+import { HomeDemoVideo } from "@/components/marketing/HomeDemoVideo";
 import { Link, useNavigate } from "@/lib/router-compat";
 import { getSupabase } from "@/integrations/supabase/lazy";
 import { usePageContent } from "@/hooks/usePageContent";
@@ -450,6 +451,8 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm, reviews }
             </div>
           </div>
         </section>
+
+        <HomeDemoVideo />
 
         {/* Simulateur IK 2026 - Lead magnet */}
         <section
