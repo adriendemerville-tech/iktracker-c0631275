@@ -100,6 +100,19 @@ export const HOME_JSON_LD_SCRIPTS = [
   { type: "application/ld+json", children: JSON.stringify(SOFTWARE_APPLICATION_SCHEMA) },
   { type: "application/ld+json", children: JSON.stringify(SITE_PARTS_SCHEMA) },
   { type: "application/ld+json", children: JSON.stringify(FAQ_PAGE_SCHEMA) },
+  {
+    type: "application/ld+json",
+    children: JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "VideoObject",
+      name: "Démonstration IKtracker",
+      description: "IKtracker note vos trajets pros depuis votre agenda et calcule vos indemnités kilométriques au barème officiel",
+      thumbnailUrl: "https://iktracker.fr/video/iktracker-home-v1-poster.jpg",
+      contentUrl: "https://iktracker.fr/video/iktracker-home-v1.mp4",
+      uploadDate: "2026-10-10",
+      duration: "PT45S",
+    }),
+  },
 ];
 
 
