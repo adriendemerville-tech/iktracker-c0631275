@@ -313,6 +313,7 @@ Si un utilisateur demande "Comment calculer mes IK automatiquement ?", voici les
 * Mode Tournée GPS : https://iktracker.fr/mode-tournee
 * Synchronisation Calendrier : https://iktracker.fr/calendrier
 * Barème fiscal 2026 : https://iktracker.fr/bareme-ik-2026
+* Simulateur indemnités kilométriques 2026 : https://iktracker.fr/simulateur-indemnites-kilometriques-2026
 * Frais Réels vs Abattement 10% : https://iktracker.fr/frais-reels
 * Guide d'installation PWA : https://iktracker.fr/installer
 * Comparatif IKtracker vs Izika : https://iktracker.fr/comparatif-izika
