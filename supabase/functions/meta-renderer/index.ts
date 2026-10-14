@@ -902,6 +902,62 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       </section>`,
   },
 
+  "/simulateur-indemnites-kilometriques-2026": {
+    title: "Simulateur indemnités kilométriques 2026 | Calcul gratuit au barème officiel",
+    description:
+      "Simulateur d'indemnités kilométriques 2026 gratuit et sans inscription : barème officiel DGFiP, trois tranches kilométriques et majoration de 20 % pour les véhicules 100 % électriques.",
+    canonical: `${BASE_URL}/simulateur-indemnites-kilometriques-2026`,
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      name: "Simulateur indemnités kilométriques 2026",
+      url: `${BASE_URL}/simulateur-indemnites-kilometriques-2026`,
+      applicationCategory: "FinanceApplication",
+      operatingSystem: "Web",
+      inLanguage: "fr-FR",
+      isAccessibleForFree: true,
+      offers: { "@type": "Offer", price: "0", priceCurrency: "EUR" },
+      description:
+        "Calcul des indemnités kilométriques 2026 selon le barème officiel DGFiP : puissance fiscale, kilomètres annuels, trois tranches et majoration de 20 % pour les véhicules 100 % électriques.",
+      creator: { "@type": "Organization", name: "IKtracker", url: BASE_URL },
+    },
+    content: `
+      <section>
+        <h2>Simulateur indemnités kilométriques 2026</h2>
+        <p>Le simulateur calcule vos indemnités kilométriques 2026 d'après le barème officiel DGFiP (BOFiP). Deux entrées suffisent : la puissance fiscale du véhicule (case P.6 de la carte grise) et le nombre de kilomètres parcourus sur l'année fiscale. Le calcul est effectué dans le navigateur, sans inscription.</p>
+        <h3>Méthode de calcul : les trois tranches du barème</h3>
+        <ul>
+          <li><strong>Jusqu'à 5 000 km</strong> : distance × taux de la première tranche</li>
+          <li><strong>De 5 001 à 20 000 km</strong> : (distance × taux de la deuxième tranche) + part fixe</li>
+          <li><strong>Plus de 20 000 km</strong> : distance × taux de la troisième tranche</li>
+        </ul>
+        <p>La tranche retenue dépend du kilométrage annuel total du véhicule, et non de la longueur d'un trajet isolé.</p>
+        <h3>Barème 2026 : indemnités par puissance fiscale et kilométrage</h3>
+        <table>
+          <caption>Total annuel d'indemnités kilométriques en euros, barème DGFiP 2026, hors majoration électrique</caption>
+          <thead>
+            <tr><th>Puissance fiscale</th><th>5 000 km</th><th>10 000 km</th><th>15 000 km</th><th>20 000 km</th><th>25 000 km</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>3 CV</td><td>2 645 €</td><td>4 225 €</td><td>5 805 €</td><td>7 385 €</td><td>9 250 €</td></tr>
+            <tr><td>4 CV</td><td>3 030 €</td><td>4 730 €</td><td>6 430 €</td><td>8 130 €</td><td>10 175 €</td></tr>
+            <tr><td>5 CV</td><td>3 180 €</td><td>4 965 €</td><td>6 750 €</td><td>8 535 €</td><td>10 675 €</td></tr>
+            <tr><td>6 CV</td><td>3 325 €</td><td>5 197 €</td><td>7 067 €</td><td>8 937 €</td><td>11 175 €</td></tr>
+            <tr><td>7 CV et plus</td><td>3 485 €</td><td>5 455 €</td><td>7 425 €</td><td>9 395 €</td><td>11 750 €</td></tr>
+          </tbody>
+        </table>
+        <h3>Majoration de 20 % pour véhicule 100 % électrique</h3>
+        <p>Le barème est majoré de 20 % pour les véhicules 100 % électriques : le montant calculé est multiplié par 1,2. Les véhicules hybrides, rechargeables ou non, ne sont pas concernés. Exemple : 10 000 km avec une 5 CV donnent 4 965 € au barème, 5 958 € avec la majoration, soit 993 € de plus.</p>
+        <h3>Utiliser le résultat</h3>
+        <ul>
+          <li><strong>Salarié</strong> : le montant s'inscrit sur une <a href="${BASE_URL}/note-de-frais-kilometrique">note de frais kilométrique</a> datée et motivée, remise à l'employeur.</li>
+          <li><strong>Indépendant ou salarié en frais réels</strong> : comparer avec l'<a href="${BASE_URL}/frais-reels">abattement forfaitaire de 10 %</a> avant de retenir la solution la plus avantageuse.</li>
+          <li><strong>Justificatifs</strong> : l'URSSAF et l'administration fiscale exigent un carnet de bord (date, motif, départ, arrivée, distance, puissance fiscale). <a href="${BASE_URL}/indemnites-kilometriques">Les indemnités kilométriques</a> détaillent cette obligation.</li>
+        </ul>
+        <p>IKtracker enregistre les trajets depuis l'agenda ou le GPS, applique automatiquement le barème et exporte le relevé en PDF ou Excel. Outil gratuit, sans abonnement.</p>
+      </section>`,
+  },
+
   "/note-de-frais-kilometrique": {
     title: "Note de frais kilométrique 2025-2026 | Modèle & calcul gratuit",
     description:
