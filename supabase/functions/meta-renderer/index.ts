@@ -90,6 +90,7 @@ const NAV_LINKS = [
   { href: "/bareme-ik-2026", label: "Barème IK 2026" },
   { href: "/frais-reels", label: "Frais Réels vs Abattement" },
   { href: "/note-de-frais-kilometrique", label: "Note de frais kilométrique" },
+  { href: "/simulateur-indemnites-kilometriques-2026", label: "Simulateur indemnités kilométriques 2026" },
   { href: "/indemnite-kilometrique-velo", label: "Indemnité kilométrique vélo" },
   { href: "/indemnite-grand-deplacement-2026", label: "Indemnité grand déplacement 2026" },
   { href: "/mes-trajets", label: "Mes Trajets — journal kilométrique" },

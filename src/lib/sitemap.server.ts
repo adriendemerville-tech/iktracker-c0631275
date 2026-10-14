@@ -25,6 +25,11 @@ const staticPages: SitemapEntry[] = [
   { path: "/bareme-ik-2026", priority: "0.9", changefreq: "monthly" },
   { path: "/note-de-frais-kilometrique", priority: "0.9", changefreq: "monthly" },
   {
+    path: "/simulateur-indemnites-kilometriques-2026",
+    priority: "0.9",
+    changefreq: "monthly",
+  },
+  {
     path: "/meilleure-application-indemnites-kilometriques",
     priority: "0.8",
     changefreq: "monthly",
