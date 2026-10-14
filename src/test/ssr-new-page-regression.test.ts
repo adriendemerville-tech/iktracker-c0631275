@@ -49,6 +49,8 @@ const EXCLUSIONS: Record<string, string> = {
   offline: "Page hors-ligne PWA — noindex, contenu minimal volontaire",
   unsubscribe: "Désabonnement e-mail — noindex, page transactionnelle",
   marina: "Outil interne d'analyse SEO — noindex, rendu via iframe srcDoc",
+  "reset-mot-de-passe":
+    "Formulaire de nouveau mot de passe — noindex, page transactionnelle issue d'un lien e-mail",
 };
 
 async function isServerUp(): Promise<boolean> {
