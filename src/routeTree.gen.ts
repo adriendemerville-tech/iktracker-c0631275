@@ -51,6 +51,7 @@ import { Route as ReportRouteImport } from './routes/report'
 import { Route as ResetMotDePasseRouteImport } from './routes/reset-mot-de-passe'
 import { Route as RgpdRouteImport } from './routes/rgpd'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as SimulateurIndemnitesKilometriques2026RouteImport } from './routes/simulateur-indemnites-kilometriques-2026'
 import { Route as SitemapForumDotxmlRouteImport } from './routes/sitemap-forum[.]xml'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SsoRouteImport } from './routes/sso'
@@ -313,6 +314,12 @@ const SignupRoute = SignupRouteImport.update({
   path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SimulateurIndemnitesKilometriques2026Route =
+  SimulateurIndemnitesKilometriques2026RouteImport.update({
+    id: '/simulateur-indemnites-kilometriques-2026',
+    path: '/simulateur-indemnites-kilometriques-2026',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const SitemapForumDotxmlRoute = SitemapForumDotxmlRouteImport.update({
   id: '/sitemap-forum.xml',
   path: '/sitemap-forum.xml',
@@ -592,6 +599,7 @@ export interface FileRoutesByFullPath {
   '/reset-mot-de-passe': typeof ResetMotDePasseRoute
   '/rgpd': typeof RgpdRoute
   '/signup': typeof SignupRoute
+  '/simulateur-indemnites-kilometriques-2026': typeof SimulateurIndemnitesKilometriques2026Route
   '/sitemap-forum.xml': typeof SitemapForumDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sso': typeof SsoRoute
@@ -682,6 +690,7 @@ export interface FileRoutesByTo {
   '/reset-mot-de-passe': typeof ResetMotDePasseRoute
   '/rgpd': typeof RgpdRoute
   '/signup': typeof SignupRoute
+  '/simulateur-indemnites-kilometriques-2026': typeof SimulateurIndemnitesKilometriques2026Route
   '/sitemap-forum.xml': typeof SitemapForumDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sso': typeof SsoRoute
@@ -773,6 +782,7 @@ export interface FileRoutesById {
   '/reset-mot-de-passe': typeof ResetMotDePasseRoute
   '/rgpd': typeof RgpdRoute
   '/signup': typeof SignupRoute
+  '/simulateur-indemnites-kilometriques-2026': typeof SimulateurIndemnitesKilometriques2026Route
   '/sitemap-forum.xml': typeof SitemapForumDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sso': typeof SsoRoute
@@ -865,6 +875,7 @@ export interface FileRouteTypes {
     | '/reset-mot-de-passe'
     | '/rgpd'
     | '/signup'
+    | '/simulateur-indemnites-kilometriques-2026'
     | '/sitemap-forum.xml'
     | '/sitemap.xml'
     | '/sso'
@@ -955,6 +966,7 @@ export interface FileRouteTypes {
     | '/reset-mot-de-passe'
     | '/rgpd'
     | '/signup'
+    | '/simulateur-indemnites-kilometriques-2026'
     | '/sitemap-forum.xml'
     | '/sitemap.xml'
     | '/sso'
@@ -1045,6 +1057,7 @@ export interface FileRouteTypes {
     | '/reset-mot-de-passe'
     | '/rgpd'
     | '/signup'
+    | '/simulateur-indemnites-kilometriques-2026'
     | '/sitemap-forum.xml'
     | '/sitemap.xml'
     | '/sso'
@@ -1136,6 +1149,7 @@ export interface RootRouteChildren {
   ResetMotDePasseRoute: typeof ResetMotDePasseRoute
   RgpdRoute: typeof RgpdRoute
   SignupRoute: typeof SignupRoute
+  SimulateurIndemnitesKilometriques2026Route: typeof SimulateurIndemnitesKilometriques2026Route
   SitemapForumDotxmlRoute: typeof SitemapForumDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SsoRoute: typeof SsoRoute
@@ -1478,6 +1492,13 @@ declare module '@tanstack/react-router' {
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/simulateur-indemnites-kilometriques-2026': {
+      id: '/simulateur-indemnites-kilometriques-2026'
+      path: '/simulateur-indemnites-kilometriques-2026'
+      fullPath: '/simulateur-indemnites-kilometriques-2026'
+      preLoaderRoute: typeof SimulateurIndemnitesKilometriques2026RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap-forum.xml': {
@@ -1850,6 +1871,8 @@ const rootRouteChildren: RootRouteChildren = {
   ResetMotDePasseRoute: ResetMotDePasseRoute,
   RgpdRoute: RgpdRoute,
   SignupRoute: SignupRoute,
+  SimulateurIndemnitesKilometriques2026Route:
+    SimulateurIndemnitesKilometriques2026Route,
   SitemapForumDotxmlRoute: SitemapForumDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SsoRoute: SsoRoute,
