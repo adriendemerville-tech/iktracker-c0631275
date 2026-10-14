@@ -24,6 +24,11 @@ const staticPages = [
   { url: "/bareme-ik-2026", priority: "0.9", changefreq: "monthly" },
   { url: "/note-de-frais-kilometrique", priority: "0.9", changefreq: "monthly" },
   {
+    url: "/simulateur-indemnites-kilometriques-2026",
+    priority: "0.9",
+    changefreq: "monthly",
+  },
+  {
     url: "/meilleure-application-indemnites-kilometriques",
     priority: "0.8",
     changefreq: "monthly",

@@ -169,6 +169,7 @@ Sitemap: https://iktracker.fr/sitemap-forum.xml
 # https://iktracker.fr/mode-tournee
 # https://iktracker.fr/calendrier
 # https://iktracker.fr/note-de-frais-kilometrique
+# https://iktracker.fr/simulateur-indemnites-kilometriques-2026
 # https://iktracker.fr/indemnite-kilometrique-velo
 # https://iktracker.fr/indemnite-grand-deplacement-2026
 # https://iktracker.fr/mes-trajets

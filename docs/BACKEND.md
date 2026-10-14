@@ -1,6 +1,10 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 4.6.16 — 14 septembre 2026
+> Version 4.6.17 — 14 octobre 2026
+
+**Notes v4.6.17 (page simulateur, 14 octobre 2026)**
+- **`meta-renderer`** : nouvelle entrée `STATIC_PAGES["/simulateur-indemnites-kilometriques-2026"]` (titre, description, canonical, JSON-LD `WebApplication` gratuit, contenu brut avec tableau des 5 puissances fiscales × 5 kilométrages et majoration +20 % électrique) + lien ajouté à `NAV_LINKS`. Sans cette entrée, le Worker `iktracker-bot-router` aurait propagé un vrai 404 aux crawlers sur cette URL. Fonction redéployée (`source_sha256 5ed87fb6…`).
+- Aucune migration, aucun secret, aucune policy RLS modifié : le pré-rendu est une simple table de métadonnées.
 
 **Notes v4.6.16 (fin des soft 404 blog, 14 septembre 2026)**
 - **`supabase/functions/_shared/blog-redirects.ts`** : +35 slugs `deleted` (clusters barème, frais réels, guides IK) → 301 vers `/bareme-ik-2026`, `/indemnites-kilometriques` ou les articles piliers. Total 103 redirections, miroir Worker régénéré (`scripts/sync-blog-redirects.cjs`) et validé.

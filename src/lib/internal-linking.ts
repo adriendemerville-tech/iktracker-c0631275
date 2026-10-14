@@ -55,6 +55,11 @@ export const CLUSTERS: Record<ClusterId, ClusterDefinition> = {
         description: "Les tarifs officiels par puissance fiscale et distance.",
       },
       {
+        label: "Simulateur indemnités kilométriques 2026",
+        href: "/simulateur-indemnites-kilometriques-2026",
+        description: "Le calcul immédiat au barème officiel, sans inscription.",
+      },
+      {
         label: "Barème kilométrique 2027",
         href: "/indemnites-kilometriques-2027",
         description: "Projections et nouveautés attendues pour 2027.",
@@ -97,6 +102,7 @@ export const PAGE_CLUSTER: Record<string, ClusterId> = {
   "/lexique": "frais-reels",
   "/indemnites-kilometriques": "indemnites-kilometriques",
   "/bareme-ik-2026": "indemnites-kilometriques",
+  "/simulateur-indemnites-kilometriques-2026": "indemnites-kilometriques",
   "/indemnites-kilometriques-2027": "indemnites-kilometriques",
   "/indemnite-kilometrique-velo": "indemnites-kilometriques",
   "/meilleurs-outils-indemnites-kilometriques-2027": "indemnites-kilometriques",

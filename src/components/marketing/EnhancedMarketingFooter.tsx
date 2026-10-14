@@ -71,6 +71,7 @@ export function EnhancedMarketingFooter() {
     { label: "Mode Tournée", href: "/mode-tournee" },
     { label: "Synchronisation Calendrier", href: "/calendrier" },
     { label: "Barème IK 2026", href: "/bareme-ik-2026" },
+    { label: "Simulateur IK 2026", href: "/simulateur-indemnites-kilometriques-2026" },
     { label: "IKtracker vs Izika", href: "/comparatif-izika" },
     { label: "IKtracker vs Drivers Note", href: "/comparatif-driversnote" },
     {

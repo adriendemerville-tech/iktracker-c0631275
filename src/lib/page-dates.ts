@@ -58,6 +58,7 @@ export const STATIC_PAGE_LASTMOD: Record<string, string> = {
   "/indemnites-kilometriques-2027": "2026-08-30",
   "/frais-reels": "2026-08-19",
   "/note-de-frais-kilometrique": "2026-08-19",
+  "/simulateur-indemnites-kilometriques-2026": "2026-10-14",
   "/indemnite-kilometrique-velo": "2026-08-23",
   "/indemnite-grand-deplacement-2026": "2026-08-23",
   "/mes-trajets": "2026-08-16",
