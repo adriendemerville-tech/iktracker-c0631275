@@ -78,7 +78,7 @@
 - Chantier qualité (lots 1 à 4) : tests Vitest (`vitest.config.ts`), Prettier, suppression des `any` sur les hooks métier, découpage des fichiers > 1000 lignes (`print-utils.ts`, `AdminStats.tsx`…), suppression des routes blog dupliquées.
 - SSR réparé sur `/`, `/auth` et `/signup` : imports statiques dans `SmartRoutes.tsx` + `useHydrated`, plus aucun accès direct aux globales navigateur au rendu serveur.
 - Navigation marketing simplifiée (`MarketingNav.tsx` : regroupement « Ressources ») et CTA « Créer mon compte » remonté above the fold sur mobile.
-- A/B testing du H1 du hero (`src/lib/ab-test.ts`) avec restitution dans /admin > Stats.
+- A/B testing du H1 du hero (`src/lib/ab-test.ts`) : terminé, variante A généralisée et assignation désactivée ; la carte de restitution a été retirée de /admin > Stats.
 
 
 
@@ -681,10 +681,10 @@ src/
 
 ## A/B testing du hero (`/`)
 
-- `src/lib/ab-test.ts` : attribution 50/50 persistante (localStorage `ab_hero_h1_v1`), variante A = contrôle (gestion des trajets), variante B = bénéfice fiscal / sérénité comptable.
-- `src/pages/Landing.tsx` : la variante A est rendue en SSR (Googlebot voit toujours le contrôle) ; le swap n'a lieu qu'après hydratation.
-- Propagation de la variante : `src/hooks/useMarketingTracker.ts` et `src/lib/signup-tracking.ts` → Edge Function `track-event` → colonne `marketing_analytics.variant`.
-- Restitution : `src/components/admin/ABTestCard.tsx` dans /admin > Stats (visiteurs, clics CTA, vues signup, inscriptions par variante) via la RPC `get_ab_test_results`.
+- `src/lib/ab-test.ts` : test terminé (`AB_TEST_ACTIVE = false`). Les définitions des deux variantes sont conservées pour le libellé affiché sur la home (variante A = contrôle « gestion des trajets »), mais l'attribution 50/50 et les tags de variante sont désactivés.
+- `src/pages/Landing.tsx` : la variante A est rendue en SSR comme en client (aucun swap après hydratation).
+- Propagation de la variante : `src/hooks/useMarketingTracker.ts` et `src/lib/signup-tracking.ts` → Edge Function `track-event` → colonne `marketing_analytics.variant` (renvoie `null` depuis la fin du test).
+- Restitution : la carte `src/components/admin/ABTestCard.tsx` a été supprimée de /admin > Stats (section retirée de `DEFAULT_SECTION_ORDER`, donc aussi des mises en page enregistrées). Les résultats historiques restent accessibles via la RPC `get_ab_test_results`.
 
 ## Conversion : navigation & CTA
 
