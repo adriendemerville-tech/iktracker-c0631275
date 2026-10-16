@@ -1,14 +1,9 @@
-import { createClient } from "@supabase/supabase-js";
-import { defineTool, type ToolContext } from "@lovable.dev/mcp-js";
+import { defineTool } from "@lovable.dev/mcp-js";
 import { z } from "zod";
+import { userClient } from "../supabase";
 
 // Accès blog via MCP : RLS blog_posts => écriture réservée au rôle admin.
-function sb(ctx: ToolContext) {
-  return createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
-    global: { headers: { Authorization: `Bearer ${ctx.getToken()}` } },
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-}
+const sb = userClient;
 const unauth = { content: [{ type: "text" as const, text: "Non authentifié" }], isError: true };
 const err = (m: string) => ({ content: [{ type: "text" as const, text: m }], isError: true });
 const LIST_COLS =
