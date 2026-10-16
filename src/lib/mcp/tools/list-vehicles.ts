@@ -12,7 +12,8 @@ export default defineTool({
     if (!ctx.isAuthenticated()) {
       return { content: [{ type: "text", text: "Non authentifié" }], isError: true };
     }
-    const { data, error } = await sb(ctx)
+    try {
+    const { data, error } = await userClient(ctx)
       .from("vehicles")
       .select("id, name, make, model, year, fiscal_power, is_electric, license_plate")
       .order("created_at", { ascending: false });
@@ -23,5 +24,8 @@ export default defineTool({
       content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
       structuredContent: { vehicles: data ?? [] },
     };
+    } catch (e) {
+      return { content: [{ type: "text", text: (e as Error).message }], isError: true };
+    }
   },
 });

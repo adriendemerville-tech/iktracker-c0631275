@@ -30,7 +30,8 @@ export default defineTool({
     if (!ctx.isAuthenticated()) {
       return { content: [{ type: "text", text: "Non authentifié" }], isError: true };
     }
-    const { data, error } = await sb(ctx)
+    try {
+    const { data, error } = await userClient(ctx)
       .from("trips")
       .insert({
         user_id: ctx.getUserId()!,
@@ -51,5 +52,8 @@ export default defineTool({
       content: [{ type: "text", text: `Trajet créé (${data.id})` }],
       structuredContent: { trip: data },
     };
+    } catch (e) {
+      return { content: [{ type: "text", text: (e as Error).message }], isError: true };
+    }
   },
 });
