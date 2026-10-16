@@ -5,15 +5,21 @@
 // src/lib/mcp/index.ts
 import { auth, defineMcp } from "npm:@lovable.dev/mcp-js@0.24.0";
 
-// src/lib/mcp/tools/list-vehicles.ts
+// src/lib/mcp/supabase.ts
 import { createClient } from "npm:@supabase/supabase-js@^2.87.3";
-import { defineTool } from "npm:@lovable.dev/mcp-js@0.24.0";
-function sb(ctx) {
-  return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY, {
+function userClient(ctx) {
+  const url = Deno.env.get("SUPABASE_URL");
+  const key = Deno.env.get("SUPABASE_ANON_KEY") ?? Deno.env.get("SUPABASE_PUBLISHABLE_KEY");
+  if (!url) throw new Error("SUPABASE_URL manquante dans le runtime");
+  if (!key) throw new Error("Clé Supabase (ANON/PUBLISHABLE) manquante dans le runtime");
+  return createClient(url, key, {
     global: { headers: { Authorization: `Bearer ${ctx.getToken()}` } },
     auth: { persistSession: false, autoRefreshToken: false },
   });
 }
+
+// src/lib/mcp/tools/list-vehicles.ts
+import { defineTool } from "npm:@lovable.dev/mcp-js@0.24.0";
 var list_vehicles_default = defineTool({
   name: "list_vehicles",
   title: "Lister mes v\xE9hicules",
@@ -25,30 +31,27 @@ var list_vehicles_default = defineTool({
     if (!ctx.isAuthenticated()) {
       return { content: [{ type: "text", text: "Non authentifi\xE9" }], isError: true };
     }
-    const { data, error } = await sb(ctx)
-      .from("vehicles")
-      .select("id, name, make, model, year, fiscal_power, is_electric, license_plate")
-      .order("created_at", { ascending: false });
-    if (error) {
-      return { content: [{ type: "text", text: error.message }], isError: true };
+    try {
+      const { data, error } = await userClient(ctx)
+        .from("vehicles")
+        .select("id, name, make, model, year, fiscal_power, is_electric, license_plate")
+        .order("created_at", { ascending: false });
+      if (error) {
+        return { content: [{ type: "text", text: error.message }], isError: true };
+      }
+      return {
+        content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
+        structuredContent: { vehicles: data ?? [] },
+      };
+    } catch (e) {
+      return { content: [{ type: "text", text: e.message }], isError: true };
     }
-    return {
-      content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
-      structuredContent: { vehicles: data ?? [] },
-    };
   },
 });
 
 // src/lib/mcp/tools/list-trips.ts
-import { createClient as createClient2 } from "npm:@supabase/supabase-js@^2.87.3";
 import { defineTool as defineTool2 } from "npm:@lovable.dev/mcp-js@0.24.0";
 import { z } from "npm:zod@^4.4.3";
-function sb2(ctx) {
-  return createClient2(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY, {
-    global: { headers: { Authorization: `Bearer ${ctx.getToken()}` } },
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-}
 var list_trips_default = defineTool2({
   name: "list_trips",
   title: "Lister mes trajets",
@@ -79,36 +82,33 @@ var list_trips_default = defineTool2({
     if (!ctx.isAuthenticated()) {
       return { content: [{ type: "text", text: "Non authentifi\xE9" }], isError: true };
     }
-    let q = sb2(ctx)
-      .from("trips")
-      .select(
-        "id, date, start_location, end_location, distance, round_trip, ik_amount, purpose, vehicle_id, status",
-      )
-      .is("deleted_at", null)
-      .order("date", { ascending: false })
-      .limit(limit ?? 50);
-    if (from) q = q.gte("date", from);
-    if (to) q = q.lte("date", to);
-    if (vehicle_id) q = q.eq("vehicle_id", vehicle_id);
-    const { data, error } = await q;
-    if (error) return { content: [{ type: "text", text: error.message }], isError: true };
-    return {
-      content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
-      structuredContent: { trips: data ?? [], count: data?.length ?? 0 },
-    };
+    try {
+      let q = userClient(ctx)
+        .from("trips")
+        .select(
+          "id, date, start_location, end_location, distance, round_trip, ik_amount, purpose, vehicle_id, status",
+        )
+        .is("deleted_at", null)
+        .order("date", { ascending: false })
+        .limit(limit ?? 50);
+      if (from) q = q.gte("date", from);
+      if (to) q = q.lte("date", to);
+      if (vehicle_id) q = q.eq("vehicle_id", vehicle_id);
+      const { data, error } = await q;
+      if (error) return { content: [{ type: "text", text: error.message }], isError: true };
+      return {
+        content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
+        structuredContent: { trips: data ?? [], count: data?.length ?? 0 },
+      };
+    } catch (e) {
+      return { content: [{ type: "text", text: e.message }], isError: true };
+    }
   },
 });
 
 // src/lib/mcp/tools/get-ytd-summary.ts
-import { createClient as createClient3 } from "npm:@supabase/supabase-js@^2.87.3";
 import { defineTool as defineTool3 } from "npm:@lovable.dev/mcp-js@0.24.0";
 import { z as z2 } from "npm:zod@^4.4.3";
-function sb3(ctx) {
-  return createClient3(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY, {
-    global: { headers: { Authorization: `Bearer ${ctx.getToken()}` } },
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-}
 var get_ytd_summary_default = defineTool3({
   name: "get_ytd_summary",
   title: "Synth\xE8se annuelle IK",
@@ -128,75 +128,72 @@ var get_ytd_summary_default = defineTool3({
     if (!ctx.isAuthenticated()) {
       return { content: [{ type: "text", text: "Non authentifi\xE9" }], isError: true };
     }
-    const y = year ?? /* @__PURE__ */ new Date().getFullYear();
-    const from = `${y}-01-01`;
-    const to = `${y}-12-31`;
-    const client = sb3(ctx);
-    const [{ data: trips, error: e1 }, { data: vehicles, error: e2 }] = await Promise.all([
-      client
-        .from("trips")
-        .select("vehicle_id, distance, ik_amount")
-        .is("deleted_at", null)
-        .gte("date", from)
-        .lte("date", to),
-      client.from("vehicles").select("id, name, make, model, fiscal_power, is_electric"),
-    ]);
-    if (e1 || e2) {
-      return { content: [{ type: "text", text: (e1 ?? e2).message }], isError: true };
-    }
-    const byVehicle = /* @__PURE__ */ new Map();
-    for (const t of trips ?? []) {
-      const key = t.vehicle_id;
-      const acc = byVehicle.get(key) ?? { distance: 0, ik_amount: 0, trips: 0 };
-      acc.distance += Number(t.distance ?? 0);
-      acc.ik_amount += Number(t.ik_amount ?? 0);
-      acc.trips += 1;
-      byVehicle.set(key, acc);
-    }
-    const perVehicle = (vehicles ?? []).map((v) => {
-      const s = byVehicle.get(v.id) ?? { distance: 0, ik_amount: 0, trips: 0 };
-      return {
-        vehicle_id: v.id,
-        vehicle: [v.make, v.model].filter(Boolean).join(" ") || v.name,
-        fiscal_power: v.fiscal_power,
-        is_electric: v.is_electric,
-        total_km: Math.round(s.distance * 100) / 100,
-        total_ik_eur: Math.round(s.ik_amount * 100) / 100,
-        trip_count: s.trips,
+    try {
+      const y = year ?? /* @__PURE__ */ new Date().getFullYear();
+      const from = `${y}-01-01`;
+      const to = `${y}-12-31`;
+      const client = userClient(ctx);
+      const [{ data: trips, error: e1 }, { data: vehicles, error: e2 }] = await Promise.all([
+        client
+          .from("trips")
+          .select("vehicle_id, distance, ik_amount")
+          .is("deleted_at", null)
+          .gte("date", from)
+          .lte("date", to),
+        client.from("vehicles").select("id, name, make, model, fiscal_power, is_electric"),
+      ]);
+      if (e1 || e2) {
+        return { content: [{ type: "text", text: (e1 ?? e2).message }], isError: true };
+      }
+      const byVehicle = /* @__PURE__ */ new Map();
+      for (const t of trips ?? []) {
+        const key = t.vehicle_id;
+        const acc = byVehicle.get(key) ?? { distance: 0, ik_amount: 0, trips: 0 };
+        acc.distance += Number(t.distance ?? 0);
+        acc.ik_amount += Number(t.ik_amount ?? 0);
+        acc.trips += 1;
+        byVehicle.set(key, acc);
+      }
+      const perVehicle = (vehicles ?? []).map((v) => {
+        const s = byVehicle.get(v.id) ?? { distance: 0, ik_amount: 0, trips: 0 };
+        return {
+          vehicle_id: v.id,
+          vehicle: [v.make, v.model].filter(Boolean).join(" ") || v.name,
+          fiscal_power: v.fiscal_power,
+          is_electric: v.is_electric,
+          total_km: Math.round(s.distance * 100) / 100,
+          total_ik_eur: Math.round(s.ik_amount * 100) / 100,
+          trip_count: s.trips,
+        };
+      });
+      const total = perVehicle.reduce(
+        (acc, v) => ({
+          total_km: acc.total_km + v.total_km,
+          total_ik_eur: acc.total_ik_eur + v.total_ik_eur,
+          trip_count: acc.trip_count + v.trip_count,
+        }),
+        { total_km: 0, total_ik_eur: 0, trip_count: 0 },
+      );
+      const summary = {
+        year: y,
+        total_km: Math.round(total.total_km * 100) / 100,
+        total_ik_eur: Math.round(total.total_ik_eur * 100) / 100,
+        trip_count: total.trip_count,
+        per_vehicle: perVehicle,
       };
-    });
-    const total = perVehicle.reduce(
-      (acc, v) => ({
-        total_km: acc.total_km + v.total_km,
-        total_ik_eur: acc.total_ik_eur + v.total_ik_eur,
-        trip_count: acc.trip_count + v.trip_count,
-      }),
-      { total_km: 0, total_ik_eur: 0, trip_count: 0 },
-    );
-    const summary = {
-      year: y,
-      total_km: Math.round(total.total_km * 100) / 100,
-      total_ik_eur: Math.round(total.total_ik_eur * 100) / 100,
-      trip_count: total.trip_count,
-      per_vehicle: perVehicle,
-    };
-    return {
-      content: [{ type: "text", text: JSON.stringify(summary, null, 2) }],
-      structuredContent: summary,
-    };
+      return {
+        content: [{ type: "text", text: JSON.stringify(summary, null, 2) }],
+        structuredContent: summary,
+      };
+    } catch (e) {
+      return { content: [{ type: "text", text: e.message }], isError: true };
+    }
   },
 });
 
 // src/lib/mcp/tools/create-trip.ts
-import { createClient as createClient4 } from "npm:@supabase/supabase-js@^2.87.3";
 import { defineTool as defineTool4 } from "npm:@lovable.dev/mcp-js@0.24.0";
 import { z as z3 } from "npm:zod@^4.4.3";
-function sb4(ctx) {
-  return createClient4(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY, {
-    global: { headers: { Authorization: `Bearer ${ctx.getToken()}` } },
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-}
 var create_trip_default = defineTool4({
   name: "create_trip",
   title: "Cr\xE9er un trajet",
@@ -229,27 +226,200 @@ var create_trip_default = defineTool4({
     if (!ctx.isAuthenticated()) {
       return { content: [{ type: "text", text: "Non authentifi\xE9" }], isError: true };
     }
-    const { data, error } = await sb4(ctx)
-      .from("trips")
-      .insert({
-        user_id: ctx.getUserId(),
-        date: input.date,
-        start_location: input.start_location,
-        end_location: input.end_location,
-        distance: input.distance,
-        vehicle_id: input.vehicle_id ?? null,
-        round_trip: input.round_trip ?? false,
-        purpose: input.purpose ?? null,
-        ik_amount: input.ik_amount ?? 0,
-        source: "mcp",
-      })
-      .select()
-      .single();
-    if (error) return { content: [{ type: "text", text: error.message }], isError: true };
-    return {
-      content: [{ type: "text", text: `Trajet cr\xE9\xE9 (${data.id})` }],
-      structuredContent: { trip: data },
-    };
+    try {
+      const { data, error } = await userClient(ctx)
+        .from("trips")
+        .insert({
+          user_id: ctx.getUserId(),
+          date: input.date,
+          start_location: input.start_location,
+          end_location: input.end_location,
+          distance: input.distance,
+          vehicle_id: input.vehicle_id ?? null,
+          round_trip: input.round_trip ?? false,
+          purpose: input.purpose ?? null,
+          ik_amount: input.ik_amount ?? 0,
+          source: "mcp",
+        })
+        .select()
+        .single();
+      if (error) return { content: [{ type: "text", text: error.message }], isError: true };
+      return {
+        content: [{ type: "text", text: `Trajet cr\xE9\xE9 (${data.id})` }],
+        structuredContent: { trip: data },
+      };
+    } catch (e) {
+      return { content: [{ type: "text", text: e.message }], isError: true };
+    }
+  },
+});
+
+// src/lib/mcp/tools/blog.ts
+import { defineTool as defineTool5 } from "npm:@lovable.dev/mcp-js@0.24.0";
+import { z as z4 } from "npm:zod@^4.4.3";
+var unauth = { content: [{ type: "text", text: "Non authentifi\xE9" }], isError: true };
+var err = (m) => ({ content: [{ type: "text", text: m }], isError: true });
+var LIST_COLS =
+  "id, slug, title, subtitle, meta_description, status, is_listed, seo_indexable, featured_image_url, author_name, published_at, updated_at";
+var status = z4.enum(["draft", "published", "archived"]);
+var listBlogPostsTool = defineTool5({
+  name: "list_blog_posts",
+  title: "Lister les articles du blog",
+  description:
+    "Liste les articles du blog IKtracker (filtre statut/recherche titre). Brouillons visibles pour les admins.",
+  inputSchema: {
+    status: status.optional().describe("Filtrer par statut."),
+    search: z4.string().max(200).optional().describe("Recherche dans le titre."),
+    limit: z4.number().int().min(1).max(200).optional().describe("D\xE9faut 50."),
+  },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async ({ status: s, search, limit }, ctx) => {
+    if (!ctx.isAuthenticated()) return unauth;
+    try {
+      let q = userClient(ctx)
+        .from("blog_posts")
+        .select(LIST_COLS)
+        .is("deleted_at", null)
+        .order("updated_at", { ascending: false })
+        .limit(limit ?? 50);
+      if (s) q = q.eq("status", s);
+      if (search) q = q.ilike("title", `%${search}%`);
+      const { data, error } = await q;
+      if (error) return err(error.message);
+      return {
+        content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
+        structuredContent: { posts: data ?? [] },
+      };
+    } catch (e) {
+      return err(e.message);
+    }
+  },
+});
+var getBlogPostTool = defineTool5({
+  name: "get_blog_post",
+  title: "Lire un article",
+  description: "Retourne un article complet (contenu Markdown inclus) par slug.",
+  inputSchema: { slug: z4.string().min(1) },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async ({ slug }, ctx) => {
+    if (!ctx.isAuthenticated()) return unauth;
+    try {
+      const { data, error } = await userClient(ctx)
+        .from("blog_posts")
+        .select("*")
+        .eq("slug", slug)
+        .maybeSingle();
+      if (error) return err(error.message);
+      if (!data) return err("Article introuvable");
+      return {
+        content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
+        structuredContent: { post: data },
+      };
+    } catch (e) {
+      return err(e.message);
+    }
+  },
+});
+var fields = {
+  title: z4.string().min(1).max(200),
+  subtitle: z4.string().max(300).optional(),
+  content: z4
+    .string()
+    .describe("Contenu Markdown (un seul H1 = le titre ; utiliser ## dans le contenu)."),
+  meta_description: z4.string().max(170).optional(),
+  featured_image_url: z4.string().url().optional(),
+  author_name: z4.string().max(100).optional(),
+  is_listed: z4.boolean().optional(),
+  seo_indexable: z4.boolean().optional(),
+  status: status.optional().describe("draft par d\xE9faut."),
+};
+var createBlogPostTool = defineTool5({
+  name: "create_blog_post",
+  title: "Cr\xE9er un article",
+  description: "Cr\xE9e un article (brouillon par d\xE9faut). R\xE9serv\xE9 aux admins IKtracker.",
+  inputSchema: { slug: z4.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), ...fields },
+  annotations: {
+    readOnlyHint: false,
+    destructiveHint: false,
+    idempotentHint: false,
+    openWorldHint: false,
+  },
+  handler: async (input, ctx) => {
+    if (!ctx.isAuthenticated()) return unauth;
+    try {
+      const st = input.status ?? "draft";
+      const { data, error } = await userClient(ctx)
+        .from("blog_posts")
+        .insert({
+          ...input,
+          status: st,
+          published_at: st === "published" ? (/* @__PURE__ */ new Date()).toISOString() : null,
+        })
+        .select(LIST_COLS)
+        .single();
+      if (error) return err(error.message);
+      return {
+        content: [{ type: "text", text: `Article cr\xE9\xE9 : ${data.slug} (${data.status})` }],
+        structuredContent: { post: data },
+      };
+    } catch (e) {
+      return err(e.message);
+    }
+  },
+});
+var updateBlogPostTool = defineTool5({
+  name: "update_blog_post",
+  title: "Modifier / publier un article",
+  description:
+    "Met \xE0 jour un article par slug (contenu, SEO, statut draft/published/archived). R\xE9serv\xE9 aux admins.",
+  inputSchema: {
+    slug: z4.string().min(1),
+    title: fields.title.optional(),
+    subtitle: fields.subtitle,
+    content: fields.content.optional(),
+    meta_description: fields.meta_description,
+    featured_image_url: fields.featured_image_url,
+    author_name: fields.author_name,
+    is_listed: fields.is_listed,
+    seo_indexable: fields.seo_indexable,
+    status: fields.status,
+  },
+  annotations: {
+    readOnlyHint: false,
+    destructiveHint: false,
+    idempotentHint: true,
+    openWorldHint: false,
+  },
+  handler: async ({ slug, ...patch }, ctx) => {
+    if (!ctx.isAuthenticated()) return unauth;
+    try {
+      const client = userClient(ctx);
+      const upd = Object.fromEntries(Object.entries(patch).filter(([, v]) => v !== void 0));
+      if (patch.status === "published") {
+        const { data: cur } = await client
+          .from("blog_posts")
+          .select("published_at")
+          .eq("slug", slug)
+          .maybeSingle();
+        if (!cur?.published_at) upd.published_at = (/* @__PURE__ */ new Date()).toISOString();
+      }
+      const { data, error } = await client
+        .from("blog_posts")
+        .update(upd)
+        .eq("slug", slug)
+        .select(LIST_COLS)
+        .maybeSingle();
+      if (error) return err(error.message);
+      if (!data) return err("Article introuvable ou droits insuffisants (admin requis)");
+      return {
+        content: [
+          { type: "text", text: `Article mis \xE0 jour : ${data.slug} (${data.status})` },
+        ],
+        structuredContent: { post: data },
+      };
+    } catch (e) {
+      return err(e.message);
+    }
   },
 });
 
@@ -260,12 +430,21 @@ var mcp_default = defineMcp({
   title: "IKtracker MCP",
   version: "0.1.0",
   instructions:
-    "Outils IKtracker pour consulter les trajets, v\xE9hicules et cumuls annuels d'indemnit\xE9s kilom\xE9triques de l'utilisateur connect\xE9, et cr\xE9er de nouveaux trajets. Toutes les donn\xE9es sont scop\xE9es \xE0 l'utilisateur authentifi\xE9.",
+    "Outils IKtracker pour consulter les trajets, v\xE9hicules et cumuls annuels d'indemnit\xE9s kilom\xE9triques de l'utilisateur connect\xE9, et cr\xE9er de nouveaux trajets. Les admins peuvent aussi lire, cr\xE9er, modifier et publier les articles du blog. Toutes les donn\xE9es sont scop\xE9es \xE0 l'utilisateur authentifi\xE9.",
   auth: auth.oauth.issuer({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated",
   }),
-  tools: [list_vehicles_default, list_trips_default, get_ytd_summary_default, create_trip_default],
+  tools: [
+    list_vehicles_default,
+    list_trips_default,
+    get_ytd_summary_default,
+    create_trip_default,
+    listBlogPostsTool,
+    getBlogPostTool,
+    createBlogPostTool,
+    updateBlogPostTool,
+  ],
 });
 
 // lovable-mcp-supabase-entry.ts

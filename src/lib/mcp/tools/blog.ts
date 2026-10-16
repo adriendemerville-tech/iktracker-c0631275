@@ -1,14 +1,9 @@
-import { createClient } from "@supabase/supabase-js";
-import { defineTool, type ToolContext } from "@lovable.dev/mcp-js";
+import { defineTool } from "@lovable.dev/mcp-js";
 import { z } from "zod";
+import { userClient } from "../supabase";
 
 // Accès blog via MCP : RLS blog_posts => écriture réservée au rôle admin.
-function sb(ctx: ToolContext) {
-  return createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
-    global: { headers: { Authorization: `Bearer ${ctx.getToken()}` } },
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-}
+const sb = userClient;
 const unauth = { content: [{ type: "text" as const, text: "Non authentifié" }], isError: true };
 const err = (m: string) => ({ content: [{ type: "text" as const, text: m }], isError: true });
 const LIST_COLS =
@@ -27,13 +22,17 @@ export const listBlogPostsTool = defineTool({
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ status: s, search, limit }, ctx) => {
     if (!ctx.isAuthenticated()) return unauth;
-    let q = sb(ctx).from("blog_posts").select(LIST_COLS).is("deleted_at", null)
-      .order("updated_at", { ascending: false }).limit(limit ?? 50);
-    if (s) q = q.eq("status", s);
-    if (search) q = q.ilike("title", `%${search}%`);
-    const { data, error } = await q;
-    if (error) return err(error.message);
-    return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }], structuredContent: { posts: data ?? [] } };
+    try {
+      let q = sb(ctx).from("blog_posts").select(LIST_COLS).is("deleted_at", null)
+        .order("updated_at", { ascending: false }).limit(limit ?? 50);
+      if (s) q = q.eq("status", s);
+      if (search) q = q.ilike("title", `%${search}%`);
+      const { data, error } = await q;
+      if (error) return err(error.message);
+      return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }], structuredContent: { posts: data ?? [] } };
+    } catch (e) {
+      return err((e as Error).message);
+    }
   },
 });
 
@@ -45,10 +44,14 @@ export const getBlogPostTool = defineTool({
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ slug }, ctx) => {
     if (!ctx.isAuthenticated()) return unauth;
-    const { data, error } = await sb(ctx).from("blog_posts").select("*").eq("slug", slug).maybeSingle();
-    if (error) return err(error.message);
-    if (!data) return err("Article introuvable");
-    return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }], structuredContent: { post: data } };
+    try {
+      const { data, error } = await sb(ctx).from("blog_posts").select("*").eq("slug", slug).maybeSingle();
+      if (error) return err(error.message);
+      if (!data) return err("Article introuvable");
+      return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }], structuredContent: { post: data } };
+    } catch (e) {
+      return err((e as Error).message);
+    }
   },
 });
 
@@ -72,12 +75,16 @@ export const createBlogPostTool = defineTool({
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
   handler: async (input, ctx) => {
     if (!ctx.isAuthenticated()) return unauth;
-    const st = input.status ?? "draft";
-    const { data, error } = await sb(ctx).from("blog_posts")
-      .insert({ ...input, status: st, published_at: st === "published" ? new Date().toISOString() : null })
-      .select(LIST_COLS).single();
-    if (error) return err(error.message);
-    return { content: [{ type: "text", text: `Article créé : ${data.slug} (${data.status})` }], structuredContent: { post: data } };
+    try {
+      const st = input.status ?? "draft";
+      const { data, error } = await sb(ctx).from("blog_posts")
+        .insert({ ...input, status: st, published_at: st === "published" ? new Date().toISOString() : null })
+        .select(LIST_COLS).single();
+      if (error) return err(error.message);
+      return { content: [{ type: "text", text: `Article créé : ${data.slug} (${data.status})` }], structuredContent: { post: data } };
+    } catch (e) {
+      return err((e as Error).message);
+    }
   },
 });
 
@@ -100,15 +107,19 @@ export const updateBlogPostTool = defineTool({
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   handler: async ({ slug, ...patch }, ctx) => {
     if (!ctx.isAuthenticated()) return unauth;
-    const client = sb(ctx);
-    const upd: Record<string, unknown> = Object.fromEntries(Object.entries(patch).filter(([, v]) => v !== undefined));
-    if (patch.status === "published") {
-      const { data: cur } = await client.from("blog_posts").select("published_at").eq("slug", slug).maybeSingle();
-      if (!cur?.published_at) upd.published_at = new Date().toISOString();
+    try {
+      const client = sb(ctx);
+      const upd: Record<string, unknown> = Object.fromEntries(Object.entries(patch).filter(([, v]) => v !== undefined));
+      if (patch.status === "published") {
+        const { data: cur } = await client.from("blog_posts").select("published_at").eq("slug", slug).maybeSingle();
+        if (!cur?.published_at) upd.published_at = new Date().toISOString();
+      }
+      const { data, error } = await client.from("blog_posts").update(upd).eq("slug", slug).select(LIST_COLS).maybeSingle();
+      if (error) return err(error.message);
+      if (!data) return err("Article introuvable ou droits insuffisants (admin requis)");
+      return { content: [{ type: "text", text: `Article mis à jour : ${data.slug} (${data.status})` }], structuredContent: { post: data } };
+    } catch (e) {
+      return err((e as Error).message);
     }
-    const { data, error } = await client.from("blog_posts").update(upd).eq("slug", slug).select(LIST_COLS).maybeSingle();
-    if (error) return err(error.message);
-    if (!data) return err("Article introuvable ou droits insuffisants (admin requis)");
-    return { content: [{ type: "text", text: `Article mis à jour : ${data.slug} (${data.status})` }], structuredContent: { post: data } };
   },
 });

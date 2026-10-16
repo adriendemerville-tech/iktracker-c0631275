@@ -1,13 +1,5 @@
-import { createClient } from "@supabase/supabase-js";
-import { defineTool, type ToolContext } from "@lovable.dev/mcp-js";
-import { z } from "zod";
-
-function sb(ctx: ToolContext) {
-  return createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
-    global: { headers: { Authorization: `Bearer ${ctx.getToken()}` } },
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-}
+import { defineTool } from "@lovable.dev/mcp-js";
+import { userClient } from "../supabase";
 
 export default defineTool({
   name: "list_vehicles",
@@ -20,7 +12,8 @@ export default defineTool({
     if (!ctx.isAuthenticated()) {
       return { content: [{ type: "text", text: "Non authentifié" }], isError: true };
     }
-    const { data, error } = await sb(ctx)
+    try {
+    const { data, error } = await userClient(ctx)
       .from("vehicles")
       .select("id, name, make, model, year, fiscal_power, is_electric, license_plate")
       .order("created_at", { ascending: false });
@@ -31,5 +24,8 @@ export default defineTool({
       content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
       structuredContent: { vehicles: data ?? [] },
     };
+    } catch (e) {
+      return { content: [{ type: "text", text: (e as Error).message }], isError: true };
+    }
   },
 });

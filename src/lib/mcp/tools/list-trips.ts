@@ -1,13 +1,6 @@
-import { createClient } from "@supabase/supabase-js";
-import { defineTool, type ToolContext } from "@lovable.dev/mcp-js";
+import { defineTool } from "@lovable.dev/mcp-js";
 import { z } from "zod";
-
-function sb(ctx: ToolContext) {
-  return createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
-    global: { headers: { Authorization: `Bearer ${ctx.getToken()}` } },
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-}
+import { userClient } from "../supabase";
 
 export default defineTool({
   name: "list_trips",
@@ -39,7 +32,8 @@ export default defineTool({
     if (!ctx.isAuthenticated()) {
       return { content: [{ type: "text", text: "Non authentifié" }], isError: true };
     }
-    let q = sb(ctx)
+    try {
+    let q = userClient(ctx)
       .from("trips")
       .select(
         "id, date, start_location, end_location, distance, round_trip, ik_amount, purpose, vehicle_id, status",
@@ -56,5 +50,8 @@ export default defineTool({
       content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
       structuredContent: { trips: data ?? [], count: data?.length ?? 0 },
     };
+    } catch (e) {
+      return { content: [{ type: "text", text: (e as Error).message }], isError: true };
+    }
   },
 });

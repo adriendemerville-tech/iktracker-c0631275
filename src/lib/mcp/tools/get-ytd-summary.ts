@@ -1,13 +1,6 @@
-import { createClient } from "@supabase/supabase-js";
-import { defineTool, type ToolContext } from "@lovable.dev/mcp-js";
+import { defineTool } from "@lovable.dev/mcp-js";
 import { z } from "zod";
-
-function sb(ctx: ToolContext) {
-  return createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
-    global: { headers: { Authorization: `Bearer ${ctx.getToken()}` } },
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-}
+import { userClient } from "../supabase";
 
 export default defineTool({
   name: "get_ytd_summary",
@@ -28,10 +21,11 @@ export default defineTool({
     if (!ctx.isAuthenticated()) {
       return { content: [{ type: "text", text: "Non authentifié" }], isError: true };
     }
+    try {
     const y = year ?? new Date().getFullYear();
     const from = `${y}-01-01`;
     const to = `${y}-12-31`;
-    const client = sb(ctx);
+    const client = userClient(ctx);
     const [{ data: trips, error: e1 }, { data: vehicles, error: e2 }] = await Promise.all([
       client
         .from("trips")
@@ -87,5 +81,8 @@ export default defineTool({
       content: [{ type: "text", text: JSON.stringify(summary, null, 2) }],
       structuredContent: summary,
     };
+    } catch (e) {
+      return { content: [{ type: "text", text: (e as Error).message }], isError: true };
+    }
   },
 });
