@@ -774,7 +774,12 @@ export function NewTripSheet({
     <Sheet open={open} onOpenChange={handleClose}>
       <SheetContent
         side="bottom"
-        className="!inset-auto !fixed !top-1/2 !left-1/2 !-translate-x-1/2 !-translate-y-1/2 h-[85vh] w-full max-w-[95vw] sm:max-w-[90%] md:max-w-[82%] rounded-2xl border overflow-hidden flex flex-col z-50"
+        className={cn(
+          "!inset-auto !fixed !top-1/2 !left-1/2 !-translate-x-1/2 !-translate-y-1/2 w-full max-w-[95vw] rounded-2xl border overflow-hidden flex flex-col z-50",
+          step === "details"
+            ? "h-auto max-h-[85vh] sm:max-w-[90%] md:max-w-3xl"
+            : "h-[85vh] sm:max-w-[90%] md:max-w-[82%]",
+        )}
         onInteractOutside={preventCloseOnGoogleAutocomplete}
         onPointerDownOutside={preventCloseOnGoogleAutocomplete}
         onFocusOutside={preventCloseOnGoogleAutocomplete}
@@ -813,7 +818,12 @@ export function NewTripSheet({
           </div>
         </SheetHeader>
 
-        <div className="overflow-y-auto overflow-x-hidden flex-1 min-h-0 pb-24 px-3 sm:px-4">
+        <div
+          className={cn(
+            "overflow-y-auto overflow-x-hidden flex-1 min-h-0 px-3 sm:px-4",
+            step === "details" ? "pb-4" : "pb-24",
+          )}
+        >
           {!isEditing && !recurringOnly && (
             <div className="mb-4 space-y-3">
               <div
