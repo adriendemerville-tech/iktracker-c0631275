@@ -43,7 +43,7 @@ export default defineTool({
         round_trip: input.round_trip ?? false,
         purpose: input.purpose ?? null,
         ik_amount: input.ik_amount ?? 0,
-        source: "mcp",
+        source: "manual",
       })
       .select()
       .single();

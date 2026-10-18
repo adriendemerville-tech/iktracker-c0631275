@@ -239,7 +239,7 @@ var create_trip_default = defineTool4({
           round_trip: input.round_trip ?? false,
           purpose: input.purpose ?? null,
           ik_amount: input.ik_amount ?? 0,
-          source: "mcp",
+          source: "manual",
         })
         .select()
         .single();
