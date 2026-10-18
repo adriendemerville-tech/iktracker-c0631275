@@ -67,7 +67,7 @@ function isVirtualMeeting(event: CalendarEvent): boolean {
 // - location matching user's home address = 0-km trip
 // Strip HTML artifacts (e.g. "<br>", "&amp;") that calendar locations sometimes contain
 function cleanLocationText(s: string | undefined | null): string {
-  return (s || "")
+  const cleaned = (s || "")
     .replace(/<br\s*\/?>/gi, ", ")
     .replace(/<[^>]+>/g, " ")
     .replace(/&amp;/gi, "&")
@@ -76,6 +76,19 @@ function cleanLocationText(s: string | undefined | null): string {
     .replace(/\s{2,}/g, " ")
     .replace(/^[,\s]+|[,\s]+$/g, "")
     .trim();
+  // Remove repeated segments (e.g. "12 rue X, 75000 Ville, 12 rue X, 75000 Ville")
+  const seen = new Set<string>();
+  return cleaned
+    .split(",")
+    .map((part) => part.trim())
+    .filter((part) => {
+      if (!part) return false;
+      const key = part.toLowerCase().replace(/\s+/g, " ");
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .join(", ");
 }
 
 function normalizeAddress(s: string | undefined | null): string {
