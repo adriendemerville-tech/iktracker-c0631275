@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { sortVehiclesWithPrimaryFirst } from "@/lib/primary-vehicle";
 import {
   Car,
   MapPin,
