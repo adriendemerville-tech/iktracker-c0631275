@@ -5,7 +5,7 @@ import { calculateTotalAnnualIK, marginalIK, getForcedRate } from "./ik";
 describe("MCP IK helper — parité avec le barème de l'app", () => {
   it("tranches identiques au barème officiel", () => {
     expect(calculateTotalAnnualIK(3000, 3)).toBeCloseTo(1587.0, 2);
-    expect(calculateTotalAnnualIK(10000, 5)).toBeCloseTo(4960.0, 2);
+    expect(calculateTotalAnnualIK(10000, 5)).toBeCloseTo(4965.0, 2);
     expect(calculateTotalAnnualIK(20000, 6)).toBeCloseTo(8937.0, 2);
     expect(calculateTotalAnnualIK(25000, 7)).toBeCloseTo(11750.0, 2);
   });
