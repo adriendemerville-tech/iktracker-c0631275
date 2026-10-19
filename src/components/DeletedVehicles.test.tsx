@@ -22,7 +22,7 @@ beforeEach(() => {
 function open() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
   render(<QueryClientProvider client={client}><DeletedVehicles /></QueryClientProvider>);
-  fireEvent.click(screen.getByRole("button", { name: "Véhicules supprimés" }));
+  fireEvent.click(screen.getByRole("button", { name: "Anciens véhicules" }));
 }
 it("restaure le véhicule sélectionné et conserve le principal existant", async () => {
   mocks.rpc.mockResolvedValue({ error: null });

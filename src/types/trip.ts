@@ -33,6 +33,7 @@ export interface TourStopData {
 export interface Trip {
   id: string;
   vehicleId: string | null; // Can be null if vehicle was deleted
+  vehicleSnapshot?: Vehicle; // Identity and fiscal inputs preserved on vehicle deletion
   startLocation: Location;
   endLocation: Location;
   distance: number; // in km (total distance, doubled if round trip)

@@ -62,16 +62,16 @@ export function DeletedVehicles() {
   return (
     <div className="mt-4 border-t border-border pt-3">
       <Button variant="ghost" className="w-full justify-start gap-2" aria-expanded={expanded} onClick={() => setExpanded(!expanded)}>
-        <ArchiveRestore className="size-4" /> Véhicules supprimés <ChevronDown className="ml-auto size-4" />
+        <ArchiveRestore className="size-4" /> Anciens véhicules <ChevronDown className="ml-auto size-4" />
       </Button>
       {expanded && (
         <div className="mt-3 space-y-2">
           {query.isPending ? <><Skeleton className="h-16 w-full" /><Skeleton className="h-16 w-full" /></> : query.isError ? (
-            <div className="space-y-2"><p className="text-sm text-muted-foreground">Impossible de charger les véhicules supprimés.</p><Button variant="outline" onClick={() => query.refetch()}>Réessayer</Button></div>
-          ) : query.data?.length === 0 ? <p className="text-sm text-muted-foreground">Aucun véhicule supprimé récupérable.</p> : query.data?.map(({ vehicle, deletedAt }) => (
+            <div className="space-y-2"><p className="text-sm text-muted-foreground">Impossible de charger les anciens véhicules.</p><Button variant="outline" onClick={() => query.refetch()}>Réessayer</Button></div>
+          ) : query.data?.length === 0 ? <p className="text-sm text-muted-foreground">Aucun ancien véhicule.</p> : query.data?.map(({ vehicle, deletedAt }) => (
             <div key={vehicle.id} className="flex items-center gap-3 rounded-md border border-border p-3">
               <Car className="size-4 shrink-0 text-muted-foreground" />
-              <div className="min-w-0 flex-1"><p className="break-words text-sm font-medium">{vehicle.name || `${vehicle.make} ${vehicle.model}`.trim() || vehicle.licensePlate || "Véhicule"}</p><p className="text-xs text-muted-foreground">{vehicle.licensePlate} · Supprimé le {new Date(deletedAt).toLocaleDateString("fr-FR")}</p></div>
+              <div className="min-w-0 flex-1"><p className="break-words text-sm font-medium">{vehicle.name || `${vehicle.make} ${vehicle.model}`.trim() || vehicle.licensePlate || "Véhicule"}</p><p className="text-xs text-muted-foreground">{vehicle.licensePlate} · {vehicle.fiscalPower} CV{vehicle.isElectric ? " · Électrique +20 %" : ""} · Archivé le {new Date(deletedAt).toLocaleDateString("fr-FR")}</p></div>
               <Button size="sm" variant="outline" disabled={restoring !== null} onClick={() => restore(vehicle.id)}><ArchiveRestore className="mr-1 size-4" />{restoring === vehicle.id ? "Restauration…" : "Restaurer"}</Button>
             </div>
           ))}

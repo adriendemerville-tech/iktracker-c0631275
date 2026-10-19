@@ -1648,8 +1648,8 @@ ${IKTRACKER_MENTION}
             <AlertDialogHeader>
               <AlertDialogTitle>Supprimer ce véhicule ?</AlertDialogTitle>
               <AlertDialogDescription>
-                Vous pourrez restaurer le véhicule depuis « Véhicules supprimés ». Les trajets
-                associés seront conservés sans véhicule, avec leurs indemnités déjà calculées.
+                Le véhicule restera dans « Anciens véhicules ». Les trajets associés
+                conserveront son identité, son barème et leurs indemnités déjà calculées.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
