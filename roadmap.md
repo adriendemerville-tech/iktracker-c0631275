@@ -1,5 +1,6 @@
 - [x] Corriger Google Agenda (scope, callback compatible, redirections strictes) et confidentialité ; 71 tests réussis avec services simulés, sans données ni déploiement/publication.
 - [x] Mettre immatriculation et puissance fiscale côte à côte dans la modale véhicule.
+- [ ] Ajouter le toggle principal à la modification, exclusif et verrouillé pour le véhicule unique ; vérifier les tests.
 - [x] Permettre de choisir le véhicule principal dès le deuxième véhicule, sans changer les trajets passés.
 - [x] Renouveler la clé Azure d'Outlook et vérifier qu'elle est acceptée.
 - [x] Ajouter la vidéo de démonstration sur l'accueil, avec son optionnel et JSON-LD dédié ; build et 76 tests OK, commandes desktop/mobile vérifiées avec copie temporaire WebM (navigateur de test sans décodeur H.264), MP4 original inchangé et décodage validé.
