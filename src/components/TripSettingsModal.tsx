@@ -252,7 +252,7 @@ export function TripSettingsModal(props: Props) {
                       <EmptyState icon={Car} label="Aucun véhicule enregistré" />
                     ) : (
                       <div className="space-y-3">
-                        {vehicles.map((v) => (
+                        {sortVehiclesWithPrimaryFirst(vehicles, preferences.defaultVehicleId).map((v) => (
                           <VehicleCard
                             key={v.id}
                             vehicle={v}

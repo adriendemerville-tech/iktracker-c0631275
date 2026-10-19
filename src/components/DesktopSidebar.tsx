@@ -6,6 +6,8 @@ import { CalendarConnections } from "@/components/CalendarConnections";
 import { FeedbackForm } from "@/components/FeedbackForm";
 import { VehicleCard } from "@/components/VehicleCard";
 import { DeletedVehicles } from "@/components/DeletedVehicles";
+import { usePreferences } from "@/hooks/usePreferences";
+import { sortVehiclesWithPrimaryFirst } from "@/lib/primary-vehicle";
 import { VehicleForm } from "@/components/VehicleForm";
 import { PreferencesContent } from "@/components/PreferencesContent";
 import {
