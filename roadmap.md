@@ -1,6 +1,6 @@
 - [x] Corriger Google Agenda (scope, callback compatible, redirections strictes) et confidentialité ; 71 tests réussis avec services simulés, sans données ni déploiement/publication.
 - [x] Mettre immatriculation et puissance fiscale côte à côte dans la modale véhicule.
-- [ ] Ajouter le motif prérempli et modifiable dans Compléter le trajet et vérifier sa sauvegarde.
+- [x] Ajouter le motif prérempli et modifiable dans Compléter le trajet ; sauvegarde vérifiée avec données simulées, test réussi et compilation OK.
 - [x] Ajouter le toggle principal à la modification, exclusif et verrouillé pour le véhicule unique ; tests simulés et contrôle connecté du véhicule unique réussis, sans changement enregistré.
 - [x] Permettre de choisir le véhicule principal dès le deuxième véhicule, sans changer les trajets passés.
 - [x] Renouveler la clé Azure d'Outlook et vérifier qu'elle est acceptée.
