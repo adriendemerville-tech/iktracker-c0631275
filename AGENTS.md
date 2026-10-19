@@ -4,3 +4,4 @@
 - Keep the home demonstration media as static public/video files and defer its source attachment until near the viewport; this preserves direct media URLs and protects initial page loading.
 - Forward the Google Calendar callback through a server route to the existing OAuth function, retaining the request redirect URI in signed state; this preserves in-flight and legacy authorization flows during configuration changes.
 - Represent the principal vehicle through the existing default-vehicle preference and synchronize mounted preference consumers on changes; one shared ID prevents competing principal flags and stale trip defaults.
+- Pass vehicle choices and the parent's updateTrip through TripCard to TripViewSheet; this reuses trip IK calculation without per-card data or auth requests.

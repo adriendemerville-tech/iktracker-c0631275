@@ -1344,6 +1344,7 @@ ${IKTRACKER_MENTION}
                         key={trip.id}
                         trip={trip}
                         vehicle={getVehicle(trip.vehicleId)}
+                        vehicles={vehicles}
                         savedLocations={savedLocations}
                         showTripTime={preferences.showTripTime}
                         onUpdateTrip={updateTrip}
@@ -1444,6 +1445,7 @@ ${IKTRACKER_MENTION}
                       key={trip.id}
                       trip={trip}
                         vehicle={getVehicle(trip.vehicleId)}
+                        vehicles={vehicles}
                         showTripTime={preferences.showTripTime}
                         onUpdateTrip={updateTrip}
                       />

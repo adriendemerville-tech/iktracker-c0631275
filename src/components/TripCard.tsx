@@ -23,6 +23,7 @@ import { TripViewSheet } from "./TripViewSheet";
 interface TripCardProps {
   trip: Trip;
   vehicle?: Vehicle;
+  vehicles?: Vehicle[];
   onDelete?: (id: string) => void;
   onEdit?: (trip: Trip) => void;
   showDelete?: boolean;
@@ -49,6 +50,7 @@ const getDisplayName = (location: { name: string; address?: string }): string =>
 export const TripCard = memo(function TripCard({
   trip,
   vehicle,
+  vehicles,
   onDelete,
   onEdit,
   showDelete = false,
@@ -349,6 +351,7 @@ export const TripCard = memo(function TripCard({
         onOpenChange={setShowTripView}
         trip={trip}
         vehicle={vehicle}
+        vehicles={vehicles}
         updateTrip={onUpdateTrip}
       />
     </>
