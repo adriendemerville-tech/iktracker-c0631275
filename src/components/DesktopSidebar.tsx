@@ -107,6 +107,7 @@ export const DesktopSidebar = ({
 }: DesktopSidebarProps) => {
   const navigate = useNavigate();
   const { handleLogout } = useAppAuth();
+  const { preferences } = usePreferences();
   const [expanded, setExpanded] = useState(false);
   const { unreadCount: forumUnread } = useForumNotifications();
   const [showVehicleSheet, setShowVehicleSheet] = useState(false);
@@ -383,7 +384,7 @@ export const DesktopSidebar = ({
               </div>
             ) : (
               <div className="space-y-3">
-                {vehicles.map((vehicle) => (
+                {sortVehiclesWithPrimaryFirst(vehicles, preferences.defaultVehicleId).map((vehicle) => (
                   <VehicleCard
                     key={vehicle.id}
                     vehicle={vehicle}
