@@ -262,11 +262,6 @@ export function TripSettingsModal(props: Props) {
                               setEditingVehicle(v);
                               setVehicleFormOpen(true);
                             }}
-                            onDelete={() => {
-                              if (window.confirm("Supprimer ce véhicule ?")) {
-                                onDeleteVehicle(v.id);
-                              }
-                            }}
                           />
                         ))}
                       </div>

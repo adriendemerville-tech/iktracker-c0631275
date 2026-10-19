@@ -1,6 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { VehicleCard } from "./VehicleCard";
 import { Vehicle } from "@/types/trip";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -86,9 +85,8 @@ describe("VehicleCard", () => {
     const onHide = vi.fn();
     const onDelete = vi.fn();
     renderCard({ onHide, onDelete });
-    const user = userEvent.setup();
-    await user.click(screen.getByLabelText("Options du véhicule"));
-    await user.click(screen.getByRole("menuitem", { name: "Masquer" }));
+    fireEvent.pointerDown(screen.getByLabelText("Options du véhicule"), { button: 0, ctrlKey: false });
+    fireEvent.click(await screen.findByRole("menuitem", { name: "Masquer" }));
     expect(onHide).toHaveBeenCalledTimes(1);
     expect(onDelete).not.toHaveBeenCalled();
   });
@@ -96,9 +94,8 @@ describe("VehicleCard", () => {
   it("keeps deletion available in vehicle management", async () => {
     const onDelete = vi.fn();
     renderCard({ onDelete });
-    const user = userEvent.setup();
-    await user.click(screen.getByLabelText("Options du véhicule"));
-    await user.click(screen.getByRole("menuitem", { name: "Supprimer" }));
+    fireEvent.pointerDown(screen.getByLabelText("Options du véhicule"), { button: 0, ctrlKey: false });
+    fireEvent.click(await screen.findByRole("menuitem", { name: "Supprimer" }));
     expect(onDelete).toHaveBeenCalledTimes(1);
   });
 });
