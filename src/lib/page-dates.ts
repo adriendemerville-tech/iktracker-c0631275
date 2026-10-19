@@ -77,7 +77,7 @@ export const STATIC_PAGE_LASTMOD: Record<string, string> = {
   "/blog/auteur/adrien-de-volontat": "2026-08-24",
   "/mentions-legales": "2026-08-23",
   "/contact": "2026-08-24",
-  "/privacy": "2026-08-23",
+  "/privacy": "2026-10-19",
   "/rgpd": "2026-08-23",
   "/terms": "2026-08-23",
 };

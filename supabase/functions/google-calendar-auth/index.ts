@@ -4,6 +4,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 };
 
 const GOOGLE_CLIENT_ID = Deno.env.get("GOOGLE_CLIENT_ID");
@@ -13,16 +14,24 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
 const ALLOWED_REDIRECT_ORIGINS = [
   "https://iktracker.fr",
+  "https://www.iktracker.fr",
   "https://iktracker.lovable.app",
-  "http://localhost:5173",
-  "http://localhost:8080",
 ];
 
 function validateRedirectUrl(url: string | undefined): string {
   const fallback = "https://iktracker.fr/profile";
   if (!url) return fallback;
-  const isAllowed = ALLOWED_REDIRECT_ORIGINS.some((origin) => url.startsWith(origin));
-  return isAllowed ? url : fallback;
+  try {
+    const parsed = new URL(url);
+    const isLocalDevelopment = Deno.env.get("ENVIRONMENT") === "development" &&
+      ["http://localhost:5173", "http://localhost:8080"].includes(parsed.origin);
+    return !parsed.username && !parsed.password &&
+      (ALLOWED_REDIRECT_ORIGINS.includes(parsed.origin) || isLocalDevelopment)
+      ? parsed.toString()
+      : fallback;
+  } catch {
+    return fallback;
+  }
 }
 
 function b64urlEncode(bytes: Uint8Array): string {
@@ -103,6 +112,12 @@ serve(async (req) => {
   }
 
   try {
+    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
+      return new Response(JSON.stringify({ error: "Configuration error" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     const url = new URL(req.url);
     const action = url.searchParams.get("action");
 
@@ -126,7 +141,7 @@ serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
+      const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
       const { data: userData, error: userErr } = await supabase.auth.getUser(bearer);
       if (userErr || !userData?.user) {
         return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -146,25 +161,27 @@ serve(async (req) => {
         }
       }
 
+      const redirectUri = Deno.env.get("GOOGLE_CALENDAR_REDIRECT_URI") ||
+        `${SUPABASE_URL}/functions/v1/google-calendar-auth?action=callback`;
       const signedState = await signState(
         {
           user_id: userData.user.id,
           redirect_url: clientPayload.redirect_url,
           use_redirect: clientPayload.use_redirect,
+          redirect_uri: redirectUri,
           nonce: crypto.randomUUID(),
           exp: Math.floor(Date.now() / 1000) + 600,
         },
-        SUPABASE_SERVICE_ROLE_KEY!,
+        SUPABASE_SERVICE_ROLE_KEY,
       );
 
-      const redirectUri = `${SUPABASE_URL}/functions/v1/google-calendar-auth?action=callback`;
       const authUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-      authUrl.searchParams.set("client_id", GOOGLE_CLIENT_ID!);
+      authUrl.searchParams.set("client_id", GOOGLE_CLIENT_ID);
       authUrl.searchParams.set("redirect_uri", redirectUri);
       authUrl.searchParams.set("response_type", "code");
       authUrl.searchParams.set(
         "scope",
-        "https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/calendar.events.readonly",
+        "https://www.googleapis.com/auth/calendar.events.readonly",
       );
       authUrl.searchParams.set("access_type", "offline");
       authUrl.searchParams.set("prompt", "consent");
@@ -176,24 +193,42 @@ serve(async (req) => {
     }
 
     // Handle OAuth callback — verify signed state
-    if (action === "callback") {
-      const code = url.searchParams.get("code");
-      const state = url.searchParams.get("state");
-      const error = url.searchParams.get("error");
+    if (action === "callback" || action === "exchange") {
+      let params: { code?: string | null; state?: string | null; error?: string | null };
+      if (action === "exchange") {
+        if (req.method !== "POST") {
+          return new Response("Method not allowed", { status: 405, headers: { ...corsHeaders, Allow: "POST" } });
+        }
+        try {
+          const body = await req.json();
+          if (!body || typeof body !== "object" ||
+            !["code", "state", "error"].every((key) =>
+              body[key] === undefined || body[key] === null ||
+              (typeof body[key] === "string" && body[key].length <= 8192))) {
+            return new Response("Invalid parameters", { status: 400, headers: corsHeaders });
+          }
+          params = body;
+        } catch {
+          return new Response("Invalid JSON", { status: 400, headers: corsHeaders });
+        }
+      } else {
+        params = Object.fromEntries(url.searchParams);
+      }
+      const { code, state, error } = params;
 
-      const stateData = state ? await verifyState(state, SUPABASE_SERVICE_ROLE_KEY!) : null;
+      const stateData = state ? await verifyState(state, SUPABASE_SERVICE_ROLE_KEY) : null;
       if (!stateData) {
         return new Response("Invalid or expired state", { status: 400 });
       }
 
-      const { user_id, redirect_url, use_redirect } = stateData as {
+      const { user_id, redirect_url, redirect_uri } = stateData as {
         user_id?: string;
         redirect_url?: string;
-        use_redirect?: boolean;
+        redirect_uri?: string;
       };
 
       const finalRedirectUrl = validateRedirectUrl(redirect_url);
-      const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
+      const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
       const returnResponse = (success: boolean, errorMessage?: string) => {
         const redirectTarget = new URL(finalRedirectUrl);
@@ -204,6 +239,11 @@ serve(async (req) => {
           const safeError = (errorMessage || "Unknown error").replace(/[<>"'&\\]/g, "");
           redirectTarget.searchParams.set("oauth_error", safeError);
           redirectTarget.searchParams.set("oauth_provider", "google");
+        }
+        if (action === "exchange") {
+          return new Response(JSON.stringify({ redirect_url: redirectTarget.toString() }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json", "Cache-Control": "no-store" },
+          });
         }
         return Response.redirect(redirectTarget.toString(), 302);
       };
@@ -233,14 +273,15 @@ serve(async (req) => {
 
       console.log("Callback received, processing...");
 
-      const redirectUri = `${SUPABASE_URL}/functions/v1/google-calendar-auth?action=callback`;
+      // Old signed states lack redirect_uri: always use the legacy callback, not the current setting.
+      const redirectUri = redirect_uri || `${SUPABASE_URL}/functions/v1/google-calendar-auth?action=callback`;
       const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({
           code,
-          client_id: GOOGLE_CLIENT_ID!,
-          client_secret: GOOGLE_CLIENT_SECRET!,
+          client_id: GOOGLE_CLIENT_ID,
+          client_secret: GOOGLE_CLIENT_SECRET,
           redirect_uri: redirectUri,
           grant_type: "authorization_code",
         }),

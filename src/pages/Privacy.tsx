@@ -164,6 +164,31 @@ const Privacy = () => {
             </p>
           </section>
 
+          <section aria-labelledby="section-google-calendar">
+            <h2 id="section-google-calendar" className="text-lg font-semibold text-foreground">
+              Données Google Agenda
+            </h2>
+            <p className="text-muted-foreground">
+              IKtracker lit uniquement les événements de votre agenda principal, en lecture seule
+              (titre, date, lieu), afin de proposer vos trajets et de calculer vos indemnités kilométriques.
+            </p>
+            <p className="text-muted-foreground mt-3">
+              Ces données ne sont ni vendues, ni utilisées pour la publicité, ni utilisées pour
+              l'entraînement de modèles d'IA. Les tokens d'accès et de rafraîchissement sont stockés
+              côté serveur et supprimés lorsque vous déconnectez Google Agenda depuis votre profil.
+              Vous pouvez révoquer l'accès depuis votre profil ou depuis{" "}
+              <a href="https://myaccount.google.com/permissions" className="text-primary hover:underline">
+                https://myaccount.google.com/permissions
+              </a>.
+            </p>
+            <p className="text-muted-foreground mt-3">
+              L'utilisation et le transfert vers toute autre application des informations reçues des API Google par IKtracker respecteront le Règlement relatif aux données utilisateur des services d'API Google ({""}
+              <a href="https://developers.google.com/terms/api-services-user-data-policy" className="text-primary hover:underline">
+                https://developers.google.com/terms/api-services-user-data-policy
+              </a>), y compris les exigences d'utilisation limitée.
+            </p>
+          </section>
+
           <section aria-labelledby="section-sharing">
             <h2 id="section-sharing" className="text-lg font-semibold text-foreground">
               5. Partage des données
@@ -219,13 +244,8 @@ const Privacy = () => {
               moment. Les modifications seront publiées sur cette page avec une date de mise à jour.
             </p>
             <p className="text-muted-foreground mt-4 text-sm">
-              <time dateTime="2024-12-24">
-                Dernière mise à jour :{" "}
-                {new Date().toLocaleDateString("fr-FR", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                })}
+              <time dateTime="2026-10-19">
+                Dernière mise à jour : 19 octobre 2026
               </time>
             </p>
           </section>

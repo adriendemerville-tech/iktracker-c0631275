@@ -1,6 +1,13 @@
 # IKTracker — Documentation Technique Backend
 
-> Version 4.6.17 — 14 octobre 2026
+> Version 4.6.18 — 19 octobre 2026
+
+**Notes v4.6.18 (validation Google Agenda, préparé sans déploiement)**
+- `google-calendar-auth` demande uniquement `https://www.googleapis.com/auth/calendar.events.readonly`. L'import et le debug utilisent uniquement `calendars/primary/events` ; aucun appel `calendarList`. Les tokens existants restent inchangés.
+- Nouveau retour serveur `https://iktracker.fr/oauth/google-calendar/callback` : relaie `code`, `state` ou `error` en POST vers `google-calendar-auth?action=exchange`, puis redirige avec les paramètres habituels. Réponses non mises en cache, aucune donnée ni token exposé au navigateur.
+- Variable optionnelle `GOOGLE_CALENDAR_REDIRECT_URI` : à basculer vers la nouvelle URL après déclaration dans Google Cloud. Non définie : ancienne URL `${SUPABASE_URL}/functions/v1/google-calendar-auth?action=callback`. Le `redirect_uri` est signé dans le state et réutilisé à l'échange ; les anciens states sans ce champ utilisent toujours l'ancienne URL. Le callback historique reste disponible.
+- Redirections finales : comparaison exacte d'origin (`https://iktracker.fr`, `https://www.iktracker.fr`, `https://iktracker.lovable.app`), localhost uniquement si `ENVIRONMENT=development`, refus des identifiants dans l'URL ; repli `https://iktracker.fr/profile`.
+- Aucun secret configuré, aucune migration, aucune écriture de données, aucune publication ni aucun déploiement exécutés. Connexion Google Lovable Cloud, Apple, Outlook et ICS inchangés.
 
 **Notes v4.6.17 (page simulateur, 14 octobre 2026)**
 - **`meta-renderer`** : nouvelle entrée `STATIC_PAGES["/simulateur-indemnites-kilometriques-2026"]` (titre, description, canonical, JSON-LD `WebApplication` gratuit, contenu brut avec tableau des 5 puissances fiscales × 5 kilométrages et majoration +20 % électrique) + lien ajouté à `NAV_LINKS`. Sans cette entrée, le Worker `iktracker-bot-router` aurait propagé un vrai 404 aux crawlers sur cette URL. Fonction redéployée (`source_sha256 5ed87fb6…`).
