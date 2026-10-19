@@ -92,7 +92,7 @@ export const AddressAutocompleteInput = forwardRef<HTMLInputElement, AddressAuto
                 key={`${s.fulltext}-${i}`}
                 type="button"
                 className={cn(
-                  "flex items-start gap-2 w-full px-3 py-2.5 text-left text-sm transition-colors",
+                  "flex items-center gap-2 w-full px-3 py-1.5 text-left text-sm leading-tight transition-colors",
                   "hover:bg-accent/50",
                   i === selectedIndex && "bg-accent/50",
                 )}
@@ -102,10 +102,10 @@ export const AddressAutocompleteInput = forwardRef<HTMLInputElement, AddressAuto
                 }}
                 onMouseEnter={() => setSelectedIndex(i)}
               >
-                <MapPin className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" />
+                <MapPin className="h-4 w-4 shrink-0 text-muted-foreground" />
                 <div className="min-w-0">
-                  <p className="font-medium text-foreground truncate">{s.fulltext}</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="font-medium text-foreground truncate leading-tight">{s.fulltext}</p>
+                  <p className="text-xs text-muted-foreground leading-tight">
                     {s.city} ({s.zipcode})
                   </p>
                 </div>
