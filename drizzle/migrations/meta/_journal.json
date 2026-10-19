@@ -36,6 +36,13 @@
       "when": 1792402840437,
       "tag": "0004_restore_vehicle_read_only_archive",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792402920544,
+      "tag": "0005_cleanup_vehicle_archives_on_account_deletion",
+      "breakpoints": true
     }
   ]
 }
