@@ -20,7 +20,7 @@ function harness(extra: Record<string, string> = {}) {
     auth: { getUser: vi.fn(async () => ({ data: { user: { id: "test-user" } }, error: null })) },
     from: vi.fn(() => ({ select: vi.fn(() => chain), insert, update })),
   };
-  const fetcher = vi.fn(async () => Response.json({ access_token: "mock-access", refresh_token: "mock-refresh", expires_in: 3600 }));
+  const fetcher = vi.fn(async (_url: string | URL | Request, _init?: RequestInit) => Response.json({ access_token: "mock-access", refresh_token: "mock-refresh", expires_in: 3600 }));
   const source = readFileSync(new URL("../../supabase/functions/google-calendar-auth/index.ts", import.meta.url), "utf8")
     .replace(/^import .*;\n/gm, "");
   const javascript = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.None } }).outputText;
