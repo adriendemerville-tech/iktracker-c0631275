@@ -3,6 +3,8 @@ import listVehiclesTool from "./tools/list-vehicles";
 import listTripsTool from "./tools/list-trips";
 import getYtdSummaryTool from "./tools/get-ytd-summary";
 import createTripTool from "./tools/create-trip";
+import updateTripTool from "./tools/update-trip";
+import deleteTripTool from "./tools/delete-trip";
 import { listBlogPostsTool, getBlogPostTool, createBlogPostTool, updateBlogPostTool } from "./tools/blog";
 
 // The OAuth issuer MUST be the direct Supabase host (not the .lovable.cloud proxy).
