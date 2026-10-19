@@ -547,6 +547,6 @@ var index_default = defineMcp({
   }),
   tools: [list_vehicles_default, list_trips_default, get_ytd_summary_default, create_trip_default, update_trip_default, delete_trip_default, listBlogPostsTool, getBlogPostTool, createBlogPostTool, updateBlogPostTool]
 });
-export {
-  index_default as default
-};
+// lovable-mcp-supabase-entry.ts
+import { createSupabaseHandler } from "npm:@lovable.dev/mcp-js@0.24.0/stacks/supabase";
+Deno.serve(createSupabaseHandler(index_default, { functionName: "mcp" }));
