@@ -107,7 +107,7 @@ function mapTripRow(t: TripRow): Trip {
 
 export function useTrips() {
   const { user, loading: authLoading } = useAuth();
-  const { preferences } = usePreferences();
+  const { preferences, updatePreference } = usePreferences();
   const { emailVerified, blockFeature } = useEmailGate();
   const queryClient = useQueryClient();
   const [trips, setTrips] = useState<Trip[]>([]);
@@ -886,13 +886,7 @@ export function useTrips() {
         }
 
         if (options?.setAsDefault) {
-          const { error } = await supabase
-            .from("user_preferences")
-            .upsert(
-              { user_id: user.id, default_vehicle_id: data.id },
-              { onConflict: "user_id" },
-            );
-          if (error) console.warn("Failed to save default_vehicle_id:", error);
+          updatePreference("defaultVehicleId", data.id);
         }
 
         return newVehicle;
@@ -904,6 +898,7 @@ export function useTrips() {
         id: crypto.randomUUID(),
       };
       saveVehiclesLocal([...vehicles, newVehicle]);
+      if (options?.setAsDefault) updatePreference("defaultVehicleId", newVehicle.id);
       return newVehicle;
     }
   };
@@ -911,10 +906,19 @@ export function useTrips() {
   const updateVehicle = async (
     id: string,
     updates: Partial<Vehicle>,
-    options?: { updatePastTrips?: boolean },
+    options?: { updatePastTrips?: boolean; setAsDefault?: boolean },
   ) => {
     const existingVehicle = vehicles.find((v) => v.id === id);
     if (!existingVehicle) return;
+
+    // A single preference keeps the principal exclusive; never reassign past trips.
+    const savePrincipal = () => {
+      if (vehicles.length === 1 || options?.setAsDefault === true) {
+        updatePreference("defaultVehicleId", id);
+      } else if (options?.setAsDefault === false && preferences.defaultVehicleId === id) {
+        updatePreference("defaultVehicleId", null);
+      }
+    };
 
     // Check if fiscal power or electric status changed - may need to recalculate IK
     const fiscalPowerChanged =
@@ -1001,8 +1005,10 @@ export function useTrips() {
       }
 
       setVehiclesCache((prev) => prev.map((v) => (v.id === id ? { ...v, ...updates } : v)));
+      savePrincipal();
     } else {
       // For local storage users
+      savePrincipal();
       if (needsIKRecalculation) {
         const vehicleTrips = trips.filter((t) => t.vehicleId === id);
         const sortedTrips = [...vehicleTrips].sort(

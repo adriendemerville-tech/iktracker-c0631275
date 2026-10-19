@@ -93,6 +93,16 @@ export function usePreferences() {
   });
   const [isLoading, setIsLoading] = useState(false);
 
+  // Multiple mounted forms and trip sheets must observe the same default immediately.
+  useEffect(() => {
+    const sync = (event: Event) => {
+      const { key, value } = (event as CustomEvent<{ key: keyof Preferences; value: Preferences[keyof Preferences] }>).detail;
+      setPreferences((prev) => ({ ...prev, [key]: value }));
+    };
+    window.addEventListener("iktracker-preference-changed", sync);
+    return () => window.removeEventListener("iktracker-preference-changed", sync);
+  }, []);
+
   // Load preferences from database when user is authenticated
   useEffect(() => {
     if (!user) return;
@@ -295,6 +305,7 @@ export function usePreferences() {
 
   const updatePreference = <K extends keyof Preferences>(key: K, value: Preferences[K]) => {
     setPreferences((prev) => ({ ...prev, [key]: value }));
+    window.dispatchEvent(new CustomEvent("iktracker-preference-changed", { detail: { key, value } }));
 
     // Sync accountant email to database if user is authenticated
     if (key === "accountantEmail" && user) {

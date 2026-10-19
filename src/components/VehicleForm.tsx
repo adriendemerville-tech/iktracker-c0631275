@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { scanRegistration, type RegistrationScanResult } from "@/lib/registration-scan.functions";
+import { usePreferences } from "@/hooks/usePreferences";
 
 async function compressImage(file: File): Promise<{ base64: string; mime: "image/jpeg" }> {
   const bmp = await createImageBitmap(file);
@@ -69,6 +70,8 @@ const COMMON_MAKES = [
 ];
 
 export function VehicleForm({ open, onOpenChange, onSave, editVehicle, vehicleCount = 0 }: VehicleFormProps) {
+  const { preferences } = usePreferences();
+  const principalLocked = editVehicle ? vehicleCount === 1 : vehicleCount === 0;
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [licensePlate, setLicensePlate] = useState("");
@@ -103,12 +106,12 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle, vehicleCo
       setLookupDone(!!editVehicle);
       setUpdatePastTrips(false);
       setUsePeriod(false);
-      setSetAsDefault(false);
+      setSetAsDefault(principalLocked || (!!editVehicle && preferences.defaultVehicleId === editVehicle.id));
       setPeriodStart("");
       setPeriodEnd("");
       setScan(null);
     }
-  }, [open, editVehicle]);
+  }, [open, editVehicle, principalLocked, preferences.defaultVehicleId]);
 
   const formatLicensePlate = (value: string) => {
     const cleaned = value.toUpperCase().replace(/[^A-Z0-9]/g, "");
@@ -272,7 +275,7 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle, vehicleCo
       },
       {
         updatePastTrips: impactsPastTrips ? updatePastTrips : false,
-        setAsDefault: !editVehicle && vehicleCount > 0 && setAsDefault,
+        setAsDefault: principalLocked || setAsDefault,
         period:
           usePeriod && !editVehicle && periodStart
             ? { start: periodStart, end: periodEnd || undefined }
@@ -508,16 +511,17 @@ export function VehicleForm({ open, onOpenChange, onSave, editVehicle, vehicleCo
                 <Switch id="electric" checked={isElectric} onCheckedChange={setIsElectric} />
               </div>
 
-              {!editVehicle && vehicleCount > 0 && (
-                <label htmlFor="defaultVehicle" className="flex items-center gap-2.5 cursor-pointer">
-                  <Checkbox
+              <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 p-3">
+                  <Label htmlFor="defaultVehicle" className="text-sm font-semibold cursor-pointer">
+                    Véhicule principal
+                  </Label>
+                  <Switch
                     id="defaultVehicle"
-                    checked={setAsDefault}
-                    onCheckedChange={(value) => setSetAsDefault(value === true)}
+                    checked={principalLocked || setAsDefault}
+                    disabled={principalLocked}
+                    onCheckedChange={setSetAsDefault}
                   />
-                  <span className="text-sm font-semibold">Véhicule principal</span>
-                </label>
-              )}
+              </div>
 
               {/* Retroactive period (new vehicle only) */}
               {!editVehicle && (

@@ -371,7 +371,7 @@ const Index = () => {
       // Only recover if we have at least one stop
       if (interrupted.stops && interrupted.stops.length >= 1) {
         const firstStop = interrupted.stops[0];
-        const vehicleId = vehicles[0].id;
+        const vehicleId = vehicles.find((v) => v.id === preferences.defaultVehicleId)?.id ?? vehicles[0].id;
         const isTour = interrupted.stops.length >= 2;
 
         // Convert TourStop[] to TourStopData[] for storage
@@ -554,7 +554,7 @@ const Index = () => {
     }
 
     const firstStop = stops[0];
-    const vehicleId = vehicles[0].id;
+    const vehicleId = vehicles.find((v) => v.id === preferences.defaultVehicleId)?.id ?? vehicles[0].id;
     const isTour = stops.length >= 2;
 
     // Reverse-geocode first stop if it has no city
