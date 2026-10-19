@@ -16,7 +16,7 @@ export default defineMcp({
   title: "IKtracker MCP",
   version: "0.1.0",
   instructions:
-    "Outils IKtracker pour consulter les trajets, véhicules et cumuls annuels d'indemnités kilométriques de l'utilisateur connecté, et créer de nouveaux trajets. Les admins peuvent aussi lire, créer, modifier et publier les articles du blog. Toutes les données sont scopées à l'utilisateur authentifié.",
+    "Outils IKtracker pour consulter les trajets, véhicules et cumuls annuels d'indemnités kilométriques de l'utilisateur connecté, et créer, modifier ou supprimer des trajets (recalcul IK automatique au barème officiel). Les admins peuvent aussi lire, créer, modifier et publier les articles du blog. Toutes les données sont scopées à l'utilisateur authentifié.",
   auth: auth.oauth.issuer({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated",
