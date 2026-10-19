@@ -87,6 +87,7 @@ import { Route as BlogEditIndexRouteImport } from './routes/blog/edit/index'
 import { Route as BlogEditIdRouteImport } from './routes/blog/edit/$id'
 import { Route as ForumCategorieCategoryRouteImport } from './routes/forum/categorie/$category'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
+import { Route as OauthGoogleCalendarCallbackRouteImport } from './routes/oauth/google-calendar/callback'
 import { Route as AdminBlogEditIndexRouteImport } from './routes/admin/blog/edit/index'
 import { Route as AdminBlogEditIdRouteImport } from './routes/admin/blog/edit/$id'
 import { Route as ApiPublicAuthConfirmResetRouteImport } from './routes/api/public/auth/confirm-reset'
@@ -496,6 +497,12 @@ const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
   path: '/lovable/email/suppression',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OauthGoogleCalendarCallbackRoute =
+  OauthGoogleCalendarCallbackRouteImport.update({
+    id: '/oauth/google-calendar/callback',
+    path: '/oauth/google-calendar/callback',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AdminBlogEditIndexRoute = AdminBlogEditIndexRouteImport.update({
   id: '/admin/blog/edit/',
   path: '/admin/blog/edit/',
@@ -632,6 +639,7 @@ export interface FileRoutesByFullPath {
   '/blog/edit/$id': typeof BlogEditIdRoute
   '/forum/categorie/$category': typeof ForumCategorieCategoryRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/oauth/google-calendar/callback': typeof OauthGoogleCalendarCallbackRoute
   '/admin/blog/': typeof AdminBlogIndexRoute
   '/app/admin/': typeof AppAdminIndexRoute
   '/blog/edit/': typeof BlogEditIndexRoute
@@ -723,6 +731,7 @@ export interface FileRoutesByTo {
   '/blog/edit/$id': typeof BlogEditIdRoute
   '/forum/categorie/$category': typeof ForumCategorieCategoryRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/oauth/google-calendar/callback': typeof OauthGoogleCalendarCallbackRoute
   '/admin/blog': typeof AdminBlogIndexRoute
   '/app/admin': typeof AppAdminIndexRoute
   '/blog/edit': typeof BlogEditIndexRoute
@@ -815,6 +824,7 @@ export interface FileRoutesById {
   '/blog/edit/$id': typeof BlogEditIdRoute
   '/forum/categorie/$category': typeof ForumCategorieCategoryRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/oauth/google-calendar/callback': typeof OauthGoogleCalendarCallbackRoute
   '/admin/blog/': typeof AdminBlogIndexRoute
   '/app/admin/': typeof AppAdminIndexRoute
   '/blog/edit/': typeof BlogEditIndexRoute
@@ -908,6 +918,7 @@ export interface FileRouteTypes {
     | '/blog/edit/$id'
     | '/forum/categorie/$category'
     | '/lovable/email/suppression'
+    | '/oauth/google-calendar/callback'
     | '/admin/blog/'
     | '/app/admin/'
     | '/blog/edit/'
@@ -999,6 +1010,7 @@ export interface FileRouteTypes {
     | '/blog/edit/$id'
     | '/forum/categorie/$category'
     | '/lovable/email/suppression'
+    | '/oauth/google-calendar/callback'
     | '/admin/blog'
     | '/app/admin'
     | '/blog/edit'
@@ -1090,6 +1102,7 @@ export interface FileRouteTypes {
     | '/blog/edit/$id'
     | '/forum/categorie/$category'
     | '/lovable/email/suppression'
+    | '/oauth/google-calendar/callback'
     | '/admin/blog/'
     | '/app/admin/'
     | '/blog/edit/'
@@ -1182,6 +1195,7 @@ export interface RootRouteChildren {
   BlogEditIdRoute: typeof BlogEditIdRoute
   ForumCategorieCategoryRoute: typeof ForumCategorieCategoryRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
+  OauthGoogleCalendarCallbackRoute: typeof OauthGoogleCalendarCallbackRoute
   AdminBlogIndexRoute: typeof AdminBlogIndexRoute
   AppAdminIndexRoute: typeof AppAdminIndexRoute
   BlogEditIndexRoute: typeof BlogEditIndexRoute
@@ -1746,6 +1760,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailSuppressionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/oauth/google-calendar/callback': {
+      id: '/oauth/google-calendar/callback'
+      path: '/oauth/google-calendar/callback'
+      fullPath: '/oauth/google-calendar/callback'
+      preLoaderRoute: typeof OauthGoogleCalendarCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/blog/edit/': {
       id: '/admin/blog/edit/'
       path: '/admin/blog/edit'
@@ -1905,6 +1926,7 @@ const rootRouteChildren: RootRouteChildren = {
   BlogEditIdRoute: BlogEditIdRoute,
   ForumCategorieCategoryRoute: ForumCategorieCategoryRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
+  OauthGoogleCalendarCallbackRoute: OauthGoogleCalendarCallbackRoute,
   AdminBlogIndexRoute: AdminBlogIndexRoute,
   AppAdminIndexRoute: AppAdminIndexRoute,
   BlogEditIndexRoute: BlogEditIndexRoute,
