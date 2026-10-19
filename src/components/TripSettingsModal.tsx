@@ -34,6 +34,7 @@ import {
 import { Vehicle, Location as TripLocation } from "@/types/trip";
 import { usePreferences, IKRateOverride, CalendarImportMode } from "@/hooks/usePreferences";
 import { VehicleCard } from "@/components/VehicleCard";
+import { DeletedVehicles } from "@/components/DeletedVehicles";
 import { AddressCard } from "@/components/AddressCard";
 import { toast } from "@/components/ui/sonner";
 
@@ -264,15 +265,14 @@ export function TripSettingsModal(props: Props) {
                             onDelete={() => {
                               if (window.confirm("Supprimer ce véhicule ?")) {
                                 onDeleteVehicle(v.id);
-                                if (preferences.defaultVehicleId === v.id) {
-                                  updatePreference("defaultVehicleId", null);
-                                }
                               }
                             }}
                           />
                         ))}
                       </div>
                     )}
+
+                    <DeletedVehicles />
 
                     {vehicles.length > 0 && (
                       <div className="pt-4 border-t border-border space-y-2">

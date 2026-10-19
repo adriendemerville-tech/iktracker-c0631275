@@ -606,6 +606,27 @@ export type Database = {
         }
         Relationships: []
       }
+      deleted_vehicles: {
+        Row: {
+          deleted_at: string
+          user_id: string
+          vehicle_data: Json
+          vehicle_id: string
+        }
+        Insert: {
+          deleted_at?: string
+          user_id: string
+          vehicle_data: Json
+          vehicle_id: string
+        }
+        Update: {
+          deleted_at?: string
+          user_id?: string
+          vehicle_data?: Json
+          vehicle_id?: string
+        }
+        Relationships: []
+      }
       distance_cache: {
         Row: {
           created_at: string
@@ -3551,6 +3572,30 @@ export type Database = {
           msg_id: number
           read_ct: number
         }[]
+      }
+      restore_deleted_vehicle: {
+        Args: { p_vehicle_id: string }
+        Returns: {
+          created_at: string
+          fiscal_power: number
+          id: string
+          is_electric: boolean
+          license_plate: string | null
+          make: string | null
+          model: string | null
+          name: string
+          owner_first_name: string | null
+          owner_last_name: string | null
+          updated_at: string
+          user_id: string
+          year: number | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "vehicles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       search_users:
         | {

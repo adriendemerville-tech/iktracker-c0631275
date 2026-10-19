@@ -72,6 +72,7 @@ import { CalendarConnections } from "@/components/CalendarConnections";
 import { GoogleCalendarStatus } from "@/components/GoogleCalendarStatus";
 import { FeedbackForm } from "@/components/FeedbackForm";
 import { VehicleCard } from "@/components/VehicleCard";
+import { DeletedVehicles } from "@/components/DeletedVehicles";
 import { VehicleForm, type VehicleSaveOptions } from "@/components/VehicleForm";
 import { AddressCard } from "@/components/AddressCard";
 import { AddressForm } from "@/components/AddressForm";
@@ -925,6 +926,7 @@ const Profile = () => {
                   ))}
                 </div>
               )}
+              <DeletedVehicles />
             </CardContent>
           </Card>
           <VehicleForm

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { CalendarConnections } from "@/components/CalendarConnections";
 import { FeedbackForm } from "@/components/FeedbackForm";
 import { VehicleCard } from "@/components/VehicleCard";
+import { DeletedVehicles } from "@/components/DeletedVehicles";
 import { VehicleForm } from "@/components/VehicleForm";
 import { PreferencesContent } from "@/components/PreferencesContent";
 import {
@@ -402,6 +403,7 @@ export const DesktopSidebar = ({
               <Plus className="w-4 h-4 mr-2" />
               Ajouter un véhicule
             </Button>
+            <DeletedVehicles />
           </div>
         </SheetContent>
       </Sheet>
