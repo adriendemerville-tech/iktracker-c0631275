@@ -1,4 +1,4 @@
-- [ ] Ajouter les véhicules supprimés et leur restauration dans les écrans Véhicules, protéger l'accès propriétaire et vérifier sans modifier de données réelles.
+- [x] Ajouter les véhicules supprimés et leur restauration dans les écrans Véhicules : accès propriétaire, archive atomique et nettoyage à la suppression du compte ; liste connectée vérifiée et restauration simulée, sans changement réel de véhicule.
 - [x] Corriger Google Agenda (scope, callback compatible, redirections strictes) et confidentialité ; 71 tests réussis avec services simulés, sans données ni déploiement/publication.
 - [x] Mettre immatriculation et puissance fiscale côte à côte dans la modale véhicule.
 - [x] Ajouter le motif prérempli et modifiable dans Compléter le trajet ; sauvegarde vérifiée avec données simulées, test réussi et compilation OK.

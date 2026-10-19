@@ -1648,8 +1648,8 @@ ${IKTRACKER_MENTION}
             <AlertDialogHeader>
               <AlertDialogTitle>Supprimer ce véhicule ?</AlertDialogTitle>
               <AlertDialogDescription>
-                Cette action est irréversible. Les trajets associés seront conservés avec leurs
-                indemnités déjà calculées.
+                Vous pourrez restaurer le véhicule depuis « Véhicules supprimés ». Les trajets
+                associés seront conservés sans véhicule, avec leurs indemnités déjà calculées.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
