@@ -2,6 +2,10 @@
 
 > Version 3.7 — 9 septembre 2026 (Maillage interne à deux clusters SEO, pondérations sitemap)
 
+**Correctif préparé le 19 octobre 2026 (non publié)**
+- Retour Google Agenda `/oauth/google-calendar/callback` traité côté serveur, sans page intermédiaire ni tokens côté navigateur, noindex et no-store.
+- `/privacy` : section « Données Google Agenda », lecture seule des événements principaux (titre/date/lieu), finalité IK, absence de vente/publicité/entraînement IA, tokens serveur supprimés à la déconnexion de l'agenda, liens de révocation et politique Google Limited Use. Date réelle : 19 octobre 2026.
+
 **Notes v3.7 (9 septembre 2026)**
 - **Maillage interne à deux clusters** : `src/lib/internal-linking.ts` définit deux dossiers thématiques étanches — pilier `/frais-reels` (note de frais, grand déplacement, expert-comptable, lexique) et pilier `/indemnites-kilometriques` (barèmes 2026/2027, vélo, comparatifs, meilleurs outils). Chaque satellite pointe vers son pilier et ses pages sœurs ; seuls les deux piliers se citent mutuellement. Rendu par `src/components/marketing/ClusterLinks.tsx` (au-dessus du footer sur les 14 pages concernées), qui réutilise `RelatedLinks`.
 - **Sitemap** : hiérarchie alignée sur les clusters — `1.0` home + les deux piliers, `0.9` têtes de cluster (`/bareme-ik-2026`, `/note-de-frais-kilometrique`, `/simulateur-indemnites-kilometriques-2026`), `0.8` satellites & pages produit, `0.7` support, `0.6` comparatifs/conversion. Synchronisé dans `src/lib/sitemap.server.ts` et `scripts/generate-sitemap.cjs` (34 pages + 86 articles régénérés).
