@@ -102,7 +102,6 @@ export function TripSettingsModal(props: Props) {
     getTotalAnnualKm,
     onAddVehicle,
     onUpdateVehicle,
-    onDeleteVehicle,
     onAddLocation,
     onUpdateLocation,
     onDeleteLocation,
