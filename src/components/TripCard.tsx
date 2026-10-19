@@ -49,7 +49,7 @@ const getDisplayName = (location: { name: string; address?: string }): string =>
 
 export const TripCard = memo(function TripCard({
   trip,
-  vehicle,
+  vehicle: activeVehicle,
   vehicles,
   onDelete,
   onEdit,
@@ -62,6 +62,7 @@ export const TripCard = memo(function TripCard({
   onToggleSelect,
   onUpdateTrip,
 }: TripCardProps) {
+  const vehicle = trip.vehicleSnapshot ?? activeVehicle;
   const [showTourDetail, setShowTourDetail] = useState(false);
   const [showCompleteAddress, setShowCompleteAddress] = useState(false);
   const [showTripView, setShowTripView] = useState(false);

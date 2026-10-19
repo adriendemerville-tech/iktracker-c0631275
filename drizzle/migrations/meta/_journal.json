@@ -43,6 +43,13 @@
       "when": 1792402920544,
       "tag": "0005_cleanup_vehicle_archives_on_account_deletion",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792403297595,
+      "tag": "0006_preserve_trip_vehicle_snapshot",
+      "breakpoints": true
     }
   ]
 }

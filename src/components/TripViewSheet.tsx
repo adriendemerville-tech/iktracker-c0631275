@@ -95,7 +95,9 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle, vehicles = []
   } | null>(null);
 
   const displayTrip = trip;
-  const displayVehicle = vehicles.find(v => v.id === (localVehicleId ?? displayTrip?.vehicleId)) ?? vehicle;
+  const displayVehicle = localVehicleId
+    ? vehicles.find(v => v.id === localVehicleId)
+    : displayTrip?.vehicleSnapshot ?? vehicles.find(v => v.id === displayTrip?.vehicleId) ?? vehicle;
   const displayDistance = localDistance ?? displayTrip?.distance ?? 0;
   const displayIk = localIk ?? displayTrip?.ikAmount ?? 0;
   const startLoc = startOverride ?? displayTrip?.startLocation;

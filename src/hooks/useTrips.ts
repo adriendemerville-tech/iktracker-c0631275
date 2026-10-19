@@ -8,9 +8,11 @@ import { useEmailGate, UNVERIFIED_TRIP_LIMIT, UNVERIFIED_TOUR_LIMIT } from "./us
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { archiveLocalVehicle, VEHICLE_ARCHIVE_EVENT } from "@/lib/deleted-vehicles";
+import { getTripVehicle, preserveTripVehicle } from "@/lib/trip-vehicle";
 import {
   EMPTY_LOCATIONS,
   EMPTY_VEHICLES,
+  mapVehicleRow,
   referenceKeys,
   useLocationsQuery,
   useVehiclesQuery,
@@ -89,6 +91,7 @@ function mapTripRow(t: TripRow): Trip {
   return {
     id: t.id,
     vehicleId: t.vehicle_id,
+    vehicleSnapshot: t.vehicle_snapshot ? mapVehicleRow(t.vehicle_snapshot as Tables<"vehicles">) : undefined,
     startLocation: dbLocation(t.start_location, t.start_address, t.start_lat, t.start_lng),
     endLocation: dbLocation(t.end_location, t.end_address, t.end_lat, t.end_lng),
     distance: t.distance,
@@ -569,7 +572,9 @@ export function useTrips() {
     // Determine the vehicle to use for calculations
     const newVehicleId =
       updates.vehicleId !== undefined ? updates.vehicleId : existingTrip.vehicleId;
-    const vehicle = newVehicleId ? vehicles.find((v) => v.id === newVehicleId) : null;
+    const vehicle = updates.vehicleId !== undefined
+      ? vehicles.find((v) => v.id === newVehicleId)
+      : getTripVehicle(existingTrip, vehicles);
 
     // Recalculate IK if distance or vehicle changed
     let ikAmount = existingTrip.ikAmount;
@@ -602,6 +607,7 @@ export function useTrips() {
         .from("trips")
         .update({
           vehicle_id: updates.vehicleId !== undefined ? updates.vehicleId : undefined,
+          ...(updates.vehicleId !== undefined && updates.vehicleId !== existingTrip.vehicleId ? { vehicle_snapshot: null } : {}),
           date: updates.startTime
             ? new Date(updates.startTime).toISOString().split("T")[0]
             : undefined,
@@ -622,6 +628,7 @@ export function useTrips() {
         const updatedTrip: Trip = {
           ...existingTrip,
           ...updates,
+          vehicleSnapshot: vehicleChanged ? undefined : existingTrip.vehicleSnapshot,
           ikAmount,
         };
         setTrips((prev) => prev.map((t) => (t.id === id ? updatedTrip : t)));
@@ -632,6 +639,7 @@ export function useTrips() {
       const updatedTrip: Trip = {
         ...existingTrip,
         ...updates,
+        vehicleSnapshot: vehicleChanged ? undefined : existingTrip.vehicleSnapshot,
         ikAmount,
       };
       saveTripsLocal(trips.map((t) => (t.id === id ? updatedTrip : t)));
@@ -1064,15 +1072,16 @@ export function useTrips() {
   };
 
   const deleteVehicle = async (id: string): Promise<{ success: boolean; error?: string }> => {
+    const vehicle = vehicles.find((v) => v.id === id);
+    if (!vehicle) return { success: false, error: "Véhicule introuvable." };
     if (user) {
-      // A DB trigger archives the full vehicle before deletion; trips detach as before.
-      // Trips keep their existing IK amounts
-      const { error } = await supabase.from("vehicles").delete().eq("id", id);
+      // The DB trigger preserves identity/rate inputs before the FK detaches trips.
+      const { error } = await supabase.from("vehicles").delete().eq("id", id).eq("user_id", user.id);
       if (error) {
         return { success: false, error: "Impossible de supprimer ce véhicule." };
       }
-      // Update local state: set vehicleId to null for affected trips
-      setTrips((prev) => prev.map((t) => (t.vehicleId === id ? { ...t, vehicleId: null } : t)));
+      setTrips((prev) => prev.map((t) => preserveTripVehicle(t, vehicle)));
+      setArchivedTrips((prev) => prev.map((t) => preserveTripVehicle(t, vehicle)));
       setVehiclesCache((prev) => prev.filter((v) => v.id !== id));
       queryClient.invalidateQueries({ queryKey: ["deleted-vehicles", user.id] });
       if (preferences.defaultVehicleId === id || vehicles.length === 2) {
@@ -1080,15 +1089,12 @@ export function useTrips() {
       }
       return { success: true };
     } else {
-      const vehicle = vehicles.find((v) => v.id === id);
-      if (!vehicle) return { success: false, error: "Véhicule introuvable." };
       try {
         archiveLocalVehicle(vehicle);
       } catch {
         return { success: false, error: "Impossible de conserver ce véhicule pour restauration." };
       }
-      // For local storage, set vehicleId to null for affected trips
-      const updatedTrips = trips.map((t) => (t.vehicleId === id ? { ...t, vehicleId: null } : t));
+      const updatedTrips = trips.map((t) => preserveTripVehicle(t, vehicle));
       saveTripsLocal(updatedTrips);
       saveVehiclesLocal(vehicles.filter((v) => v.id !== id));
       window.dispatchEvent(new Event(VEHICLE_ARCHIVE_EVENT));
