@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { Vehicle, getIKBareme } from "@/types/trip";
-import { Car, Edit2, X, MoreVertical, Zap } from "lucide-react";
+import { Car, Edit2, X, MoreVertical, Zap, EyeOff } from "lucide-react";
 import { Button } from "./ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import {
@@ -17,6 +17,7 @@ interface VehicleCardProps {
   onSelect?: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
+  onHide?: () => void;
   totalKm?: number;
 }
 
@@ -26,6 +27,7 @@ export const VehicleCard = memo(function VehicleCard({
   onSelect,
   onEdit,
   onDelete,
+  onHide,
   totalKm,
 }: VehicleCardProps) {
   const bareme = getIKBareme(vehicle.fiscalPower);
@@ -107,7 +109,7 @@ export const VehicleCard = memo(function VehicleCard({
           {getCurrentRate().toFixed(3)} €/km
         </span>
 
-        {(onEdit || onDelete) && (
+        {(onEdit || onDelete || onHide) && (
           <div className="ml-auto shrink-0">
             <DropdownMenu>
               <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
@@ -132,7 +134,18 @@ export const VehicleCard = memo(function VehicleCard({
                     Modifier
                   </DropdownMenuItem>
                 )}
-                {onDelete && (
+                {onHide && (
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onHide();
+                    }}
+                  >
+                    <EyeOff className="w-4 h-4 mr-2" />
+                    Masquer
+                  </DropdownMenuItem>
+                )}
+                {onDelete && !onHide && (
                   <DropdownMenuItem
                     onClick={(e) => {
                       e.stopPropagation();

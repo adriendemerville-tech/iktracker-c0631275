@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { VehicleCard } from "./VehicleCard";
 import { Vehicle } from "@/types/trip";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -79,5 +80,25 @@ describe("VehicleCard", () => {
   it("shows edit/delete menu when handlers provided", () => {
     renderCard({ onEdit: vi.fn(), onDelete: vi.fn() });
     expect(screen.getByLabelText("Options du véhicule")).toBeInTheDocument();
+  });
+
+  it("hides from the app menu without invoking deletion", async () => {
+    const onHide = vi.fn();
+    const onDelete = vi.fn();
+    renderCard({ onHide, onDelete });
+    const user = userEvent.setup();
+    await user.click(screen.getByLabelText("Options du véhicule"));
+    await user.click(screen.getByRole("menuitem", { name: "Masquer" }));
+    expect(onHide).toHaveBeenCalledTimes(1);
+    expect(onDelete).not.toHaveBeenCalled();
+  });
+
+  it("keeps deletion available in vehicle management", async () => {
+    const onDelete = vi.fn();
+    renderCard({ onDelete });
+    const user = userEvent.setup();
+    await user.click(screen.getByLabelText("Options du véhicule"));
+    await user.click(screen.getByRole("menuitem", { name: "Supprimer" }));
+    expect(onDelete).toHaveBeenCalledTimes(1);
   });
 });
