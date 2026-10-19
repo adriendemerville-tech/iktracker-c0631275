@@ -655,6 +655,7 @@ src/
 
 - `VehicleForm.tsx` : toggle « Véhicule principal » disponible à l'ajout et à la modification, initialisé depuis `defaultVehicleId`, activé/verrouillé pour le véhicule unique. `useTrips.ts` sauvegarde ce choix dans la préférence existante, sans réattribuer les trajets passés ; `usePreferences.ts` synchronise les consommateurs montés pour actualiser immédiatement les nouveaux formulaires de trajet. Tests : `VehicleForm.test.tsx`.
 - `src/components/VehicleForm.tsx` : case « Mettre à jour les trajets passés » lors de la modification des CV fiscaux ou du statut électrique. Décochée par défaut ; le recalcul en lot passe par `useTrips.ts`.
+- `src/lib/primary-vehicle.ts` : `sortVehiclesWithPrimaryFirst(vehicles, defaultVehicleId)` place le véhicule principal en tête des listes, les autres gardant leur ordre. Utilisé par la grille de `/app` (`Index.tsx`, après filtrage des véhicules masqués), la feuille « Mes véhicules » (`DesktopSidebar.tsx`) et l'onglet Véhicules des réglages (`TripSettingsModal.tsx`). Sans véhicule principal connu, la liste est inchangée. Tests : `src/lib/primary-vehicle.test.ts`.
 
 ## Acquisition & désambiguïsation (SEO/GEO)
 

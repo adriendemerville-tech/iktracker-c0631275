@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { sortVehiclesWithPrimaryFirst } from "@/lib/primary-vehicle";
 import {
   Car,
   MapPin,
@@ -252,7 +253,7 @@ export function TripSettingsModal(props: Props) {
                       <EmptyState icon={Car} label="Aucun véhicule enregistré" />
                     ) : (
                       <div className="space-y-3">
-                        {vehicles.map((v) => (
+                        {sortVehiclesWithPrimaryFirst(vehicles, preferences.defaultVehicleId).map((v) => (
                           <VehicleCard
                             key={v.id}
                             vehicle={v}

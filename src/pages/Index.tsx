@@ -10,6 +10,7 @@ import { AdminReplyBanner } from "@/components/AdminReplyBanner";
 import { useTrips } from "@/hooks/useTrips";
 import { useAuth } from "@/hooks/useAuth";
 import { readHiddenVehicles, setVehicleHidden } from "@/lib/hidden-vehicles";
+import { sortVehiclesWithPrimaryFirst } from "@/lib/primary-vehicle";
 import { getTripVehicle } from "@/lib/trip-vehicle";
 import { recalculateTrips } from "@/lib/print/report-shared";
 import {
@@ -1369,7 +1370,10 @@ ${IKTRACKER_MENTION}
               </div>
             ) : (
               <div className="space-y-3">
-                {vehicles.filter((vehicle) => showHiddenVehicles || !hiddenVehicleIds.includes(vehicle.id)).map((vehicle) => (
+                {sortVehiclesWithPrimaryFirst(
+                  vehicles.filter((vehicle) => showHiddenVehicles || !hiddenVehicleIds.includes(vehicle.id)),
+                  preferences.defaultVehicleId,
+                ).map((vehicle) => (
                   <div key={vehicle.id}>
                   <VehicleCard
                     key={vehicle.id}
