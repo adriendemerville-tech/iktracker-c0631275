@@ -30,5 +30,13 @@
         "fullDescription": "IKTracker est une application de suivi de trajets conçue pour calculer vos indemnités kilométriques automatiquement, sans saisie manuelle fastidieuse.\n\nQue vous soyez artisan, commercial, indépendant ou salarié en déplacement, IKTracker vous aide à enregistrer chaque trajet professionnel avec précision. Grâce à la géolocalisation, l'application mesure la distance parcourue pendant vos tournées et génère un relevé kilométrique clair, prêt à être transmis à votre comptable ou votre employeur.\n\nPrincipales fonctionnalités :\n- Suivi automatique de la distance en cours pendant vos tournées\n- Enregistrement des trajets aller-retour, avec point de départ et d'arrivée\n- Import des rendez-vous du jour pour organiser vos déplacements professionnels\n- Sélection du véhicule utilisé pour chaque trajet, utile pour l'application du barème kilométrique\n- Rapports et relevés d'indemnités kilométriques générés automatiquement\n- Connexion simple et sécurisée via Apple ou Google\n\nIKTracker simplifie la gestion des notes de frais kilométriques au quotidien : plus besoin de noter manuellement chaque déplacement, l'application s'occupe du calcul des indemnités kilométriques pour vous.\n\nGagnez du temps sur vos tournées professionnelles et concentrez-vous sur votre activité, IKTracker s'occupe du suivi de vos trajets et de vos frais de déplacement."
       }
     }
+  },
+  "lovable": {
+    "appleAppRecord": {
+      "projectId": "5bbd6f17-49e4-4066-9f35-29e062baefea",
+      "bundleId": "fr.iktracker.app",
+      "ascAppId": "6800895090",
+      "firstPushedAt": "2026-10-19T10:25:37Z"
+    }
   }
 }
