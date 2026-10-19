@@ -85,7 +85,7 @@ describe("VehicleCard", () => {
     const onHide = vi.fn();
     const onDelete = vi.fn();
     renderCard({ onHide, onDelete });
-    fireEvent.pointerDown(screen.getByLabelText("Options du véhicule"), { button: 0, ctrlKey: false });
+    fireEvent.keyDown(screen.getByLabelText("Options du véhicule"), { key: "Enter" });
     fireEvent.click(await screen.findByRole("menuitem", { name: "Masquer" }));
     expect(onHide).toHaveBeenCalledTimes(1);
     expect(onDelete).not.toHaveBeenCalled();
@@ -94,7 +94,7 @@ describe("VehicleCard", () => {
   it("keeps deletion available in vehicle management", async () => {
     const onDelete = vi.fn();
     renderCard({ onDelete });
-    fireEvent.pointerDown(screen.getByLabelText("Options du véhicule"), { button: 0, ctrlKey: false });
+    fireEvent.keyDown(screen.getByLabelText("Options du véhicule"), { key: "Enter" });
     fireEvent.click(await screen.findByRole("menuitem", { name: "Supprimer" }));
     expect(onDelete).toHaveBeenCalledTimes(1);
   });
