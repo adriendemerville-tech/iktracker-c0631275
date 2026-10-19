@@ -8,6 +8,8 @@ import { ForumNotificationsBell } from "@/components/forum/ForumNotificationsBel
 import { ForumSuggestionBanner } from "@/components/forum/ForumSuggestionBanner";
 import { AdminReplyBanner } from "@/components/AdminReplyBanner";
 import { useTrips } from "@/hooks/useTrips";
+import { useAuth } from "@/hooks/useAuth";
+import { readHiddenVehicles, setVehicleHidden } from "@/lib/hidden-vehicles";
 import { getTripVehicle } from "@/lib/trip-vehicle";
 import { recalculateTrips } from "@/lib/print/report-shared";
 import {
@@ -61,6 +63,8 @@ import {
   Smartphone,
   Minus,
   ChevronDown,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { DesktopSidebar } from "@/components/DesktopSidebar";
 import { useTutorial } from "@/hooks/useTutorial";
@@ -110,6 +114,17 @@ const QRPlaceholder = memo(() => (
 
 const Index = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [hiddenVehicleIds, setHiddenVehicleIds] = useState<string[]>([]);
+  const [showHiddenVehicles, setShowHiddenVehicles] = useState(false);
+  useEffect(() => {
+    setHiddenVehicleIds(user ? readHiddenVehicles(user.id) : []);
+    setShowHiddenVehicles(false);
+  }, [user?.id]);
+  const toggleVehicleVisibility = (vehicleId: string) => {
+    if (!user) return;
+    setHiddenVehicleIds(setVehicleHidden(user.id, vehicleId, !hiddenVehicleIds.includes(vehicleId)));
+  };
   const { preferences } = usePreferences();
   const { unreadResponsesCount } = useFeedback();
   const { isAdmin } = useAdmin();
@@ -1320,12 +1335,24 @@ ${IKTRACKER_MENTION}
           {/* Vehicles section */}
           <section>
             {/* Title hidden on mobile */}
-            <div className="hidden md:flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">Mes véhicules</h2>
-              <Button variant="ghost" size="sm" onClick={handleAddVehicle}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="hidden md:block text-lg font-semibold">Mes véhicules</h2>
+              <div className="flex items-center gap-2 ml-auto">
+                {hiddenVehicleIds.some((id) => vehicles.some((vehicle) => vehicle.id === id)) && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowHiddenVehicles((visible) => !visible)}
+                  >
+                    <Eye className="w-4 h-4 mr-1" />
+                    {showHiddenVehicles ? "Masquer les véhicules masqués" : "Afficher les véhicules masqués"}
+                  </Button>
+                )}
+              <Button variant="ghost" size="sm" onClick={handleAddVehicle} className="hidden md:inline-flex">
                 <Plus className="w-4 h-4 mr-1" />
                 Ajouter
               </Button>
+              </div>
             </div>
 
             {vehicles.length === 0 ? (
@@ -1342,14 +1369,22 @@ ${IKTRACKER_MENTION}
               </div>
             ) : (
               <div className="space-y-3">
-                {vehicles.map((vehicle) => (
+                {vehicles.filter((vehicle) => showHiddenVehicles || !hiddenVehicleIds.includes(vehicle.id)).map((vehicle) => (
+                  <div key={vehicle.id}>
                   <VehicleCard
                     key={vehicle.id}
                     vehicle={vehicle}
                     totalKm={getTotalAnnualKm(vehicle.id)}
                     onEdit={() => handleEditVehicle(vehicle.id)}
-                    onDelete={() => setVehicleToDelete(vehicle.id)}
+                    onHide={() => toggleVehicleVisibility(vehicle.id)}
                   />
+                  {hiddenVehicleIds.includes(vehicle.id) && (
+                    <Button variant="ghost" size="sm" onClick={() => toggleVehicleVisibility(vehicle.id)}>
+                      <EyeOff className="w-4 h-4 mr-1" />
+                      Réafficher ce véhicule
+                    </Button>
+                  )}
+                  </div>
                 ))}
               </div>
             )}

@@ -102,7 +102,6 @@ export function TripSettingsModal(props: Props) {
     getTotalAnnualKm,
     onAddVehicle,
     onUpdateVehicle,
-    onDeleteVehicle,
     onAddLocation,
     onUpdateLocation,
     onDeleteLocation,
@@ -261,11 +260,6 @@ export function TripSettingsModal(props: Props) {
                             onEdit={() => {
                               setEditingVehicle(v);
                               setVehicleFormOpen(true);
-                            }}
-                            onDelete={() => {
-                              if (window.confirm("Supprimer ce véhicule ?")) {
-                                onDeleteVehicle(v.id);
-                              }
                             }}
                           />
                         ))}
