@@ -2877,6 +2877,7 @@ export type Database = {
           trip_group_id: string | null
           user_id: string
           vehicle_id: string | null
+          vehicle_snapshot: Json | null
         }
         Insert: {
           calendar_event_id?: string | null
@@ -2903,6 +2904,7 @@ export type Database = {
           trip_group_id?: string | null
           user_id: string
           vehicle_id?: string | null
+          vehicle_snapshot?: Json | null
         }
         Update: {
           calendar_event_id?: string | null
@@ -2929,6 +2931,7 @@ export type Database = {
           trip_group_id?: string | null
           user_id?: string
           vehicle_id?: string | null
+          vehicle_snapshot?: Json | null
         }
         Relationships: [
           {
