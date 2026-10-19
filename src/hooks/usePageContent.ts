@@ -22,7 +22,7 @@ export function usePageContent<T extends ContentMap>(
     queryFn: async () => {
       const supabase = await getSupabase();
       const { data, error } = await supabase
-        .from("page_contents")
+        .from("public_page_contents")
         .select("content")
         .eq("page_key", pageKey)
         .maybeSingle();

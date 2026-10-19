@@ -3167,6 +3167,60 @@ export type Database = {
       }
     }
     Views: {
+      forum_public_profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          city: string | null
+          discussions_count: number | null
+          is_moderator: boolean | null
+          level: string | null
+          member_since: string | null
+          persona: string | null
+          points: number | null
+          pseudo: string | null
+          pseudo_enabled: boolean | null
+          replies_count: number | null
+          upvotes_received: number | null
+          user_id: string | null
+          vehicle: string | null
+        }
+        Insert: {
+          avatar_url?: never
+          bio?: never
+          city?: never
+          discussions_count?: number | null
+          is_moderator?: boolean | null
+          level?: string | null
+          member_since?: string | null
+          persona?: never
+          points?: number | null
+          pseudo?: never
+          pseudo_enabled?: boolean | null
+          replies_count?: number | null
+          upvotes_received?: number | null
+          user_id?: string | null
+          vehicle?: never
+        }
+        Update: {
+          avatar_url?: never
+          bio?: never
+          city?: never
+          discussions_count?: number | null
+          is_moderator?: boolean | null
+          level?: string | null
+          member_since?: string | null
+          persona?: never
+          points?: number | null
+          pseudo?: never
+          pseudo_enabled?: boolean | null
+          replies_count?: number | null
+          upvotes_received?: number | null
+          user_id?: string | null
+          vehicle?: never
+        }
+        Relationships: []
+      }
       partner_api_keys_safe: {
         Row: {
           created_at: string | null
@@ -3209,6 +3263,42 @@ export type Database = {
           updated_at?: string | null
           usage_current_month?: number | null
           usage_reset_at?: string | null
+        }
+        Relationships: []
+      }
+      public_page_contents: {
+        Row: {
+          canonical_url: string | null
+          content: Json | null
+          id: string | null
+          meta_description: string | null
+          meta_title: string | null
+          page_key: string | null
+          schema_org: Json | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          canonical_url?: string | null
+          content?: Json | null
+          id?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
+          page_key?: string | null
+          schema_org?: Json | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          canonical_url?: string | null
+          content?: Json | null
+          id?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
+          page_key?: string | null
+          schema_org?: Json | null
+          title?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }

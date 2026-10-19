@@ -101,16 +101,15 @@ describe.skipIf(!serverUp)("SSR forum — contenu et métadonnées visibles des 
     expect(html.replace(/&#x27;|&#39;/g, "'")).toContain(probe);
   });
 
-  it("catégories et discussions : SSR complet + JSON-LD dédié", async () => {
+  it("catégories réservées aux membres et discussions publiques avec JSON-LD", async () => {
     const sitemap = await (await fetch(`${BASE_URL}/sitemap-forum.xml`)).text();
     const locs = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
 
     const category = locs.find((u) => u.includes("/forum/categorie/"));
     if (category) {
-      const html = await getHtml(new URL(category).pathname);
-      expect(html).toMatch(/<title>[^<]+<\/title>/);
-      expect(metaContent(html, "description")).toBeTruthy();
-      expect(types(extractJsonLd(html))).toContain("BreadcrumbList");
+      // Audience choisie : les catégories ne sont plus lisibles sans session.
+      const response = await fetch(`${BASE_URL}${new URL(category).pathname}`);
+      expect(response.status).toBe(404);
     }
 
     const discussion = locs.find(
