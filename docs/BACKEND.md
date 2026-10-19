@@ -4,7 +4,7 @@
 - Table `public.deleted_vehicles` : `vehicle_id`, `user_id`, snapshot complet `vehicle_data`, `deleted_at`. Grants SELECT/DELETE authenticated, ALL service_role ; RLS propriétaire pour lecture et retrait de l'archive. Aucun accès anonyme.
 - Trigger `vehicles_archive_before_delete` appelle `archive_deleted_vehicle` pour conserver atomiquement les données avant la suppression existante. Les trajets restent détachés avec IK conservées, conformément au fonctionnement antérieur ; aucun sélecteur de véhicules actifs ne change.
 - RPC `restore_deleted_vehicle(p_vehicle_id)` SECURITY INVOKER, propriétaire vérifié via auth.uid() et RLS : réinsère le véhicule (même ID), puis retire l'archive dans la même transaction. Aucune réattribution ni recalcul des trajets ; pas de changement du principal existant sauf si le véhicule restauré est le seul actif.
-- Migrations `0003_recover_deleted_vehicles` et `0004_restore_vehicle_read_only_archive` appliquées. Aucune suppression/restauration réelle effectuée pour les tests. Les véhicules supprimés avant cette évolution ne disposent pas de snapshot et ne peuvent pas être reconstitués par cette option.
+- Migrations `0003_recover_deleted_vehicles`, `0004_restore_vehicle_read_only_archive` et `0005_cleanup_vehicle_archives_on_account_deletion` appliquées. Le trigger de suppression de compte nettoie également ces snapshots, y compris ceux capturés pendant la suppression des véhicules du compte. Aucune suppression/restauration réelle effectuée pour les tests. Les véhicules supprimés avant cette évolution ne disposent pas de snapshot et ne peuvent pas être reconstitués par cette option.
 
 > Version 4.6.18 — 19 octobre 2026
 
