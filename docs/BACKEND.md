@@ -1,5 +1,10 @@
 # IKTracker — Documentation Technique Backend
 
+**Sécurité ciblée — 19 octobre 2026**
+- Migration `0007_harden_selected_log_and_feedback_policies` appliquée : suppression des policies INSERT clients sans contrôle de `partner_clicks` et `request_logs`. Les clics continuent d’être enregistrés par `partner-redirect` via service role ; le Worker courant transmet ses logs à Crawlers, sans insertion cliente dans `request_logs`. Lecture admin/viewer inchangée.
+- `storage.objects` / `feedback-images` : INSERT exige `owner_id = auth.uid()::text` et le préfixe de fichier existant `<user-id>-`. SELECT explicitement lié au propriétaire, avec préfixe historique conservé et accès admin. Bucket public et URLs existantes inchangés ; aucune suppression de fichier.
+- Quatre alertes sélectionnées corrigées ; les accès publics de `site_config`, `page_contents`, `forum_profiles` et `forum_categories` restent inchangés en attente d’un choix sur leur audience. HIBP non modifié : les autres paramètres Auth requis par l’outil ne sont pas disponibles via une lecture fiable ; activation manuelle ciblée nécessaire.
+
 **Véhicules supprimés — 19 octobre 2026**
 - Table `public.deleted_vehicles` : `vehicle_id`, `user_id`, snapshot complet `vehicle_data`, `deleted_at`. Grants SELECT/DELETE authenticated, ALL service_role ; RLS propriétaire pour lecture et retrait de l'archive. Aucun accès anonyme.
 - Migration `0006_preserve_trip_vehicle_snapshot` : `trips.vehicle_snapshot` JSONB conserve l'identité complète et les paramètres fiscaux (CV, électrique) du véhicule. Le trigger `archive_deleted_vehicle` capture ce snapshot sur tous ses trajets, y compris archivés, avant le détachement par FK ; aucun montant `ik_amount` n'est changé. La réattribution explicite efface le snapshot via `trips_clear_reassigned_vehicle_snapshot`. RLS/grants existants des trajets inchangés, aucun accès supplémentaire.
