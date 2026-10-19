@@ -8,6 +8,8 @@ import { ForumNotificationsBell } from "@/components/forum/ForumNotificationsBel
 import { ForumSuggestionBanner } from "@/components/forum/ForumSuggestionBanner";
 import { AdminReplyBanner } from "@/components/AdminReplyBanner";
 import { useTrips } from "@/hooks/useTrips";
+import { getTripVehicle } from "@/lib/trip-vehicle";
+import { recalculateTrips } from "@/lib/print/report-shared";
 import {
   useTourTracker,
   TourStop,
@@ -789,62 +791,7 @@ ${IKTRACKER_MENTION}
   };
 
   const generateCSVContent = () => {
-    // Calculate recalculated trips with cumulative km
-    const grouped = new Map<string, typeof trips>();
-    trips.forEach((trip) => {
-      const year = new Date(trip.startTime).getFullYear();
-      const key = `${trip.vehicleId}-${year}`;
-      if (!grouped.has(key)) grouped.set(key, []);
-      grouped.get(key)!.push(trip);
-    });
-
-    const recalculatedTrips: ((typeof trips)[0] & {
-      recalculatedIK: number;
-      cumulativeKm: number;
-      appliedRate: number;
-    })[] = [];
-
-    grouped.forEach((vehicleTrips, key) => {
-      const vehicleId = key.split("-")[0];
-      const vehicle = getVehicle(vehicleId);
-      const sorted = [...vehicleTrips].sort(
-        (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
-      );
-      let cumulativeKm = 0;
-
-      sorted.forEach((trip) => {
-        const prevCumulativeKm = cumulativeKm;
-        cumulativeKm += trip.distance;
-
-        if (!vehicle) {
-          recalculatedTrips.push({
-            ...trip,
-            recalculatedIK: trip.ikAmount,
-            cumulativeKm,
-            appliedRate: 0,
-          });
-          return;
-        }
-
-        const override = preferences.ikRateOverride;
-        const ikBefore = calculateTotalAnnualIK(prevCumulativeKm, vehicle.fiscalPower, override);
-        const ikAfter = calculateTotalAnnualIK(cumulativeKm, vehicle.fiscalPower, override);
-        let recalculatedIK = ikAfter - ikBefore;
-        if (vehicle.isElectric) recalculatedIK = recalculatedIK * 1.2;
-
-        const bareme = getIKBareme(vehicle.fiscalPower);
-        let appliedRate: number;
-        if (override === "tier2") appliedRate = bareme.from5001To20000.rate;
-        else if (override === "tier3") appliedRate = bareme.over20000.rate;
-        else {
-          appliedRate = bareme.upTo5000.rate;
-          if (cumulativeKm > 20000) appliedRate = bareme.over20000.rate;
-          else if (cumulativeKm > 5000) appliedRate = bareme.from5001To20000.rate;
-        }
-
-        recalculatedTrips.push({ ...trip, recalculatedIK, cumulativeKm, appliedRate });
-      });
-    });
+    const recalculatedTrips = recalculateTrips(trips, vehicles, preferences.ikRateOverride);
 
     const headers = [
       "Date",
@@ -868,7 +815,7 @@ ${IKTRACKER_MENTION}
     const recalculatedTotalIK = recalculatedTrips.reduce((sum, t) => sum + t.recalculatedIK, 0);
 
     const rows = sortedTrips.map((t) => {
-      const vehicle = getVehicle(t.vehicleId);
+      const vehicle = getTripVehicle(t, vehicles);
       return [
         new Date(t.startTime).toLocaleDateString("fr-FR"),
         vehicle ? `${vehicle.ownerFirstName} ${vehicle.ownerLastName}` : "",
