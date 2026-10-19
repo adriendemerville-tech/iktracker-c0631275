@@ -5,26 +5,27 @@
 // src/lib/mcp/index.ts
 import { auth, defineMcp } from "npm:@lovable.dev/mcp-js@0.24.0";
 
+// src/lib/mcp/tools/list-vehicles.ts
+import { defineTool } from "npm:@lovable.dev/mcp-js@0.24.0";
+
 // src/lib/mcp/supabase.ts
 import { createClient } from "npm:@supabase/supabase-js@^2.87.3";
 function userClient(ctx) {
   const url = Deno.env.get("SUPABASE_URL");
   const key = Deno.env.get("SUPABASE_ANON_KEY") ?? Deno.env.get("SUPABASE_PUBLISHABLE_KEY");
   if (!url) throw new Error("SUPABASE_URL manquante dans le runtime");
-  if (!key) throw new Error("Clé Supabase (ANON/PUBLISHABLE) manquante dans le runtime");
+  if (!key) throw new Error("Cl\xE9 Supabase (ANON/PUBLISHABLE) manquante dans le runtime");
   return createClient(url, key, {
     global: { headers: { Authorization: `Bearer ${ctx.getToken()}` } },
-    auth: { persistSession: false, autoRefreshToken: false },
+    auth: { persistSession: false, autoRefreshToken: false }
   });
 }
 
 // src/lib/mcp/tools/list-vehicles.ts
-import { defineTool } from "npm:@lovable.dev/mcp-js@0.24.0";
 var list_vehicles_default = defineTool({
   name: "list_vehicles",
   title: "Lister mes v\xE9hicules",
-  description:
-    "Retourne la liste des v\xE9hicules IKtracker de l'utilisateur (nom, marque, mod\xE8le, chevaux fiscaux, \xE9lectrique, immatriculation).",
+  description: "Retourne la liste des v\xE9hicules IKtracker de l'utilisateur (nom, marque, mod\xE8le, chevaux fiscaux, \xE9lectrique, immatriculation).",
   inputSchema: {},
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async (_input, ctx) => {
@@ -32,21 +33,18 @@ var list_vehicles_default = defineTool({
       return { content: [{ type: "text", text: "Non authentifi\xE9" }], isError: true };
     }
     try {
-      const { data, error } = await userClient(ctx)
-        .from("vehicles")
-        .select("id, name, make, model, year, fiscal_power, is_electric, license_plate")
-        .order("created_at", { ascending: false });
+      const { data, error } = await userClient(ctx).from("vehicles").select("id, name, make, model, year, fiscal_power, is_electric, license_plate").order("created_at", { ascending: false });
       if (error) {
         return { content: [{ type: "text", text: error.message }], isError: true };
       }
       return {
         content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
-        structuredContent: { vehicles: data ?? [] },
+        structuredContent: { vehicles: data ?? [] }
       };
     } catch (e) {
       return { content: [{ type: "text", text: e.message }], isError: true };
     }
-  },
+  }
 });
 
 // src/lib/mcp/tools/list-trips.ts
@@ -55,27 +53,12 @@ import { z } from "npm:zod@^4.4.3";
 var list_trips_default = defineTool2({
   name: "list_trips",
   title: "Lister mes trajets",
-  description:
-    "Retourne les trajets IKtracker de l'utilisateur, filtrables par plage de dates (YYYY-MM-DD) et par v\xE9hicule. Limite par d\xE9faut : 50, max 200.",
+  description: "Retourne les trajets IKtracker de l'utilisateur, filtrables par plage de dates (YYYY-MM-DD) et par v\xE9hicule. Limite par d\xE9faut : 50, max 200.",
   inputSchema: {
-    from: z
-      .string()
-      .regex(/^\d{4}-\d{2}-\d{2}$/)
-      .optional()
-      .describe("Date de d\xE9but incluse (YYYY-MM-DD)."),
-    to: z
-      .string()
-      .regex(/^\d{4}-\d{2}-\d{2}$/)
-      .optional()
-      .describe("Date de fin incluse (YYYY-MM-DD)."),
+    from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().describe("Date de d\xE9but incluse (YYYY-MM-DD)."),
+    to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().describe("Date de fin incluse (YYYY-MM-DD)."),
     vehicle_id: z.string().uuid().optional().describe("Filtrer sur un v\xE9hicule."),
-    limit: z
-      .number()
-      .int()
-      .min(1)
-      .max(200)
-      .optional()
-      .describe("Nombre max de trajets (d\xE9faut 50)."),
+    limit: z.number().int().min(1).max(200).optional().describe("Nombre max de trajets (d\xE9faut 50).")
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ from, to, vehicle_id, limit }, ctx) => {
@@ -83,14 +66,9 @@ var list_trips_default = defineTool2({
       return { content: [{ type: "text", text: "Non authentifi\xE9" }], isError: true };
     }
     try {
-      let q = userClient(ctx)
-        .from("trips")
-        .select(
-          "id, date, start_location, end_location, distance, round_trip, ik_amount, purpose, vehicle_id, status",
-        )
-        .is("deleted_at", null)
-        .order("date", { ascending: false })
-        .limit(limit ?? 50);
+      let q = userClient(ctx).from("trips").select(
+        "id, date, start_location, end_location, distance, round_trip, ik_amount, purpose, vehicle_id, status"
+      ).is("deleted_at", null).order("date", { ascending: false }).limit(limit ?? 50);
       if (from) q = q.gte("date", from);
       if (to) q = q.lte("date", to);
       if (vehicle_id) q = q.eq("vehicle_id", vehicle_id);
@@ -98,12 +76,12 @@ var list_trips_default = defineTool2({
       if (error) return { content: [{ type: "text", text: error.message }], isError: true };
       return {
         content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
-        structuredContent: { trips: data ?? [], count: data?.length ?? 0 },
+        structuredContent: { trips: data ?? [], count: data?.length ?? 0 }
       };
     } catch (e) {
       return { content: [{ type: "text", text: e.message }], isError: true };
     }
-  },
+  }
 });
 
 // src/lib/mcp/tools/get-ytd-summary.ts
@@ -112,16 +90,9 @@ import { z as z2 } from "npm:zod@^4.4.3";
 var get_ytd_summary_default = defineTool3({
   name: "get_ytd_summary",
   title: "Synth\xE8se annuelle IK",
-  description:
-    "Retourne le cumul kilom\xE9trique et l'indemnit\xE9 totale par v\xE9hicule pour une ann\xE9e donn\xE9e (ann\xE9e en cours par d\xE9faut).",
+  description: "Retourne le cumul kilom\xE9trique et l'indemnit\xE9 totale par v\xE9hicule pour une ann\xE9e donn\xE9e (ann\xE9e en cours par d\xE9faut).",
   inputSchema: {
-    year: z2
-      .number()
-      .int()
-      .min(2e3)
-      .max(2100)
-      .optional()
-      .describe("Ann\xE9e civile (d\xE9faut : ann\xE9e courante)."),
+    year: z2.number().int().min(2e3).max(2100).optional().describe("Ann\xE9e civile (d\xE9faut : ann\xE9e courante).")
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ year }, ctx) => {
@@ -129,18 +100,13 @@ var get_ytd_summary_default = defineTool3({
       return { content: [{ type: "text", text: "Non authentifi\xE9" }], isError: true };
     }
     try {
-      const y = year ?? /* @__PURE__ */ new Date().getFullYear();
+      const y = year ?? (/* @__PURE__ */ new Date()).getFullYear();
       const from = `${y}-01-01`;
       const to = `${y}-12-31`;
       const client = userClient(ctx);
       const [{ data: trips, error: e1 }, { data: vehicles, error: e2 }] = await Promise.all([
-        client
-          .from("trips")
-          .select("vehicle_id, distance, ik_amount")
-          .is("deleted_at", null)
-          .gte("date", from)
-          .lte("date", to),
-        client.from("vehicles").select("id, name, make, model, fiscal_power, is_electric"),
+        client.from("trips").select("vehicle_id, distance, ik_amount").is("deleted_at", null).gte("date", from).lte("date", to),
+        client.from("vehicles").select("id, name, make, model, fiscal_power, is_electric")
       ]);
       if (e1 || e2) {
         return { content: [{ type: "text", text: (e1 ?? e2).message }], isError: true };
@@ -163,32 +129,32 @@ var get_ytd_summary_default = defineTool3({
           is_electric: v.is_electric,
           total_km: Math.round(s.distance * 100) / 100,
           total_ik_eur: Math.round(s.ik_amount * 100) / 100,
-          trip_count: s.trips,
+          trip_count: s.trips
         };
       });
       const total = perVehicle.reduce(
         (acc, v) => ({
           total_km: acc.total_km + v.total_km,
           total_ik_eur: acc.total_ik_eur + v.total_ik_eur,
-          trip_count: acc.trip_count + v.trip_count,
+          trip_count: acc.trip_count + v.trip_count
         }),
-        { total_km: 0, total_ik_eur: 0, trip_count: 0 },
+        { total_km: 0, total_ik_eur: 0, trip_count: 0 }
       );
       const summary = {
         year: y,
         total_km: Math.round(total.total_km * 100) / 100,
         total_ik_eur: Math.round(total.total_ik_eur * 100) / 100,
         trip_count: total.trip_count,
-        per_vehicle: perVehicle,
+        per_vehicle: perVehicle
       };
       return {
         content: [{ type: "text", text: JSON.stringify(summary, null, 2) }],
-        structuredContent: summary,
+        structuredContent: summary
       };
     } catch (e) {
       return { content: [{ type: "text", text: e.message }], isError: true };
     }
-  },
+  }
 });
 
 // src/lib/mcp/tools/create-trip.ts
@@ -197,183 +163,347 @@ import { z as z3 } from "npm:zod@^4.4.3";
 var create_trip_default = defineTool4({
   name: "create_trip",
   title: "Cr\xE9er un trajet",
-  description:
-    "Cr\xE9e un nouveau trajet IKtracker pour l'utilisateur. Le montant IK est laiss\xE9 \xE0 z\xE9ro (recalcul\xE9 c\xF4t\xE9 app) ; renseigner un `ik_amount` explicite si besoin.",
+  description: "Cr\xE9e un nouveau trajet IKtracker pour l'utilisateur. Le montant IK est laiss\xE9 \xE0 z\xE9ro (recalcul\xE9 c\xF4t\xE9 app) ; renseigner un `ik_amount` explicite si besoin.",
   inputSchema: {
-    date: z3
-      .string()
-      .regex(/^\d{4}-\d{2}-\d{2}$/)
-      .describe("Date du trajet (YYYY-MM-DD)."),
+    date: z3.string().regex(/^\d{4}-\d{2}-\d{2}$/).describe("Date du trajet (YYYY-MM-DD)."),
     start_location: z3.string().min(1).describe("Adresse ou nom du point de d\xE9part."),
     end_location: z3.string().min(1).describe("Adresse ou nom du point d'arriv\xE9e."),
     distance: z3.number().positive().describe("Distance parcourue en kilom\xE8tres."),
     vehicle_id: z3.string().uuid().optional().describe("V\xE9hicule utilis\xE9 (UUID)."),
     round_trip: z3.boolean().optional().describe("Trajet aller-retour."),
     purpose: z3.string().optional().describe("Motif du d\xE9placement."),
-    ik_amount: z3
-      .number()
-      .nonnegative()
-      .optional()
-      .describe("Montant IK en euros (0 par d\xE9faut)."),
+    ik_amount: z3.number().nonnegative().optional().describe("Montant IK en euros (0 par d\xE9faut).")
   },
   annotations: {
     readOnlyHint: false,
     destructiveHint: false,
     idempotentHint: false,
-    openWorldHint: false,
+    openWorldHint: false
   },
   handler: async (input, ctx) => {
     if (!ctx.isAuthenticated()) {
       return { content: [{ type: "text", text: "Non authentifi\xE9" }], isError: true };
     }
     try {
-      const { data, error } = await userClient(ctx)
-        .from("trips")
-        .insert({
-          user_id: ctx.getUserId(),
-          date: input.date,
-          start_location: input.start_location,
-          end_location: input.end_location,
-          distance: input.distance,
-          vehicle_id: input.vehicle_id ?? null,
-          round_trip: input.round_trip ?? false,
-          purpose: input.purpose ?? null,
-          ik_amount: input.ik_amount ?? 0,
-          source: "manual",
-        })
-        .select()
-        .single();
+      const { data, error } = await userClient(ctx).from("trips").insert({
+        user_id: ctx.getUserId(),
+        date: input.date,
+        start_location: input.start_location,
+        end_location: input.end_location,
+        distance: input.distance,
+        vehicle_id: input.vehicle_id ?? null,
+        round_trip: input.round_trip ?? false,
+        purpose: input.purpose ?? null,
+        ik_amount: input.ik_amount ?? 0,
+        source: "manual"
+      }).select().single();
       if (error) return { content: [{ type: "text", text: error.message }], isError: true };
       return {
         content: [{ type: "text", text: `Trajet cr\xE9\xE9 (${data.id})` }],
-        structuredContent: { trip: data },
+        structuredContent: { trip: data }
       };
     } catch (e) {
       return { content: [{ type: "text", text: e.message }], isError: true };
     }
+  }
+});
+
+// src/lib/mcp/tools/update-trip.ts
+import { defineTool as defineTool5 } from "npm:@lovable.dev/mcp-js@0.24.0";
+import { z as z4 } from "npm:zod@^4.4.3";
+
+// src/lib/mcp/ik.ts
+var IK_BAREME = [
+  { cv: "3", upTo5000: { rate: 0.529 }, from5001To20000: { rate: 0.316, fixed: 1065 }, over20000: { rate: 0.37 } },
+  { cv: "4", upTo5000: { rate: 0.606 }, from5001To20000: { rate: 0.34, fixed: 1330 }, over20000: { rate: 0.407 } },
+  { cv: "5", upTo5000: { rate: 0.636 }, from5001To20000: { rate: 0.357, fixed: 1395 }, over20000: { rate: 0.427 } },
+  { cv: "6", upTo5000: { rate: 0.665 }, from5001To20000: { rate: 0.374, fixed: 1457 }, over20000: { rate: 0.447 } },
+  { cv: "7+", upTo5000: { rate: 0.697 }, from5001To20000: { rate: 0.394, fixed: 1515 }, over20000: { rate: 0.47 } }
+];
+function getIKBareme(fiscalPower) {
+  if (fiscalPower <= 3) return IK_BAREME[0];
+  if (fiscalPower === 4) return IK_BAREME[1];
+  if (fiscalPower === 5) return IK_BAREME[2];
+  if (fiscalPower === 6) return IK_BAREME[3];
+  return IK_BAREME[4];
+}
+function getForcedRate(fiscalPower, override) {
+  if (!override || override === "auto") return null;
+  const bareme = getIKBareme(fiscalPower);
+  if (override === "tier2") return bareme.from5001To20000.rate;
+  if (override === "tier3") return bareme.over20000.rate;
+  return null;
+}
+function calculateTotalAnnualIK(totalAnnualKm, fiscalPower, override) {
+  const forced = getForcedRate(fiscalPower, override);
+  if (forced !== null) return totalAnnualKm * forced;
+  const bareme = getIKBareme(fiscalPower);
+  if (totalAnnualKm <= 5e3) return totalAnnualKm * bareme.upTo5000.rate;
+  if (totalAnnualKm <= 2e4) return totalAnnualKm * bareme.from5001To20000.rate + bareme.from5001To20000.fixed;
+  return totalAnnualKm * bareme.over20000.rate;
+}
+function marginalIK(beforeKm, distanceKm, vehicle, override) {
+  let ik = calculateTotalAnnualIK(beforeKm + distanceKm, vehicle.fiscal_power, override) - calculateTotalAnnualIK(beforeKm, vehicle.fiscal_power, override);
+  if (vehicle.is_electric) ik *= 1.2;
+  return Math.round(ik * 100) / 100;
+}
+async function recalculateVehicleYearsIK(supabase, userId, vehicleIds, years, rateOverride) {
+  if (vehicleIds.length === 0 || years.length === 0) return [];
+  const { data: vehicles, error: vErr } = await supabase.from("vehicles").select("id, fiscal_power, is_electric").eq("user_id", userId).in("id", vehicleIds);
+  if (vErr) throw new Error(vErr.message);
+  const vehicleById = new Map((vehicles ?? []).map((v) => [v.id, v]));
+  const minDate = `${Math.min(...years)}-01-01`;
+  const maxDate = `${Math.max(...years)}-12-31`;
+  const { data: rows, error: tErr } = await supabase.from("trips").select("id, vehicle_id, date, distance, ik_amount").eq("user_id", userId).is("deleted_at", null).in("vehicle_id", vehicleIds).gte("date", minDate).lte("date", maxDate).order("date", { ascending: true });
+  if (tErr) throw new Error(tErr.message);
+  const cum = /* @__PURE__ */ new Map();
+  const updates = [];
+  for (const r of rows ?? []) {
+    const v = r.vehicle_id ? vehicleById.get(r.vehicle_id) : void 0;
+    if (!v) continue;
+    const year = Number(String(r.date).slice(0, 4));
+    if (!years.includes(year)) continue;
+    const key = `${r.vehicle_id}-${year}`;
+    const before = cum.get(key) ?? 0;
+    const after = before + (Number(r.distance) || 0);
+    cum.set(key, after);
+    const ik = marginalIK(before, Number(r.distance) || 0, v, rateOverride);
+    const old = Number(r.ik_amount) || 0;
+    if (Math.abs(ik - old) > 5e-3) updates.push({ id: r.id, ik, old });
+  }
+  for (let i = 0; i < updates.length; i += 20) {
+    await Promise.all(
+      updates.slice(i, i + 20).map((u) => supabase.from("trips").update({ ik_amount: u.ik }).eq("id", u.id))
+    );
+  }
+  return updates.map((u) => ({ id: u.id, old_ik_amount: u.old, new_ik_amount: u.ik }));
+}
+async function getIkRateOverride(supabase, userId) {
+  const { data } = await supabase.from("user_preferences").select("ik_rate_override").eq("user_id", userId).maybeSingle();
+  const v = data?.ik_rate_override;
+  return v === "tier2" || v === "tier3" ? v : "auto";
+}
+
+// src/lib/mcp/tools/update-trip.ts
+var update_trip_default = defineTool5({
+  name: "update_trip",
+  title: "Modifier un trajet",
+  description: "Modifie un trajet IKtracker existant (v\xE9hicule, date, adresses, distance, aller-retour, motif). Au moins un champ \xE0 modifier est requis. Convention distance : la distance stock\xE9e inclut d\xE9j\xE0 l'aller-retour \xE9ventuel ; comme l'app web, changer round_trip seul NE modifie PAS la distance. Si vehicle_id, distance, date ou round_trip change, l'IK du trajet est recalcul\xE9e avec le bar\xE8me officiel cumulatif annuel (bonus +20 % si v\xE9hicule 100 % \xE9lectrique, pr\xE9f\xE9rence ik_rate_override de l'utilisateur respect\xE9e), et les ik_amount de TOUS les trajets non supprim\xE9s des v\xE9hicules concern\xE9s (ancien et nouveau) pour les ann\xE9es concern\xE9es sont r\xE9ajust\xE9s dans l'ordre chronologique. Les colonnes source, tour_stops et coordonn\xE9es ne sont jamais modifi\xE9es.",
+  inputSchema: {
+    trip_id: z4.string().uuid().describe("Identifiant du trajet (UUID)."),
+    vehicle_id: z4.string().uuid().optional().describe("Nouveau v\xE9hicule (UUID, doit appartenir \xE0 l'utilisateur)."),
+    date: z4.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().describe("Nouvelle date (YYYY-MM-DD)."),
+    start_location: z4.string().min(1).optional().describe("Nouvelle adresse de d\xE9part."),
+    end_location: z4.string().min(1).optional().describe("Nouvelle adresse d'arriv\xE9e."),
+    distance: z4.number().positive().optional().describe("Nouvelle distance totale en km (aller-retour inclus le cas \xE9ch\xE9ant)."),
+    round_trip: z4.boolean().optional().describe("Aller-retour. Ne change pas la distance stock\xE9e."),
+    purpose: z4.string().optional().describe("Motif du d\xE9placement (cha\xEEne vide = effacer).")
   },
+  annotations: {
+    readOnlyHint: false,
+    destructiveHint: false,
+    idempotentHint: true,
+    openWorldHint: false
+  },
+  handler: async (input, ctx) => {
+    if (!ctx.isAuthenticated()) {
+      return { content: [{ type: "text", text: "Non authentifi\xE9" }], isError: true };
+    }
+    try {
+      const supabase = userClient(ctx);
+      const userId = ctx.getUserId();
+      const updates = {};
+      if (input.vehicle_id !== void 0) updates.vehicle_id = input.vehicle_id;
+      if (input.date !== void 0) updates.date = input.date;
+      if (input.start_location !== void 0) updates.start_location = input.start_location;
+      if (input.end_location !== void 0) updates.end_location = input.end_location;
+      if (input.distance !== void 0) updates.distance = input.distance;
+      if (input.round_trip !== void 0) updates.round_trip = input.round_trip;
+      if (input.purpose !== void 0) updates.purpose = input.purpose === "" ? null : input.purpose;
+      if (Object.keys(updates).length === 0) {
+        return { content: [{ type: "text", text: "Aucun champ \xE0 modifier fourni." }], isError: true };
+      }
+      const { data: trip, error: fErr } = await supabase.from("trips").select("id, user_id, vehicle_id, date, distance, ik_amount, deleted_at").eq("id", input.trip_id).eq("user_id", userId).is("deleted_at", null).maybeSingle();
+      if (fErr) return { content: [{ type: "text", text: fErr.message }], isError: true };
+      if (!trip) return { content: [{ type: "text", text: "Trajet introuvable" }], isError: true };
+      if (input.vehicle_id !== void 0) {
+        const { data: veh } = await supabase.from("vehicles").select("id").eq("id", input.vehicle_id).eq("user_id", userId).maybeSingle();
+        if (!veh) {
+          return { content: [{ type: "text", text: "V\xE9hicule introuvable ou n'appartenant pas \xE0 l'utilisateur." }], isError: true };
+        }
+      }
+      const oldIk = Number(trip.ik_amount) || 0;
+      const { data: updated, error: uErr } = await supabase.from("trips").update(updates).eq("id", input.trip_id).select().single();
+      if (uErr) return { content: [{ type: "text", text: uErr.message }], isError: true };
+      const ikImpacting = input.vehicle_id !== void 0 || input.distance !== void 0 || input.date !== void 0 || input.round_trip !== void 0;
+      let adjusted = [];
+      if (ikImpacting) {
+        const vehicleIds = [...new Set([trip.vehicle_id, updated.vehicle_id].filter(Boolean))];
+        const years = [...new Set([trip.date, updated.date].map((d) => Number(String(d).slice(0, 4))))];
+        const override = await getIkRateOverride(supabase, userId);
+        adjusted = await recalculateVehicleYearsIK(supabase, userId, vehicleIds, years, override);
+      }
+      const { data: finalTrip } = await supabase.from("trips").select().eq("id", input.trip_id).single();
+      const newIk = Number(finalTrip?.ik_amount) || 0;
+      return {
+        content: [{ type: "text", text: `Trajet ${input.trip_id} mis \xE0 jour (IK : ${oldIk} \u20AC \u2192 ${newIk} \u20AC, ${adjusted.length} autre(s) trajet(s) r\xE9ajust\xE9(s)).` }],
+        structuredContent: {
+          trip: finalTrip ?? updated,
+          old_ik_amount: oldIk,
+          new_ik_amount: newIk,
+          adjusted_trips: adjusted.filter((a) => a.id !== input.trip_id)
+        }
+      };
+    } catch (e) {
+      return { content: [{ type: "text", text: e.message }], isError: true };
+    }
+  }
+});
+
+// src/lib/mcp/tools/delete-trip.ts
+import { defineTool as defineTool6 } from "npm:@lovable.dev/mcp-js@0.24.0";
+import { z as z5 } from "npm:zod@^4.4.3";
+var delete_trip_default = defineTool6({
+  name: "delete_trip",
+  title: "Supprimer un trajet",
+  description: "Supprime un trajet IKtracker (suppression douce : deleted_at horodat\xE9, restaurable 30 jours depuis l'archive de l'app \u2014 aucun DELETE d\xE9finitif). N\xE9cessite confirm=true, sinon refus sans aucune action. Apr\xE8s suppression, les ik_amount des trajets restants du m\xEAme v\xE9hicule pour la m\xEAme ann\xE9e sont recalcul\xE9s (bar\xE8me cumulatif, bonus \xE9lectrique, pr\xE9f\xE9rence ik_rate_override).",
+  inputSchema: {
+    trip_id: z5.string().uuid().describe("Identifiant du trajet (UUID)."),
+    confirm: z5.literal(true).describe("Doit valoir true pour confirmer la suppression.")
+  },
+  annotations: {
+    readOnlyHint: false,
+    destructiveHint: true,
+    idempotentHint: false,
+    openWorldHint: false
+  },
+  handler: async (input, ctx) => {
+    if (!ctx.isAuthenticated()) {
+      return { content: [{ type: "text", text: "Non authentifi\xE9" }], isError: true };
+    }
+    try {
+      const supabase = userClient(ctx);
+      const userId = ctx.getUserId();
+      const { data: trip, error: fErr } = await supabase.from("trips").select("id, user_id, vehicle_id, date, start_location, end_location, distance, ik_amount, deleted_at").eq("id", input.trip_id).eq("user_id", userId).is("deleted_at", null).maybeSingle();
+      if (fErr) return { content: [{ type: "text", text: fErr.message }], isError: true };
+      if (!trip) return { content: [{ type: "text", text: "Trajet introuvable" }], isError: true };
+      const { error: dErr } = await supabase.from("trips").update({ deleted_at: (/* @__PURE__ */ new Date()).toISOString() }).eq("id", input.trip_id);
+      if (dErr) return { content: [{ type: "text", text: dErr.message }], isError: true };
+      let adjusted = [];
+      if (trip.vehicle_id) {
+        const override = await getIkRateOverride(supabase, userId);
+        adjusted = await recalculateVehicleYearsIK(
+          supabase,
+          userId,
+          [trip.vehicle_id],
+          [Number(String(trip.date).slice(0, 4))],
+          override
+        );
+      }
+      const summary = {
+        id: trip.id,
+        date: trip.date,
+        start_location: trip.start_location,
+        end_location: trip.end_location,
+        distance: trip.distance,
+        vehicle_id: trip.vehicle_id,
+        ik_amount: trip.ik_amount
+      };
+      return {
+        content: [{ type: "text", text: `Trajet ${input.trip_id} supprim\xE9 (restaurable 30 jours). ${adjusted.length} trajet(s) r\xE9ajust\xE9(s).` }],
+        structuredContent: { deleted_trip: summary, adjusted_trips: adjusted }
+      };
+    } catch (e) {
+      return { content: [{ type: "text", text: e.message }], isError: true };
+    }
+  }
 });
 
 // src/lib/mcp/tools/blog.ts
-import { defineTool as defineTool5 } from "npm:@lovable.dev/mcp-js@0.24.0";
-import { z as z4 } from "npm:zod@^4.4.3";
+import { defineTool as defineTool7 } from "npm:@lovable.dev/mcp-js@0.24.0";
+import { z as z6 } from "npm:zod@^4.4.3";
+var sb = userClient;
 var unauth = { content: [{ type: "text", text: "Non authentifi\xE9" }], isError: true };
 var err = (m) => ({ content: [{ type: "text", text: m }], isError: true });
-var LIST_COLS =
-  "id, slug, title, subtitle, meta_description, status, is_listed, seo_indexable, featured_image_url, author_name, published_at, updated_at";
-var status = z4.enum(["draft", "published", "archived"]);
-var listBlogPostsTool = defineTool5({
+var LIST_COLS = "id, slug, title, subtitle, meta_description, status, is_listed, seo_indexable, featured_image_url, author_name, published_at, updated_at";
+var status = z6.enum(["draft", "published", "archived"]);
+var listBlogPostsTool = defineTool7({
   name: "list_blog_posts",
   title: "Lister les articles du blog",
-  description:
-    "Liste les articles du blog IKtracker (filtre statut/recherche titre). Brouillons visibles pour les admins.",
+  description: "Liste les articles du blog IKtracker (filtre statut/recherche titre). Brouillons visibles pour les admins.",
   inputSchema: {
     status: status.optional().describe("Filtrer par statut."),
-    search: z4.string().max(200).optional().describe("Recherche dans le titre."),
-    limit: z4.number().int().min(1).max(200).optional().describe("D\xE9faut 50."),
+    search: z6.string().max(200).optional().describe("Recherche dans le titre."),
+    limit: z6.number().int().min(1).max(200).optional().describe("D\xE9faut 50.")
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ status: s, search, limit }, ctx) => {
     if (!ctx.isAuthenticated()) return unauth;
     try {
-      let q = userClient(ctx)
-        .from("blog_posts")
-        .select(LIST_COLS)
-        .is("deleted_at", null)
-        .order("updated_at", { ascending: false })
-        .limit(limit ?? 50);
+      let q = sb(ctx).from("blog_posts").select(LIST_COLS).is("deleted_at", null).order("updated_at", { ascending: false }).limit(limit ?? 50);
       if (s) q = q.eq("status", s);
       if (search) q = q.ilike("title", `%${search}%`);
       const { data, error } = await q;
       if (error) return err(error.message);
-      return {
-        content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
-        structuredContent: { posts: data ?? [] },
-      };
+      return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }], structuredContent: { posts: data ?? [] } };
     } catch (e) {
       return err(e.message);
     }
-  },
+  }
 });
-var getBlogPostTool = defineTool5({
+var getBlogPostTool = defineTool7({
   name: "get_blog_post",
   title: "Lire un article",
   description: "Retourne un article complet (contenu Markdown inclus) par slug.",
-  inputSchema: { slug: z4.string().min(1) },
+  inputSchema: { slug: z6.string().min(1) },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ slug }, ctx) => {
     if (!ctx.isAuthenticated()) return unauth;
     try {
-      const { data, error } = await userClient(ctx)
-        .from("blog_posts")
-        .select("*")
-        .eq("slug", slug)
-        .maybeSingle();
+      const { data, error } = await sb(ctx).from("blog_posts").select("*").eq("slug", slug).maybeSingle();
       if (error) return err(error.message);
       if (!data) return err("Article introuvable");
-      return {
-        content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
-        structuredContent: { post: data },
-      };
+      return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }], structuredContent: { post: data } };
     } catch (e) {
       return err(e.message);
     }
-  },
+  }
 });
 var fields = {
-  title: z4.string().min(1).max(200),
-  subtitle: z4.string().max(300).optional(),
-  content: z4
-    .string()
-    .describe("Contenu Markdown (un seul H1 = le titre ; utiliser ## dans le contenu)."),
-  meta_description: z4.string().max(170).optional(),
-  featured_image_url: z4.string().url().optional(),
-  author_name: z4.string().max(100).optional(),
-  is_listed: z4.boolean().optional(),
-  seo_indexable: z4.boolean().optional(),
-  status: status.optional().describe("draft par d\xE9faut."),
+  title: z6.string().min(1).max(200),
+  subtitle: z6.string().max(300).optional(),
+  content: z6.string().describe("Contenu Markdown (un seul H1 = le titre ; utiliser ## dans le contenu)."),
+  meta_description: z6.string().max(170).optional(),
+  featured_image_url: z6.string().url().optional(),
+  author_name: z6.string().max(100).optional(),
+  is_listed: z6.boolean().optional(),
+  seo_indexable: z6.boolean().optional(),
+  status: status.optional().describe("draft par d\xE9faut.")
 };
-var createBlogPostTool = defineTool5({
+var createBlogPostTool = defineTool7({
   name: "create_blog_post",
   title: "Cr\xE9er un article",
   description: "Cr\xE9e un article (brouillon par d\xE9faut). R\xE9serv\xE9 aux admins IKtracker.",
-  inputSchema: { slug: z4.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), ...fields },
-  annotations: {
-    readOnlyHint: false,
-    destructiveHint: false,
-    idempotentHint: false,
-    openWorldHint: false,
-  },
+  inputSchema: { slug: z6.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), ...fields },
+  annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
   handler: async (input, ctx) => {
     if (!ctx.isAuthenticated()) return unauth;
     try {
       const st = input.status ?? "draft";
-      const { data, error } = await userClient(ctx)
-        .from("blog_posts")
-        .insert({
-          ...input,
-          status: st,
-          published_at: st === "published" ? (/* @__PURE__ */ new Date()).toISOString() : null,
-        })
-        .select(LIST_COLS)
-        .single();
+      const { data, error } = await sb(ctx).from("blog_posts").insert({ ...input, status: st, published_at: st === "published" ? (/* @__PURE__ */ new Date()).toISOString() : null }).select(LIST_COLS).single();
       if (error) return err(error.message);
-      return {
-        content: [{ type: "text", text: `Article cr\xE9\xE9 : ${data.slug} (${data.status})` }],
-        structuredContent: { post: data },
-      };
+      return { content: [{ type: "text", text: `Article cr\xE9\xE9 : ${data.slug} (${data.status})` }], structuredContent: { post: data } };
     } catch (e) {
       return err(e.message);
     }
-  },
+  }
 });
-var updateBlogPostTool = defineTool5({
+var updateBlogPostTool = defineTool7({
   name: "update_blog_post",
   title: "Modifier / publier un article",
-  description:
-    "Met \xE0 jour un article par slug (contenu, SEO, statut draft/published/archived). R\xE9serv\xE9 aux admins.",
+  description: "Met \xE0 jour un article par slug (contenu, SEO, statut draft/published/archived). R\xE9serv\xE9 aux admins.",
   inputSchema: {
-    slug: z4.string().min(1),
+    slug: z6.string().min(1),
     title: fields.title.optional(),
     subtitle: fields.subtitle,
     content: fields.content.optional(),
@@ -382,71 +512,41 @@ var updateBlogPostTool = defineTool5({
     author_name: fields.author_name,
     is_listed: fields.is_listed,
     seo_indexable: fields.seo_indexable,
-    status: fields.status,
+    status: fields.status
   },
-  annotations: {
-    readOnlyHint: false,
-    destructiveHint: false,
-    idempotentHint: true,
-    openWorldHint: false,
-  },
+  annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   handler: async ({ slug, ...patch }, ctx) => {
     if (!ctx.isAuthenticated()) return unauth;
     try {
-      const client = userClient(ctx);
+      const client = sb(ctx);
       const upd = Object.fromEntries(Object.entries(patch).filter(([, v]) => v !== void 0));
       if (patch.status === "published") {
-        const { data: cur } = await client
-          .from("blog_posts")
-          .select("published_at")
-          .eq("slug", slug)
-          .maybeSingle();
+        const { data: cur } = await client.from("blog_posts").select("published_at").eq("slug", slug).maybeSingle();
         if (!cur?.published_at) upd.published_at = (/* @__PURE__ */ new Date()).toISOString();
       }
-      const { data, error } = await client
-        .from("blog_posts")
-        .update(upd)
-        .eq("slug", slug)
-        .select(LIST_COLS)
-        .maybeSingle();
+      const { data, error } = await client.from("blog_posts").update(upd).eq("slug", slug).select(LIST_COLS).maybeSingle();
       if (error) return err(error.message);
       if (!data) return err("Article introuvable ou droits insuffisants (admin requis)");
-      return {
-        content: [
-          { type: "text", text: `Article mis \xE0 jour : ${data.slug} (${data.status})` },
-        ],
-        structuredContent: { post: data },
-      };
+      return { content: [{ type: "text", text: `Article mis \xE0 jour : ${data.slug} (${data.status})` }], structuredContent: { post: data } };
     } catch (e) {
       return err(e.message);
     }
-  },
+  }
 });
 
 // src/lib/mcp/index.ts
 var projectRef = "yarjaudctshlxkatqgeb";
-var mcp_default = defineMcp({
+var index_default = defineMcp({
   name: "iktracker-mcp",
   title: "IKtracker MCP",
   version: "0.1.0",
-  instructions:
-    "Outils IKtracker pour consulter les trajets, v\xE9hicules et cumuls annuels d'indemnit\xE9s kilom\xE9triques de l'utilisateur connect\xE9, et cr\xE9er de nouveaux trajets. Les admins peuvent aussi lire, cr\xE9er, modifier et publier les articles du blog. Toutes les donn\xE9es sont scop\xE9es \xE0 l'utilisateur authentifi\xE9.",
+  instructions: "Outils IKtracker pour consulter les trajets, v\xE9hicules et cumuls annuels d'indemnit\xE9s kilom\xE9triques de l'utilisateur connect\xE9, et cr\xE9er, modifier ou supprimer des trajets (recalcul IK automatique au bar\xE8me officiel). Les admins peuvent aussi lire, cr\xE9er, modifier et publier les articles du blog. Toutes les donn\xE9es sont scop\xE9es \xE0 l'utilisateur authentifi\xE9.",
   auth: auth.oauth.issuer({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
-    acceptedAudiences: "authenticated",
+    acceptedAudiences: "authenticated"
   }),
-  tools: [
-    list_vehicles_default,
-    list_trips_default,
-    get_ytd_summary_default,
-    create_trip_default,
-    listBlogPostsTool,
-    getBlogPostTool,
-    createBlogPostTool,
-    updateBlogPostTool,
-  ],
+  tools: [list_vehicles_default, list_trips_default, get_ytd_summary_default, create_trip_default, update_trip_default, delete_trip_default, listBlogPostsTool, getBlogPostTool, createBlogPostTool, updateBlogPostTool]
 });
-
-// lovable-mcp-supabase-entry.ts
-import { createSupabaseHandler } from "npm:@lovable.dev/mcp-js@0.24.0/stacks/supabase";
-Deno.serve(createSupabaseHandler(mcp_default, { functionName: "mcp" }));
+export {
+  index_default as default
+};
