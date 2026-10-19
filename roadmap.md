@@ -1,4 +1,4 @@
-- [ ] Restaurer la Peugeot 308 du compte demandé ; conserver les véhicules supprimés dans « Anciens véhicules » et leur identité/barème dans les trajets concernés.
+- [x] Restaurer la Peugeot 308 du compte demandé (copie liée 5 CV, 28 trajets réattribués sur preuve, IK inchangées) ; rubrique « Anciens véhicules », snapshots fiscaux conservés à la suppression et dans les exports ; 45 tests réussis, Peugeot vérifiée sur le compte connecté, documents régénérés et contrôlés ; frontend non publié.
 - [x] Ajouter les véhicules supprimés et leur restauration dans les écrans Véhicules : accès propriétaire, archive atomique et nettoyage à la suppression du compte ; liste connectée vérifiée et restauration simulée, sans changement réel de véhicule.
 - [x] Corriger Google Agenda (scope, callback compatible, redirections strictes) et confidentialité ; 71 tests réussis avec services simulés, sans données ni déploiement/publication.
 - [x] Mettre immatriculation et puissance fiscale côte à côte dans la modale véhicule.
