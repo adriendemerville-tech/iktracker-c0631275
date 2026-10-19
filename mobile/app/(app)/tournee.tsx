@@ -60,6 +60,17 @@ export default function TourneeScreen() {
   }, [running]);
 
   const requestPermissionsAndStart = useCallback(async () => {
+    if (!vehicleId) {
+      Alert.alert(
+        "Ajoutez d'abord un véhicule",
+        "Un véhicule est nécessaire pour calculer vos indemnités kilométriques en fin de tournée.",
+        [
+          { text: "Fermer", style: "cancel" },
+          { text: "Ajouter un véhicule", onPress: () => Linking.openURL("https://iktracker.fr/app") },
+        ],
+      );
+      return;
+    }
     const ok = await requestTourPermissions();
     setPermissionStatus(
       await getLocationPermissionStatus().catch(() => ({
