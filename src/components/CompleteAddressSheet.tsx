@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { MapPin, Loader2, Navigation } from "lucide-react";
 import { Trip, Location } from "@/types/trip";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,6 +35,7 @@ export function CompleteAddressSheet({
 }: CompleteAddressSheetProps) {
   const [startAddress, setStartAddress] = useState("");
   const [endAddress, setEndAddress] = useState("");
+  const [purpose, setPurpose] = useState("");
   const [startCoords, setStartCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [endCoords, setEndCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [loading, setLoading] = useState(false);
@@ -48,6 +50,7 @@ export function CompleteAddressSheet({
 
   useEffect(() => {
     if (open) {
+      setPurpose(trip.purpose || "");
       // Start: preserve the trip's original departure address (fallback to .name)
       const startValue = trip.startLocation?.address || trip.startLocation?.name || "";
       if (startValue && !isGenericAddress(startValue)) {
@@ -161,6 +164,11 @@ export function CompleteAddressSheet({
       }
 
       if (data?.success) {
+        const { error: purposeError } = await supabase
+          .from("trips")
+          .update({ purpose: purpose.trim() || null })
+          .eq("id", trip.id);
+        if (purposeError) throw purposeError;
         toast.success(`Trajet complété : ${data.distance} km`);
         onCompleted();
         onOpenChange(false);
@@ -313,6 +321,19 @@ export function CompleteAddressSheet({
               ))}
             </div>
           )}
+
+          <div className="space-y-1.5">
+            <Label htmlFor="complete-trip-purpose" className="text-xs font-medium text-muted-foreground">
+              Motif
+            </Label>
+            <Input
+              id="complete-trip-purpose"
+              value={purpose}
+              onChange={(event) => setPurpose(event.target.value)}
+              placeholder="Ex : Rendez-vous client"
+              className="h-10"
+            />
+          </div>
 
           <div className="flex gap-3 pt-2">
             <Button variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>
