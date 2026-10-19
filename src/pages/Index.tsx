@@ -523,6 +523,13 @@ const Index = () => {
       return;
     }
 
+    // A vehicle is required, otherwise IK cannot be computed at the end of the tour
+    if (vehicles.length === 0) {
+      toast.info("Ajoutez d'abord un véhicule pour calculer vos IK en fin de tournée");
+      handleAddVehicle();
+      return;
+    }
+
     // Mobile: start the tour
     setTourStartRequested(true);
     startTour();
