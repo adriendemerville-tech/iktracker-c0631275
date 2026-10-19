@@ -84,7 +84,7 @@ export function ForumAuthorLink({ userId, pseudo, className }: ForumAuthorLinkPr
     try {
       const supabase = await getSupabase();
       const { data } = await supabase
-        .from("forum_profiles")
+        .from("forum_public_profiles")
         .select(
           "user_id, pseudo, avatar_url, level, persona, city, vehicle, bio, points, discussions_count, replies_count, upvotes_received, member_since, pseudo_enabled, is_moderator",
         )

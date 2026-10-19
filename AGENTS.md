@@ -7,3 +7,4 @@
 - Pass vehicle choices and the parent's updateTrip through TripCard to TripViewSheet; this reuses trip IK calculation without per-card data or auth requests.
 - Archive vehicles in an owner-scoped snapshot table and capture their identity/rate inputs on affected trips before deletion; use trip snapshots in display/exports and preserve stored IK so restoring or deleting a vehicle cannot erase historical fiscal evidence.
 - Keep dashboard vehicle visibility in owner-scoped local storage, separate from the vehicle collection; hiding must not affect trip choices, defaults, or vehicle management.
+- Public forum authors and page content must use read-only, security-barrier projection views with explicit safe columns; private base-table reads stay owner/admin-scoped and projection views must never expose private fields or accept writes.

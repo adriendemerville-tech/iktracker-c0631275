@@ -52,7 +52,7 @@ async function attachAuthors<T extends { author_id: string }>(rows: T[]) {
   const supabase = await getSupabase();
   const ids = Array.from(new Set(rows.map((r) => r.author_id)));
   const { data } = await supabase
-    .from("forum_profiles")
+    .from("forum_public_profiles")
     .select("user_id, pseudo, avatar_url, level, persona, points, pseudo_enabled, is_moderator")
     .in("user_id", ids);
   const map = new Map((data ?? []).map((p) => [p.user_id, maskAuthor(p as ForumAuthor)]));
@@ -143,7 +143,7 @@ export async function fetchDiscussionBySlug(slug: string) {
     ]),
   );
   const { data: profiles } = await supabase
-    .from("forum_profiles")
+    .from("forum_public_profiles")
     .select("user_id, pseudo, avatar_url, level, persona, points, pseudo_enabled, is_moderator")
     .in("user_id", authorIds);
   const map = new Map((profiles ?? []).map((p) => [p.user_id, maskAuthor(p as ForumAuthor)]));
@@ -177,7 +177,7 @@ export type ForumTopContributor = {
 export async function fetchTopContributors(limit = 8): Promise<ForumTopContributor[]> {
   const supabase = await getSupabase();
   const { data } = await supabase
-    .from("forum_profiles")
+    .from("forum_public_profiles")
     .select("user_id, pseudo, avatar_url, level, discussions_count, replies_count, pseudo_enabled, is_moderator")
     .order("discussions_count", { ascending: false })
     .order("replies_count", { ascending: false })
