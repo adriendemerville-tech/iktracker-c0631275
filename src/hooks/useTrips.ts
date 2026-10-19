@@ -7,6 +7,7 @@ import { usePreferences, getFiscalYearStart } from "./usePreferences";
 import { useEmailGate, UNVERIFIED_TRIP_LIMIT, UNVERIFIED_TOUR_LIMIT } from "./useEmailGate";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { archiveLocalVehicle, VEHICLE_ARCHIVE_EVENT } from "@/lib/deleted-vehicles";
 import {
   EMPTY_LOCATIONS,
   EMPTY_VEHICLES,
@@ -123,6 +124,12 @@ export function useTrips() {
   const locationsQuery = useLocationsQuery(user?.id);
 
   const vehicles = user ? (vehiclesQuery.data ?? EMPTY_VEHICLES) : localVehicles;
+  useEffect(() => {
+    if (user) return;
+    const refresh = () => setLocalVehicles(JSON.parse(localStorage.getItem(VEHICLES_KEY) || "[]"));
+    window.addEventListener(VEHICLE_ARCHIVE_EVENT, refresh);
+    return () => window.removeEventListener(VEHICLE_ARCHIVE_EVENT, refresh);
+  }, [user]);
   const savedLocations = user ? (locationsQuery.data ?? EMPTY_LOCATIONS) : localLocations;
   const loading =
     tripsLoading || (!!user && (vehiclesQuery.isPending || locationsQuery.isPending));
@@ -1058,7 +1065,7 @@ export function useTrips() {
 
   const deleteVehicle = async (id: string): Promise<{ success: boolean; error?: string }> => {
     if (user) {
-      // Delete vehicle - trips will have vehicle_id set to NULL (ON DELETE SET NULL)
+      // A DB trigger archives the full vehicle before deletion; trips detach as before.
       // Trips keep their existing IK amounts
       const { error } = await supabase.from("vehicles").delete().eq("id", id);
       if (error) {
@@ -1067,12 +1074,27 @@ export function useTrips() {
       // Update local state: set vehicleId to null for affected trips
       setTrips((prev) => prev.map((t) => (t.vehicleId === id ? { ...t, vehicleId: null } : t)));
       setVehiclesCache((prev) => prev.filter((v) => v.id !== id));
+      queryClient.invalidateQueries({ queryKey: ["deleted-vehicles", user.id] });
+      if (preferences.defaultVehicleId === id || vehicles.length === 2) {
+        await updatePreference("defaultVehicleId", vehicles.find((v) => v.id !== id)?.id ?? null);
+      }
       return { success: true };
     } else {
+      const vehicle = vehicles.find((v) => v.id === id);
+      if (!vehicle) return { success: false, error: "Véhicule introuvable." };
+      try {
+        archiveLocalVehicle(vehicle);
+      } catch {
+        return { success: false, error: "Impossible de conserver ce véhicule pour restauration." };
+      }
       // For local storage, set vehicleId to null for affected trips
       const updatedTrips = trips.map((t) => (t.vehicleId === id ? { ...t, vehicleId: null } : t));
       saveTripsLocal(updatedTrips);
       saveVehiclesLocal(vehicles.filter((v) => v.id !== id));
+      window.dispatchEvent(new Event(VEHICLE_ARCHIVE_EVENT));
+      if (preferences.defaultVehicleId === id || vehicles.length === 2) {
+        await updatePreference("defaultVehicleId", vehicles.find((v) => v.id !== id)?.id ?? null);
+      }
       return { success: true };
     }
   };

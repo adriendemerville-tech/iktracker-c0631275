@@ -22,7 +22,7 @@ export const EMPTY_LOCATIONS: Location[] = [];
 
 type VehicleRow = Tables<"vehicles">;
 
-function mapVehicleRow(v: VehicleRow): Vehicle {
+export function mapVehicleRow(v: VehicleRow): Vehicle {
   return {
     id: v.id,
     name: v.name || "",
