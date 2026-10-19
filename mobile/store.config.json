@@ -3,6 +3,7 @@
   "apple": {
     "info": {
       "en-US": {
+        "privacyPolicyUrl": "https://iktracker.fr/privacy",
         "title": "IKTracker: Frais Kilométriques",
         "subtitle": "Trajets pro, IK auto sans sais",
         "description": "IKTracker calcule automatiquement vos indemnités kilométriques, sans saisie manuelle.\n\nSuivez vos trajets professionnels en un instant : lancez une tournée, laissez la localisation faire le travail, et retrouvez un relevé complet prêt à exporter pour votre comptable ou votre employeur.\n\nFonctionnalités principales :\n- Suivi automatique de la distance parcourue pendant vos tournées\n- Enregistrement des trajets aller-retour avec départ et arrivée\n- Import des rendez-vous du jour pour préparer votre itinéraire\n- Choix du véhicule utilisé pour chaque trajet\n- Rapports et relevés IK générés automatiquement\n- Connexion rapide avec Apple ou Google\n\nIdéal pour les artisans, commerciaux, indépendants et salariés en déplacement qui veulent gagner du temps sur leurs notes de frais.\n\nTéléchargez IKTracker et laissez votre téléphone suivre vos kilomètres pendant que vous vous concentrez sur votre travail.",
