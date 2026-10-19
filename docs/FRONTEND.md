@@ -1,5 +1,10 @@
 # IKTracker — Documentation Technique Frontend
 
+**Véhicules supprimés — 19 octobre 2026**
+- `DeletedVehicles` partagé dans le panneau Véhicules desktop, les réglages Véhicules et le profil : ouverture à la demande, liste datée, bouton Restaurer, chargement et erreurs réessayables. Lecture propriétaire et RPC atomique côté Cloud ; cache véhicules mutualisé invalidé après restauration.
+- Mode non connecté : snapshot local avant suppression, restauration des données du véhicule sans toucher aux trajets ; événement partagé pour synchroniser les listes montées. Le principal existant n'est pas remplacé lors d'une restauration, sauf véhicule unique.
+- Seules les suppressions postérieures à la migration disposent d'une archive récupérable. Aucun frontend publié automatiquement.
+
 > Version 3.7 — 9 septembre 2026 (Maillage interne à deux clusters SEO, pondérations sitemap)
 
 **Correctif préparé le 19 octobre 2026 (non publié)**
