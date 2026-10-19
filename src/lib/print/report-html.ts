@@ -1,4 +1,5 @@
 import { Trip, Vehicle, IK_BAREME_2026 } from "@/types/trip";
+import { getTripVehicle } from "@/lib/trip-vehicle";
 import {
   esc,
   formatStopTime,
@@ -89,6 +90,7 @@ export function generateReportHTML(options: PrintReportOptions): string {
       const year = tripDate.getFullYear().toString().slice(-2);
       const startCity = extractCity(t.startLocation.address || t.startLocation.name);
       const endCity = extractCity(t.endLocation.address || t.endLocation.name);
+      const tripVehicle = getTripVehicle(t, vehicles);
       const motifRaw = t.purpose || "-";
       const motif = motifRaw.length > 60 ? motifRaw.substring(0, 59) + "…" : motifRaw;
       const bgColor = i % 2 === 0 ? "#ffffff" : "#f9fafb";
@@ -126,7 +128,7 @@ export function generateReportHTML(options: PrintReportOptions): string {
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; font-weight: 500; font-size: 11px; width: 70px; min-width: 70px;">${day}/${month}/${year}</td>
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; font-size: 11px; width: 140px; min-width: 140px;">${esc(startCity)}</td>
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; font-size: 11px; width: 140px; min-width: 140px;">${esc(endCity)}</td>
-        <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; font-size: 10px; color: #6b7280; width: 180px; min-width: 180px; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${esc(motif)}</td>
+        <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; font-size: 10px; color: #6b7280; width: 180px; min-width: 180px; max-width: 180px; overflow-wrap: anywhere;">${esc(motif)}${t.vehicleSnapshot && tripVehicle ? `<br>${esc(tripVehicle.name || `${tripVehicle.make} ${tripVehicle.model}`)} · ${esc(tripVehicle.licensePlate)} · ${tripVehicle.fiscalPower} CV${tripVehicle.isElectric ? " · Électrique +20 %" : ""}` : ""}</td>
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 500; font-size: 11px; width: 60px; min-width: 60px;">${Math.round(t.distance)}</td>
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; text-align: right; color: #9ca3af; font-size: 11px; width: 65px; min-width: 65px;">${Math.round(t.cumulativeKm)}</td>
         <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 600; color: #2563eb; font-size: 11px; width: 80px; min-width: 80px;">${t.recalculatedIK.toFixed(2)} €</td>

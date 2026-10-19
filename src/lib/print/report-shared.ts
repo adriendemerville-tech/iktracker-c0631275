@@ -9,6 +9,7 @@ import {
   getIKBareme,
   IKRateOverride,
 } from "@/types/trip";
+import { getTripVehicle } from "@/lib/trip-vehicle";
 
 // Escape user-controlled values before interpolating into HTML to prevent XSS.
 export function esc(value: unknown): string {
@@ -76,32 +77,31 @@ export function recalculateTrips(
   vehicles: Vehicle[],
   override: IKRateOverride = "auto",
 ): RecalculatedTrip[] {
-  const getVehicle = (id: string) => vehicles.find((v) => v.id === id);
   const grouped = new Map<string, Trip[]>();
 
   trips.forEach((trip) => {
     const year = new Date(trip.startTime).getFullYear();
-    const key = `${trip.vehicleId}-${year}`;
-    if (!grouped.has(key)) grouped.set(key, []);
-    grouped.get(key)!.push(trip);
+    const key = `${trip.vehicleSnapshot?.id ?? trip.vehicleId}::${year}`;
+    const group = grouped.get(key) ?? [];
+    group.push(trip);
+    grouped.set(key, group);
   });
 
   const result: RecalculatedTrip[] = [];
 
-  grouped.forEach((vehicleTrips, key) => {
-    const vehicleId = key.split("-")[0];
-    const vehicle = getVehicle(vehicleId);
+  grouped.forEach((vehicleTrips) => {
     const sorted = [...vehicleTrips].sort(
       (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
     );
     let cumulativeKm = 0;
 
     sorted.forEach((trip) => {
+      const vehicle = getTripVehicle(trip, vehicles);
       const prevCumulativeKm = cumulativeKm;
       cumulativeKm += trip.distance;
 
-      if (!vehicle) {
-        result.push({ ...trip, recalculatedIK: trip.ikAmount, cumulativeKm, appliedRate: 0 });
+      if (!vehicle || trip.vehicleSnapshot) {
+        result.push({ ...trip, recalculatedIK: trip.ikAmount, cumulativeKm, appliedRate: trip.distance > 0 ? trip.ikAmount / trip.distance : 0 });
         return;
       }
 
