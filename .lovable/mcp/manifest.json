@@ -159,6 +159,99 @@
         "outputSchema": null
       },
       {
+        "name": "update_trip",
+        "title": "Modifier un trajet",
+        "description": "Modifie un trajet IKtracker existant (véhicule, date, adresses, distance, aller-retour, motif). Au moins un champ à modifier est requis. Convention distance : la distance stockée inclut déjà l'aller-retour éventuel ; comme l'app web, changer round_trip seul NE modifie PAS la distance. Si vehicle_id, distance, date ou round_trip change, l'IK du trajet est recalculée avec le barème officiel cumulatif annuel (bonus +20 % si véhicule 100 % électrique, préférence ik_rate_override de l'utilisateur respectée), et les ik_amount de TOUS les trajets non supprimés des véhicules concernés (ancien et nouveau) pour les années concernées sont réajustés dans l'ordre chronologique. Les colonnes source, tour_stops et coordonnées ne sont jamais modifiées.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "trip_id": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifiant du trajet (UUID)."
+            },
+            "vehicle_id": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Nouveau véhicule (UUID, doit appartenir à l'utilisateur)."
+            },
+            "date": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+              "description": "Nouvelle date (YYYY-MM-DD)."
+            },
+            "start_location": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Nouvelle adresse de départ."
+            },
+            "end_location": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Nouvelle adresse d'arrivée."
+            },
+            "distance": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Nouvelle distance totale en km (aller-retour inclus le cas échéant)."
+            },
+            "round_trip": {
+              "type": "boolean",
+              "description": "Aller-retour. Ne change pas la distance stockée."
+            },
+            "purpose": {
+              "type": "string",
+              "description": "Motif du déplacement (chaîne vide = effacer)."
+            }
+          },
+          "required": [
+            "trip_id"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "delete_trip",
+        "title": "Supprimer un trajet",
+        "description": "Supprime un trajet IKtracker (suppression douce : deleted_at horodaté, restaurable 30 jours depuis l'archive de l'app — aucun DELETE définitif). Nécessite confirm=true, sinon refus sans aucune action. Après suppression, les ik_amount des trajets restants du même véhicule pour la même année sont recalculés (barème cumulatif, bonus électrique, préférence ik_rate_override).",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": true,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "trip_id": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifiant du trajet (UUID)."
+            },
+            "confirm": {
+              "type": "boolean",
+              "const": true,
+              "description": "Doit valoir true pour confirmer la suppression."
+            }
+          },
+          "required": [
+            "trip_id",
+            "confirm"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
         "name": "list_blog_posts",
         "title": "Lister les articles du blog",
         "description": "Liste les articles du blog IKtracker (filtre statut/recherche titre). Brouillons visibles pour les admins.",
