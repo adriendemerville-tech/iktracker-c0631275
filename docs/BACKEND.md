@@ -6,6 +6,7 @@
 - Migration `0008_apply_selected_public_data_audiences` appliquée selon les choix utilisateur : `site_config` SELECT admin uniquement ; `forum_categories` SELECT authenticated uniquement ; `forum_profiles` SELECT propriétaire/admin ; `page_contents` SELECT admin. Retrait des anciennes policies SELECT universelles et des grants anon sur les tables de base.
 - Vues publiques en lecture seule `forum_public_profiles` et `public_page_contents`, grants SELECT anon/authenticated/service_role : projections explicites et security_barrier, exécutées volontairement avec les droits de leur propriétaire pour permettre uniquement les champs publics malgré la RLS privée des tables sources. Pas de grant d’écriture. Les pseudonymes désactivés deviennent « Membre anonyme », avatars désactivés et bio/persona/city/vehicle privés retournent NULL ; aucun last_seen_at ou horodatage interne. Textes/SEO publics sans `updated_by`. Lectures publiques du forum et `usePageContent` basculées vers ces vues ; profil personnel et administration restent sur les tables protégées.
 - HIBP non modifié : les autres paramètres Auth requis par l’outil ne sont pas disponibles via une lecture fiable ; activation manuelle ciblée nécessaire dans More → Users → Auth settings → Email → Password HIBP check. Aucune configuration OAuth ni fonction externe déployée.
+- Bilan du périmètre demandé : 8 alertes corrigées et marquées résolues ; l'alerte HIBP reste ouverte. Vérifications sans écriture : accès anonyme refusé aux quatre tables de base, projections publiques lisibles sans champs privés, accès connecté aux catégories et au profil personnel conservé. Les 5 tests SSR du forum passent ; les catégories réservées aux membres renvoient désormais 404 sans session, tandis que les discussions restent publiques. Le sitemap continue de référencer les catégories : ce comportement est documenté, non corrigé hors périmètre.
 
 **Véhicules supprimés — 19 octobre 2026**
 - Table `public.deleted_vehicles` : `vehicle_id`, `user_id`, snapshot complet `vehicle_data`, `deleted_at`. Grants SELECT/DELETE authenticated, ALL service_role ; RLS propriétaire pour lecture et retrait de l'archive. Aucun accès anonyme.
@@ -14,7 +15,7 @@
 - RPC `restore_deleted_vehicle(p_vehicle_id)` SECURITY INVOKER, propriétaire vérifié via auth.uid() et RLS : réinsère le véhicule (même ID), puis retire l'archive dans la même transaction. Aucune réattribution ni recalcul des trajets ; pas de changement du principal existant sauf si le véhicule restauré est le seul actif.
 - Migrations `0003_recover_deleted_vehicles`, `0004_restore_vehicle_read_only_archive` et `0005_cleanup_vehicle_archives_on_account_deletion` appliquées. Le trigger de suppression de compte nettoie également ces snapshots, y compris ceux capturés pendant la suppression des véhicules du compte. Aucune suppression/restauration réelle effectuée pour les tests. Les véhicules supprimés avant cette évolution ne disposent pas de snapshot et ne peuvent pas être reconstitués par cette option.
 
-> Version 4.6.18 — 19 octobre 2026
+> Version 4.6.19 — 19 octobre 2026 (sécurité ciblée et vérification des accès)
 
 **Notes v4.6.18 (validation Google Agenda, préparé sans déploiement)**
 - `google-calendar-auth` demande uniquement `https://www.googleapis.com/auth/calendar.events.readonly`. L'import et le debug utilisent uniquement `calendars/primary/events` ; aucun appel `calendarList`. Les tokens existants restent inchangés.
@@ -111,7 +112,7 @@
 - **10 edge functions instrumentées** : wavespeed (proxy + garde), transcribe-audio, parse-trip-prompt, backfill-blog-covers, linkedin-weekly-post, linkedin-post-audit, send-accountant-report-manual, trips-guard, recalculate-distances.
 - **`_shared/deferred.ts`** : écritures non critiques déportées via `EdgeRuntime.waitUntil` — suppression du round-trip DB synchrone dans le chemin critique de track-event (~35k inserts analytics/mois), blog-api (logs d'accès + incréments de quota, ~12k/mois) et vehicle-lookup (logs d'usage).
 - **Index `api_usage_logs(created_at)`** : le calcul du budget mensuel reste une lecture indexée.
-- **Sécurité** : protection contre les mots de passe compromis (HIBP) activée dans Auth ; `is_slug_blacklisted` restreinte au service_role (révoquée d'anon) ; `get_aggregate_rating` confirmée publique (preuve sociale) ; `vehicle_cache` confirmée en accès service-role uniquement (table verrouillée volontairement).
+- **Sécurité** : la mention historique « HIBP activée » est supersédée par le contrôle du 19 octobre 2026 : protection désactivée, activation manuelle encore requise (voir sécurité ciblée ci-dessus). `is_slug_blacklisted` restreinte au service_role (révoquée d'anon) ; `get_aggregate_rating` confirmée publique (preuve sociale) ; `vehicle_cache` confirmée en accès service-role uniquement (table verrouillée volontairement).
 
 **Notes v4.3 (performance, suite audit de scalabilité)**
 - **Index `trips(user_id, created_at DESC)`** : la recherche du « dernier véhicule utilisé » (`pick_default_vehicle_for_user`, ~3 700 appels/jour) passe de ~35 ms à < 1 ms.

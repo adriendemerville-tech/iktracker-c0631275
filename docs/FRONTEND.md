@@ -1,12 +1,17 @@
 # IKTracker — Documentation Technique Frontend
 
+**Lectures publiques et sécurité — 19 octobre 2026 (non publié)**
+- `src/lib/forum/queries.ts` : auteurs des discussions et classement des contributeurs lus via `forum_public_profiles` ; `ForumAuthorLink` utilise la même projection publique. Les pseudonymes désactivés deviennent « Membre anonyme » et les informations privées ne sont pas exposées. `useForumProfile` et l'administration conservent leurs lectures protégées sur `forum_profiles`.
+- `usePageContent` lit `public_page_contents` : textes et métadonnées SEO accessibles publiquement sans exposer `updated_by`. La configuration du site reste réservée aux administrateurs ; les catégories du forum sont réservées aux membres connectés.
+- Vérification : 5 tests de `src/test/ssr-forum-seo.test.ts` réussis, lectures anonymes et connectées contrôlées sans écriture. Sans session, une page de catégorie renvoie 404 ; les discussions conservent leur contenu SSR et JSON-LD public. Les catégories restent référencées dans le sitemap existant : aucune modification SEO hors du périmètre sécurité n'a été réalisée. Le code frontend correspondant n'a pas été publié automatiquement.
+
 **Anciens véhicules — 19 octobre 2026**
 - `DeletedVehicles` partagé dans le panneau Véhicules desktop, les réglages Véhicules et le profil : ouverture à la demande, liste datée, bouton Restaurer, chargement et erreurs réessayables. Lecture propriétaire et RPC atomique côté Cloud ; cache véhicules mutualisé invalidé après restauration.
 - Mode non connecté : snapshot local avant suppression, restauration des données du véhicule sans toucher aux trajets ; événement partagé pour synchroniser les listes montées. Le principal existant n'est pas remplacé lors d'une restauration, sauf véhicule unique.
 - Les trajets conservent `vehicleSnapshot` à la suppression : identité, plaque, CV et motorisation visibles dans les cartes/détails et exports CSV/PDF ; les IK enregistrées restent prioritaires pour ces trajets. La réattribution explicite remplace le snapshot. Les sélecteurs futurs restent limités aux véhicules actifs. Les rapports regroupent par identifiant complet du véhicule (UUID non tronqué).
 - Seules les suppressions postérieures à la migration disposent d'une archive récupérable. Aucun frontend publié automatiquement.
 
-> Version 3.7 — 9 septembre 2026 (Maillage interne à deux clusters SEO, pondérations sitemap)
+> Version 3.8 — 19 octobre 2026 (projections publiques sécurisées et anciens véhicules)
 
 **Correctif préparé le 19 octobre 2026 (non publié)**
 - Retour Google Agenda `/oauth/google-calendar/callback` traité côté serveur, sans page intermédiaire ni tokens côté navigateur, noindex et no-store.
