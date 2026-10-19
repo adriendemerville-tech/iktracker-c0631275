@@ -31,13 +31,14 @@ describe("marginalIK — changement de véhicule 4 CV → 7+ CV électrique", ()
 });
 
 describe("marginalIK — cumul franchissant 5000 km", () => {
-  it("le trajet qui franchit la tranche paie la part fixe du barème", () => {
+  it("le trajet qui franchit la tranche absorbe la correction du barème cumulatif", () => {
     // 5 CV : 4900 km déjà cumulés, trajet de 200 km → cumul 5100 km.
     const ik = marginalIK(4900, 200, { fiscal_power: 5, is_electric: false }, "auto");
     const attendu = calculateTotalAnnualIK(5100, 5) - calculateTotalAnnualIK(4900, 5);
     expect(ik).toBeCloseTo(attendu, 2);
-    // La part fixe (1395) est entièrement absorbée par ce trajet.
-    expect(ik).toBeGreaterThan(200 * 0.636);
+    // Le barème cumulatif lisse le changement de tranche : le marginal diffère du taux plein.
+    expect(ik).not.toBeCloseTo(200 * 0.636, 2);
+    expect(ik).toBeGreaterThan(0);
   });
 });
 
