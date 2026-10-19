@@ -3,5 +3,6 @@
 - [x] Ajouter le motif prérempli et modifiable dans Compléter le trajet ; sauvegarde vérifiée avec données simulées, test réussi et compilation OK.
 - [x] Ajouter le toggle principal à la modification, exclusif et verrouillé pour le véhicule unique ; tests simulés et contrôle connecté du véhicule unique réussis, sans changement enregistré.
 - [x] Permettre de choisir le véhicule principal dès le deuxième véhicule, sans changer les trajets passés.
+- [ ] Changer le véhicule depuis son nom ou son icône dans les détails du trajet, avec le recalcul IK existant et vérification du sélecteur.
 - [x] Renouveler la clé Azure d'Outlook et vérifier qu'elle est acceptée.
 - [x] Ajouter la vidéo de démonstration sur l'accueil, avec son optionnel et JSON-LD dédié ; build et 76 tests OK, commandes desktop/mobile vérifiées avec copie temporaire WebM (navigateur de test sans décodeur H.264), MP4 original inchangé et décodage validé.
