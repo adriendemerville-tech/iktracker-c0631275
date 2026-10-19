@@ -1376,6 +1376,7 @@ ${IKTRACKER_URL}`;
                       key={trip.id}
                       trip={trip}
                       vehicle={vehicle}
+                      vehicles={vehicles}
                       showTripTime={preferences.showTripTime}
                       onEdit={(t) => {
                         setEditingTrip(t);
@@ -1441,6 +1442,7 @@ ${IKTRACKER_URL}`;
                             key={trip.id}
                             trip={trip}
                             vehicle={vehicle}
+                            vehicles={vehicles}
                             showTripTime={preferences.showTripTime}
                             onEdit={(t) => {
                               setEditingTrip(t);

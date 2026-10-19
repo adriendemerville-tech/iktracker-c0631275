@@ -19,6 +19,8 @@ import {
 import { extractCityFromAddress, geocodeAddress } from "@/lib/geocoding";
 import { AddressAutocompleteInput } from "./AddressAutocompleteInput";
 import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { AddressSuggestion } from "@/hooks/useAddressAutocomplete";
 
 import { useGoogleMaps } from "@/hooks/useGoogleMaps";
@@ -32,6 +34,7 @@ interface TripViewSheetProps {
   onOpenChange: (open: boolean) => void;
   trip: Trip | null;
   vehicle?: Vehicle;
+  vehicles?: Vehicle[];
   // Fourni par la page parente (qui monte déjà useTrips) : évite un useTrips()
   // par TripCard, soit 2 requêtes trips par carte affichée.
   updateTrip: (id: string, updates: Partial<Omit<Trip, "id">>) => Promise<Trip | null>;
@@ -64,7 +67,7 @@ interface ViaStop {
 
 type EditTarget = null | "start" | "end" | { kind: "stop"; id: string };
 
-export function TripViewSheet({ open, onOpenChange, trip, vehicle, updateTrip }: TripViewSheetProps) {
+export function TripViewSheet({ open, onOpenChange, trip, vehicle, vehicles = [], updateTrip }: TripViewSheetProps) {
   useGoogleMaps();
   const { toast } = useToast();
   const [viaStops, setViaStops] = useState<ViaStop[]>([]);
@@ -73,6 +76,7 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle, updateTrip }:
   const [isRecalc, setIsRecalc] = useState(false);
   const [localDistance, setLocalDistance] = useState<number | null>(null);
   const [localIk, setLocalIk] = useState<number | null>(null);
+  const [localVehicleId, setLocalVehicleId] = useState<string | null>(null);
   const [editing, setEditing] = useState<EditTarget>(null);
   const [editValue, setEditValue] = useState("");
 
@@ -91,6 +95,7 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle, updateTrip }:
   } | null>(null);
 
   const displayTrip = trip;
+  const displayVehicle = vehicles.find(v => v.id === (localVehicleId ?? displayTrip?.vehicleId)) ?? vehicle;
   const displayDistance = localDistance ?? displayTrip?.distance ?? 0;
   const displayIk = localIk ?? displayTrip?.ikAmount ?? 0;
   const startLoc = startOverride ?? displayTrip?.startLocation;
@@ -116,6 +121,7 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle, updateTrip }:
     }
     setLocalDistance(null);
     setLocalIk(null);
+    setLocalVehicleId(null);
     setStartOverride(null);
     setEndOverride(null);
     setEditing(null);
@@ -311,6 +317,24 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle, updateTrip }:
     } catch (e) {
       console.error(e);
       toast({ title: "Erreur", description: "Mise à jour impossible.", variant: "destructive" });
+    } finally {
+      setIsRecalc(false);
+    }
+  };
+
+  const handleChangeVehicle = async (vehicleId: string) => {
+    if (isRecalc || vehicleId === (localVehicleId ?? displayTrip.vehicleId)) return;
+    setIsRecalc(true);
+    try {
+      // The parent's updateTrip preserves the distance and recalculates IK using
+      // the selected vehicle, annual mileage, override and electric bonus.
+      const updated = await updateTrip(displayTrip.id, { vehicleId });
+      if (!updated) throw new Error("Vehicle update failed");
+      setLocalVehicleId(updated.vehicleId);
+      setLocalIk(updated.ikAmount);
+      toast({ title: "Véhicule du trajet mis à jour" });
+    } catch {
+      toast({ title: "Véhicule non modifié", description: "Réessayez de sélectionner le véhicule.", variant: "destructive" });
     } finally {
       setIsRecalc(false);
     }
@@ -724,25 +748,41 @@ export function TripViewSheet({ open, onOpenChange, trip, vehicle, updateTrip }:
               </div>
             )}
 
-            {vehicle && (
+            {(displayVehicle || vehicles.length > 0) && (
               <div className="pt-4 border-t border-border">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
-                      <Car className="w-5 h-5 text-muted-foreground" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-foreground">
-                        {vehicle.make && vehicle.model
-                          ? `${vehicle.make} ${vehicle.model}`
-                          : `${vehicle.fiscalPower} CV`}
-                      </p>
-                      <p className="text-xs text-muted-foreground">{vehicle.fiscalPower} CV</p>
-                    </div>
-                  </div>
-                  {vehicle.licensePlate && (
-                    <div className="bg-foreground text-background px-3 py-1.5 rounded-md font-mono text-sm font-bold tracking-wider">
-                      {vehicle.licensePlate}
+                <div className="flex items-center justify-between gap-3">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" disabled={isRecalc || vehicles.length === 0}
+                        aria-label="Changer le véhicule du trajet" title="Changer le véhicule du trajet"
+                        className="h-auto min-h-11 min-w-0 justify-start gap-3 px-0 text-left whitespace-normal">
+                        <span className="w-10 h-10 shrink-0 rounded-full bg-muted flex items-center justify-center">
+                          {isRecalc ? <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /> : <Car className="w-5 h-5 text-muted-foreground" />}
+                        </span>
+                        <span className="min-w-0">
+                          <span className="block font-medium text-foreground">
+                            {displayVehicle ? displayVehicle.name || `${displayVehicle.make} ${displayVehicle.model}`.trim() || `${displayVehicle.fiscalPower} CV` : "Sans véhicule"}
+                          </span>
+                          {displayVehicle && <span className="block text-xs text-muted-foreground">{displayVehicle.fiscalPower} CV</span>}
+                        </span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="max-h-64 max-w-[calc(100vw-2rem)] overflow-y-auto">
+                      {vehicles.map(option => (
+                        <DropdownMenuItem key={option.id} disabled={isRecalc} onSelect={() => void handleChangeVehicle(option.id)} className="min-h-11 gap-2">
+                          <Car className="h-4 w-4 shrink-0 text-muted-foreground" />
+                          <span className="min-w-0 flex-1">
+                            <span className="block">{option.name || `${option.make} ${option.model}`.trim() || "Véhicule"}</span>
+                            <span className="block text-xs text-muted-foreground">{option.fiscalPower} CV{option.isElectric ? " · Électrique" : ""}{option.licensePlate ? ` · ${option.licensePlate}` : ""}</span>
+                          </span>
+                          {option.id === (localVehicleId ?? displayTrip.vehicleId) && <Check className="h-4 w-4 shrink-0 text-primary" />}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  {displayVehicle?.licensePlate && (
+                    <div className="shrink-0 bg-foreground text-background px-3 py-1.5 rounded-md font-mono text-sm font-bold tracking-wider">
+                      {displayVehicle.licensePlate}
                     </div>
                   )}
                 </div>
