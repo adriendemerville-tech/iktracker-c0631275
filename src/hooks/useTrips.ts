@@ -849,7 +849,7 @@ export function useTrips() {
         const isFirstVehicle = (otherVehicles ?? 0) === 0;
 
         const { data: tripsWithoutVehicle } = isFirstVehicle
-          ? await supabase.from("trips").select("*").eq("user_id", user.id).is("vehicle_id", null)
+          ? await supabase.from("trips").select("*").eq("user_id", user.id).is("vehicle_id", null).is("vehicle_snapshot", null)
           : { data: [] as never[] };
 
         if (tripsWithoutVehicle && tripsWithoutVehicle.length > 0) {
