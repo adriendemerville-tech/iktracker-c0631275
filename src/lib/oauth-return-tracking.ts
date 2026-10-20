@@ -125,3 +125,44 @@ export function clearOAuthPending() {
   if (!isBrowser()) return;
   clearPending();
 }
+
+const KNOWN_USERS_KEY = "ik_known_user_ids";
+
+/**
+ * Solde un retour OAuth en événement de succès d'inscription ou non.
+ * Problème corrigé : le retour OAuth atterrit sur l'origine (jamais /signup),
+ * donc `signup_success` n'était jamais émis pour Google/Apple — d'où des
+ * compteurs provider à 0 dans le funnel admin malgré des comptes réels.
+ *
+ * Compte comme inscription seulement la première fois que ce navigateur voit
+ * ce compte (retours ultérieurs = simple connexion). Retourne true si tracé.
+ */
+export function settleOAuthSignupSuccess(
+  provider: string | undefined,
+  userId: string | undefined,
+): boolean {
+  if (!isBrowser() || isBot()) return false;
+  const pending = readPending();
+  if (!pending) return false;
+  clearPending();
+  if (Date.now() - pending.ts > STALE_MS) return false;
+
+  const resolved = provider ?? pending.provider;
+  let isFirstVisit = true;
+  try {
+    const known = JSON.parse(localStorage.getItem(KNOWN_USERS_KEY) ?? "[]") as string[];
+    isFirstVisit = !userId || !known.includes(userId);
+    if (userId && isFirstVisit) {
+      known.push(userId);
+      localStorage.setItem(KNOWN_USERS_KEY, JSON.stringify(known.slice(-500)));
+    }
+  } catch {
+    /* localStorage indisponible : on trace quand même */
+  }
+
+  if (!isFirstVisit) return false;
+
+  void trackSignupEvent("signup_success", resolved, pending.page);
+  gaEvent("signup_success", { provider: resolved, start_page: pending.page });
+  return true;
+}

@@ -1,7 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import type { User, Session } from "@supabase/supabase-js";
 import { getSupabase } from "@/integrations/supabase/lazy";
-import { clearOAuthPending, resolveOAuthReturn } from "@/lib/oauth-return-tracking";
+import {
+  clearOAuthPending,
+  resolveOAuthReturn,
+  settleOAuthSignupSuccess,
+} from "@/lib/oauth-return-tracking";
 
 const SESSION_COUNT_KEY = "ik_session_count";
 
