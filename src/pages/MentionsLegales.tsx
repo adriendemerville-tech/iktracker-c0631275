@@ -88,7 +88,7 @@ const MentionsLegales = () => {
                 <strong>Directeur de la publication :</strong> Adrien de Volontat
               </li>
               <li>
-                <strong>Adresse postale :</strong> Saint-Rémy-de-Provence (13210), France
+                <strong>Adresse postale :</strong> VOLUNTAS NOVARE, 255 chemin des Masques, 13160 Châteaurenard, France
               </li>
               <li>
                 <strong>Email :</strong>{" "}
