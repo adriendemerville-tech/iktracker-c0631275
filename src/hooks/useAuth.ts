@@ -83,8 +83,13 @@ export const useAuth = () => {
 
         // Un retour OAuth réussi peut atterrir sur n'importe quelle page
         // (redirect_uri = origine) : on solde le marqueur ici pour ne pas
-        // compter un faux abandon plus tard.
+        // compter un faux abandon plus tard, et on trace le provider réel
+        // (Google/Apple) que /signup ne voyait jamais.
         if (event === "SIGNED_IN" && nextSession) {
+          settleOAuthSignupSuccess(
+            (nextSession.user?.app_metadata?.provider as string) || undefined,
+            nextSession.user?.id,
+          );
           clearOAuthPending();
         }
 
