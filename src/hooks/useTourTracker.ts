@@ -2,7 +2,10 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { reverseGeocode } from "@/lib/geocoding";
 import { calculateDrivingDistance, getDistanceInMeters } from "@/lib/distance";
 import { useWakeLock } from "@/hooks/useWakeLock";
-import { playNotificationSound } from "@/lib/sounds";
+import { playNotificationSound, setZoneAlertsMuted, unlockAlertAudio } from "@/lib/sounds";
+import { DANGER_ZONE_COPY } from "@/lib/danger-zones/copy";
+import { createDangerZoneSession } from "@/lib/danger-zones/session";
+import type { DangerZoneBanner } from "@/lib/danger-zones/types";
 import { toast } from "sonner";
 import { useTourSessionDB } from "@/hooks/useTourSessionDB";
 
@@ -28,6 +31,8 @@ interface UseTourTrackerOptions {
   locationRadius?: number; // meters - radius to consider as "same location"
   trackingInterval?: number; // ms - how often to capture points (default 10s)
   accuracyThreshold?: number; // meters - max accuracy to accept (default 50m)
+  dangerZoneAlerts?: boolean;
+  dangerZoneMuted?: boolean;
 }
 
 interface PendingStop {
@@ -161,6 +166,52 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
 
   // Wake Lock integration
   const wakeLock = useWakeLock();
+
+  const [dangerZone, setDangerZone] = useState<DangerZoneBanner | null>(null);
+  const dangerEnabledRef = useRef(false);
+  const dangerLatchRef = useRef(false);
+  const dangerSessionRef = useRef<ReturnType<typeof createDangerZoneSession> | null>(null);
+  if (dangerSessionRef.current === null) {
+    dangerSessionRef.current = createDangerZoneSession(setDangerZone, () => {
+      toast.info(DANGER_ZONE_COPY.unavailable);
+    });
+  }
+  const observeDangerRef = useRef<
+    (coords: GeolocationCoordinates, timestamp: number, accuracy: number) => void
+  >(() => {});
+  observeDangerRef.current = (coords, timestamp, accuracy) => {
+    if (accuracy > accuracyThreshold) return;
+    const speed = coords.speed;
+    dangerSessionRef.current?.observe(
+      {
+        lat: coords.latitude,
+        lng: coords.longitude,
+        timestamp: timestamp || Date.now(),
+        speedMps: typeof speed === "number" && Number.isFinite(speed) && speed >= 0 ? speed : null,
+      },
+      dangerEnabledRef.current,
+    );
+  };
+
+  useEffect(() => {
+    if (options.dangerZoneAlerts) {
+      dangerLatchRef.current = false;
+      dangerEnabledRef.current = true;
+    } else if (!dangerLatchRef.current) {
+      dangerEnabledRef.current = false;
+      dangerSessionRef.current?.observe(
+        { lat: 0, lng: 0, timestamp: Date.now(), speedMps: null },
+        false,
+      );
+    }
+    if (options.dangerZoneAlerts && isActive) {
+      void dangerSessionRef.current?.arm();
+    }
+  }, [options.dangerZoneAlerts, isActive]);
+
+  useEffect(() => {
+    setZoneAlertsMuted(!!options.dangerZoneMuted);
+  }, [options.dangerZoneMuted]);
 
   const watchIdRef = useRef<number | null>(null);
   const pendingStopRef = useRef<PendingStop | null>(null);
@@ -428,6 +479,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
 
       // Add GPS point (respects interval)
       addGpsPoint(lat, lng, accuracy);
+      observeDangerRef.current(position.coords, position.timestamp, accuracy);
 
       setCurrentPosition({ lat, lng });
       setPermissionStatus("granted");
@@ -667,6 +719,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
             saveTourData(STORAGE_KEYS.TOUR_PENDING_STOP, newPendingStop);
 
             addGpsPoint(lat, lng, accuracy);
+            observeDangerRef.current(position.coords, position.timestamp, accuracy);
           } catch (err) {
             console.error("Gap filling getCurrentPosition error:", err);
             updateGpsSignal(null);
@@ -771,160 +824,179 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     resetGpsTimeout();
   }, [processPosition, resetGpsTimeout, updateGpsSignal]);
 
-  const startTour = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
+  const startTour = useCallback(
+    async (overrides?: { dangerZoneAlerts?: boolean }) => {
+      if (overrides?.dangerZoneAlerts === true) {
+        dangerLatchRef.current = true;
+        dangerEnabledRef.current = true;
+      } else if (overrides?.dangerZoneAlerts === false) {
+        dangerLatchRef.current = false;
+        dangerEnabledRef.current = false;
+      }
+      if (dangerEnabledRef.current) {
+        unlockAlertAudio();
+      }
 
-    // Clear previous tour data
-    clearTourStorage();
-    setStops([]);
-    setGpsPoints([]);
-    setTotalDistanceKm(0);
-    maxDistanceReachedRef.current = 0;
-    pendingStopRef.current = null;
-    lastPositionRef.current = null;
-    lastPointTimeRef.current = 0;
+      setIsLoading(true);
+      setError(null);
 
-    // Check permission first
-    const hasPermission = await checkPermission();
-    if (!hasPermission) {
-      setError(
-        "Accès à la géolocalisation refusé. Veuillez autoriser l'accès dans les paramètres.",
-      );
-      setIsLoading(false);
-      pendingStartRef.current = true;
-      return;
-    }
-    pendingStartRef.current = false;
+      // Clear previous tour data
+      clearTourStorage();
+      setStops([]);
+      setGpsPoints([]);
+      setTotalDistanceKm(0);
+      maxDistanceReachedRef.current = 0;
+      pendingStopRef.current = null;
+      lastPositionRef.current = null;
+      lastPointTimeRef.current = 0;
 
-    // Get initial position
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude: lat, longitude: lng, accuracy } = position.coords;
-        console.log(
-          `Tour started at: (${lat.toFixed(4)}, ${lng.toFixed(4)}) accuracy: ${accuracy.toFixed(0)}m`,
+      // Check permission first
+      const hasPermission = await checkPermission();
+      if (!hasPermission) {
+        setError(
+          "Accès à la géolocalisation refusé. Veuillez autoriser l'accès dans les paramètres.",
         );
-
-        const startTime = new Date();
-        setTourStartTime(startTime);
-        setCurrentPosition({ lat, lng });
-        setPermissionStatus("granted");
-        updateGpsSignal(accuracy);
-        lastPositionRef.current = { lat, lng };
-
-        // Add initial GPS point
-        addGpsPoint(lat, lng, accuracy);
-
-        // Add starting point as first stop immediately.
-        // Seed a raw-coords fallback address so the recovery flow never
-        // has to invent a literal like "Position".
-        const rawCoordsAddress = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-        const startStop: TourStop = {
-          id: crypto.randomUUID(),
-          timestamp: startTime,
-          lat,
-          lng,
-          address: rawCoordsAddress,
-        };
-
-        try {
-          const geocodeResult = await reverseGeocode(lat, lng);
-          if (geocodeResult) {
-            startStop.address = geocodeResult.fullAddress;
-            startStop.city = geocodeResult.city;
-          }
-        } catch (e) {
-          console.warn("Failed to geocode start:", e);
-        }
-
-        setStops([startStop]);
-        setIsActive(true);
         setIsLoading(false);
+        pendingStartRef.current = true;
+        return;
+      }
+      pendingStartRef.current = false;
 
-        // Create DB session for persistence across browser closure, then
-        // immediately force-sync the initial GPS point + start stop so a crash
-        // in the first few seconds never leaves a "0 km / 0 stop" zombie row.
-        createSession(startTime)
-          .then(() =>
-            updateSession(
-              {
-                stops: [startStop],
-                gpsPoints: [{ lat, lng, timestamp: Date.now(), accuracy }],
-                totalDistanceKm: 0,
-              },
-              true,
-            ),
-          )
-          .catch((e) => console.warn("[TourTracker] Failed to create/seed DB session:", e));
+      if (dangerEnabledRef.current) {
+        await dangerSessionRef.current?.arm();
+      }
 
-        // Background retry: if the start stop still only has raw coords as
-        // address, retry geocoding a few times and patch the stop in state +
-        // DB when it succeeds. This handles the "Google Maps not loaded yet
-        // / offline" case without ever storing the literal "Position".
-        if (!startStop.city) {
-          const retryGeocode = async (attempt = 1) => {
-            if (attempt > 5) return;
-            await new Promise((r) => setTimeout(r, attempt * 8000));
-            try {
-              const geo = await reverseGeocode(lat, lng);
-              if (geo?.city || geo?.fullAddress) {
-                setStops((prev) => {
-                  if (prev.length === 0 || prev[0].id !== startStop.id) return prev;
-                  const patched = [...prev];
-                  patched[0] = {
-                    ...patched[0],
-                    address: geo.fullAddress || patched[0].address,
-                    city: geo.city || patched[0].city,
-                  };
-                  updateSession({ stops: patched }, true).catch(() => {});
-                  return patched;
-                });
-                return;
-              }
-            } catch (geocodeError) {
-              console.warn(
-                `[TourTracker] Géocodage inverse échoué (tentative ${attempt + 1})`,
-                geocodeError,
-              );
-            }
-            retryGeocode(attempt + 1);
-          };
-          retryGeocode();
-        }
-
-        // Request wake lock to keep screen on
-        const wakeLockAcquired = await wakeLock.request();
-        if (!wakeLockAcquired) {
-          toast.info("Mode écran actif", {
-            description: "L'écran peut s'éteindre sur ce navigateur. Gardez l'app visible.",
-            duration: 5000,
-          });
-        }
-
-        // Start watching position with watchPosition
-        startWatching();
-      },
-      (err) => {
-        console.error("Geolocation error:", err);
-        if (err.code === 1) {
-          setError(
-            "Accès à la géolocalisation refusé. Veuillez autoriser l'accès dans les paramètres de votre appareil.",
+      // Get initial position
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude: lat, longitude: lng, accuracy } = position.coords;
+          console.log(
+            `Tour started at: (${lat.toFixed(4)}, ${lng.toFixed(4)}) accuracy: ${accuracy.toFixed(0)}m`,
           );
-          setPermissionStatus("denied");
-          pendingStartRef.current = true;
-        } else if (err.code === 2) {
-          setError("Position indisponible. Vérifiez que le GPS est activé.");
-        } else {
-          setError("Impossible de démarrer la tournée. Vérifiez vos paramètres de localisation.");
-        }
-        setIsLoading(false);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 60000,
-      },
-    );
-  }, [addGpsPoint, checkPermission, startWatching, updateGpsSignal, wakeLock]);
+
+          const startTime = new Date();
+          setTourStartTime(startTime);
+          setCurrentPosition({ lat, lng });
+          setPermissionStatus("granted");
+          updateGpsSignal(accuracy);
+          lastPositionRef.current = { lat, lng };
+
+          // Add initial GPS point
+          addGpsPoint(lat, lng, accuracy);
+          observeDangerRef.current(position.coords, position.timestamp, accuracy);
+
+          // Add starting point as first stop immediately.
+          // Seed a raw-coords fallback address so the recovery flow never
+          // has to invent a literal like "Position".
+          const rawCoordsAddress = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+          const startStop: TourStop = {
+            id: crypto.randomUUID(),
+            timestamp: startTime,
+            lat,
+            lng,
+            address: rawCoordsAddress,
+          };
+
+          try {
+            const geocodeResult = await reverseGeocode(lat, lng);
+            if (geocodeResult) {
+              startStop.address = geocodeResult.fullAddress;
+              startStop.city = geocodeResult.city;
+            }
+          } catch (e) {
+            console.warn("Failed to geocode start:", e);
+          }
+
+          setStops([startStop]);
+          setIsActive(true);
+          setIsLoading(false);
+
+          // Create DB session for persistence across browser closure, then
+          // immediately force-sync the initial GPS point + start stop so a crash
+          // in the first few seconds never leaves a "0 km / 0 stop" zombie row.
+          createSession(startTime)
+            .then(() =>
+              updateSession(
+                {
+                  stops: [startStop],
+                  gpsPoints: [{ lat, lng, timestamp: Date.now(), accuracy }],
+                  totalDistanceKm: 0,
+                },
+                true,
+              ),
+            )
+            .catch((e) => console.warn("[TourTracker] Failed to create/seed DB session:", e));
+
+          // Background retry: if the start stop still only has raw coords as
+          // address, retry geocoding a few times and patch the stop in state +
+          // DB when it succeeds. This handles the "Google Maps not loaded yet
+          // / offline" case without ever storing the literal "Position".
+          if (!startStop.city) {
+            const retryGeocode = async (attempt = 1) => {
+              if (attempt > 5) return;
+              await new Promise((r) => setTimeout(r, attempt * 8000));
+              try {
+                const geo = await reverseGeocode(lat, lng);
+                if (geo?.city || geo?.fullAddress) {
+                  setStops((prev) => {
+                    if (prev.length === 0 || prev[0].id !== startStop.id) return prev;
+                    const patched = [...prev];
+                    patched[0] = {
+                      ...patched[0],
+                      address: geo.fullAddress || patched[0].address,
+                      city: geo.city || patched[0].city,
+                    };
+                    updateSession({ stops: patched }, true).catch(() => {});
+                    return patched;
+                  });
+                  return;
+                }
+              } catch (geocodeError) {
+                console.warn(
+                  `[TourTracker] Géocodage inverse échoué (tentative ${attempt + 1})`,
+                  geocodeError,
+                );
+              }
+              retryGeocode(attempt + 1);
+            };
+            retryGeocode();
+          }
+
+          // Request wake lock to keep screen on
+          const wakeLockAcquired = await wakeLock.request();
+          if (!wakeLockAcquired) {
+            toast.info("Mode écran actif", {
+              description: "L'écran peut s'éteindre sur ce navigateur. Gardez l'app visible.",
+              duration: 5000,
+            });
+          }
+
+          // Start watching position with watchPosition
+          startWatching();
+        },
+        (err) => {
+          console.error("Geolocation error:", err);
+          if (err.code === 1) {
+            setError(
+              "Accès à la géolocalisation refusé. Veuillez autoriser l'accès dans les paramètres de votre appareil.",
+            );
+            setPermissionStatus("denied");
+            pendingStartRef.current = true;
+          } else if (err.code === 2) {
+            setError("Position indisponible. Vérifiez que le GPS est activé.");
+          } else {
+            setError("Impossible de démarrer la tournée. Vérifiez vos paramètres de localisation.");
+          }
+          setIsLoading(false);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 60000,
+        },
+      );
+    },
+    [addGpsPoint, checkPermission, startWatching, updateGpsSignal, wakeLock],
+  );
 
   const stopTour = useCallback(async () => {
     // Clear watch
@@ -940,6 +1012,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     }
 
     pendingStopRef.current = null;
+    dangerSessionRef.current?.reset();
     setIsActive(false);
     setGpsSignalStrength("lost");
 
@@ -1072,6 +1145,10 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
 
     // Request wake lock
     await wakeLock.request();
+
+    if (dangerEnabledRef.current) {
+      await dangerSessionRef.current?.arm();
+    }
 
     // Gap fill: get current position and calculate driving distance from last saved point
     if (lastPositionRef.current) {
@@ -1229,6 +1306,7 @@ export function useTourTracker(options: UseTourTrackerOptions = {}) {
     wakeLockActive: wakeLock.isActive,
     lowBattery: wakeLock.lowBattery,
     pendingStop,
+    dangerZone,
     startTour,
     stopTour,
     clearTour,

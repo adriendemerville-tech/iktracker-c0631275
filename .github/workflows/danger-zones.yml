@@ -1,0 +1,47 @@
+name: Update danger zones
+
+# Compares the open-data table once a month and opens a draft PR when it changed.
+# The workflow never merges.
+
+on:
+  schedule:
+    - cron: "0 6 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Rebuild zones
+        run: node --experimental-strip-types scripts/build-danger-zones.ts
+
+      - name: Open a draft pull request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if git diff --quiet -- public/data/danger-zones.v1.json; then
+            echo "Aucun changement."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          branch="chore/danger-zones-$(date -u +%Y%m%d)"
+          git checkout -b "$branch"
+          git add public/data/danger-zones.v1.json
+          git commit -m "Met à jour les zones de danger"
+          git push origin "$branch"
+          gh pr create --draft --base main --head "$branch" \
+            --title "Mise à jour des zones de danger" \
+            --body "Le fichier open data du ministère de l'Intérieur a changé. Les longueurs restent 4 km, 2 km et 300 m. Vérifier le diff. Ne pas fusionner sans relecture."
