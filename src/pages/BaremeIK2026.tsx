@@ -42,12 +42,16 @@ import {
   Bike,
 } from "lucide-react";
 
+const ratePerKm = (rate: number) =>
+  rate.toLocaleString("fr-FR", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+const baremeFloorRate = IK_BAREME_2026[0].upTo5000.rate;
+const baremeCeilingRate = IK_BAREME_2026[IK_BAREME_2026.length - 1].over20000.rate;
+
 // FAQ Schema data
 const faqData = [
   {
     question: "Quel est le barème kilométrique 2026 ?",
-    answer:
-      "Le barème kilométrique 2026 est identique au barème 2024, inchangé pour 2025 et 2026. Il prévoit des taux allant de 0,529 €/km pour un véhicule de 3 CV jusqu'à 5000 km, à 0,401 €/km pour un véhicule de 7 CV et plus au-delà de 20 000 km.",
+    answer: `Le barème kilométrique 2026 est identique au barème 2024, inchangé pour 2025 et 2026. Il prévoit des taux allant de ${ratePerKm(baremeFloorRate)} €/km pour un véhicule de 3 CV jusqu'à 5000 km, à ${ratePerKm(baremeCeilingRate)} €/km pour un véhicule de 7 CV et plus au-delà de 20 000 km.`,
   },
   {
     question: "Comment calculer ses indemnités kilométriques ?",
