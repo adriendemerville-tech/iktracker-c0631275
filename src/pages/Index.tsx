@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense, memo } from "react";
+import { useState, useEffect, useRef, lazy, Suspense, memo } from "react";
 import { DeferUntilIdle } from "@/components/marketing/DeferUntilIdle";
 import { Link, useNavigate } from "@/lib/router-compat";
 import { useQuery } from "@tanstack/react-query";
@@ -23,6 +23,8 @@ import {
   saveTourData,
 } from "@/hooks/useTourTracker";
 import { usePreferences } from "@/hooks/usePreferences";
+import { DangerZonePrompt } from "@/components/DangerZonePrompt";
+import { setZoneAlertsMuted } from "@/lib/sounds";
 import { useFeedback } from "@/hooks/useFeedback";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useGeolocationPermission } from "@/hooks/useGeolocationPermission";
@@ -124,9 +126,13 @@ const Index = () => {
   }, [user?.id]);
   const toggleVehicleVisibility = (vehicleId: string) => {
     if (!user) return;
-    setHiddenVehicleIds(setVehicleHidden(user.id, vehicleId, !hiddenVehicleIds.includes(vehicleId)));
+    setHiddenVehicleIds(
+      setVehicleHidden(user.id, vehicleId, !hiddenVehicleIds.includes(vehicleId)),
+    );
   };
-  const { preferences } = usePreferences();
+  const { preferences, updatePreference } = usePreferences();
+  const [showDangerPrompt, setShowDangerPrompt] = useState(false);
+  const dangerPromptLock = useRef(false);
   const { unreadResponsesCount } = useFeedback();
   const { isAdmin } = useAdmin();
   const {
@@ -218,6 +224,7 @@ const Index = () => {
     stopTour,
     clearTour,
     resumeTour,
+    dangerZone,
     getSavedTourData,
     refreshDistance,
   } = useTourTracker({
@@ -225,6 +232,8 @@ const Index = () => {
     locationRadius: preferences.locationRadiusMeters,
     trackingInterval: 10000,
     accuracyThreshold: 50,
+    dangerZoneAlerts: preferences.dangerZoneAlerts,
+    dangerZoneMuted: preferences.dangerZoneMuted,
   });
 
   // Tour minimized state
@@ -389,7 +398,8 @@ const Index = () => {
       // Only recover if we have at least one stop
       if (interrupted.stops && interrupted.stops.length >= 1) {
         const firstStop = interrupted.stops[0];
-        const vehicleId = vehicles.find((v) => v.id === preferences.defaultVehicleId)?.id ?? vehicles[0].id;
+        const vehicleId =
+          vehicles.find((v) => v.id === preferences.defaultVehicleId)?.id ?? vehicles[0].id;
         const isTour = interrupted.stops.length >= 2;
 
         // Convert TourStop[] to TourStopData[] for storage
@@ -514,7 +524,10 @@ const Index = () => {
       return;
     }
 
-    // Unverified accounts: only 1 tour allowed
+    beginTour();
+  };
+
+  const beginTour = () => {
     if (
       !emailVerified &&
       trips.filter((t) => t.tourStops?.length).length >= UNVERIFIED_TOUR_LIMIT
@@ -522,17 +535,34 @@ const Index = () => {
       blockFeature("tour");
       return;
     }
-
-    // A vehicle is required, otherwise IK cannot be computed at the end of the tour
     if (vehicles.length === 0) {
       toast.info("Ajoutez d'abord un véhicule pour calculer vos IK en fin de tournée");
       handleAddVehicle();
       return;
     }
-
-    // Mobile: start the tour
+    if (!preferences.dangerZonePromptSeen) {
+      dangerPromptLock.current = false;
+      setShowDangerPrompt(true);
+      return;
+    }
     setTourStartRequested(true);
     startTour();
+  };
+
+  const chooseDangerZones = (enable: boolean) => {
+    if (dangerPromptLock.current) return;
+    dangerPromptLock.current = true;
+    setShowDangerPrompt(false);
+    updatePreference("dangerZonePromptSeen", true);
+    if (enable) updatePreference("dangerZoneAlerts", true);
+    setTourStartRequested(true);
+    startTour({ dangerZoneAlerts: enable });
+  };
+
+  const toggleDangerZoneMute = () => {
+    const next = !preferences.dangerZoneMuted;
+    setZoneAlertsMuted(next);
+    updatePreference("dangerZoneMuted", next);
   };
 
   const handleConfirmStopTour = () => {
@@ -579,7 +609,8 @@ const Index = () => {
     }
 
     const firstStop = stops[0];
-    const vehicleId = vehicles.find((v) => v.id === preferences.defaultVehicleId)?.id ?? vehicles[0].id;
+    const vehicleId =
+      vehicles.find((v) => v.id === preferences.defaultVehicleId)?.id ?? vehicles[0].id;
     const isTour = stops.length >= 2;
 
     // Reverse-geocode first stop if it has no city
@@ -1057,6 +1088,12 @@ ${IKTRACKER_MENTION}
         </AlertDialogContent>
       </AlertDialog>
 
+      <DangerZonePrompt
+        open={showDangerPrompt}
+        onEnable={() => chooseDangerZones(true)}
+        onLater={() => chooseDangerZones(false)}
+      />
+
       {/* Focus Tour View - Full screen immersive mode (hidden when minimized) */}
       {!tourMinimized && (
         <Suspense fallback={<SheetLoader />}>
@@ -1074,6 +1111,9 @@ ${IKTRACKER_MENTION}
             onFinish={handleFinishTour}
             onRefreshDistance={refreshDistance}
             onMinimize={() => setTourMinimized(true)}
+            dangerZone={dangerZone}
+            dangerZoneMuted={preferences.dangerZoneMuted}
+            onToggleDangerZoneMute={preferences.dangerZoneAlerts ? toggleDangerZoneMute : undefined}
             onCancel={() => {
               setTourStartRequested(false);
               clearTour();
@@ -1225,7 +1265,6 @@ ${IKTRACKER_MENTION}
                 )}
               </div>
             </div>
-
           </div>
         </header>
 
@@ -1353,13 +1392,20 @@ ${IKTRACKER_MENTION}
                     onClick={() => setShowHiddenVehicles((visible) => !visible)}
                   >
                     <Eye className="w-4 h-4 mr-1" />
-                    {showHiddenVehicles ? "Masquer les véhicules masqués" : "Afficher les véhicules masqués"}
+                    {showHiddenVehicles
+                      ? "Masquer les véhicules masqués"
+                      : "Afficher les véhicules masqués"}
                   </Button>
                 )}
-              <Button variant="ghost" size="sm" onClick={handleAddVehicle} className="hidden md:inline-flex">
-                <Plus className="w-4 h-4 mr-1" />
-                Ajouter
-              </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleAddVehicle}
+                  className="hidden md:inline-flex"
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  Ajouter
+                </Button>
               </div>
             </div>
 
@@ -1378,23 +1424,29 @@ ${IKTRACKER_MENTION}
             ) : (
               <div className="space-y-3">
                 {sortVehiclesWithPrimaryFirst(
-                  vehicles.filter((vehicle) => showHiddenVehicles || !hiddenVehicleIds.includes(vehicle.id)),
+                  vehicles.filter(
+                    (vehicle) => showHiddenVehicles || !hiddenVehicleIds.includes(vehicle.id),
+                  ),
                   preferences.defaultVehicleId,
                 ).map((vehicle) => (
                   <div key={vehicle.id}>
-                  <VehicleCard
-                    key={vehicle.id}
-                    vehicle={vehicle}
-                    totalKm={getTotalAnnualKm(vehicle.id)}
-                    onEdit={() => handleEditVehicle(vehicle.id)}
-                    onHide={() => toggleVehicleVisibility(vehicle.id)}
-                  />
-                  {hiddenVehicleIds.includes(vehicle.id) && (
-                    <Button variant="ghost" size="sm" onClick={() => toggleVehicleVisibility(vehicle.id)}>
-                      <EyeOff className="w-4 h-4 mr-1" />
-                      Réafficher ce véhicule
-                    </Button>
-                  )}
+                    <VehicleCard
+                      key={vehicle.id}
+                      vehicle={vehicle}
+                      totalKm={getTotalAnnualKm(vehicle.id)}
+                      onEdit={() => handleEditVehicle(vehicle.id)}
+                      onHide={() => toggleVehicleVisibility(vehicle.id)}
+                    />
+                    {hiddenVehicleIds.includes(vehicle.id) && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleVehicleVisibility(vehicle.id)}
+                      >
+                        <EyeOff className="w-4 h-4 mr-1" />
+                        Réafficher ce véhicule
+                      </Button>
+                    )}
                   </div>
                 ))}
               </div>
@@ -1437,11 +1489,11 @@ ${IKTRACKER_MENTION}
                     <TripCard
                       key={trip.id}
                       trip={trip}
-                        vehicle={getVehicle(trip.vehicleId)}
-                        vehicles={vehicles}
-                        showTripTime={preferences.showTripTime}
-                        onUpdateTrip={updateTrip}
-                      />
+                      vehicle={getVehicle(trip.vehicleId)}
+                      vehicles={vehicles}
+                      showTripTime={preferences.showTripTime}
+                      onUpdateTrip={updateTrip}
+                    />
                   ))}
               </div>
             )}
@@ -1606,7 +1658,7 @@ ${IKTRACKER_MENTION}
             totalDistanceKm={totalDistanceKm}
             wakeLockActive={wakeLockActive}
             lowBattery={lowBattery}
-            onStart={startTour}
+            onStart={beginTour}
             onFinish={handleFinishTour}
             onClear={clearTour}
             hasHistory={!!lastTour}
@@ -1641,8 +1693,8 @@ ${IKTRACKER_MENTION}
             <AlertDialogHeader>
               <AlertDialogTitle>Supprimer ce véhicule ?</AlertDialogTitle>
               <AlertDialogDescription>
-                Le véhicule restera dans « Anciens véhicules ». Les trajets associés
-                conserveront son identité, son barème et leurs indemnités déjà calculées.
+                Le véhicule restera dans « Anciens véhicules ». Les trajets associés conserveront
+                son identité, son barème et leurs indemnités déjà calculées.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

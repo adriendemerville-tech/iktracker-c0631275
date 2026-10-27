@@ -12,6 +12,8 @@ import {
   Radio,
   Loader2,
   RotateCw,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -24,6 +26,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useNightMode } from "@/hooks/useNightMode";
+import { DANGER_ZONE_COPY } from "@/lib/danger-zones/copy";
+import type { DangerZoneBanner } from "@/lib/danger-zones/types";
 import { cn } from "@/lib/utils";
 
 interface PendingStop {
@@ -49,6 +53,9 @@ interface FocusTourViewProps {
   onCancel?: () => void; // Cancel during loading
   onRefreshDistance?: () => void; // Force GPS refresh and distance update
   onMinimize?: () => void; // Minimize the tour view to access app
+  dangerZone?: DangerZoneBanner | null;
+  dangerZoneMuted?: boolean;
+  onToggleDangerZoneMute?: () => void;
 }
 
 // Hook to detect if on desktop (width >= 1024px)
@@ -80,6 +87,9 @@ export function FocusTourView({
   onCancel,
   onRefreshDistance,
   onMinimize,
+  dangerZone,
+  dangerZoneMuted = false,
+  onToggleDangerZoneMute,
 }: FocusTourViewProps) {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [displayedKm, setDisplayedKm] = useState(0);
@@ -230,6 +240,20 @@ export function FocusTourView({
 
         {/* Right side - GPS Signal, Night mode, Minimize */}
         <div className="flex items-center gap-2">
+          {onToggleDangerZoneMute && (
+            <button
+              onClick={onToggleDangerZoneMute}
+              className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 active:scale-90 transition-all"
+              aria-pressed={dangerZoneMuted}
+              aria-label={dangerZoneMuted ? DANGER_ZONE_COPY.muteOff : DANGER_ZONE_COPY.muteOn}
+            >
+              {dangerZoneMuted ? (
+                <VolumeX className="w-4 h-4 text-gray-400" />
+              ) : (
+                <Volume2 className="w-4 h-4 text-orange-300" />
+              )}
+            </button>
+          )}
           {isNightMode && <Moon className="w-4 h-4 text-indigo-400" />}
           <div className="flex items-center gap-1 px-2 py-1 bg-green-500/20 rounded-full">
             <GpsIcon className={cn("w-4 h-4", gpsDisplay.color)} />
@@ -260,6 +284,29 @@ export function FocusTourView({
           <span className="font-urbanist text-lg text-gray-600 mt-1 tabular-nums">
             {formatElapsedTime()}
           </span>
+        )}
+        {dangerZone && (
+          <div
+            className="mt-4 w-full max-w-sm rounded-xl border border-orange-500/50 bg-orange-500/20 px-5 py-3 text-center"
+            role="status"
+            aria-live="polite"
+          >
+            <p className="font-urbanist text-base font-semibold text-orange-200">
+              {dangerZone.phase === "leaving"
+                ? DANGER_ZONE_COPY.bannerLeaving
+                : DANGER_ZONE_COPY.bannerInside}
+            </p>
+            {dangerZone.phase === "inside" && dangerZone.vma != null && (
+              <p className="font-urbanist text-sm text-orange-100">
+                {DANGER_ZONE_COPY.speedLimit(dangerZone.vma)}
+              </p>
+            )}
+            {dangerZone.phase === "inside" && dangerZone.speeding && (
+              <p className="font-urbanist text-xs text-orange-50/80">
+                {DANGER_ZONE_COPY.overLimit}
+              </p>
+            )}
+          </div>
         )}
       </div>
 

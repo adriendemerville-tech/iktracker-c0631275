@@ -1,5 +1,7 @@
 import { useTheme } from "@/hooks/useTheme";
 import { usePreferences } from "@/hooks/usePreferences";
+import { DANGER_ZONE_COPY } from "@/lib/danger-zones/copy";
+import { setZoneAlertsMuted, unlockAlertAudio } from "@/lib/sounds";
 import { Switch } from "./ui/switch";
 import { Label } from "./ui/label";
 import { Slider } from "./ui/slider";
@@ -13,6 +15,7 @@ import {
   Timer,
   MapPin,
   Route,
+  ShieldAlert,
   CalendarClock,
   Calculator,
   Mail,
@@ -128,6 +131,49 @@ export const PreferencesContent = () => {
           <p className="text-xs text-amber-600 dark:text-amber-400 pl-8">
             Tous les trajets seront enregistrés
           </p>
+        )}
+      </div>
+
+      <div className="space-y-3 pt-2 border-t border-border">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <ShieldAlert className="w-5 h-5 text-muted-foreground" />
+            <div>
+              <Label htmlFor="danger-zones-pref" className="cursor-pointer">
+                {DANGER_ZONE_COPY.settingLabel}
+              </Label>
+              <p className="text-xs text-muted-foreground">{DANGER_ZONE_COPY.settingDescription}</p>
+            </div>
+          </div>
+          <Switch
+            id="danger-zones-pref"
+            checked={preferences.dangerZoneAlerts}
+            onCheckedChange={(checked) => {
+              updatePreference("dangerZoneAlerts", checked);
+              if (checked) {
+                updatePreference("dangerZonePromptSeen", true);
+                unlockAlertAudio();
+              }
+            }}
+          />
+        </div>
+        {preferences.dangerZoneAlerts && (
+          <div className="flex items-center justify-between gap-3 pl-8">
+            <div>
+              <Label htmlFor="danger-zones-mute" className="cursor-pointer">
+                {DANGER_ZONE_COPY.muteLabel}
+              </Label>
+              <p className="text-xs text-muted-foreground">{DANGER_ZONE_COPY.muteDescription}</p>
+            </div>
+            <Switch
+              id="danger-zones-mute"
+              checked={preferences.dangerZoneMuted}
+              onCheckedChange={(checked) => {
+                setZoneAlertsMuted(checked);
+                updatePreference("dangerZoneMuted", checked);
+              }}
+            />
+          </div>
         )}
       </div>
 

@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { DANGER_ZONE_COPY } from "@/lib/danger-zones/copy";
+import { setZoneAlertsMuted, unlockAlertAudio } from "@/lib/sounds";
 import { Slider } from "@/components/ui/slider";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
@@ -253,17 +255,19 @@ export function TripSettingsModal(props: Props) {
                       <EmptyState icon={Car} label="Aucun véhicule enregistré" />
                     ) : (
                       <div className="space-y-3">
-                        {sortVehiclesWithPrimaryFirst(vehicles, preferences.defaultVehicleId).map((v) => (
-                          <VehicleCard
-                            key={v.id}
-                            vehicle={v}
-                            totalKm={getTotalAnnualKm(v.id)}
-                            onEdit={() => {
-                              setEditingVehicle(v);
-                              setVehicleFormOpen(true);
-                            }}
-                          />
-                        ))}
+                        {sortVehiclesWithPrimaryFirst(vehicles, preferences.defaultVehicleId).map(
+                          (v) => (
+                            <VehicleCard
+                              key={v.id}
+                              vehicle={v}
+                              totalKm={getTotalAnnualKm(v.id)}
+                              onEdit={() => {
+                                setEditingVehicle(v);
+                                setVehicleFormOpen(true);
+                              }}
+                            />
+                          ),
+                        )}
                       </div>
                     )}
 
@@ -646,6 +650,29 @@ export function TripSettingsModal(props: Props) {
                             step={25}
                           />
                         </div>
+                        <ToggleRow
+                          label={DANGER_ZONE_COPY.settingLabel}
+                          desc={DANGER_ZONE_COPY.settingDescription}
+                          checked={preferences.dangerZoneAlerts}
+                          onChange={(checked) => {
+                            updatePreference("dangerZoneAlerts", checked);
+                            if (checked) {
+                              updatePreference("dangerZonePromptSeen", true);
+                              unlockAlertAudio();
+                            }
+                          }}
+                        />
+                        {preferences.dangerZoneAlerts && (
+                          <ToggleRow
+                            label={DANGER_ZONE_COPY.muteLabel}
+                            desc={DANGER_ZONE_COPY.muteDescription}
+                            checked={preferences.dangerZoneMuted}
+                            onChange={(checked) => {
+                              setZoneAlertsMuted(checked);
+                              updatePreference("dangerZoneMuted", checked);
+                            }}
+                          />
+                        )}
                       </div>
                     </div>
                   </section>

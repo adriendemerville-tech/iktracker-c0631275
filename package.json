@@ -12,6 +12,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
+    "build:danger-zones": "node --experimental-strip-types scripts/build-danger-zones.ts",
     "test:watch": "vitest"
   },
   "dependencies": {

@@ -35,6 +35,10 @@ export interface Preferences {
   autoMonthlyExport: boolean;
   // Server-side monthly report to the user (sent the 15th)
   userMonthlyReportEnabled: boolean;
+  // Driving aid during a tour (local only). Off until the driver accepts it.
+  dangerZoneAlerts: boolean;
+  dangerZoneMuted: boolean;
+  dangerZonePromptSeen: boolean;
 }
 
 const PREFERENCES_KEY = "ik-tracker-preferences";
@@ -62,6 +66,9 @@ const defaultPreferences: Preferences = {
   notifAnnualThreshold: true,
   autoMonthlyExport: false,
   userMonthlyReportEnabled: true,
+  dangerZoneAlerts: false,
+  dangerZoneMuted: false,
+  dangerZonePromptSeen: false,
 };
 
 // Get the fiscal year start date for a given reference date
@@ -96,7 +103,9 @@ export function usePreferences() {
   // Multiple mounted forms and trip sheets must observe the same default immediately.
   useEffect(() => {
     const sync = (event: Event) => {
-      const { key, value } = (event as CustomEvent<{ key: keyof Preferences; value: Preferences[keyof Preferences] }>).detail;
+      const { key, value } = (
+        event as CustomEvent<{ key: keyof Preferences; value: Preferences[keyof Preferences] }>
+      ).detail;
       setPreferences((prev) => ({ ...prev, [key]: value }));
     };
     window.addEventListener("iktracker-preference-changed", sync);
@@ -305,7 +314,9 @@ export function usePreferences() {
 
   const updatePreference = <K extends keyof Preferences>(key: K, value: Preferences[K]) => {
     setPreferences((prev) => ({ ...prev, [key]: value }));
-    window.dispatchEvent(new CustomEvent("iktracker-preference-changed", { detail: { key, value } }));
+    window.dispatchEvent(
+      new CustomEvent("iktracker-preference-changed", { detail: { key, value } }),
+    );
 
     // Sync accountant email to database if user is authenticated
     if (key === "accountantEmail" && user) {
