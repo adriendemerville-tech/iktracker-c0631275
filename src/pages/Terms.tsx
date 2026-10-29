@@ -107,7 +107,7 @@ const Terms = () => {
             </p>
             <ul className="list-none pl-0 text-muted-foreground space-y-1 mt-2">
               <li>
-                <strong>Adresse postale :</strong> Saint-Rémy-de-Provence (13210), France
+                <strong>Adresse postale :</strong> VOLUNTAS NOVARE, 255 chemin des Masques, 13160 Châteaurenard, France
               </li>
               <li>
                 <strong>Email :</strong>{" "}
