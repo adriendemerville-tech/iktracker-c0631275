@@ -34,6 +34,7 @@ import { detectLoop } from "@/lib/loop-detection";
 import { IK_BAREME_2026, calculateTotalAnnualIK, getIKBareme } from "@/types/trip";
 import { Counter } from "@/components/Counter";
 import { TripCard } from "@/components/TripCard";
+import { EmptyVehiclesCard } from "@/components/EmptyVehiclesCard";
 import { VehicleCard } from "@/components/VehicleCard";
 import { TourButton } from "@/components/TourButton";
 import { GeolocationBanner } from "@/components/GeolocationBanner";
@@ -1410,17 +1411,7 @@ ${IKTRACKER_MENTION}
             </div>
 
             {vehicles.length === 0 ? (
-              <div className="text-center py-8 bg-card rounded-md">
-                <Car className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
-                <p className="text-muted-foreground">Aucun véhicule enregistré</p>
-                <p className="text-sm text-muted-foreground mt-1 mb-4">
-                  Ajoutez votre véhicule pour commencer
-                </p>
-                <Button onClick={handleAddVehicle} className="hidden md:inline-flex">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Ajouter un véhicule
-                </Button>
-              </div>
+              <EmptyVehiclesCard onAdd={handleAddVehicle} />
             ) : (
               <div className="space-y-3">
                 {sortVehiclesWithPrimaryFirst(
