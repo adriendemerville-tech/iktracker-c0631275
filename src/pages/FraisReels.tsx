@@ -37,6 +37,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { calculateTotalAnnualIK } from "@/types/trip";
+import { formatFrEuros, formatFrNumber } from "@/lib/format-fr";
 
 const PAGE_LASTMOD = getStaticLastModified("/frais-reels");
 
@@ -57,8 +58,8 @@ const ELECTRIC_EXAMPLE_KM = 15_000;
 const electricExampleThermal = calculateIK(ELECTRIC_EXAMPLE_KM, "5", false);
 const electricExampleBoosted = calculateIK(ELECTRIC_EXAMPLE_KM, "5", true);
 
-function formatEuro(amount: number): string {
-  return amount.toLocaleString("fr-FR", { maximumFractionDigits: 0 }) + " €";
+function formatEuro(amount: number, fractionDigits = 0): string {
+  return formatFrEuros(amount, fractionDigits);
 }
 
 function calculateAbattement(grossIncome: number): number {
@@ -288,15 +289,15 @@ export default function FraisReels() {
 
               <DirectAnswer question="Frais réels ou abattement de 10 % : à partir de quel montant faut-il basculer ?">
                 <p>
-                  L'<strong>abattement forfaitaire de 10 %</strong> est appliqué automatiquement
-                  par l'administration fiscale sur les salaires ; opter pour les{" "}
+                  L'<strong>abattement forfaitaire de 10 %</strong> est appliqué automatiquement par
+                  l'administration fiscale sur les salaires ; opter pour les{" "}
                   <strong>frais réels</strong> n'a d'intérêt que si le total des dépenses
                   professionnelles justifiées — indemnités kilométriques en tête, plus péages,
                   parkings, repas et formation — dépasse ce montant.
                 </p>
                 <p>
-                  Le point de bascule se situe donc au niveau du salaire net imposable multiplié
-                  par 0,10 : concrètement, un actif qui parcourt plusieurs milliers de kilomètres
+                  Le point de bascule se situe donc au niveau du salaire net imposable multiplié par
+                  0,10 : concrètement, un actif qui parcourt plusieurs milliers de kilomètres
                   professionnels par an y gagne presque toujours, un salarié sédentaire rarement.
                 </p>
                 <p>
@@ -474,11 +475,8 @@ export default function FraisReels() {
                               <CheckCircle2 className="h-5 w-5 text-primary" />
                             )}
                           </div>
-                          <p className="text-2xl font-bold text-foreground">
-                            {results.abattement.toLocaleString("fr-FR", {
-                              minimumFractionDigits: 2,
-                            })}{" "}
-                            €
+                          <p className="text-2xl font-bold text-foreground whitespace-nowrap">
+                            {formatEuro(results.abattement, 2)}
                           </p>
                           <p className="text-sm text-muted-foreground mt-1">
                             Déduction automatique sans justificatif
@@ -503,11 +501,8 @@ export default function FraisReels() {
                               <CheckCircle2 className="h-5 w-5 text-primary" />
                             )}
                           </div>
-                          <p className="text-2xl font-bold text-foreground">
-                            {results.fraisReels.toLocaleString("fr-FR", {
-                              minimumFractionDigits: 2,
-                            })}{" "}
-                            €
+                          <p className="text-2xl font-bold text-foreground whitespace-nowrap">
+                            {formatEuro(results.fraisReels, 2)}
                           </p>
                           <p className="text-sm text-muted-foreground mt-1">
                             Basé sur le barème kilométrique 2026
@@ -526,11 +521,8 @@ export default function FraisReels() {
                               </p>
                               <p className="text-sm text-muted-foreground mt-1">
                                 Économie potentielle :{" "}
-                                <strong className="text-primary">
-                                  {results.economie.toLocaleString("fr-FR", {
-                                    minimumFractionDigits: 2,
-                                  })}{" "}
-                                  €
+                                <strong className="text-primary whitespace-nowrap">
+                                  {formatEuro(results.economie, 2)}
                                 </strong>
                               </p>
                             </div>
@@ -746,7 +738,7 @@ export default function FraisReels() {
                     Oui, les <strong className="text-foreground">véhicules électriques</strong>{" "}
                     bénéficient d'une majoration de 20% sur le barème kilométrique standard. Par
                     exemple, pour un véhicule de 5 CV parcourant{" "}
-                    {ELECTRIC_EXAMPLE_KM.toLocaleString("fr-FR")} km/an, l'indemnité passe de{" "}
+                    {formatFrNumber(ELECTRIC_EXAMPLE_KM)} km/an, l'indemnité passe de{" "}
                     {formatEuro(electricExampleThermal)} à {formatEuro(electricExampleBoosted)} pour
                     un véhicule électrique. Cette mesure vise à encourager la transition vers des
                     mobilités plus propres.

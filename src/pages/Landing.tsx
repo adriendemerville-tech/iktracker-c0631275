@@ -11,16 +11,14 @@ import { HERO_VARIANTS } from "@/lib/ab-test";
 import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 // Barème officiel partagé — import statique volontaire : contenu indexable, doit être dans le HTML SSR de "/".
-import { IK_BAREME_2026, calculateTotalAnnualIK } from "@/types/trip";
+import { calculateTotalAnnualIK } from "@/types/trip";
+import { formatFrEuros, formatFrNumber } from "@/lib/format-fr";
+import {
+  BaremeScaleTable,
+  CAR_COLUMNS_PLUS,
+  carFormulaRows,
+} from "@/components/marketing/BaremeScaleTable";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
@@ -28,8 +26,10 @@ import { Counter } from "@/components/Counter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PdfReportMockup } from "@/components/marketing/PdfReportMockup";
 // Import statique volontaire : contenu texte indexable, doit être dans le HTML SSR de "/".
-import { TestimonialsCarousel, type PublicReviewItem } from "@/components/marketing/TestimonialsCarousel";
-
+import {
+  TestimonialsCarousel,
+  type PublicReviewItem,
+} from "@/components/marketing/TestimonialsCarousel";
 
 import {
   ArrowRight,
@@ -60,10 +60,7 @@ interface LandingProps {
 // Montant dérivé de IK_BAREME_2026 pour ne pas dériver du calcul de l'app.
 const HOME_EXAMPLE_KM = 15_000;
 const HOME_EXAMPLE_CV = 6;
-const homeExampleIkLabel =
-  calculateTotalAnnualIK(HOME_EXAMPLE_KM, HOME_EXAMPLE_CV).toLocaleString("fr-FR", {
-    maximumFractionDigits: 0,
-  }) + " €";
+const homeExampleIkLabel = formatFrEuros(calculateTotalAnnualIK(HOME_EXAMPLE_KM, HOME_EXAMPLE_CV));
 
 // Lazy load AuthForm — chunk préchargé dès l'évaluation du module (parallèle à l'hydratation)
 // pour minimiser la durée d'affichage du skeleton.
@@ -297,7 +294,6 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm, reviews }
 
   return (
     <div className="min-h-screen bg-background font-display overflow-x-hidden select-text">
-
       <MarketingNav user={user} loading={loading} />
 
       {/* Main content wrapper with skip link target */}
@@ -327,7 +323,6 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm, reviews }
                   id="hero-heading"
                   className="text-3xl sm:text-4xl md:text-5xl lg:text-[2.5rem] xl:text-5xl font-extrabold text-foreground leading-tight mb-6 min-h-[10rem] sm:min-h-[11.5rem] md:min-h-[13.5rem] lg:min-h-[12rem] xl:min-h-[14rem]"
                 >
-
                   {heroTitle}
                   <br />
                   <span className="text-gradient">{heroHighlight}</span>
@@ -359,7 +354,6 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm, reviews }
                     </p>
                   </div>
                 )}
-
 
                 {user && (
                   <div className="lg:hidden mb-8">
@@ -498,60 +492,14 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm, reviews }
             </div>
 
             <Card>
-              <CardContent className="p-0 overflow-x-auto">
-                <Table aria-label="Barème kilométrique 2026 par puissance fiscale">
-                  <caption className="sr-only">
-                    Tableau du barème kilométrique 2026 officiel : taux par puissance fiscale et
-                    distance annuelle
-                  </caption>
-                  <TableHeader>
-                    <TableRow className="bg-muted/50">
-                      <TableHead scope="col" className="font-bold">
-                        Puissance fiscale
-                      </TableHead>
-                      <TableHead scope="col" className="text-center font-bold">
-                        Jusqu'à 5 000 km
-                      </TableHead>
-                      <TableHead scope="col" className="text-center font-bold">
-                        De 5 001 à 20 000 km
-                      </TableHead>
-                      <TableHead scope="col" className="text-center font-bold">
-                        Plus de 20 000 km
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {IK_BAREME_2026.map((row, index) => (
-                      <TableRow
-                        key={row.cv}
-                        className={index % 2 === 0 ? "bg-background" : "bg-muted/20"}
-                      >
-                        <TableCell scope="row" className="font-semibold">
-                          <div className="flex items-center gap-2">
-                            <Car className="h-4 w-4 text-primary" aria-hidden="true" />
-                            {row.cv === "7+" ? "7 CV et plus" : `${row.cv} CV`}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-mono whitespace-nowrap">
-                            d × {row.upTo5000.rate.toFixed(3)} €
-                          </code>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-mono whitespace-nowrap">
-                            (d × {row.from5001To20000.rate.toFixed(3)}) +{" "}
-                            {row.from5001To20000.fixed} €
-                          </code>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-mono whitespace-nowrap">
-                            d × {row.over20000.rate.toFixed(3)} €
-                          </code>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+              <CardContent className="p-0">
+                <BaremeScaleTable
+                  ariaLabel="Barème kilométrique 2026 par puissance fiscale"
+                  caption="Tableau du barème kilométrique 2026 officiel : taux par puissance fiscale et distance annuelle"
+                  rowHeader="Puissance fiscale"
+                  columns={CAR_COLUMNS_PLUS}
+                  rows={carFormulaRows()}
+                />
               </CardContent>
             </Card>
 
@@ -559,11 +507,20 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm, reviews }
               <strong>d</strong> = distance professionnelle annuelle en kilomètres. Véhicule 100 %
               électrique : montant majoré de 20 %.
             </p>
-            <div className="text-center mt-6">
-              <Button asChild variant="outline">
+            <div className="mt-6 flex justify-center">
+              <Button
+                asChild
+                variant="outline"
+                className="h-auto min-h-12 w-full min-w-0 max-w-full whitespace-normal px-4 py-3 text-center sm:w-auto"
+              >
                 <Link to="/bareme-ik-2026">
-                  Voir le barème complet (voitures, motos, cyclomoteurs)
-                  <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+                  <span className="min-w-0 whitespace-normal text-balance">
+                    <span className="sm:hidden">Voir le barème complet</span>
+                    <span className="hidden sm:inline">
+                      Voir le barème complet (voitures, motos, cyclomoteurs)
+                    </span>
+                  </span>
+                  <ArrowRight className="h-4 w-4 shrink-0" aria-hidden="true" />
                 </Link>
               </Button>
             </div>
@@ -633,7 +590,6 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm, reviews }
         {/* Testimonials — rendu SSR (contenu texte indexable) */}
         <TestimonialsCarousel reviews={reviews} />
 
-
         {/* Statistics Section - Independent Workers */}
         <section className="py-12 md:py-16 px-4 section-contained">
           <div className="container mx-auto">
@@ -654,10 +610,9 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm, reviews }
               </div>
 
               <div className="grid md:grid-cols-3 gap-6 mb-6">
-
                 <div className="p-6 rounded-2xl bg-card border border-border text-center group hover:border-primary/50 transition-colors">
-                  <div className="text-4xl md:text-5xl font-extrabold text-primary mb-2">
-                    15 000
+                  <div className="text-4xl md:text-5xl font-extrabold text-primary mb-2 whitespace-nowrap">
+                    {formatFrNumber(HOME_EXAMPLE_KM)}
                   </div>
                   <div className="text-sm md:text-base text-muted-foreground font-medium">
                     km/an en moyenne
@@ -667,14 +622,14 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm, reviews }
                   </p>
                 </div>
                 <div className="p-6 rounded-2xl bg-card border border-border text-center group hover:border-primary/50 transition-colors">
-                  <div className="text-4xl md:text-5xl font-extrabold text-success mb-2">
+                  <div className="text-4xl md:text-5xl font-extrabold text-success mb-2 whitespace-nowrap">
                     {homeExampleIkLabel}
                   </div>
                   <div className="text-sm md:text-base text-muted-foreground font-medium">
                     d'IK potentielles
                   </div>
                   <p className="text-xs text-muted-foreground/70 mt-2">
-                    pour {HOME_EXAMPLE_KM.toLocaleString("fr-FR")} km ({HOME_EXAMPLE_CV} CV)
+                    pour {formatFrNumber(HOME_EXAMPLE_KM)} km ({HOME_EXAMPLE_CV} CV)
                   </p>
                 </div>
                 <div className="p-6 rounded-2xl bg-card border border-border text-center group hover:border-primary/50 transition-colors">
@@ -696,7 +651,6 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm, reviews }
               </p>
             </div>
           </div>
-
         </section>
 
         {/* Features Grid - Icons only */}
@@ -882,7 +836,6 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm, reviews }
             </Tabs>
           </div>
         </section>
-
 
         {/* Expertise Fiscale Section - SEO Content */}
         <section className="py-12 md:py-16 section-contained" aria-labelledby="expertise-heading">
@@ -1158,7 +1111,6 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm, reviews }
       <Suspense fallback={null}>
         <PartnerStrip page="/" />
       </Suspense>
-
 
       <BodyEndInjections />
       <EnhancedMarketingFooter />
