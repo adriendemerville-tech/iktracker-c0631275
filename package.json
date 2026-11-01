@@ -132,6 +132,9 @@
     "vitest": "^3.2.7"
   },
   "version": "0.0.0",
+  "overrides": {
+    "entities": "6.0.0"
+  },
   "pnpm": {
     "overrides": {
       "entities": "6.0.0"
