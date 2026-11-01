@@ -20,7 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 // Barème officiel partagé — import statique volontaire : contenu indexable, doit être dans le HTML SSR de "/".
-import { IK_BAREME_2026 } from "@/types/trip";
+import { IK_BAREME_2026, calculateTotalAnnualIK } from "@/types/trip";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
@@ -55,6 +55,15 @@ interface LandingProps {
   initialTotalKm?: number;
   reviews?: PublicReviewItem[];
 }
+
+// Exemple d'accueil : 15 000 km, voiture 6 CV, tranche 5 001–20 000 km.
+// Montant dérivé de IK_BAREME_2026 pour ne pas dériver du calcul de l'app.
+const HOME_EXAMPLE_KM = 15_000;
+const HOME_EXAMPLE_CV = 6;
+const homeExampleIkLabel =
+  calculateTotalAnnualIK(HOME_EXAMPLE_KM, HOME_EXAMPLE_CV).toLocaleString("fr-FR", {
+    maximumFractionDigits: 0,
+  }) + " €";
 
 // Lazy load AuthForm — chunk préchargé dès l'évaluation du module (parallèle à l'hydratation)
 // pour minimiser la durée d'affichage du skeleton.
@@ -659,12 +668,14 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm, reviews }
                 </div>
                 <div className="p-6 rounded-2xl bg-card border border-border text-center group hover:border-primary/50 transition-colors">
                   <div className="text-4xl md:text-5xl font-extrabold text-success mb-2">
-                    6 400 €
+                    {homeExampleIkLabel}
                   </div>
                   <div className="text-sm md:text-base text-muted-foreground font-medium">
                     d'IK potentielles
                   </div>
-                  <p className="text-xs text-muted-foreground/70 mt-2">pour 15 000 km (6 CV)</p>
+                  <p className="text-xs text-muted-foreground/70 mt-2">
+                    pour {HOME_EXAMPLE_KM.toLocaleString("fr-FR")} km ({HOME_EXAMPLE_CV} CV)
+                  </p>
                 </div>
                 <div className="p-6 rounded-2xl bg-card border border-border text-center group hover:border-primary/50 transition-colors">
                   <div className="text-4xl md:text-5xl font-extrabold text-destructive mb-2">

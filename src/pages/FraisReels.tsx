@@ -36,38 +36,29 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { calculateTotalAnnualIK } from "@/types/trip";
 
 const PAGE_LASTMOD = getStaticLastModified("/frais-reels");
 
-// Barème kilométrique 2026 (véhicules thermiques)
-const BAREME_2026 = {
-  "3": { low: 0.529, mid: 0.316, high: 0.37 },
-  "4": { low: 0.606, mid: 0.34, high: 0.407 },
-  "5": { low: 0.636, mid: 0.357, high: 0.427 },
-  "6": { low: 0.665, mid: 0.374, high: 0.447 },
-  "7+": { low: 0.697, mid: 0.394, high: 0.47 },
-};
-
 type FiscalPower = "3" | "4" | "5" | "6" | "7+";
 
+function fiscalPowerToCv(fiscalPower: FiscalPower): number {
+  return fiscalPower === "7+" ? 7 : Number(fiscalPower);
+}
+
+// Même barème que le reste de l'app (part fixe selon la puissance, pas seulement 3 CV).
 function calculateIK(distance: number, fiscalPower: FiscalPower, isElectric: boolean): number {
-  const rates = BAREME_2026[fiscalPower];
-  let baseAmount = 0;
-
-  if (distance <= 5000) {
-    baseAmount = distance * rates.low;
-  } else if (distance <= 20000) {
-    baseAmount = distance * rates.mid + 1065;
-  } else {
-    baseAmount = distance * rates.high;
-  }
-
-  // Majoration 20% pour véhicules électriques
-  if (isElectric) {
-    baseAmount *= 1.2;
-  }
-
+  let baseAmount = calculateTotalAnnualIK(distance, fiscalPowerToCv(fiscalPower));
+  if (isElectric) baseAmount *= 1.2;
   return Math.round(baseAmount * 100) / 100;
+}
+
+const ELECTRIC_EXAMPLE_KM = 15_000;
+const electricExampleThermal = calculateIK(ELECTRIC_EXAMPLE_KM, "5", false);
+const electricExampleBoosted = calculateIK(ELECTRIC_EXAMPLE_KM, "5", true);
+
+function formatEuro(amount: number): string {
+  return amount.toLocaleString("fr-FR", { maximumFractionDigits: 0 }) + " €";
 }
 
 function calculateAbattement(grossIncome: number): number {
@@ -754,9 +745,11 @@ export default function FraisReels() {
                   <AccordionContent className="text-muted-foreground pb-4">
                     Oui, les <strong className="text-foreground">véhicules électriques</strong>{" "}
                     bénéficient d'une majoration de 20% sur le barème kilométrique standard. Par
-                    exemple, pour un véhicule de 5 CV parcourant 15 000 km/an, l'indemnité passe de
-                    6 420 € à 7 704 € pour un véhicule électrique. Cette mesure vise à encourager la
-                    transition vers des mobilités plus propres.
+                    exemple, pour un véhicule de 5 CV parcourant{" "}
+                    {ELECTRIC_EXAMPLE_KM.toLocaleString("fr-FR")} km/an, l'indemnité passe de{" "}
+                    {formatEuro(electricExampleThermal)} à {formatEuro(electricExampleBoosted)} pour
+                    un véhicule électrique. Cette mesure vise à encourager la transition vers des
+                    mobilités plus propres.
                   </AccordionContent>
                 </AccordionItem>
 

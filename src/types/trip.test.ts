@@ -59,6 +59,14 @@ describe("calculateTotalAnnualIK", () => {
       expect(calculateTotalAnnualIK(5001, 5)).toBeCloseTo(3180.357, 2);
     });
 
+    it("5CV - 15000 km → 15000 × 0.357 + 1395 = 6750.00", () => {
+      expect(calculateTotalAnnualIK(15000, 5)).toBeCloseTo(6750.0, 2);
+    });
+
+    it("6CV - 15000 km → 15000 × 0.374 + 1457 = 7067.00", () => {
+      expect(calculateTotalAnnualIK(15000, 6)).toBeCloseTo(7067.0, 2);
+    });
+
     it("6CV - 20000 km → 20000 × 0.374 + 1457 = 8937.00", () => {
       expect(calculateTotalAnnualIK(20000, 6)).toBeCloseTo(8937.0, 2);
     });
