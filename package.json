@@ -134,7 +134,7 @@
   "version": "0.0.0",
   "pnpm": {
     "overrides": {
-      "entities": "4.5.0"
+      "entities": "6.0.0"
     }
   }
 }
