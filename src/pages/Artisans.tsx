@@ -15,7 +15,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { IK_BAREME_2026 } from "@/types/trip";
+import {
+  BaremeScaleTable,
+  CAR_COLUMNS_AU_DELA,
+  carPerKmRows,
+} from "@/components/marketing/BaremeScaleTable";
 import { getPageDates, toIsoDateTime } from "@/lib/page-dates";
 
 import {
@@ -147,8 +151,6 @@ const FAQ = [
   },
 ];
 
-const fmt = (n: number) => n.toFixed(3).replace(".", ",");
-
 const Artisans = () => {
   const { user, loading } = useAuthLazy();
   const { trackCTAClick } = useMarketingTracker("artisans");
@@ -275,44 +277,15 @@ const Artisans = () => {
               et du total annuel de kilomètres professionnels. Voici les taux du barème kilométrique
               applicables, appliqués automatiquement par IKtracker à chaque trajet enregistré.
             </p>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-sm">
-                <caption className="sr-only">
-                  Barème kilométrique par puissance fiscale et tranche kilométrique annuelle
-                </caption>
-                <thead>
-                  <tr className="border-b border-border text-left">
-                    <th scope="col" className="py-3 pr-4 font-semibold">
-                      Puissance fiscale
-                    </th>
-                    <th scope="col" className="py-3 pr-4 font-semibold">
-                      Jusqu'à 5 000 km
-                    </th>
-                    <th scope="col" className="py-3 pr-4 font-semibold">
-                      De 5 001 à 20 000 km
-                    </th>
-                    <th scope="col" className="py-3 font-semibold">
-                      Au-delà de 20 000 km
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {IK_BAREME_2026.map((b) => (
-                    <tr key={b.cv} className="border-b border-border/60">
-                      <th scope="row" className="py-3 pr-4 font-medium text-left">
-                        {b.cv === "7+" ? "7 CV et plus" : `${b.cv} CV`}
-                      </th>
-                      <td className="py-3 pr-4 text-muted-foreground">
-                        {fmt(b.upTo5000.rate)} € / km
-                      </td>
-                      <td className="py-3 pr-4 text-muted-foreground">
-                        {fmt(b.from5001To20000.rate)} € / km + {b.from5001To20000.fixed} €
-                      </td>
-                      <td className="py-3 text-muted-foreground">{fmt(b.over20000.rate)} € / km</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="overflow-hidden rounded-xl border border-border">
+              <BaremeScaleTable
+                ariaLabel="Barème kilométrique par puissance fiscale et tranche kilométrique annuelle"
+                caption="Barème kilométrique par puissance fiscale et tranche kilométrique annuelle"
+                rowHeader="Puissance fiscale"
+                columns={CAR_COLUMNS_AU_DELA}
+                rows={carPerKmRows()}
+                presentation="text"
+              />
             </div>
             <p className="text-sm text-muted-foreground mt-6">
               Un véhicule 100% électrique bénéficie d'une majoration de 20% sur le montant obtenu.
@@ -367,18 +340,18 @@ const Artisans = () => {
                 <p className="text-muted-foreground mb-6 max-w-3xl">
                   IKtracker s'arrête volontairement aux trajets et aux indemnités kilométriques. La
                   rédaction des devis est un autre métier :{" "}
-                <a
-                  href="https://dictadevi.io"
-                  target="_blank"
-                  rel="noopener nofollow"
-                  className="font-medium text-primary hover:underline"
-                >
-                  DictaDevi.io, la solution de devis vocaux pour les artisans
-                </a>
-                , permet de décrire un chantier à la voix et d'obtenir un devis professionnel
-                structuré, sans repasser par le bureau le soir.
-              </p>
-              <ul className="grid gap-3 md:grid-cols-2 mb-8">
+                  <a
+                    href="https://dictadevi.io"
+                    target="_blank"
+                    rel="noopener nofollow"
+                    className="font-medium text-primary hover:underline"
+                  >
+                    DictaDevi.io, la solution de devis vocaux pour les artisans
+                  </a>
+                  , permet de décrire un chantier à la voix et d'obtenir un devis professionnel
+                  structuré, sans repasser par le bureau le soir.
+                </p>
+                <ul className="grid gap-3 md:grid-cols-2 mb-8">
                   {[
                     "Dictée du devis sur place, juste après le métré",
                     "Postes de travaux, quantités et prix structurés automatiquement",

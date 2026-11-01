@@ -10,22 +10,15 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { IKSimulator } from "@/components/marketing/IKSimulator";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  ArrowRight,
-  Calculator,
-  Scale,
-  Zap,
-  FileCheck2,
-  TableProperties,
-} from "lucide-react";
+import { ArrowRight, Calculator, Scale, Zap, FileCheck2, TableProperties } from "lucide-react";
 import { IK_BAREME_2026, calculateTotalAnnualIK } from "@/types/trip";
+import { formatFrEuros, formatFrNumber } from "@/lib/format-fr";
 
 const PAGE_LASTMOD = getStaticLastModified("/simulateur-indemnites-kilometriques-2026");
 
 const KM_SAMPLES = [5000, 10000, 15000, 20000, 25000];
 
-const euro = (v: number) =>
-  new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(Math.round(v)) + " €";
+const euro = (v: number) => formatFrEuros(Math.round(v));
 
 const baremeRows = IK_BAREME_2026.map((b) => {
   const cv = parseInt(b.cv) || 7;
@@ -163,9 +156,9 @@ export default function SimulateurIndemnitesKilometriques2026() {
             ))}
           </div>
           <p className="mt-6 text-sm text-muted-foreground text-center">
-            Le barème est appliqué par tranche : au-delà de 5 000 km, une part fixe s'ajoute au
-            taux kilométrique de la tranche atteinte. C'est ce qui évite le « saut » de
-            remboursement au passage d'un seuil.
+            Le barème est appliqué par tranche : au-delà de 5 000 km, une part fixe s'ajoute au taux
+            kilométrique de la tranche atteinte. C'est ce qui évite le « saut » de remboursement au
+            passage d'un seuil.
           </p>
         </section>
 
@@ -178,8 +171,8 @@ export default function SimulateurIndemnitesKilometriques2026() {
             </h2>
           </div>
           <p className="text-muted-foreground text-center mb-8 max-w-2xl mx-auto">
-            Montants annuels calculés avec le barème officiel DGFiP, hors majoration électrique.
-            Un véhicule 100 % électrique multiplie ces montants par 1,2.
+            Montants annuels calculés avec le barème officiel DGFiP, hors majoration électrique. Un
+            véhicule 100 % électrique multiplie ces montants par 1,2.
           </p>
           <div className="overflow-x-auto rounded-xl border border-border">
             <table className="w-full text-sm">
@@ -194,7 +187,7 @@ export default function SimulateurIndemnitesKilometriques2026() {
                   </th>
                   {KM_SAMPLES.map((km) => (
                     <th key={km} scope="col" className="text-right px-4 py-3 font-semibold">
-                      {km.toLocaleString("fr-FR")} km
+                      {formatFrNumber(km)} km
                     </th>
                   ))}
                 </tr>
@@ -219,8 +212,8 @@ export default function SimulateurIndemnitesKilometriques2026() {
             </table>
           </div>
           <p className="mt-4 text-xs text-muted-foreground">
-            Tranches : jusqu'à 5 000 km, de 5 001 à 20 000 km (taux + part fixe), au-delà de
-            20 000 km. Le simulateur officiel de la DGFiP permet de vérifier chaque montant.
+            Tranches : jusqu'à 5 000 km, de 5 001 à 20 000 km (taux + part fixe), au-delà de 20 000
+            km. Le simulateur officiel de la DGFiP permet de vérifier chaque montant.
           </p>
         </section>
 
@@ -270,9 +263,7 @@ export default function SimulateurIndemnitesKilometriques2026() {
             </Card>
             <Card className="border-border">
               <CardContent className="p-5">
-                <h3 className="font-semibold text-foreground">
-                  Indépendant : les frais réels
-                </h3>
+                <h3 className="font-semibold text-foreground">Indépendant : les frais réels</h3>
                 <p className="text-sm text-muted-foreground mt-1">
                   Les IK remplacent l'abattement forfaitaire de 10 % si elles sont plus
                   avantageuses. La comparaison se fait sur votre revenu imposable, pas sur vos

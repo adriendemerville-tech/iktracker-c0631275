@@ -19,12 +19,12 @@ const IKSimulator = lazy(() =>
 );
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { buildSoftwareApplicationSchema, FOUNDER_PERSON, ORGANIZATION_ID } from "@/lib/seo-schemas";
 import {
-  buildSoftwareApplicationSchema,
-  FOUNDER_PERSON,
-  ORGANIZATION_ID,
-} from "@/lib/seo-schemas";
-import { IK_BAREME_2026 } from "@/types/trip";
+  BaremeScaleTable,
+  CAR_COLUMNS_AU_DELA,
+  carPerKmRows,
+} from "@/components/marketing/BaremeScaleTable";
 import {
   ArrowRight,
   Calculator,
@@ -67,7 +67,6 @@ const METHOD_STEPS = [
   },
 ];
 
-
 const faqs = [
   {
     q: "Qu'est-ce qu'une indemnité kilométrique ?",
@@ -97,12 +96,6 @@ const faqs = [
     q: "Indemnités kilométriques ou frais réels : quelle différence ?",
     a: "Les indemnités kilométriques sont l'un des postes des frais réels. Opter pour les frais réels signifie renoncer à l'abattement forfaitaire de 10 % pour déclarer l'ensemble de ses dépenses professionnelles justifiées, dont les IK calculées via le barème kilométrique.",
   },
-];
-
-const brackets = [
-  { label: "Jusqu'à 5 000 km", key: "upTo5000" as const },
-  { label: "De 5 001 à 20 000 km", key: "from5001To20000" as const },
-  { label: "Au-delà de 20 000 km", key: "over20000" as const },
 ];
 
 export default function IndemnitesKilometriques() {
@@ -195,7 +188,6 @@ export default function IndemnitesKilometriques() {
           })}
         </script>
       </JsonLd>
-
 
       <MarketingNav />
 
@@ -310,46 +302,18 @@ export default function IndemnitesKilometriques() {
           <p className="text-muted-foreground mb-6 leading-relaxed">
             Le barème dépend de la puissance fiscale du véhicule (case P.6 de la carte grise) et de
             la distance professionnelle parcourue dans l'année. Les tranches ne sont pas cumulatives
-            : la tranche atteinte s'applique à la totalité des kilomètres, avec un forfait
-            correctif pour la tranche intermédiaire.
+            : la tranche atteinte s'applique à la totalité des kilomètres, avec un forfait correctif
+            pour la tranche intermédiaire.
           </p>
-          <div className="overflow-x-auto rounded-xl border border-border">
-            <table className="w-full text-sm">
-              <caption className="sr-only">
-                Barème des indemnités kilométriques 2026 par puissance fiscale et tranche
-                kilométrique
-              </caption>
-              <thead className="bg-muted/50">
-                <tr>
-                  <th scope="col" className="text-left p-3 font-semibold">
-                    Puissance fiscale
-                  </th>
-                  {brackets.map((b) => (
-                    <th scope="col" key={b.key} className="text-left p-3 font-semibold">
-                      {b.label}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {IK_BAREME_2026.map((row) => (
-                  <tr key={row.cv} className="border-t border-border">
-                    <th scope="row" className="text-left p-3 font-medium text-foreground">
-                      {row.cv === "7+" ? "7 CV et plus" : `${row.cv} CV`}
-                    </th>
-                    {brackets.map((b) => {
-                      const cell = row[b.key];
-                      return (
-                        <td key={b.key} className="p-3 text-muted-foreground">
-                          {cell.rate.toFixed(3)} €/km
-                          {"fixed" in cell ? ` + ${cell.fixed} €` : ""}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="overflow-hidden rounded-xl border border-border">
+            <BaremeScaleTable
+              ariaLabel="Barème des indemnités kilométriques 2026 par puissance fiscale et tranche kilométrique"
+              caption="Barème des indemnités kilométriques 2026 par puissance fiscale et tranche kilométrique"
+              rowHeader="Puissance fiscale"
+              columns={CAR_COLUMNS_AU_DELA}
+              rows={carPerKmRows()}
+              presentation="text"
+            />
           </div>
           <p className="text-xs text-muted-foreground mt-3">
             Source :{" "}
@@ -428,11 +392,11 @@ export default function IndemnitesKilometriques() {
           </h2>
           <p className="text-muted-foreground leading-relaxed mb-6">
             La difficulté des indemnités kilométriques n'est pas le calcul, c'est la preuve. Un
-            barème s'applique en une multiplication ; un carnet de bord opposable, lui, se
-            construit jour après jour. IKtracker part donc du déplacement réel — enregistré,
-            horodaté, mesuré — et remonte jusqu'au montant fiscal, plutôt que l'inverse. Cette
-            logique explique les quatre briques ci-dessous, conçues par un entrepreneur
-            indépendant pour son propre usage de terrain.
+            barème s'applique en une multiplication ; un carnet de bord opposable, lui, se construit
+            jour après jour. IKtracker part donc du déplacement réel — enregistré, horodaté, mesuré
+            — et remonte jusqu'au montant fiscal, plutôt que l'inverse. Cette logique explique les
+            quatre briques ci-dessous, conçues par un entrepreneur indépendant pour son propre usage
+            de terrain.
           </p>
           <div className="grid sm:grid-cols-2 gap-4">
             {METHOD_STEPS.map(({ icon: Icon, t, d }) => (
@@ -452,9 +416,9 @@ export default function IndemnitesKilometriques() {
           <p className="text-muted-foreground leading-relaxed mt-6">
             Chaque trajet enregistré est ensuite converti au barème DGFiP en vigueur, avec la
             majoration de 20 % appliquée automatiquement aux véhicules 100 % électriques et le
-            passage de tranche kilométrique signalé dès qu'il est atteint. Un changement de
-            véhicule ou de puissance fiscale déclenche, au choix, le recalcul des trajets déjà
-            enregistrés. L'ensemble est{" "}
+            passage de tranche kilométrique signalé dès qu'il est atteint. Un changement de véhicule
+            ou de puissance fiscale déclenche, au choix, le recalcul des trajets déjà enregistrés.
+            L'ensemble est{" "}
             <strong className="text-foreground">
               gratuit à vie, sans abonnement ni carte bancaire
             </strong>

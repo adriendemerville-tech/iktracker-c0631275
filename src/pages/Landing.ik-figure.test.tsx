@@ -1,12 +1,12 @@
 import { beforeAll, describe, it, expect, vi } from "vitest";
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Landing from "./Landing";
 import { calculateTotalAnnualIK } from "@/types/trip";
+import { formatFrEuros } from "@/lib/format-fr";
 import { TestRouter } from "@/test/router";
 
-const homeExampleIkLabel =
-  calculateTotalAnnualIK(15_000, 6).toLocaleString("fr-FR", { maximumFractionDigits: 0 }) + " €";
+const homeExampleIkLabel = formatFrEuros(calculateTotalAnnualIK(15_000, 6));
 
 describe("Landing IK example", () => {
   beforeAll(() => {
@@ -44,7 +44,16 @@ describe("Landing IK example", () => {
     );
     const text = document.body.textContent ?? "";
     expect(text).toContain(homeExampleIkLabel);
+    expect(homeExampleIkLabel).toBe("7\u00a0067\u00a0€");
     expect(text).toMatch(/pour 15\s000 km \(6 CV\)/);
     expect(text).not.toMatch(/6\s400 €/);
+    expect(text).toContain("0,374");
+    expect(text).not.toContain("0.374");
+    expect(text).toContain("De 5 001 à 20 000 km");
+    expect(text).toContain("Voir le barème complet");
+    expect(text).toContain("Voir le barème complet (voitures, motos, cyclomoteurs)");
+    const baremeLink = screen.getByRole("link", { name: /Voir le barème complet/ });
+    expect(baremeLink.className).toContain("whitespace-normal");
+    expect(baremeLink.className).toContain("max-w-full");
   });
 });

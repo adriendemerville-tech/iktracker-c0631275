@@ -13,6 +13,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { getIKBareme, calculateTotalAnnualIK } from "@/types/trip";
+import { formatFrEuros, formatFrRate, FR_NBSP } from "@/lib/format-fr";
 import { ArrowRight, CheckCircle2, Zap } from "lucide-react";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
 
@@ -150,13 +151,9 @@ export const IKSimulator = ({
                 )}
               </p>
               <p
-                className={`text-4xl font-bold mb-4 ${isElectric ? "text-emerald-600 dark:text-emerald-400" : "text-primary"}`}
+                className={`text-4xl font-bold mb-4 whitespace-nowrap ${isElectric ? "text-emerald-600 dark:text-emerald-400" : "text-primary"}`}
               >
-                {simulation.totalWithBonus.toLocaleString("fr-FR", {
-                  style: "currency",
-                  currency: "EUR",
-                  maximumFractionDigits: 0,
-                })}
+                {formatFrEuros(simulation.totalWithBonus)}
               </p>
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2">
@@ -168,7 +165,11 @@ export const IKSimulator = ({
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-success" />
                   <span>
-                    Taux de base : <strong>{simulation.rate.toFixed(3)} €/km</strong>
+                    Taux de base :{" "}
+                    <strong className="whitespace-nowrap">
+                      {formatFrRate(simulation.rate)}
+                      {FR_NBSP}€/km
+                    </strong>
                   </span>
                 </div>
                 {isElectric && (
@@ -176,13 +177,8 @@ export const IKSimulator = ({
                     <Zap className="h-4 w-4" />
                     <span>
                       Bonus électrique :{" "}
-                      <strong>
-                        +
-                        {simulation.electricBonus.toLocaleString("fr-FR", {
-                          style: "currency",
-                          currency: "EUR",
-                          maximumFractionDigits: 0,
-                        })}
+                      <strong className="whitespace-nowrap">
+                        +{formatFrEuros(simulation.electricBonus)}
                       </strong>
                     </span>
                   </div>
@@ -195,12 +191,20 @@ export const IKSimulator = ({
             <p className="text-sm text-muted-foreground mb-4">
               Automatisez le calcul de vos IK tout au long de l'année avec IKtracker
             </p>
-            <Link to="/signup" onClick={trackCTAClick}>
-              <Button variant="gradient" size="lg" className="gap-2">
-                Automatiser mes{" "}
-                {simulation.totalWithBonus.toLocaleString("fr-FR", { maximumFractionDigits: 0 })} €
-                d'IK
-                <ArrowRight className="h-4 w-4" />
+            <Link to="/signup" onClick={trackCTAClick} className="block max-w-full sm:inline-block">
+              <Button
+                variant="gradient"
+                size="lg"
+                className="h-auto min-h-14 w-full min-w-0 max-w-full whitespace-normal px-4 py-3 text-center sm:w-auto sm:px-8"
+              >
+                <span className="min-w-0 whitespace-normal text-balance">
+                  Automatiser mes{" "}
+                  <span className="whitespace-nowrap">
+                    {formatFrEuros(simulation.totalWithBonus)}
+                    {FR_NBSP}d'IK
+                  </span>
+                </span>
+                <ArrowRight className="h-4 w-4 shrink-0" />
               </Button>
             </Link>
             <p className="text-xs text-muted-foreground mt-4">

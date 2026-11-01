@@ -22,14 +22,20 @@ export default defineConfig({
   vite: {
     resolve: {
       alias: {
-        // Force la copie hoisted entities v4.5.0 (la copie imbriquée v7 casse le SSR).
-        // Les alias exacts "entities/decode" (style v7, utilisé par parse5) doivent
-        // précéder l'alias racine : v4.5.0 n'exporte pas "./decode".
-        "entities/decode": path.resolve(__dirname, "node_modules/entities/lib/decode.js"),
-        "entities/encode": path.resolve(__dirname, "node_modules/entities/lib/encode.js"),
-        "entities/escape": path.resolve(__dirname, "node_modules/entities/lib/escape.js"),
-        "entities/lib/decode.js": path.resolve(__dirname, "node_modules/entities/lib/decode.js"),
-        "entities/lib/encode.js": path.resolve(__dirname, "node_modules/entities/lib/encode.js"),
+        // Force la copie hoisted d'entities (v6, export ./decode). La copie
+        // imbriquée v7 casse le SSR. Les alias exacts "entities/decode" doivent
+        // précéder l'alias racine.
+        "entities/decode": path.resolve(__dirname, "node_modules/entities/dist/esm/decode.js"),
+        "entities/encode": path.resolve(__dirname, "node_modules/entities/dist/esm/encode.js"),
+        "entities/escape": path.resolve(__dirname, "node_modules/entities/dist/esm/escape.js"),
+        "entities/lib/decode.js": path.resolve(
+          __dirname,
+          "node_modules/entities/dist/esm/decode.js",
+        ),
+        "entities/lib/encode.js": path.resolve(
+          __dirname,
+          "node_modules/entities/dist/esm/encode.js",
+        ),
         entities: path.resolve(__dirname, "node_modules/entities"),
       },
     },

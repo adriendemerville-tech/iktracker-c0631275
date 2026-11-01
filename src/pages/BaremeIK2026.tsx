@@ -9,15 +9,16 @@ import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { IKSimulator } from "@/components/marketing/IKSimulator";
 import { useMarketingTracker } from "@/hooks/useMarketingTracker";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  BaremeScaleTable,
+  CAR_COLUMNS_PLUS,
+  MOTO_COLUMNS,
+  carFormulaRows,
+  cycloFormulaRows,
+  motoFormulaRows,
+} from "@/components/marketing/BaremeScaleTable";
+import { formatFrRate, FR_NBSP } from "@/lib/format-fr";
 import { useAuthLazy } from "@/hooks/useAuthLazy";
 import { IK_BAREME_2026 } from "@/types/trip";
 import { Breadcrumb } from "@/components/Breadcrumb";
@@ -39,11 +40,9 @@ import {
   Zap,
   AlertTriangle,
   Fuel,
-  Bike,
 } from "lucide-react";
 
-const ratePerKm = (rate: number) =>
-  rate.toLocaleString("fr-FR", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+const ratePerKm = (rate: number) => `${formatFrRate(rate)}${FR_NBSP}€/km`;
 const baremeFloorRate = IK_BAREME_2026[0].upTo5000.rate;
 const baremeCeilingRate = IK_BAREME_2026[IK_BAREME_2026.length - 1].over20000.rate;
 
@@ -51,7 +50,7 @@ const baremeCeilingRate = IK_BAREME_2026[IK_BAREME_2026.length - 1].over20000.ra
 const faqData = [
   {
     question: "Quel est le barème kilométrique 2026 ?",
-    answer: `Le barème kilométrique 2026 est identique au barème 2024, inchangé pour 2025 et 2026. Il prévoit des taux allant de ${ratePerKm(baremeFloorRate)} €/km pour un véhicule de 3 CV jusqu'à 5000 km, à ${ratePerKm(baremeCeilingRate)} €/km pour un véhicule de 7 CV et plus au-delà de 20 000 km.`,
+    answer: `Le barème kilométrique 2026 est identique au barème 2024, inchangé pour 2025 et 2026. Il prévoit des taux allant de ${ratePerKm(baremeFloorRate)} pour un véhicule de 3 CV jusqu'à 5000 km, à ${ratePerKm(baremeCeilingRate)} pour un véhicule de 7 CV et plus au-delà de 20 000 km.`,
   },
   {
     question: "Comment calculer ses indemnités kilométriques ?",
@@ -212,25 +211,25 @@ const BaremeIK2026 = () => {
 
                 <DirectAnswer question="Combien vaut le kilomètre en 2026 et comment lire le barème fiscal officiel ?">
                   <p>
-                    Le barème 2026 est publié par la DGFiP et s'applique à la déclaration de
-                    revenus : le montant déductible se lit en croisant la puissance fiscale du
-                    véhicule (de 3 CV et moins à 7 CV et plus) avec la tranche de kilométrage
-                    annuel — <strong>jusqu'à 5 000 km, de 5 001 à 20 000 km, puis au-delà de 20
-                    000 km</strong> —
-                    chaque tranche combinant un tarif au kilomètre et, pour la tranche
+                    Le barème 2026 est publié par la DGFiP et s'applique à la déclaration de revenus
+                    : le montant déductible se lit en croisant la puissance fiscale du véhicule (de
+                    3 CV et moins à 7 CV et plus) avec la tranche de kilométrage annuel —{" "}
+                    <strong>
+                      jusqu'à 5 000 km, de 5 001 à 20 000 km, puis au-delà de 20 000 km
+                    </strong>{" "}
+                    — chaque tranche combinant un tarif au kilomètre et, pour la tranche
                     intermédiaire, une part forfaitaire.
                   </p>
                   <p>
                     Ce barème couvre le carburant, l'entretien, l'assurance, les pneumatiques et la
                     dépréciation du véhicule ; seuls les péages, parkings et intérêts d'emprunt
-                    s'ajoutent, et une <strong>majoration de 20 %</strong> s'applique aux
-                    véhicules 100 % électriques.
+                    s'ajoutent, et une <strong>majoration de 20 %</strong> s'applique aux véhicules
+                    100 % électriques.
                   </p>
                   <p>
-                    Il concerne en France les salariés aux frais réels comme les indépendants, et
-                    ne peut être utilisé que pour un véhicule dont on est propriétaire ou
-                    locataire, à raison des trajets professionnels réellement effectués et
-                    justifiés.
+                    Il concerne en France les salariés aux frais réels comme les indépendants, et ne
+                    peut être utilisé que pour un véhicule dont on est propriétaire ou locataire, à
+                    raison des trajets professionnels réellement effectués et justifiés.
                   </p>
                 </DirectAnswer>
               </div>
@@ -369,60 +368,14 @@ const BaremeIK2026 = () => {
               </div>
 
               <Card>
-                <CardContent className="p-0 overflow-x-auto">
-                  <Table aria-label="Barème des indemnités kilométriques 2026">
-                    <caption className="sr-only">
-                      Tableau des taux d'indemnités kilométriques par puissance fiscale et distance
-                      parcourue
-                    </caption>
-                    <TableHeader>
-                      <TableRow className="bg-muted/50">
-                        <TableHead scope="col" className="font-bold">
-                          Puissance fiscale (CV)
-                        </TableHead>
-                        <TableHead scope="col" className="text-center font-bold">
-                          Jusqu'à 5 000 km
-                        </TableHead>
-                        <TableHead scope="col" className="text-center font-bold">
-                          De 5 001 à 20 000 km
-                        </TableHead>
-                        <TableHead scope="col" className="text-center font-bold">
-                          Plus de 20 000 km
-                        </TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {IK_BAREME_2026.map((row, index) => (
-                        <TableRow
-                          key={row.cv}
-                          className={index % 2 === 0 ? "bg-background" : "bg-muted/20"}
-                        >
-                          <TableCell scope="row" className="font-semibold">
-                            <div className="flex items-center gap-2">
-                              <Car className="h-4 w-4 text-primary" aria-hidden="true" />
-                              {row.cv === "7+" ? "7 CV et plus" : `${row.cv} CV`}
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-center">
-                            <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-mono">
-                              d × {row.upTo5000.rate.toFixed(3)} €
-                            </code>
-                          </TableCell>
-                          <TableCell className="text-center">
-                            <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-mono">
-                              (d × {row.from5001To20000.rate.toFixed(3)}) +{" "}
-                              {row.from5001To20000.fixed} €
-                            </code>
-                          </TableCell>
-                          <TableCell className="text-center">
-                            <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-mono">
-                              d × {row.over20000.rate.toFixed(3)} €
-                            </code>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                <CardContent className="p-0">
+                  <BaremeScaleTable
+                    ariaLabel="Barème des indemnités kilométriques 2026"
+                    caption="Tableau des taux d'indemnités kilométriques par puissance fiscale et distance parcourue"
+                    rowHeader="Puissance fiscale (CV)"
+                    columns={CAR_COLUMNS_PLUS}
+                    rows={carFormulaRows()}
+                  />
                 </CardContent>
               </Card>
 
@@ -441,99 +394,14 @@ const BaremeIK2026 = () => {
               </div>
 
               <Card>
-                <CardContent className="p-0 overflow-x-auto">
-                  <Table aria-label="Barème des indemnités kilométriques 2026 pour motos">
-                    <caption className="sr-only">
-                      Tableau des taux d'indemnités kilométriques pour motos par puissance fiscale
-                      et distance parcourue
-                    </caption>
-                    <TableHeader>
-                      <TableRow className="bg-muted/50">
-                        <TableHead scope="col" className="font-bold">
-                          Puissance
-                        </TableHead>
-                        <TableHead scope="col" className="text-center font-bold">
-                          Jusqu'à 3 000 km
-                        </TableHead>
-                        <TableHead scope="col" className="text-center font-bold">
-                          De 3 001 à 6 000 km
-                        </TableHead>
-                        <TableHead scope="col" className="text-center font-bold">
-                          Au-delà de 6 000 km
-                        </TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      <TableRow className="bg-background">
-                        <TableCell scope="row" className="font-semibold">
-                          <div className="flex items-center gap-2">
-                            <Bike className="h-4 w-4 text-primary" aria-hidden="true" />1 ou 2 CV
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-mono">
-                            d × 0,395 €
-                          </code>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-mono">
-                            (d × 0,099) + 891 €
-                          </code>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-mono">
-                            d × 0,248 €
-                          </code>
-                        </TableCell>
-                      </TableRow>
-                      <TableRow className="bg-muted/20">
-                        <TableCell scope="row" className="font-semibold">
-                          <div className="flex items-center gap-2">
-                            <Bike className="h-4 w-4 text-primary" aria-hidden="true" />
-                            3, 4, 5 CV
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-mono">
-                            d × 0,468 €
-                          </code>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-mono">
-                            (d × 0,082) + 1 158 €
-                          </code>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-mono">
-                            d × 0,275 €
-                          </code>
-                        </TableCell>
-                      </TableRow>
-                      <TableRow className="bg-background">
-                        <TableCell scope="row" className="font-semibold">
-                          <div className="flex items-center gap-2">
-                            <Bike className="h-4 w-4 text-primary" aria-hidden="true" />
-                            Plus de 5 CV
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-mono">
-                            d × 0,606 €
-                          </code>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-mono">
-                            (d × 0,079) + 1 583 €
-                          </code>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-mono">
-                            d × 0,343 €
-                          </code>
-                        </TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
+                <CardContent className="p-0">
+                  <BaremeScaleTable
+                    ariaLabel="Barème des indemnités kilométriques 2026 pour motos"
+                    caption="Tableau des taux d'indemnités kilométriques pour motos par puissance fiscale et distance parcourue"
+                    rowHeader="Puissance"
+                    columns={MOTO_COLUMNS}
+                    rows={motoFormulaRows()}
+                  />
                 </CardContent>
               </Card>
 
@@ -553,54 +421,14 @@ const BaremeIK2026 = () => {
               </div>
 
               <Card>
-                <CardContent className="p-0 overflow-x-auto">
-                  <Table aria-label="Barème des indemnités kilométriques 2026 pour cyclomoteurs">
-                    <caption className="sr-only">
-                      Tableau des taux d'indemnités kilométriques pour cyclomoteurs par distance
-                      parcourue
-                    </caption>
-                    <TableHeader>
-                      <TableRow className="bg-muted/50">
-                        <TableHead scope="col" className="font-bold">
-                          Type
-                        </TableHead>
-                        <TableHead scope="col" className="text-center font-bold">
-                          Jusqu'à 3 000 km
-                        </TableHead>
-                        <TableHead scope="col" className="text-center font-bold">
-                          De 3 001 à 6 000 km
-                        </TableHead>
-                        <TableHead scope="col" className="text-center font-bold">
-                          Au-delà de 6 000 km
-                        </TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      <TableRow className="bg-background">
-                        <TableCell scope="row" className="font-semibold">
-                          <div className="flex items-center gap-2">
-                            <Bike className="h-4 w-4 text-primary" aria-hidden="true" />
-                            Cyclomoteurs et scooters &lt; 50 cm³
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-mono">
-                            d × 0,315 €
-                          </code>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-mono">
-                            (d × 0,079) + 711 €
-                          </code>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-mono">
-                            d × 0,198 €
-                          </code>
-                        </TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
+                <CardContent className="p-0">
+                  <BaremeScaleTable
+                    ariaLabel="Barème des indemnités kilométriques 2026 pour cyclomoteurs"
+                    caption="Tableau des taux d'indemnités kilométriques pour cyclomoteurs par distance parcourue"
+                    rowHeader="Type"
+                    columns={MOTO_COLUMNS}
+                    rows={cycloFormulaRows()}
+                  />
                 </CardContent>
               </Card>
 
