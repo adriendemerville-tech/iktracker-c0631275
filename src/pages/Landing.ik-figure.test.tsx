@@ -55,5 +55,15 @@ describe("Landing IK example", () => {
     const baremeLink = screen.getByRole("link", { name: /Voir le barème complet/ });
     expect(baremeLink.className).toContain("whitespace-normal");
     expect(baremeLink.className).toContain("max-w-full");
+
+    const excelSentence =
+      "Formules cassées, oublis de trajets, calculs d'IK approximatifs... IKtracker automatise tout selon le barème officiel URSSAF et vous fait gagner des heures chaque mois.";
+    expect(text).toContain(excelSentence);
+    expect(text.match(/IKtracker automatise tout selon le/g)).toHaveLength(1);
+    const urssafLink = screen.getByRole("link", { name: "barème officiel URSSAF" });
+    expect(urssafLink).toHaveAttribute(
+      "href",
+      "https://www.urssaf.fr/accueil/outils-documentation/taux-baremes/indemnites-kilometriques.html",
+    );
   });
 });

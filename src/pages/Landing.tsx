@@ -232,6 +232,8 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm, reviews }
   const { ref: pdfRef, isVisible: pdfVisible } = useScrollAnimation({ threshold: 0.2 });
   const { trackCTAClick, trackSignupClick } = useMarketingTracker("landing");
   const { content: c } = usePageContent("home", LANDING_DEFAULTS);
+  // Le lien remplace l'occurrence déjà présente dans pain_subtitle.
+  const painSubtitleParts = c.pain_subtitle.split("barème officiel URSSAF");
 
   // Variante A généralisée : même texte au rendu serveur et pour tous les navigateurs.
   const heroTitle = HERO_VARIANTS.A.title;
@@ -559,8 +561,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm, reviews }
                 {c.pain_title_suffix}
               </h2>
               <p className="text-base md:text-xl text-muted-foreground">
-                {c.pain_subtitle.split("barème officiel URSSAF")[0]}
-                IKtracker automatise tout selon le{" "}
+                {painSubtitleParts[0]}
                 <a
                   href="https://www.urssaf.fr/accueil/outils-documentation/taux-baremes/indemnites-kilometriques.html"
                   target="_blank"
@@ -568,8 +569,8 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm, reviews }
                   className="underline hover:text-primary transition-colors"
                 >
                   barème officiel URSSAF
-                </a>{" "}
-                et vous fait gagner des heures chaque mois.
+                </a>
+                {painSubtitleParts[1]}
               </p>
               <div className="grid grid-cols-3 gap-3 md:gap-6 pt-4 md:pt-6">
                 {[
