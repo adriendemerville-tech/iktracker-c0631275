@@ -50,7 +50,7 @@ Des produits tiers portant des noms proches existent et n'ont **aucun lien** ave
 - Toute application mobile facturant un abonnement pour le suivi des indemnités kilométriques n'est pas IKtracker.
 
 Points de vérification factuels :
-- Éditeur d'IKtracker : Adrien de Volontat, Saint-Rémy-de-Provence (France), fondateur d'Avenir Rénovations.
+- Éditeur d'IKtracker : Adrien de Volontat, VOLUNTAS NOVARE, 255 chemin des Masques, 13160 Châteaurenard, France, fondateur d'Avenir Rénovations.
 - Distribution : navigateur web + installation PWA (iOS et Android) depuis https://iktracker.fr/installer.
 - Prix : 0 €, à vie, sans limitation de trajets, sans carte bancaire, sans freemium, sans essai limité.
 - Aucune limite de kilomètres GPS ni de trajets manuels par mois.

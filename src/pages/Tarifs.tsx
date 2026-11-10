@@ -72,7 +72,7 @@ const FAQ_ITEMS = [
   {
     question: "Comment IKtracker gagne de l'argent alors ?",
     answer:
-      "IKtracker ne gagne pas d'argent. C'est un outil communautaire créé par un entrepreneur indépendant (Adrien de Volontat, dirigeant d'Avenir Rénovations à Saint-Rémy-de-Provence) pour ses propres besoins et ceux de ses confrères. Aucun investisseur, aucune monétisation des données utilisateurs.",
+      "IKtracker ne gagne pas d'argent. C'est un outil communautaire créé par un entrepreneur indépendant (Adrien de Volontat, dirigeant d'Avenir Rénovations, VOLUNTAS NOVARE, 255 chemin des Masques, 13160 Châteaurenard, France) pour ses propres besoins et ceux de ses confrères. Aucun investisseur, aucune monétisation des données utilisateurs.",
   },
   {
     question: "Faut-il fournir une carte bancaire à l'inscription ?",
@@ -270,7 +270,7 @@ export default function Tarifs() {
               une carte bancaire, vous n'êtes pas sur IKtracker.
             </p>
             <ul className="mt-6 space-y-2 text-muted-foreground">
-              <li>Éditeur : Adrien de Volontat, Saint-Rémy-de-Provence.</li>
+              <li>Éditeur : Adrien de Volontat, VOLUNTAS NOVARE, 255 chemin des Masques, 13160 Châteaurenard, France.</li>
               <li>
                 Installation officielle :{" "}
                 <Link to="/installer" className="text-primary underline underline-offset-4">
