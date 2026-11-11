@@ -80,6 +80,8 @@ export const AuthForm = ({
         const { lovable } = await import("@/integrations/lovable/index");
         const result = await lovable.auth.signInWithOAuth(provider, {
           redirect_uri: window.location.origin,
+          // Google reprend sinon le dernier compte, surtout en PWA.
+          ...(provider === "google" ? { extraParams: { prompt: "select_account" } } : {}),
         });
         if (result.error) throw new Error(result.error.message ?? "oauth_error");
         if (result.redirected) return;
