@@ -578,6 +578,8 @@ ${IKTRACKER_MENTION}
     () => filteredTripsForReport.reduce((sum, t) => sum + t.distance, 0),
     [filteredTripsForReport],
   );
+  // Cumul annuel déjà calculé, puis filtré. Le PDF et l'impression reçoivent
+  // ces lignes : un sous-ensemble brut remet le taux sur la 1re tranche.
   const filteredRecalculatedTrips = useMemo(() => {
     if (!reportSinceDate) return recalculatedTrips;
     return recalculatedTrips.filter((t) => new Date(t.startTime) >= reportSinceDate);
@@ -595,7 +597,7 @@ ${IKTRACKER_MENTION}
   const generateHTMLContent = async () => {
     const { generatePrintableHTML } = await import("@/lib/print-utils");
     return generatePrintableHTML({
-      trips: filteredTripsForReport,
+      trips: filteredRecalculatedTrips,
       vehicles,
       totalKm: filteredTotalKm,
       logoUrl: "/logo-iktracker-250.webp",
@@ -609,7 +611,7 @@ ${IKTRACKER_MENTION}
   const handlePrint = async () => {
     const { printReport } = await import("@/lib/print-utils");
     printReport({
-      trips: filteredTripsForReport,
+      trips: filteredRecalculatedTrips,
       vehicles,
       totalKm: filteredTotalKm,
       logoUrl: "/logo-iktracker-250.webp",
@@ -823,7 +825,7 @@ ${IKTRACKER_MENTION}
       // Generate printable HTML for sharing
       const { generatePrintableHTML } = await import("@/lib/print-utils");
       const shareHtmlContent = generatePrintableHTML({
-        trips: filteredTripsForReport,
+        trips: filteredRecalculatedTrips,
         vehicles,
         totalKm: filteredTotalKm,
         logoUrl: "/logo-iktracker-250.webp",

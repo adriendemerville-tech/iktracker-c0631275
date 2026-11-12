@@ -127,6 +127,35 @@ export function recalculateTrips(
   return result.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
 }
 
+function hasAnnualScale(trip: Trip): trip is RecalculatedTrip {
+  const row = trip as Partial<RecalculatedTrip>;
+  return (
+    typeof row.recalculatedIK === "number" &&
+    Number.isFinite(row.recalculatedIK) &&
+    typeof row.cumulativeKm === "number" &&
+    Number.isFinite(row.cumulativeKm) &&
+    typeof row.appliedRate === "number" &&
+    Number.isFinite(row.appliedRate)
+  );
+}
+
+// Un filtre « depuis le… » ne doit pas relancer le barème sur la seule période.
+// Les lignes déjà calculées sur l'année (puis filtrées) gardent leur cumul et leur taux.
+export function resolveReportTrips(
+  trips: Trip[],
+  vehicles: Vehicle[],
+  override: IKRateOverride = "auto",
+): RecalculatedTrip[] {
+  const resolved =
+    trips.length > 0 && trips.every(hasAnnualScale)
+      ? (trips as RecalculatedTrip[])
+      : recalculateTrips(trips, vehicles, override);
+
+  return [...resolved].sort(
+    (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
+  );
+}
+
 // Extract city name from full address (e.g., "255 chemin des masques, 13160 Châteaurenard" → "Châteaurenard")
 export function extractCity(address: string): string {
   const parts = address.split(",").map((p) => p.trim());
