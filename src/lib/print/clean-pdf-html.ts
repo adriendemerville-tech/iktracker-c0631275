@@ -3,7 +3,7 @@ import { getTripVehicle } from "@/lib/trip-vehicle";
 import {
   esc,
   formatStopTime,
-  recalculateTrips,
+  resolveReportTrips,
   extractCity,
   TZ_LABEL_SUFFIX,
   type PrintReportOptions,
@@ -57,7 +57,7 @@ export function generateCleanPdfHTML(options: PrintReportOptions): string {
     ? `${vehicle.make || ""} ${vehicle.model || ""}`.trim() || `Véhicule ${vehicle.fiscalPower} CV`
     : "";
 
-  const recalculatedTrips = recalculateTrips(trips, vehicles, ikRateOverride);
+  const recalculatedTrips = resolveReportTrips(trips, vehicles, ikRateOverride);
   const recalculatedTotalIK = recalculatedTrips.reduce((sum, t) => sum + t.recalculatedIK, 0);
 
   const tripRows = recalculatedTrips
