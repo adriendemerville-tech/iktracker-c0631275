@@ -8,6 +8,8 @@ import { Home, Building2, MapPin, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AddressAutocompleteInput } from "@/components/AddressAutocompleteInput";
 import { AddressSuggestion } from "@/hooks/useAddressAutocomplete";
+import { geocodeAddressWithGeopf } from "@/lib/address-geocoding";
+import { isUsableCoord } from "@/lib/distance";
 
 interface Location {
   id: string;
@@ -21,7 +23,7 @@ interface Location {
 interface AddressFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (location: Omit<Location, "id">) => void;
+  onSave: (location: Omit<Location, "id">) => void | boolean | Promise<void | boolean>;
   editLocation?: Location;
 }
 
@@ -36,6 +38,7 @@ export function AddressForm({ open, onOpenChange, onSave, editLocation }: Addres
   const [addressValidated, setAddressValidated] = useState(false);
 
   const addressInputRef = useRef<HTMLInputElement>(null);
+  const selectionSeq = useRef(0);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -52,8 +55,7 @@ export function AddressForm({ open, onOpenChange, onSave, editLocation }: Addres
       }
       setLatitude(editLocation.latitude);
       setLongitude(editLocation.longitude);
-      // If editing and has coordinates, consider it validated
-      setAddressValidated(!!editLocation.latitude && !!editLocation.longitude);
+      setAddressValidated(isUsableCoord(editLocation.latitude, editLocation.longitude));
     } else {
       setName("");
       setAddress("");
@@ -67,64 +69,71 @@ export function AddressForm({ open, onOpenChange, onSave, editLocation }: Addres
 
   // Reset validation when address changes manually
   const handleAddressChange = (value: string) => {
+    selectionSeq.current += 1;
     setAddress(value);
     setAddressValidated(false);
     setLatitude(undefined);
     setLongitude(undefined);
+    setIsValidating(false);
   };
 
-  const handleAddressSelect = (suggestion: AddressSuggestion) => {
+  const handleAddressSelect = async (suggestion: AddressSuggestion) => {
+    const seq = ++selectionSeq.current;
     setAddress(suggestion.fulltext);
-    setLatitude(suggestion.lat);
-    setLongitude(suggestion.lng);
-    setAddressValidated(true);
-  };
 
-  // Geocode address using Géoplateforme search API as fallback
-  const geocodeAddressFallback = async (
-    addressText: string,
-  ): Promise<{ address: string; lat: number; lng: number } | null> => {
-    try {
-      const params = new URLSearchParams({
-        q: addressText,
-        type: "housenumber,street",
-        limit: "1",
-      });
-      const res = await fetch(`https://data.geopf.fr/geocodage/search?${params}`);
-      if (!res.ok) return null;
-      const data = await res.json();
-      if (data.features && data.features.length > 0) {
-        const f = data.features[0];
-        return {
-          address: f.properties?.label || addressText,
-          lat: f.geometry?.coordinates?.[1],
-          lng: f.geometry?.coordinates?.[0],
-        };
-      }
-      return null;
-    } catch {
-      return null;
+    if (isUsableCoord(suggestion.lat, suggestion.lng)) {
+      setLatitude(suggestion.lat);
+      setLongitude(suggestion.lng);
+      setAddressValidated(true);
+      return;
     }
+
+    // Les suggestions Google arrivent avec 0,0 : on géocode avant de valider.
+    setLatitude(undefined);
+    setLongitude(undefined);
+    setAddressValidated(false);
+    setIsValidating(true);
+    const geocoded = await geocodeAddressWithGeopf(suggestion.fulltext);
+    if (seq !== selectionSeq.current) return;
+    setIsValidating(false);
+
+    if (!geocoded) {
+      toast({
+        title: "Adresse non trouvée",
+        description:
+          "Impossible de situer cette adresse. Modifiez-la ou choisissez une autre suggestion.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setAddress(geocoded.address);
+    setLatitude(geocoded.lat);
+    setLongitude(geocoded.lng);
+    setAddressValidated(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !address.trim()) return;
 
-    // If address wasn't validated via autocomplete, geocode it
     let finalAddress = address.trim();
     let finalLat = latitude;
     let finalLng = longitude;
 
-    if (!addressValidated) {
+    if (!isUsableCoord(finalLat, finalLng)) {
       setIsValidating(true);
-      const geocoded = await geocodeAddressFallback(address.trim());
+      const geocoded = await geocodeAddressWithGeopf(finalAddress);
       setIsValidating(false);
 
       if (geocoded) {
         finalAddress = geocoded.address;
         finalLat = geocoded.lat;
         finalLng = geocoded.lng;
+        setAddress(finalAddress);
+        setLatitude(finalLat);
+        setLongitude(finalLng);
+        setAddressValidated(true);
 
         toast({
           title: "Adresse corrigée",
@@ -143,13 +152,14 @@ export function AddressForm({ open, onOpenChange, onSave, editLocation }: Addres
     // Use custom type if "other" is selected and customType is provided
     const finalType = type === "other" && customType.trim() ? customType.trim() : type;
 
-    onSave({
+    const saved = await onSave({
       name: name.trim(),
       address: finalAddress,
       type: finalType,
       latitude: finalLat,
       longitude: finalLng,
     });
+    if (saved === false) return;
     onOpenChange(false);
   };
 
@@ -243,7 +253,7 @@ export function AddressForm({ open, onOpenChange, onSave, editLocation }: Addres
                 onSelect={handleAddressSelect}
                 className={`transition-colors ${addressValidated ? "border-emerald-500/50 focus-visible:ring-emerald-500/30" : ""}`}
               />
-              {addressValidated && latitude && longitude && (
+              {addressValidated && isUsableCoord(latitude, longitude) && (
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 z-10">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 </div>

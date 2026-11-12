@@ -83,7 +83,10 @@ interface Props {
   onAddLocation: (
     loc: Omit<TripLocation, "id">,
   ) => Promise<TripLocation | null> | TripLocation | null | void;
-  onUpdateLocation: (id: string, updates: Partial<TripLocation>) => void;
+  onUpdateLocation: (
+    id: string,
+    updates: Partial<TripLocation>,
+  ) => void | boolean | Promise<void | boolean>;
   onDeleteLocation: (id: string) => void;
   onOpenRecurring: () => void;
   onDeleteAllTrips: () => Promise<{ success: boolean; count: number }>;
@@ -1019,28 +1022,37 @@ export function TripSettingsModal(props: Props) {
                   }
                 : undefined
             }
-            onSave={(data) => {
+            onSave={async (data) => {
               if (editingAddress) {
-                onUpdateLocation(editingAddress.id, {
+                const ok = await onUpdateLocation(editingAddress.id, {
                   name: data.name,
                   address: data.address,
                   type: data.type,
                   lat: data.latitude,
                   lng: data.longitude,
                 });
+                if (ok === false) {
+                  toast.error("Impossible d'enregistrer cette adresse.");
+                  return false;
+                }
                 toast.success("Adresse mise à jour");
               } else {
-                onAddLocation({
+                const created = await onAddLocation({
                   name: data.name,
                   address: data.address || "",
                   type: data.type,
                   lat: data.latitude,
                   lng: data.longitude,
                 });
+                if (created === null) {
+                  toast.error("Impossible d'enregistrer cette adresse.");
+                  return false;
+                }
                 toast.success("Adresse ajoutée");
               }
               setAddressFormOpen(false);
               setEditingAddress(null);
+              return true;
             }}
           />
         )}

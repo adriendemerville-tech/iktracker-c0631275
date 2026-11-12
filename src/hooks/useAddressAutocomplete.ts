@@ -10,6 +10,19 @@ export interface AddressSuggestion {
   lng: number;
 }
 
+/**
+ * Places Autocomplete (New) rejette la requête (INVALID_REQUEST) au-delà de
+ * 5 valeurs dans includedPrimaryTypes. On garde les adresses, les voies,
+ * les bâtiments, les communes et les codes postaux.
+ */
+export const GOOGLE_INCLUDED_PRIMARY_TYPES = [
+  "street_address",
+  "route",
+  "premise",
+  "locality",
+  "postal_code",
+] as const;
+
 const GEOPF_URL = "https://data.geopf.fr/geocodage/completion/";
 
 // --- Google Maps key cache ---
@@ -54,7 +67,7 @@ function createTimeoutSignal(parentSignal: AbortSignal, timeoutMs: number) {
 }
 
 // --- Google Places Autocomplete (New API via REST) ---
-async function searchGoogle(
+export async function searchGoogle(
   text: string,
   apiKey: string,
   signal: AbortSignal,
@@ -72,17 +85,7 @@ async function searchGoogle(
         input: text,
         languageCode: "fr",
         regionCode: "FR",
-        // Autoriser aussi villes / codes postaux : ni la voie ni le numéro ne sont obligatoires
-        includedPrimaryTypes: [
-          "locality",
-          "sublocality",
-          "postal_code",
-          "administrative_area_level_3",
-          "street_address",
-          "route",
-          "premise",
-          "subpremise",
-        ],
+        includedPrimaryTypes: [...GOOGLE_INCLUDED_PRIMARY_TYPES],
       }),
       signal: timedSignal.signal,
     });
@@ -121,7 +124,7 @@ async function searchGoogle(
         street: prediction.structuredFormat?.mainText?.text || fulltext,
         city,
         zipcode,
-        lat: 0, // Will be geocoded when selected if needed
+        lat: 0, // Placeholder : géocodé à la sélection, ce n'est pas une position réelle
         lng: 0,
       });
     }

@@ -580,27 +580,36 @@ const Profile = () => {
                   }
                 : undefined
             }
-            onSave={(locationData) => {
+            onSave={async (locationData) => {
               if (editingAddress) {
-                updateLocation(editingAddress.id, {
+                const ok = await updateLocation(editingAddress.id, {
                   name: locationData.name,
                   address: locationData.address,
                   type: locationData.type,
                   lat: locationData.latitude,
                   lng: locationData.longitude,
                 });
+                if (ok === false) {
+                  toast.error("Impossible d'enregistrer cette adresse.");
+                  return false;
+                }
                 toast.success("Adresse mise à jour");
               } else {
-                addLocation({
+                const created = await addLocation({
                   name: locationData.name,
                   address: locationData.address ?? "",
                   type: locationData.type,
                   lat: locationData.latitude,
                   lng: locationData.longitude,
                 });
+                if (created === null) {
+                  toast.error("Impossible d'enregistrer cette adresse.");
+                  return false;
+                }
                 toast.success("Adresse ajoutée");
               }
               setEditingAddress(null);
+              return true;
             }}
           />
 
