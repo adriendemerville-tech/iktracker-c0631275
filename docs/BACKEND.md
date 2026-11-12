@@ -1,5 +1,8 @@
 # IKTracker — Documentation Technique Backend
 
+**Sécurité Auth — 12 novembre 2026**
+- Protection contre les mots de passe compromis (HIBP) activée : les mots de passe présents dans des fuites connues sont refusés à l'inscription et au changement de mot de passe (les mots de passe existants ne sont pas re-vérifiés). Inscriptions ouvertes, confirmation e-mail obligatoire et comptes anonymes désactivés : inchangés. Cette entrée supersède les mentions « HIBP non modifié / activation manuelle requise » du 19 octobre 2026.
+
 **Sécurité ciblée — 19 octobre 2026**
 - Migration `0007_harden_selected_log_and_feedback_policies` appliquée : suppression des policies INSERT clients sans contrôle de `partner_clicks` et `request_logs`. Les clics continuent d’être enregistrés par `partner-redirect` via service role ; le Worker courant transmet ses logs à Crawlers, sans insertion cliente dans `request_logs`. Lecture admin/viewer inchangée.
 - `storage.objects` / `feedback-images` : INSERT exige `owner_id = auth.uid()::text` et le préfixe de fichier existant `<user-id>-`. SELECT explicitement lié au propriétaire, avec préfixe historique conservé et accès admin. Bucket public et URLs existantes inchangés ; aucune suppression de fichier.
