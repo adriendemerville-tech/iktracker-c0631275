@@ -2,6 +2,8 @@ import { useRef, useEffect, useState, forwardRef } from "react";
 import { Input } from "@/components/ui/input";
 import { MapPin, Loader2 } from "lucide-react";
 import { useAddressAutocomplete, AddressSuggestion } from "@/hooks/useAddressAutocomplete";
+import { geocodeAddressWithGeopf } from "@/lib/address-geocoding";
+import { isUsableCoord } from "@/lib/distance";
 import { cn } from "@/lib/utils";
 
 interface AddressAutocompleteInputProps {
@@ -18,7 +20,9 @@ export const AddressAutocompleteInput = forwardRef<HTMLInputElement, AddressAuto
     const { suggestions, isLoading, search, clear } = useAddressAutocomplete();
     const [isOpen, setIsOpen] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(-1);
+    const [isResolving, setIsResolving] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
+    const resolveSeq = useRef(0);
 
     // Search when value changes
     useEffect(() => {
@@ -43,9 +47,31 @@ export const AddressAutocompleteInput = forwardRef<HTMLInputElement, AddressAuto
       return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    const handleSelect = (suggestion: AddressSuggestion) => {
-      onChange(suggestion.fulltext);
-      onSelect(suggestion);
+    const handleSelect = async (suggestion: AddressSuggestion) => {
+      const seq = ++resolveSeq.current;
+      let chosen = suggestion;
+      // Les prédictions Google n'ont pas de GPS (0,0) : on le résout ici,
+      // avant de transmettre la suggestion au formulaire.
+      if (!isUsableCoord(suggestion.lat, suggestion.lng)) {
+        setIsResolving(true);
+        try {
+          const geocoded = await geocodeAddressWithGeopf(suggestion.fulltext);
+          if (seq !== resolveSeq.current) return;
+          if (geocoded) {
+            chosen = {
+              ...suggestion,
+              fulltext: geocoded.address,
+              lat: geocoded.lat,
+              lng: geocoded.lng,
+            };
+          }
+        } finally {
+          if (seq === resolveSeq.current) setIsResolving(false);
+        }
+      }
+      if (seq !== resolveSeq.current) return;
+      onChange(chosen.fulltext);
+      onSelect(chosen);
       setIsOpen(false);
       clear();
     };
@@ -59,9 +85,11 @@ export const AddressAutocompleteInput = forwardRef<HTMLInputElement, AddressAuto
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
         setSelectedIndex((prev) => Math.max(prev - 1, 0));
-      } else if (e.key === "Enter" && selectedIndex >= 0) {
+      } else if (e.key === "Enter" && !e.nativeEvent.isComposing) {
+        // Sans surbrillance (clavier mobile : pas de flèches), Entrée choisit
+        // la première suggestion au lieu d'envoyer le formulaire.
         e.preventDefault();
-        handleSelect(suggestions[selectedIndex]);
+        handleSelect(suggestions[selectedIndex >= 0 ? selectedIndex : 0]);
       } else if (e.key === "Escape") {
         setIsOpen(false);
       }
@@ -80,7 +108,7 @@ export const AddressAutocompleteInput = forwardRef<HTMLInputElement, AddressAuto
             className={cn("pr-8", className)}
             disabled={disabled}
           />
-          {isLoading && (
+          {(isLoading || isResolving) && (
             <Loader2 className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
           )}
         </div>

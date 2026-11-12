@@ -7,6 +7,7 @@ import { usePreferences, getFiscalYearStart } from "./usePreferences";
 import { useEmailGate, UNVERIFIED_TRIP_LIMIT, UNVERIFIED_TOUR_LIMIT } from "./useEmailGate";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { coordinatesForStorage } from "@/lib/address-geocoding";
 import { archiveLocalVehicle, VEHICLE_ARCHIVE_EVENT } from "@/lib/deleted-vehicles";
 import { getTripVehicle, preserveTripVehicle } from "@/lib/trip-vehicle";
 import {
@@ -649,18 +650,24 @@ export function useTrips() {
 
   const addLocation = async (location: Omit<Location, "id">) => {
     if (user) {
-      const { data } = await supabase
+      const coords = coordinatesForStorage(location.lat, location.lng);
+      const { data, error } = await supabase
         .from("locations")
         .insert({
           user_id: user.id,
           name: location.name,
           address: location.address || null,
           type: location.type,
-          latitude: location.lat || null,
-          longitude: location.lng || null,
+          latitude: coords.latitude,
+          longitude: coords.longitude,
         })
         .select()
         .single();
+
+      if (error || !data) {
+        console.error("Enregistrement de l'adresse impossible", error);
+        return null;
+      }
 
       if (data) {
         const newLocation: Location = {
@@ -676,9 +683,12 @@ export function useTrips() {
       }
       return null;
     } else {
+      const coords = coordinatesForStorage(location.lat, location.lng);
       const newLocation: Location = {
         ...location,
         id: crypto.randomUUID(),
+        lat: coords.latitude ?? undefined,
+        lng: coords.longitude ?? undefined,
       };
       saveLocationsLocal([...savedLocations, newLocation]);
       return newLocation;
@@ -693,18 +703,26 @@ export function useTrips() {
       if (isDefaultLocation) {
         // Create new location in database instead of updating
         const existingLocation = savedLocations.find((l) => l.id === id);
-        const { data } = await supabase
+        const lat = updates.lat !== undefined ? updates.lat : existingLocation?.lat;
+        const lng = updates.lng !== undefined ? updates.lng : existingLocation?.lng;
+        const coords = coordinatesForStorage(lat, lng);
+        const { data, error } = await supabase
           .from("locations")
           .insert({
             user_id: user.id,
             name: updates.name || existingLocation?.name || "",
             address: updates.address || existingLocation?.address || null,
             type: updates.type || existingLocation?.type || "other",
-            latitude: updates.lat || existingLocation?.lat || null,
-            longitude: updates.lng || existingLocation?.lng || null,
+            latitude: coords.latitude,
+            longitude: coords.longitude,
           })
           .select()
           .single();
+
+        if (error || !data) {
+          console.error("Enregistrement de l'adresse impossible", error);
+          return false;
+        }
 
         if (data) {
           // Replace the default location with the new DB location
@@ -725,20 +743,54 @@ export function useTrips() {
         }
       } else {
         // Normal update for DB locations
-        await supabase
+        const coords = coordinatesForStorage(updates.lat, updates.lng);
+        const { error } = await supabase
           .from("locations")
           .update({
             name: updates.name,
             address: updates.address || null,
             type: updates.type,
-            latitude: updates.lat || null,
-            longitude: updates.lng || null,
+            latitude: coords.latitude,
+            longitude: coords.longitude,
           })
           .eq("id", id);
-        setLocationsCache((prev) => prev.map((l) => (l.id === id ? { ...l, ...updates } : l)));
+        if (error) {
+          console.error("Mise à jour de l'adresse impossible", error);
+          return false;
+        }
+        setLocationsCache((prev) =>
+          prev.map((l) =>
+            l.id === id
+              ? {
+                  ...l,
+                  ...updates,
+                  lat: coords.latitude ?? undefined,
+                  lng: coords.longitude ?? undefined,
+                }
+              : l,
+          ),
+        );
       }
+      return true;
     } else {
-      saveLocationsLocal(savedLocations.map((l) => (l.id === id ? { ...l, ...updates } : l)));
+      const current = savedLocations.find((l) => l.id === id);
+      const coords = coordinatesForStorage(
+        updates.lat !== undefined ? updates.lat : current?.lat,
+        updates.lng !== undefined ? updates.lng : current?.lng,
+      );
+      saveLocationsLocal(
+        savedLocations.map((l) =>
+          l.id === id
+            ? {
+                ...l,
+                ...updates,
+                lat: coords.latitude ?? undefined,
+                lng: coords.longitude ?? undefined,
+              }
+            : l,
+        ),
+      );
+      return true;
     }
   };
 
