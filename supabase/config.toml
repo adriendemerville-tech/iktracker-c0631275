@@ -45,6 +45,8 @@ verify_jwt = true
 [functions.linkedin-profile]
 verify_jwt = false
 
+# Auth dans la fonction : x-cron-secret (CRON_SECRET ou SYNC_CRON_TOKEN) ou JWT admin.
+# verify_jwt doit rester false, sinon pg_cron (sans Authorization) est rejeté par la passerelle.
 [functions.linkedin-weekly-post]
 verify_jwt = false
 
@@ -126,8 +128,5 @@ verify_jwt = true
 [functions.purge-duplicate-trips]
 verify_jwt = true
 
-[functions.linkedin-weekly-post]
-verify_jwt = true
-
 [functions.linkedin-post-audit]
-verify_jwt = true
+verify_jwt = false
