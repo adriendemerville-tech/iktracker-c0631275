@@ -20,6 +20,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { PERSONA_OPTIONS } from "@/components/PersonaPicker";
+import {
+  AdminAccountCountValue,
+  AdminUserPagination,
+} from "@/components/admin/AdminUserPagination";
+import {
+  adminUserPageCount,
+  adminUserSearchArgs,
+  parseAdminAccountCount,
+  type AdminUserRow,
+} from "@/lib/admin-users";
 
 import {
   ArrowLeft,
@@ -157,7 +167,11 @@ const Admin = () => {
   const [convoToDelete, setConvoToDelete] = useState<string | null>(null);
   const [adminMessageText, setAdminMessageText] = useState("");
   const [seenMessageIds, setSeenMessageIds] = useState<string[]>([]);
+  const [userPage, setUserPage] = useState(0);
+  const [userPageSearch, setUserPageSearch] = useState(debouncedSearch);
   const adminMessageRef = useRef<HTMLTextAreaElement>(null);
+  const searchChanged = userPageSearch !== debouncedSearch;
+  const effectiveUserPage = searchChanged ? 0 : userPage;
 
   useEffect(() => {
     try {
@@ -237,6 +251,12 @@ const Admin = () => {
     }, 300);
     return () => clearTimeout(timer);
   }, [userSearch]);
+
+  useEffect(() => {
+    if (!searchChanged) return;
+    setUserPageSearch(debouncedSearch);
+    setUserPage(0);
+  }, [searchChanged, debouncedSearch]);
 
   // Fetch feedbacks with user info - refresh every 15 minutes
   const { data: feedbacks = [], isLoading: feedbacksLoading } = useQuery({
@@ -318,37 +338,78 @@ const Admin = () => {
     refetchInterval: 15 * 60 * 1000, // 15 minutes
   });
 
-  // Search users with the new function
-  const { data: searchedUsers = [], isLoading: usersLoading } = useQuery({
-    queryKey: ["admin-search-users", debouncedSearch],
+  const canListAccounts = adminRole === "admin";
+
+  // Comptage exact de tous les comptes, indépendant de la page affichée.
+  const {
+    data: accountCount,
+    isLoading: accountCountLoading,
+    isError: accountCountError,
+  } = useQuery({
+    queryKey: ["admin-account-count"],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("search_users", {
-        search_term: debouncedSearch,
-        limit_count: 500,
-      });
+      const { data, error } = await supabase.rpc("count_admin_users", { search_term: "" });
       if (error) throw error;
-      return data as {
-        user_id: string;
-        email: string;
-        first_name: string;
-        last_name: string;
-        created_at: string;
-        has_plate_detection: boolean;
-      }[];
+      return parseAdminAccountCount(data);
     },
-    enabled: isAdmin,
-    refetchInterval: 15 * 60 * 1000, // 15 minutes
+    enabled: canListAccounts,
+    refetchInterval: 15 * 60 * 1000,
   });
 
-  // Fetch all user personas
-  const { data: userPersonas = [] } = useQuery({
-    queryKey: ["admin-user-personas"],
+  const {
+    data: userSearchResult,
+    isLoading: usersLoading,
+    isPlaceholderData: usersArePlaceholder,
+    isError: usersError,
+  } = useQuery({
+    queryKey: ["admin-search-users", debouncedSearch, effectiveUserPage],
     queryFn: async () => {
-      const { data, error } = await supabase.from("user_preferences").select("user_id, persona");
+      const args = adminUserSearchArgs(debouncedSearch, effectiveUserPage);
+      const [listResult, countResult] = await Promise.all([
+        supabase.rpc("search_users", args),
+        supabase.rpc("count_admin_users", { search_term: debouncedSearch }),
+      ]);
+      if (listResult.error) throw listResult.error;
+      if (countResult.error) throw countResult.error;
+      return {
+        users: (listResult.data ?? []) as AdminUserRow[],
+        total: parseAdminAccountCount(countResult.data),
+      };
+    },
+    enabled: canListAccounts,
+    placeholderData: (previousData, previousQuery) => {
+      if (previousQuery?.queryKey[1] !== debouncedSearch) return undefined;
+      return previousData;
+    },
+    refetchInterval: 15 * 60 * 1000,
+  });
+
+  const searchedUsers = userSearchResult?.users;
+  const userListTotal = userSearchResult?.total ?? 0;
+  const userPageCount = adminUserPageCount(userListTotal);
+
+  useEffect(() => {
+    if (userListTotal > 0 && effectiveUserPage > userPageCount - 1) {
+      setUserPage(userPageCount - 1);
+    }
+  }, [userListTotal, effectiveUserPage, userPageCount]);
+
+  const pageUserIds = useMemo(
+    () => (searchedUsers ?? []).map((userRow) => userRow.user_id),
+    [searchedUsers],
+  );
+
+  const { data: userPersonas = [] } = useQuery({
+    queryKey: ["admin-user-personas", pageUserIds],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("user_preferences")
+        .select("user_id, persona")
+        .in("user_id", pageUserIds);
       if (error) throw error;
       return data as { user_id: string; persona: string | null }[];
     },
-    enabled: isAdmin,
+    enabled: canListAccounts && pageUserIds.length > 0,
     refetchInterval: 15 * 60 * 1000,
   });
 
@@ -361,7 +422,7 @@ const Admin = () => {
   }, [userPersonas]);
 
   // Build users list with roles and feedback counts
-  const users: UserWithRole[] = searchedUsers.map((u) => {
+  const users: UserWithRole[] = (searchedUsers ?? []).map((u) => {
     const feedbackCount = feedbacks.filter((f) => f.user_id === u.user_id).length;
     const userFeedbacks = feedbacks.filter((f) => f.user_id === u.user_id);
     const lastActivity =
@@ -692,8 +753,17 @@ const Admin = () => {
                   <p className="text-xl font-bold leading-none">{respondedCount}</p>
                   <p className="text-xs opacity-80">Répondus</p>
                 </div>
-                <div className="bg-primary-foreground/10 rounded-xl px-3 py-1.5 min-w-[4.5rem]">
-                  <p className="text-xl font-bold leading-none">{users.length}</p>
+                <div
+                  className="bg-primary-foreground/10 rounded-xl px-3 py-1.5 min-w-[4.5rem]"
+                  title="Nombre exact de comptes"
+                >
+                  <p className="text-xl font-bold leading-none">
+                    <AdminAccountCountValue
+                      count={accountCount}
+                      isLoading={accountCountLoading}
+                      isError={accountCountError}
+                    />
+                  </p>
                   <p className="text-xs opacity-80">Utilisateurs</p>
                 </div>
                 <div className="bg-primary-foreground/10 rounded-xl px-3 py-1.5 min-w-[4.5rem]">
@@ -758,7 +828,7 @@ const Admin = () => {
               {adminRole !== "viewer" && (
                 <TabsTrigger value="users" className="flex items-center gap-1 text-xs sm:text-sm">
                   <Users className="w-4 h-4" />
-                  <span className="hidden sm:inline">Users</span>
+                  <span className="hidden sm:inline">Utilisateurs</span>
                 </TabsTrigger>
               )}
               <TabsTrigger value="costs" className="flex items-center gap-1 text-xs sm:text-sm">
@@ -1141,11 +1211,11 @@ const Admin = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex gap-2 mb-4">
+                  <div className="flex gap-2 mb-2">
                     <div className="relative flex-1">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input
-                        placeholder="Rechercher par prénom, nom ou email..."
+                        placeholder="Rechercher par prénom, nom ou e-mail..."
                         value={userSearch}
                         onChange={(e) => setUserSearch(e.target.value)}
                         onKeyDown={(e) => {
@@ -1156,10 +1226,17 @@ const Admin = () => {
                         className="pl-10"
                       />
                     </div>
-                    <Button onClick={() => setDebouncedSearch(userSearch)} variant="outline">
+                    <Button
+                      type="button"
+                      onClick={() => setDebouncedSearch(userSearch)}
+                      variant="outline"
+                    >
                       <Search className="w-4 h-4" />
                     </Button>
                   </div>
+                  <p className="text-xs text-muted-foreground mb-4">
+                    La recherche par nom ou e-mail porte sur tous les comptes.
+                  </p>
 
                   {usersLoading || rolesLoading ? (
                     <div className="space-y-2">
@@ -1167,13 +1244,20 @@ const Admin = () => {
                         <Skeleton key={i} className="h-16 w-full" />
                       ))}
                     </div>
+                  ) : usersError && !userSearchResult ? (
+                    <p className="text-center py-8 text-sm text-destructive">
+                      Impossible de charger les comptes.
+                    </p>
                   ) : filteredUsers.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
                       <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
                       <p>Aucun utilisateur trouvé</p>
                     </div>
                   ) : (
-                    <ScrollArea className="h-[400px]">
+                    <ScrollArea
+                      key={`${debouncedSearch}-${effectiveUserPage}`}
+                      className={`h-[400px] ${usersArePlaceholder ? "opacity-70" : ""}`}
+                    >
                       <div className="space-y-2">
                         {filteredUsers.map((u) => (
                           <div
@@ -1354,6 +1438,12 @@ const Admin = () => {
                       </div>
                     </ScrollArea>
                   )}
+                  <AdminUserPagination
+                    page={effectiveUserPage}
+                    total={userListTotal}
+                    onPageChange={setUserPage}
+                    disabled={usersArePlaceholder}
+                  />
                 </CardContent>
               </Card>
             </TabsContent>
