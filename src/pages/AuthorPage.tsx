@@ -55,7 +55,9 @@ export default function AuthorPage({ articles = [] }: { articles?: AuthorArticle
       name: "Avenir Rénovations",
       address: {
         "@type": "PostalAddress",
-        addressLocality: "Saint-Rémy-de-Provence",
+        streetAddress: "255 chemin des Masques",
+        postalCode: "13160",
+        addressLocality: "Châteaurenard",
         addressCountry: "FR",
       },
     },
@@ -148,7 +150,7 @@ export default function AuthorPage({ articles = [] }: { articles?: AuthorArticle
                       </span>
                       <span className="flex items-center gap-1">
                         <MapPin className="h-4 w-4" />
-                        Saint-Rémy-de-Provence
+                        VOLUNTAS NOVARE, 255 chemin des Masques, 13160 Châteaurenard, France
                       </span>
                     </div>
                   </div>
@@ -157,8 +159,7 @@ export default function AuthorPage({ articles = [] }: { articles?: AuthorArticle
                 {/* Bio */}
                 <div className="mt-8 space-y-4 text-foreground/90 leading-relaxed">
                   <p>
-                    <strong>Dirigeant de l'agence Avenir Rénovations</strong> à
-                    Saint-Rémy-de-Provence, je n'ai trouvé aucune solution techniquement
+                    <strong>Dirigeant de l'agence Avenir Rénovations</strong> (VOLUNTAS NOVARE, 255 chemin des Masques, 13160 Châteaurenard, France), je n'ai trouvé aucune solution techniquement
                     satisfaisante pour automatiser le suivi de mes indemnités kilométriques.
                   </p>
                   <p>

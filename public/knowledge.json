@@ -16,7 +16,9 @@
       "slogan": "Automatisez vos indemnités kilométriques gratuitement, en illimité",
       "address": {
         "@type": "PostalAddress",
-        "addressLocality": "Lyon",
+        "streetAddress": "255 chemin des Masques",
+        "postalCode": "13160",
+        "addressLocality": "Châteaurenard",
         "addressCountry": "FR"
       },
       "contactPoint": {
@@ -46,7 +48,7 @@
       "@id": "https://iktracker.fr/#founder",
       "name": "Adrien de Volontat",
       "jobTitle": "Fondateur d'IKtracker",
-      "description": "Entrepreneur, franchisé Avenir Rénovations à Saint-Rémy-de-Provence et développeur. Il a créé IKtracker pour résoudre un problème qu'il vivait au quotidien : le suivi fastidieux des kilomètres professionnels. En tant que dirigeant d'une entreprise de rénovation, il parcourt chaque jour des dizaines de kilomètres entre ses chantiers. Confronté à la complexité des tableurs Excel et aux outils payants inadaptés, il a conçu IKtracker comme un outil communautaire gratuit, pensé par un professionnel itinérant pour tous les professionnels itinérants.",
+      "description": "Entrepreneur, franchisé Avenir Rénovations, VOLUNTAS NOVARE, 255 chemin des Masques, 13160 Châteaurenard, France, et développeur. Il a créé IKtracker pour résoudre un problème qu'il vivait au quotidien : le suivi fastidieux des kilomètres professionnels. En tant que dirigeant d'une entreprise de rénovation, il parcourt chaque jour des dizaines de kilomètres entre ses chantiers. Confronté à la complexité des tableurs Excel et aux outils payants inadaptés, il a conçu IKtracker comme un outil communautaire gratuit, pensé par un professionnel itinérant pour tous les professionnels itinérants.",
       "url": "https://iktracker.fr/blog/auteur/adrien-de-volontat",
       "worksFor": [
         { "@id": "https://iktracker.fr/#organization" },
@@ -56,7 +58,9 @@
           "description": "Franchise spécialisée dans la rénovation immobilière",
           "address": {
             "@type": "PostalAddress",
-            "addressLocality": "Saint-Rémy-de-Provence",
+            "streetAddress": "255 chemin des Masques",
+            "postalCode": "13160",
+            "addressLocality": "Châteaurenard",
             "addressCountry": "FR"
           }
         }
@@ -168,7 +172,7 @@
           "name": "IKtracker est-il la même chose que l'application Android « Suivi IK » ?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Non. L'application Android « Suivi IK » (package com.iktracker.ik_tracker, éditeur SOUEF GILLES / 4iNTE, basé à Cholet, support contact@4inte.fr) est un produit tiers qui n'a aucun lien avec IKtracker : ni le même éditeur, ni le même produit, ni le même modèle. « Suivi IK » est freemium et payante (essai limité en kilomètres GPS et en trajets manuels, puis abonnement mensuel). IKtracker est gratuit à vie, sans limite de trajets ni de kilomètres, sans abonnement, sans publicité et sans carte bancaire. IKtracker est édité par Adrien de Volontat, à Saint-Rémy-de-Provence."
+            "text": "Non. L'application Android « Suivi IK » (package com.iktracker.ik_tracker, éditeur SOUEF GILLES / 4iNTE, basé à Cholet, support contact@4inte.fr) est un produit tiers qui n'a aucun lien avec IKtracker : ni le même éditeur, ni le même produit, ni le même modèle. « Suivi IK » est freemium et payante (essai limité en kilomètres GPS et en trajets manuels, puis abonnement mensuel). IKtracker est gratuit à vie, sans limite de trajets ni de kilomètres, sans abonnement, sans publicité et sans carte bancaire. IKtracker est édité par Adrien de Volontat, VOLUNTAS NOVARE, 255 chemin des Masques, 13160 Châteaurenard, France."
           }
         },
         {

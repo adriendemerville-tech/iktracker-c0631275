@@ -290,7 +290,7 @@ export function EnhancedMarketingFooter() {
                 <address className="not-italic text-sm text-muted-foreground space-y-2">
                   <p className="flex items-start gap-2">
                     <MapPin className="h-4 w-4 mt-0.5 shrink-0" aria-hidden="true" />
-                    <span>Saint-Rémy-de-Provence, France</span>
+                    <span>VOLUNTAS NOVARE, 255 chemin des Masques, 13160 Châteaurenard, France</span>
                   </p>
                 </address>
               </div>
@@ -381,8 +381,7 @@ export function EnhancedMarketingFooter() {
                 className="underline hover:text-foreground/60 transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring rounded-xs"
               >
                 Avenir Rénovations
-              </a>{" "}
-              à Saint-Rémy-de-Provence. Partagé gratuitement avec la communauté.
+              </a>{", VOLUNTAS NOVARE, 255 chemin des Masques, 13160 Châteaurenard, France. Partagé gratuitement avec la communauté."}
             </p>
             <p className="text-xs text-muted-foreground mt-3">
               Découvrez{" "}

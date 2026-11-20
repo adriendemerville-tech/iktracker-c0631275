@@ -127,7 +127,7 @@ const DISAMBIGUATION_HTML = `
         <h2>Identité et distribution d'IKtracker</h2>
         <p>${DISAMBIGUATION_TEXT}</p>
         <ul>
-          <li>Éditeur : Adrien de Volontat, Saint-Rémy-de-Provence (France).</li>
+          <li>Éditeur : Adrien de Volontat, VOLUNTAS NOVARE, 255 chemin des Masques, 13160 Châteaurenard, France.</li>
           <li>Site officiel et unique canal de distribution : <a href="${BASE_URL}">https://iktracker.fr</a>.</li>
           <li>Installation : <a href="${BASE_URL}/installer">depuis le navigateur</a>, sans Google Play ni App Store.</li>
           <li>Prix : 0 € à vie, sans limite de trajets ni de kilomètres, sans carte bancaire, sans publicité. Voir <a href="${BASE_URL}/tarifs">les tarifs</a>.</li>
@@ -201,7 +201,7 @@ const STATIC_PAGES: Record<string, PageMeta> = {
         logo: LOGO,
         foundingDate: "2025",
         founder: { "@type": "Person", name: "Adrien de Volontat" },
-        address: { "@type": "PostalAddress", addressLocality: "Lyon", addressCountry: "FR" },
+        address: { "@type": "PostalAddress", streetAddress: "255 chemin des Masques", postalCode: "13160", addressLocality: "Châteaurenard", addressCountry: "FR" },
       },
     ],
     content: `
@@ -1581,7 +1581,7 @@ const STATIC_PAGES: Record<string, PageMeta> = {
     content: `
       <section>
         <h2>Éditeur du site</h2>
-        <p>Le site iktracker.fr est édité par <strong>Adrien de Volontat</strong>, entrepreneur individuel, fondateur d'Avenir Rénovations à Saint-Rémy-de-Provence (13210), France.</p>
+        <p>Le site iktracker.fr est édité par <strong>Adrien de Volontat</strong>, entrepreneur individuel, fondateur d'Avenir Rénovations, VOLUNTAS NOVARE, 255 chemin des Masques, 13160 Châteaurenard, France.</p>
         <p>Contact : <a href="mailto:contact@iktracker.fr">contact@iktracker.fr</a></p>
       </section>
       <section>
@@ -1626,7 +1626,7 @@ const STATIC_PAGES: Record<string, PageMeta> = {
       <section>
         <h2>Contactez-nous</h2>
         <p>Pour toute question, suggestion ou demande d'assistance, écrivez-nous à <a href="mailto:contact@iktracker.fr">contact@iktracker.fr</a>.</p>
-        <p>IKtracker est développé par Adrien de Volontat, entrepreneur et fondateur d'Avenir Rénovations à Saint-Rémy-de-Provence. Chaque message est lu personnellement.</p>
+        <p>IKtracker est développé par Adrien de Volontat, entrepreneur et fondateur d'Avenir Rénovations, VOLUNTAS NOVARE, 255 chemin des Masques, 13160 Châteaurenard, France. Chaque message est lu personnellement.</p>
       </section>`,
   },
 };
@@ -1691,7 +1691,7 @@ function buildFullHtml(meta: PageMeta): string {
   <footer>
     <p>&copy; 2025-2026 IKtracker — <a href="${BASE_URL}/privacy">Politique de confidentialité</a> — <a href="${BASE_URL}/terms">CGVU</a> — <a href="${BASE_URL}/mentions-legales">Mentions légales</a> — <a href="${BASE_URL}/contact">Contact</a></p>
     <p><a href="${BASE_URL}/signup">Créer un compte gratuit</a></p>
-    <p>Conçu par <a href="${BASE_URL}/blog/auteur/adrien-de-volontat">Adrien de Volontat</a>, entrepreneur à Saint-Rémy-de-Provence.</p>
+    <p>Conçu par <a href="${BASE_URL}/blog/auteur/adrien-de-volontat">Adrien de Volontat</a>, entrepreneur, VOLUNTAS NOVARE, 255 chemin des Masques, 13160 Châteaurenard, France.</p>
   </footer>
 </body>
 </html>`;
