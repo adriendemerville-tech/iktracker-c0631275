@@ -30,7 +30,7 @@ export const Route = createFileRoute("/blog/auteur/$slug")({
       {
         name: "description",
         content:
-          "Découvrez Adrien de Volontat, fondateur d'IKtracker et dirigeant d'Avenir Rénovations à Saint-Rémy-de-Provence. Un outil créé par un professionnel pour les professionnels.",
+          "Découvrez Adrien de Volontat, fondateur d'IKtracker et dirigeant d'Avenir Rénovations, VOLUNTAS NOVARE, 255 chemin des Masques, 13160 Châteaurenard, France. Un outil créé par un professionnel pour les professionnels.",
       },
       { property: "og:title", content: "Adrien de Volontat - Fondateur IKtracker" },
       {
