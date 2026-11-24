@@ -1,10 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getPublicTripStats } from "@/lib/trip-stats.functions";
+import { publicTripStatsSeed } from "@/lib/trip-stats";
 
 interface UseLiveTripStatsOptions {
-  initialTripCount?: number;
-  initialTotalKm?: number;
+  initialTripCount?: number | null;
+  initialTotalKm?: number | null;
   refetchInterval?: number;
 }
 
@@ -14,11 +15,17 @@ export function useLiveTripStats({
   refetchInterval = 10 * 60_000,
 }: UseLiveTripStatsOptions) {
   const fetchStats = useServerFn(getPublicTripStats);
+  const seeded = publicTripStatsSeed(initialTripCount, initialTotalKm);
 
   const { data, isLoading } = useQuery({
     queryKey: ["public-trip-stats"],
-    queryFn: async () => fetchStats(),
-    initialData: { tripCount: initialTripCount ?? 0, totalKm: initialTotalKm ?? 0 },
+    queryFn: async () => {
+      const result = await fetchStats();
+      const stats = publicTripStatsSeed(result?.tripCount, result?.totalKm);
+      if (!stats) throw new Error("Public trip stats unavailable");
+      return stats;
+    },
+    initialData: seeded ?? undefined,
     staleTime: 10 * 60_000,
     refetchInterval,
     refetchOnWindowFocus: false,
@@ -26,8 +33,8 @@ export function useLiveTripStats({
   });
 
   return {
-    tripCount: data?.tripCount ?? initialTripCount ?? 0,
-    totalKm: data?.totalKm ?? initialTotalKm ?? 0,
+    tripCount: typeof data?.tripCount === "number" ? data.tripCount : null,
+    totalKm: typeof data?.totalKm === "number" ? data.totalKm : null,
     isLoading,
   };
 }

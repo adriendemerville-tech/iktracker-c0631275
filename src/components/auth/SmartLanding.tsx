@@ -6,8 +6,8 @@ import type { PublicReviewItem } from "@/components/marketing/TestimonialsCarous
 
 interface SmartLandingProps {
   initialUserCount?: number | null;
-  initialTripCount?: number;
-  initialTotalKm?: number;
+  initialTripCount?: number | null;
+  initialTotalKm?: number | null;
   reviews?: PublicReviewItem[];
 }
 
