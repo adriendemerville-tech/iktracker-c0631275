@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { getRegisteredUserCount } from "@/lib/user-count.functions";
 
 interface UseLiveUserCountOptions {
-  initialCount?: number;
+  initialCount?: number | null;
   refetchInterval?: number;
 }
 
@@ -12,19 +12,23 @@ export function useLiveUserCount({
   refetchInterval = 10 * 60_000,
 }: UseLiveUserCountOptions) {
   const fetchCount = useServerFn(getRegisteredUserCount);
+  const hasInitial = typeof initialCount === "number";
 
   const { data, isLoading } = useQuery({
     queryKey: ["registered-user-count"],
     queryFn: async () => {
       const result = await fetchCount();
+      if (typeof result.count !== "number") {
+        throw new Error("Registered user count unavailable");
+      }
       return result.count;
     },
-    initialData: initialCount,
+    initialData: hasInitial ? initialCount : undefined,
     staleTime: 10 * 60_000,
     refetchInterval,
     refetchOnWindowFocus: false,
     refetchOnReconnect: true,
   });
 
-  return { count: data ?? initialCount ?? 1000, isLoading };
+  return { count: typeof data === "number" ? data : null, isLoading };
 }
