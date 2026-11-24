@@ -5,7 +5,7 @@ import Landing from "@/pages/Landing";
 import type { PublicReviewItem } from "@/components/marketing/TestimonialsCarousel";
 
 interface SmartLandingProps {
-  initialUserCount?: number;
+  initialUserCount?: number | null;
   initialTripCount?: number;
   initialTotalKm?: number;
   reviews?: PublicReviewItem[];

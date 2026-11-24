@@ -50,7 +50,7 @@ import {
 } from "lucide-react";
 
 interface LandingProps {
-  initialUserCount?: number;
+  initialUserCount?: number | null;
   initialTripCount?: number;
   initialTotalKm?: number;
   reviews?: PublicReviewItem[];
@@ -396,7 +396,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm, reviews }
                 <div className="mt-6 grid grid-cols-3 gap-3 sm:gap-4 items-stretch">
                   <Counter
                     value={liveUserCount}
-                    initialValue={initialUserCount ?? 1000}
+                    initialValue={initialUserCount ?? null}
                     label="inscrits"
                     unit=""
                     variant="accent"

@@ -21,24 +21,35 @@ export async function cachedStat<T>(key: string, loader: () => Promise<T>): Prom
   const now = Date.now();
   const entry = store.get(key) as CacheEntry<T> | undefined;
 
-  if (entry && entry.expiresAt > now) return entry.value;
+  if (entry && entry.value !== undefined && entry.expiresAt > now) return entry.value;
 
-  const refresh =
-    entry?.inflight ??
-    (async () => {
-      try {
-        const value = await loader();
-        store.set(key, { value, expiresAt: Date.now() + TTL_MS });
-        return value;
-      } catch (err) {
-        if (entry) {
-          // stale-while-error: extend the old value for a short window
-          store.set(key, { value: entry.value, expiresAt: Date.now() + 60_000 });
-          return entry.value;
-        }
-        throw err;
+  // Une lecture déjà en cours est partagée. Sans valeur précédente, on l'attend.
+  if (entry?.inflight) {
+    if (entry.value !== undefined) {
+      void entry.inflight.catch(() => {});
+      return entry.value;
+    }
+    return entry.inflight;
+  }
+
+  const refresh = (async () => {
+    try {
+      const value = await loader();
+      store.set(key, { value, expiresAt: Date.now() + TTL_MS });
+      return value;
+    } catch (err) {
+      const previous = store.get(key) as CacheEntry<T> | undefined;
+      if (previous && previous.value !== undefined) {
+        // stale-while-error: extend the old value for a short window
+        store.set(key, { value: previous.value, expiresAt: Date.now() + 60_000 });
+        return previous.value;
       }
-    })();
+      // Échec à froid : on retire la clé pour qu'un appel suivant réessaie,
+      // au lieu de resservir une promesse rejetée ou une valeur absente.
+      store.delete(key);
+      throw err;
+    }
+  })();
 
   store.set(key, {
     value: entry?.value as T,
@@ -48,7 +59,7 @@ export async function cachedStat<T>(key: string, loader: () => Promise<T>): Prom
 
   // stale-while-revalidate : dès qu'on a une valeur, on la renvoie immédiatement
   // et le refresh continue en tâche de fond → le TTFB ne dépend plus de la DB.
-  if (entry) {
+  if (entry && entry.value !== undefined) {
     void refresh.catch(() => {});
     return entry.value;
   }
@@ -102,5 +113,3 @@ export function warmStat<T>(key: string, loader: () => Promise<T>): void {
   if (entry && entry.expiresAt > Date.now()) return;
   void cachedStat(key, loader).catch(() => {});
 }
-
-

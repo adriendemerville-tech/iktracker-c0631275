@@ -2,12 +2,13 @@ import { cn } from "@/lib/utils";
 import { useEffect, useState, useRef } from "react";
 
 interface CounterProps {
-  value: number;
+  value: number | null;
   label: string;
   unit: string;
   variant?: "default" | "accent";
   decimals?: number;
-  initialValue?: number;
+  /** Null masque le chiffre (compteur indisponible) au lieu d'afficher un nombre faux. */
+  initialValue?: number | null;
 }
 
 export function Counter({
@@ -18,7 +19,7 @@ export function Counter({
   decimals = 0,
   initialValue = 0,
 }: CounterProps) {
-  const [displayValue, setDisplayValue] = useState(initialValue);
+  const [displayValue, setDisplayValue] = useState<number | null>(initialValue);
   const animationRef = useRef<number | undefined>(undefined);
   const startTimeRef = useRef<number | null>(null);
   const prevValueRef = useRef<number | null>(null);
@@ -27,6 +28,14 @@ export function Counter({
   const duration = variant === "default" ? 2000 : 1200;
 
   useEffect(() => {
+    if (value == null) {
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+      setDisplayValue(null);
+      prevValueRef.current = null;
+      isFirstRender.current = false;
+      return;
+    }
+
     // On first render, animate from 0
     // On subsequent renders, animate from previous value
     const startValue = isFirstRender.current ? 0 : (prevValueRef.current ?? 0);
@@ -73,10 +82,13 @@ export function Counter({
     };
   }, [value, duration]);
 
-  const formattedValue = displayValue.toLocaleString("fr-FR", {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  });
+  const formattedValue =
+    displayValue == null
+      ? null
+      : displayValue.toLocaleString("fr-FR", {
+          minimumFractionDigits: decimals,
+          maximumFractionDigits: decimals,
+        });
 
   return (
     <div
@@ -94,14 +106,31 @@ export function Counter({
         {label}
       </span>
       <div className="flex items-baseline gap-0.5 sm:gap-1.5">
-        <span
-          className={cn(
-            "text-xl sm:text-3xl font-urbanist font-extrabold tabular-nums tracking-tight",
-            variant === "default" ? "text-foreground" : "text-emerald-600 dark:text-emerald-400",
-          )}
-        >
-          {formattedValue}
-        </span>
+        {formattedValue == null ? (
+          <>
+            <span
+              aria-hidden="true"
+              className={cn(
+                "text-xl sm:text-3xl font-urbanist font-extrabold tabular-nums tracking-tight",
+                variant === "default"
+                  ? "text-foreground"
+                  : "text-emerald-600 dark:text-emerald-400",
+              )}
+            >
+              —
+            </span>
+            <span className="sr-only">indisponible</span>
+          </>
+        ) : (
+          <span
+            className={cn(
+              "text-xl sm:text-3xl font-urbanist font-extrabold tabular-nums tracking-tight",
+              variant === "default" ? "text-foreground" : "text-emerald-600 dark:text-emerald-400",
+            )}
+          >
+            {formattedValue}
+          </span>
+        )}
         <span className="text-[10px] sm:text-sm font-urbanist font-semibold text-muted-foreground">
           {unit}
         </span>
