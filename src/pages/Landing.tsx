@@ -51,8 +51,8 @@ import {
 
 interface LandingProps {
   initialUserCount?: number | null;
-  initialTripCount?: number;
-  initialTotalKm?: number;
+  initialTripCount?: number | null;
+  initialTotalKm?: number | null;
   reviews?: PublicReviewItem[];
 }
 
@@ -404,7 +404,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm, reviews }
                   />
                   <Counter
                     value={liveTripCount}
-                    initialValue={initialTripCount ?? 0}
+                    initialValue={initialTripCount ?? null}
                     label="trajets enregistrés"
                     unit=""
                     variant="accent"
@@ -412,7 +412,7 @@ const Landing = ({ initialUserCount, initialTripCount, initialTotalKm, reviews }
                   />
                   <Counter
                     value={liveTotalKm}
-                    initialValue={initialTotalKm ?? 0}
+                    initialValue={initialTotalKm ?? null}
                     label="kilomètres suivis"
                     unit="km"
                     variant="accent"

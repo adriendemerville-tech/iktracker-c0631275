@@ -36,9 +36,13 @@ export function Counter({
       return;
     }
 
-    // On first render, animate from 0
-    // On subsequent renders, animate from previous value
-    const startValue = isFirstRender.current ? 0 : (prevValueRef.current ?? 0);
+    // Le chiffre déjà peint (rendu serveur, puis la valeur précédente) est le
+    // point de départ. Le total reste en place tant qu'il n'a pas changé.
+    const startValue = isFirstRender.current
+      ? typeof initialValue === "number"
+        ? initialValue
+        : 0
+      : (prevValueRef.current ?? 0);
     const endValue = value;
 
     isFirstRender.current = false;
@@ -80,7 +84,7 @@ export function Counter({
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
-  }, [value, duration]);
+  }, [value, duration, initialValue]);
 
   const formattedValue =
     displayValue == null
