@@ -3307,10 +3307,7 @@ export type Database = {
       cleanup_background_jobs: { Args: never; Returns: Json }
       cleanup_expired_shares: { Args: never; Returns: undefined }
       cleanup_old_phone_numbers: { Args: never; Returns: undefined }
-      count_admin_users: {
-        Args: { search_term?: string }
-        Returns: number
-      }
+      count_admin_users: { Args: { search_term?: string }; Returns: number }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
@@ -3695,7 +3692,11 @@ export type Database = {
         }
       }
       search_users: {
-        Args: { limit_count?: number; offset_count?: number; search_term?: string }
+        Args: {
+          limit_count?: number
+          offset_count?: number
+          search_term?: string
+        }
         Returns: {
           created_at: string
           email: string
